@@ -12,6 +12,8 @@
     <AssemblyName>Tenor</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>tenor.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -105,6 +107,7 @@
   <ItemGroup>
     <None Include="BLL\BLLBased-CS.zeus" />
     <None Include="BLL\BLLBased.zeus" />
+    <None Include="tenor.snk" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Web\mime.xml" />
