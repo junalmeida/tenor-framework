@@ -12,15 +12,20 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		MonoRelease|Any CPU = MonoRelease|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{5FAE8827-5AED-4918-9FFB-85B7E91901F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5FAE8827-5AED-4918-9FFB-85B7E91901F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FAE8827-5AED-4918-9FFB-85B7E91901F5}.MonoRelease|Any CPU.ActiveCfg = MonoRelease|Any CPU
+		{5FAE8827-5AED-4918-9FFB-85B7E91901F5}.MonoRelease|Any CPU.Build.0 = MonoRelease|Any CPU
 		{5FAE8827-5AED-4918-9FFB-85B7E91901F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5FAE8827-5AED-4918-9FFB-85B7E91901F5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{87AB0401-5634-4DAE-8ED9-77DCE524FD80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{87AB0401-5634-4DAE-8ED9-77DCE524FD80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87AB0401-5634-4DAE-8ED9-77DCE524FD80}.MonoRelease|Any CPU.ActiveCfg = MonoRelease|Any CPU
+		{87AB0401-5634-4DAE-8ED9-77DCE524FD80}.MonoRelease|Any CPU.Build.0 = MonoRelease|Any CPU
 		{87AB0401-5634-4DAE-8ED9-77DCE524FD80}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{87AB0401-5634-4DAE-8ED9-77DCE524FD80}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection

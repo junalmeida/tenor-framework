@@ -30,13 +30,84 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'MonoRelease|AnyCPU' ">
+    <OutputPath>bin\MonoRelease\</OutputPath>
+    <DefineConstants>TRACE;MONO</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BLL\BLLBase.cs" />
+    <Compile Include="BLL\BLLCollection.cs" />
+    <Compile Include="BLL\Util.cs" />
+    <Compile Include="Configuration\Diagnostics.cs" />
+    <Compile Include="Configuration\HttpModule.cs" />
+    <Compile Include="Configuration\Localization.cs" />
+    <Compile Include="Configuration\MailingPanel.cs" />
+    <Compile Include="Configuration\MailMessage.cs" />
+    <Compile Include="Configuration\Resources.cs" />
+    <Compile Include="Data\Attributes.cs" />
+    <Compile Include="Data\BulkOperations\BulkInsert.cs" />
+    <Compile Include="Data\DataTable.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Data\DummyDataSource.cs" />
+    <Compile Include="Data\Exceptions.cs" />
+    <Compile Include="Data\Helper.cs" />
+    <Compile Include="Data\Parameter.cs" />
+    <Compile Include="Data\SearchOptions\ConditionCollection.cs" />
+    <Compile Include="Data\SearchOptions\Operators.cs" />
+    <Compile Include="Data\SearchOptions\SearchCondition.cs" />
+    <Compile Include="Data\SearchOptions\SearchOptions.cs" />
+    <Compile Include="Data\SearchOptions\SortingCollection.cs" />
+    <Compile Include="Data\SearchOptions\SortingCriteria.cs" />
+    <Compile Include="Diagnostics\Diags.cs" />
+    <Compile Include="Drawing\IImage.cs" />
+    <Compile Include="Drawing\Image.cs" />
+    <Compile Include="IO\BinaryFile.cs" />
+    <Compile Include="Mail\MailMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Security\Captcha.cs" />
+    <Compile Include="Text\KnuthEd2SoundEx.cs" />
+    <Compile Include="Text\NumberToWordsENUS.cs" />
+    <Compile Include="Text\NumeroPorExtensoPTBR.cs" />
+    <Compile Include="Text\SoundEx.cs" />
+    <Compile Include="Text\Strings.cs" />
+    <Compile Include="Text\Strings_Number.cs" />
+    <Compile Include="Web\HttpModule.cs" />
+    <Compile Include="Web\IResponseObject.cs" />
+    <Compile Include="Web\TenorModule\Cache.cs" />
+    <Compile Include="Web\TenorModule\Capcha.cs" />
+    <Compile Include="Web\TenorModule\Chart.cs" />
+    <Compile Include="Web\TenorModule\DynamicImageButton.cs" />
+    <Compile Include="Web\TenorModule\ErrorHandler.cs" />
+    <Compile Include="Web\TenorModule\IEFix.cs" />
+    <Compile Include="Web\TenorModule\InstanceRequest.cs" />
+    <Compile Include="Web\TenorModule\InstanceUrl.cs" />
+    <Compile Include="Web\TenorModule\MimeType.cs" />
+    <Compile Include="Web\TenorModule\ObjectRequest.cs" />
+    <Compile Include="Web\TenorModule\RegisterObject.cs" />
+    <Compile Include="Web\TenorModule\TinyMCE.cs" />
+    <Compile Include="Web\UI\MailingPanel\MailingPanel.cs" />
+    <Compile Include="Web\UI\MailingPanel\MailingViewCollection.cs" />
+    <Compile Include="Web\UI\MailingPanel\MailingViews.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="BLL\BLLBased-CS.zeus" />
+    <None Include="BLL\BLLBased.zeus" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Web\mime.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
