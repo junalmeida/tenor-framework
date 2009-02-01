@@ -556,7 +556,7 @@ if (dolazyload) { %>
 		public override string TableName
 		{
 			get {
-				return "<%= tbl.Schema %>";
+				return "<%= tbl.Name %>";
 			}
 		}
 #endregion
