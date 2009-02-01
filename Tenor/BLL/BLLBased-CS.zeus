@@ -230,26 +230,23 @@ public class GeneratedTemplate : DotNetScriptTemplate
 	public void gerarClasse(string fileName)
 	{
 
-%>using Terno.Data;
+%>
 using System.Collections.Generic;
 using System.Configuration;
 using System;
 
-using Terno.BLL;
+using Tenor.BLL;
+using Tenor.Data;
 
-namespace <%=Namespace%> {
+namespace <%=Namespace%>
+{
 	/// <summary>
 	/// Representa a tabela <%= tbl.Name %>.
 	/// <%= tbl.Description.Replace("\r\n","\r\n	///") %>
 	/// </summary>
 	[Serializable()]
-	public partial class <%= tbl.Name %> : BLLBase {
-
-		public override string SchemaName {
-			get {
-				return "<%= tbl.Schema %>";
-			}
-		}
+	public partial class <%= tbl.Name %> : BLLBase
+	{
 		
 #region Campos
 <%
@@ -507,7 +504,7 @@ if (dolazyload) { %>
 
 #endregion
 
-#region Constructors
+#region Constructors And Metadata
 
 		public <%= tbl.Name %>() { }
 
@@ -548,6 +545,20 @@ if (dolazyload) { %>
 			Bind();
 		}
 
+
+		public override string SchemaName
+		{
+			get {
+				return "<%= tbl.Schema %>";
+			}
+		}
+		
+		public override string TableName
+		{
+			get {
+				return "<%= tbl.Schema %>";
+			}
+		}
 #endregion
 
 #region Search
