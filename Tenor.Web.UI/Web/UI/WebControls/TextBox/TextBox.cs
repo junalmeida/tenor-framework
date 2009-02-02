@@ -168,7 +168,8 @@ namespace Tenor
 					
 					#region "Properties "
 					//Desativa a propriedade TextMode da classe base
-					[EditorBrowsable(EditorBrowsableState.Never), Browsable(false), Obsolete("Use TextBoxMode instead", true)]public override System.Web.UI.WebControls.TextBoxMode TextMode
+					[EditorBrowsable(EditorBrowsableState.Never), Browsable(false)]
+                    public override System.Web.UI.WebControls.TextBoxMode TextMode
 					{
 						get
 						{
@@ -177,6 +178,7 @@ namespace Tenor
 						set
 						{
 							base.TextMode = value;
+                            throw new NotSupportedException("Use TextBoxMode instead.");
 						}
 					}
 					

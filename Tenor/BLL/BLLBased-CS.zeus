@@ -75,6 +75,8 @@ public class GeneratedGui : DotNetScriptGui
 	
 	public void bindTables(string sDatabase)
 	{
+		string[] tabelas = ((string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Tabelas","")).Split(';');
+	
 		//GuiLabel lblError = ui["lblError"] as GuiLabel;
 		int count = 0;
 	
@@ -84,6 +86,14 @@ public class GeneratedGui : DotNetScriptGui
 		{	
 			IDatabase db = MyMeta.Databases[sDatabase];
 			cmbTable.BindData(db.Tables);
+			
+			foreach(string item in tabelas) 
+			{
+				try 
+				{
+					cmbTable.Select(item);
+				} catch {}
+			}
 			//int index = cmbTable.Add("0", "(Todas)");
 			//lblError.Text = "";
 		}
@@ -165,10 +175,15 @@ public class GeneratedTemplate : DotNetScriptTemplate
 		this.tagHeaderAbrir = "<" + "%" + "@";
 		this.tagHeaderFechar = "%" + ">";
 		
-		
+		string tabelasEscolhidas = string.Empty;
+		foreach(object item in this.tabelaEscolhida) 
+		{
+			tabelasEscolhidas += ";" + item.ToString();
+		}
 		Registry.CurrentUser.SetValue("BLLBase.NameSpace", this.Namespace);
 		Registry.CurrentUser.SetValue("BLLBase.Pasta", this.outputPath);
 		Registry.CurrentUser.SetValue("BLLBase.Banco", this.nomeDB);
+		Registry.CurrentUser.SetValue("BLLBase.Tabelas", tabelasEscolhidas);
 	}
 
 	public override void Render()
@@ -197,7 +212,7 @@ public class GeneratedTemplate : DotNetScriptTemplate
 		
 		try {
 			System.Diagnostics.Process.Start(Environment.ExpandEnvironmentVariables("%SystemRoot%") + "\\explorer.exe", "\"" + this.outputPath + "\"");
-		} catch (Exception e) { }
+		} catch { }
 		
 	}
 	
@@ -241,10 +256,10 @@ using Tenor.Data;
 namespace <%=Namespace%>
 {
 	/// <summary>
-	/// Representa a tabela <%= tbl.Name %>.
+	/// Represents the table <%= tbl.Name %>.
 	/// <%= tbl.Description.Replace("\r\n","\r\n	///") %>
 	/// </summary>
-	[Serializable()]
+	[Serializable(), Table("<%= tbl.Name %>", "<%= tbl.Schema %>")]
 	public partial class <%= tbl.Name %> : BLLBase
 	{
 		
@@ -342,45 +357,56 @@ namespace <%=Namespace%>
 			
 			
 			
-if (dolazyload) { %>
-		private bool _<%= nomeCampo %>_firstaccess = true;
+if (!dolazyload) { 
+%>		private <%= tipoCampo %> _<%= nomeCampo %>;
 <% 
 }
-%>		private <%= tipoCampo %> _<%= nomeCampo %>;
-		/// <summary>
-		/// Campo <%= nomeCampo %>.
+%>		/// <summary>
+		/// Represents the field <%= nomeCampo %>.
 		/// <%= col.Description.Replace("\r\n","\r\n		///") %>
 		/// </summary>
 		<%= field %>
-		public <%= tipoCampo %> <%= nomeCampo %> {
-			get {
-				<%
-				if (dolazyload) {
-				%>if (_<%= nomeCampo %>_firstaccess && !LazyLoadingDisabled) {
-					LoadProperty("<%= nomeCampo %>");
-				}
-<%				}
-				%>return _<%= nomeCampo %>;
-			}
-			set {
+		public <%= tipoCampo %> <%= nomeCampo %>
+		{
+			get
+			{
 <%
 				if (dolazyload) {
-%>				_<%= nomeCampo %>_firstaccess = false;
+%>				return (<%= tipoCampo %>)GetLazyProperty();
 <%				}
+				else
+				{
+%>				return _<%= nomeCampo %>;
+<%
+				}
+%>			}
+			set
+			{
+<%
+				if (dolazyload) {
+%>				SetLazyProperty(value);
+<%				}
+else 
+{
 				if (tipoCampo == "string" && col.CharacterMaxLength > 0) {
-					%>				if (!string.IsNullOrEmpty(value) && value.Length > <%=col.CharacterMaxLength.ToString()%>) {
+%>				if (!string.IsNullOrEmpty(value) && value.Length > <%=col.CharacterMaxLength.ToString()%>)
+				{
 					throw new InvalidOperationException("Cannot set a string with Length greater than <%=col.CharacterMaxLength.ToString()%>");
 				}
 <%
 				}
-				
-				%>				_<%= nomeCampo %> = value;
+%>				_<%= nomeCampo %> = value;<%
+			}
+%>
 			}
 		}
 <%
 		}
 %>		
 
+		/// <summary>
+		/// Keeps a list of constants with property names.
+		/// </summary>
 		public partial class Campos : object {
 			private Campos() { }
 			
@@ -454,33 +480,22 @@ if (dolazyload) { %>
 			}
 			
 %>
-		private bool _<%= nomeCampo %>_firstaccess = true;
-		private <%= tipoCampo %> _<%= nomeCampo %>;
 		/// <summary>
-		/// 
+		/// Represents the relationship <%=fk.Name%>.
 		/// </summary>
 		<%= atributos %>
-		public <%= tipoCampo %> <%= nomeCampo %> {
-			get {
-				<%
-				if(isNew)
-				{%>if (_<%= nomeCampo %> == null) {
-                    _<%= nomeCampo %> = new <%= tipoCampo + constructor %>;
-                }
-				<%
-				}
-				%>if (_<%= nomeCampo %>_firstaccess && !LazyLoadingDisabled) {
-					_<%= nomeCampo %>_firstaccess = false;
-					LoadForeign("<%= nomeCampo %>", true);
-				}
-				return _<%= nomeCampo %>;
+		public <%= tipoCampo %> <%= nomeCampo %>
+		{
+			get 
+			{
+				return (<%= tipoCampo %>)GetLazyProperty();
 			}<%
 			if(string.IsNullOrEmpty(readOnly))
 			{
 %>
-			set {
-				_<%= nomeCampo %>_firstaccess = false;
-				_<%= nomeCampo %> = value;
+			set
+			{
+				SetLazyProperty(value);
 				<%
 			if (onetoone) {
 				string mynull = "null";
@@ -541,24 +556,11 @@ if (dolazyload) { %>
 		construtor += ", bool LazyLoadingDisabled";
 %>
 		public <%= tbl.Name %>(<%= construtor %>) : base(LazyLoadingDisabled) {
-			<%= assign %>;
+			<%= assign %>
 			Bind();
 		}
 
 
-		public override string SchemaName
-		{
-			get {
-				return "<%= tbl.Schema %>";
-			}
-		}
-		
-		public override string TableName
-		{
-			get {
-				return "<%= tbl.Name %>";
-			}
-		}
 #endregion
 
 #region Search

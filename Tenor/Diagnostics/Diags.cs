@@ -8,6 +8,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Web;
 using System.Web.UI;
+using System.Configuration;
+using System.Data.Common;
+using System.Text;
 
 
 namespace Tenor.Diagnostics
@@ -665,6 +668,72 @@ namespace Tenor.Diagnostics
             public int Compare(System.Reflection.Assembly x, System.Reflection.Assembly y)
             {
                 return string.Compare(x.GetName().Name, y.GetName().Name);
+            }
+        }
+        internal static void DebugSQL(string header, string sql, TenorParameter[] parameters, ConnectionStringSettings connection)
+        {
+            try
+            {
+                if (System.Diagnostics.Debugger.IsAttached)
+                {
+
+                    DbProviderFactory factory = Helper.GetFactory(connection);
+                    StringBuilder traceInfo = new StringBuilder();
+                    traceInfo.AppendLine();
+                    traceInfo.AppendLine(header);
+                    traceInfo.AppendLine(" > " + connection.Name + " (" + connection.ProviderName + ")");
+
+                    if (parameters != null)
+                        foreach (TenorParameter p in parameters)
+                        {
+                            traceInfo.AppendLine("DECLARE @" + p.ParameterName + " " + Helper.GetDbTypeName(p.Value.GetType(), factory));
+                            if (p.Value == null)
+                            {
+                                traceInfo.AppendLine("SET @" + p.ParameterName + " = NULL");
+                            }
+                            else
+                            {
+                                string value;
+                                if (p.Value is bool)
+                                {
+                                    value = Math.Abs(System.Convert.ToInt32(p.Value)).ToString();
+                                }
+                                else if (p.Value is string)
+                                {
+                                    value = "\'" + ((string)p.Value).Replace("\'", "\'\'") + "\'";
+                                }
+                                else if (p.Value is DateTime)
+                                {
+                                    value = "\'" + ((DateTime)p.Value).ToString("yyyy-MM-dd hh:mm:ss") + "\'";
+                                }
+                                else
+                                {
+                                    value = p.Value.ToString();
+                                }
+
+                                traceInfo.AppendLine("SET @" + p.ParameterName + " = " + value);
+                            }
+                        }
+                    traceInfo.AppendLine(sql.ToString());
+
+
+                    string st = Environment.StackTrace;
+                    //string fimDaondeNaoImporta = "Tenor.Disgnostics.Debug.DebugSQL(String sql, TenorParameter[] parameters)" + Environment.NewLine;
+                    //int i = st.IndexOf(fimDaondeNaoImporta);
+                    //if (i > 0)
+                    //{
+                    //    st = st.Substring(i + fimDaondeNaoImporta.Length);
+                    //}
+
+                    traceInfo.AppendLine("> Stack Trace:");
+                    traceInfo.AppendLine(st);
+                    traceInfo.AppendLine("---------------------");
+
+                    System.Diagnostics.Trace.TraceInformation(traceInfo.ToString());
+                }
+            }
+            catch
+            {
             }
         }
     }

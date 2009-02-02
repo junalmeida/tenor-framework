@@ -43,7 +43,11 @@ namespace Tenor
 				DbProviderFactory factory = DbProviderFactories.GetFactory(Connection.ProviderName);
 				return factory;
 			}
-			
+            internal static DbCommandBuilder GetCommandBuilder(ConnectionStringSettings connection)
+            {
+                DbCommandBuilder builder = GetFactory(connection).CreateCommandBuilder();
+                return builder;
+            }
 			
 			///' <summary>
 			///' Cria conexão e adapter para a ConnectionString especificada.
@@ -91,59 +95,54 @@ namespace Tenor
 			/// <summary>
 			/// Resolve o nome do tipo do sistema no banco de dados
 			/// </summary>
-			/// <param name="systemType">Tipo de sistema</param>
-			/// <param name="instance">Instância de BLL Base</param>
+			/// <param name="systemType">A system type</param>
+			/// <param name="factory">A system database factory</param>
 			/// <returns></returns>
 			/// <remarks></remarks>
-			public static string GetDbTypeName(Type systemType, BLL.BLLBase instance)
-			{
-				if (systemType == null)
-				{
-					throw (new ArgumentNullException("systemType"));
-				}
-				else if (instance == null)
-				{
-					throw (new ArgumentNullException("instance"));
-				}
-				
-				string typeName = string.Empty;
-				DbType tipo = DbType.String;
-				
-				System.ComponentModel.TypeConverter conversor = System.ComponentModel.TypeDescriptor.GetConverter(tipo);
-				if (conversor == null)
-				{
-					throw (new Exception("GetDbTypeName: Cannot create converter."));
-				}
-				tipo = (DbType) (conversor.ConvertFrom(systemType.Name));
-				
-				System.Data.Common.DbProviderFactory fac = instance.GetFactory();
-				if (fac == null)
-				{
-					throw (new Exception("instance.GetFactory()"));
-				}
-				else
-				{
-					
-					
-					System.Data.Common.DbParameter param = fac.CreateParameter();
-					if (param == null)
-					{
-						throw (new Exception("GetDbTypeName: Cannot create parameter."));
-					}
-					param.DbType = tipo;
-					
-					foreach (System.Reflection.PropertyInfo prop in param.GetType().GetProperties())
-					{
-						if (prop.Name.Contains("DbType") && ! prop.Name.Equals("DbType"))
-						{
-							typeName = prop.GetValue(param, new object[] {}).ToString();
-							break;
-						}
-					}
-					
-					return typeName;
-				}
-			}
+            public static string GetDbTypeName(Type systemType, DbProviderFactory factory)
+            {
+                if (systemType == null)
+                {
+                    throw (new ArgumentNullException("systemType"));
+                }
+                else if (factory == null)
+                {
+                    throw (new ArgumentNullException("factory"));
+                }
+
+                string typeName = string.Empty;
+                DbType tipo = DbType.String;
+
+                System.ComponentModel.TypeConverter conversor = System.ComponentModel.TypeDescriptor.GetConverter(tipo);
+                if (conversor == null)
+                {
+                    throw (new Exception("GetDbTypeName: Cannot create converter."));
+                }
+                tipo = (DbType)(conversor.ConvertFrom(systemType.Name));
+
+
+
+
+                System.Data.Common.DbParameter param = factory.CreateParameter();
+                if (param == null)
+                {
+                    throw (new Exception("GetDbTypeName: Cannot create parameter."));
+                }
+                param.DbType = tipo;
+
+                foreach (System.Reflection.PropertyInfo prop in param.GetType().GetProperties())
+                {
+                    //This loop is necessary to set dbms specific Parameter properties.
+                    if (prop.Name.Contains("DbType") && !prop.Name.Equals("DbType"))
+                    {
+                        typeName = prop.GetValue(param, new object[] { }).ToString();
+                        break;
+                    }
+                }
+
+                return typeName;
+
+            }
 			
 			/// <summary>
 			/// Consulta o banco com os parâmetros passados e retorna uma DataTable
@@ -151,13 +150,9 @@ namespace Tenor
 			/// <param name="sqlSelect">SQL de select</param>
 			/// <param name="parametros">Array de Parametros</param>
 			/// <returns>DataTable com os resultados, ou Nothing, caso nada tenha sido retornado.</returns>
-			public static DataTable ConsultarBanco(string sqlSelect, List<Parameter> parametros)
+			public static DataTable ConsultarBanco(string sqlSelect, List<TenorParameter> parametros)
 			{
-				if (ConfigurationManager.ConnectionStrings.Count == 0)
-				{
-					throw (new Exception("Cannot find a ConnectionString. Check your configuration file."));
-				}
-				return ConsultarBanco(ConfigurationManager.ConnectionStrings[0], sqlSelect, parametros);
+				return ConsultarBanco(BLL.BLLBase.SystemConnection, sqlSelect, parametros);
 			}
 			
 			/// <summary>
@@ -167,7 +162,7 @@ namespace Tenor
 			/// <param name="sqlSelect">SQL de select</param>
 			/// <param name="parametros">Coleção de Parametros</param>
 			/// <returns>DataTable com os resultados, ou Nothing, caso nada tenha sido retornado.</returns>
-			public static DataTable ConsultarBanco(ConnectionStringSettings ConnectionString, string sqlSelect, List<Parameter> parametros)
+			public static DataTable ConsultarBanco(ConnectionStringSettings ConnectionString, string sqlSelect, List<TenorParameter> parametros)
 			{
 				DbProviderFactory factory = GetFactory(ConnectionString);
 				
@@ -177,59 +172,12 @@ namespace Tenor
 				conn.ConnectionString = ConnectionString.ConnectionString;
 				DbCommand cmd = null;
 				DbDataReader reader;
-				
-				
+
 				try
 				{
 					if (System.Diagnostics.Debugger.IsAttached)
 					{
-						
-						System.Text.StringBuilder traceInfo = new System.Text.StringBuilder();
-						traceInfo.AppendLine("Helper: ConsultarBanco()");
-						traceInfo.AppendLine(" > " + ConnectionString.ConnectionString);
-						if (parametros != null)
-						{
-							foreach (Parameter p in parametros)
-							{
-								traceInfo.AppendLine("DECLARE " + p.ParameterPrefix + p.ParameterName + " " + p.DbTypeName);
-								if (p.Value == null)
-								{
-									traceInfo.AppendLine("SET " + p.ParameterPrefix + p.ParameterName + " = NULL");
-								}
-								else
-								{
-									string value = p.Value.ToString();
-									if (p.Value is bool)
-									{
-										value = Math.Abs(System.Convert.ToInt32(p.Value)).ToString();
-									}
-									
-									if ((((((p.DbType == DbType.String) || (p.DbType == DbType.AnsiString)) || (p.DbType == DbType.AnsiStringFixedLength)) || (p.DbType == DbType.DateTime)) || (p.DbType == DbType.Date)) || (p.DbType == DbType.Time))
-									{
-										value = "\'" + value.Replace("\'", "\'\'") + "\'";
-									}
-									
-									traceInfo.AppendLine("SET " + p.ParameterPrefix + p.ParameterName + " = " + value);
-								}
-							}
-						}
-						
-						traceInfo.AppendLine(sqlSelect);
-						
-						string st = Environment.StackTrace;
-						string fimDaondeNaoImporta = "get_StackTrace()" + Environment.NewLine;
-						int i = st.IndexOf(fimDaondeNaoImporta);
-						if (i > 0)
-						{
-							st = st.Substring(i + fimDaondeNaoImporta.Length);
-						}
-						
-						traceInfo.AppendLine("Stack Trace:");
-						traceInfo.AppendLine(st);
-						traceInfo.AppendLine("---------------------");
-						
-						System.Diagnostics.Trace.TraceInformation(traceInfo.ToString());
-						
+                        Tenor.Diagnostics.Debug.DebugSQL("Helper: ConsultarBanco()", sqlSelect, parametros.ToArray(), ConnectionString);
 					}
 				}
 				catch (Exception ex)
@@ -246,16 +194,9 @@ namespace Tenor
 					cmd.CommandTimeout = Helper.DefaultTimeout;
 					if (parametros != null)
 					{
-                        foreach (Parameter param in parametros)
+                        foreach (TenorParameter param in parametros)
                         {
-
-                            System.Data.Common.DbParameter parametro = factory.CreateParameter();
-                            parametro.ParameterName = param.ParameterName;
-                            parametro.Value = param.Value;
-
-                            parametro.DbType = param.DbType;
-
-                            cmd.Parameters.Add(parametro);
+                            cmd.Parameters.Add(param.ToDbParameter(factory));
                         }
 					}
 					conn.Open();
@@ -283,6 +224,7 @@ namespace Tenor
 					{
 						conn.Close();
 					}
+                    conn.Dispose();
 				}
 				
 				return dtRetorno;
@@ -294,13 +236,9 @@ namespace Tenor
 			/// <param name="sqlSelect">SQL de select</param>
 			/// <param name="parametros">Coleção de Parametros</param>
 			/// <returns>O resultado, ou Nothing, caso nada tenha sido retornado.</returns>
-			public static object ConsultarValor(string sqlSelect, List<Parameter> parametros)
+			public static object ConsultarValor(string sqlSelect, List<TenorParameter> parametros)
 			{
-				if (ConfigurationManager.ConnectionStrings.Count == 0)
-				{
-					throw (new Exception("Cannot find a ConnectionString. Check your configuration file."));
-				}
-				return ConsultarValor(ConfigurationManager.ConnectionStrings[0], sqlSelect, parametros);
+				return ConsultarValor(Tenor.BLL.BLLBase.SystemConnection, sqlSelect, parametros);
 			}
 			
 			/// <summary>
@@ -310,7 +248,7 @@ namespace Tenor
 			/// <param name="sqlSelect">SQL de select</param>
 			/// <param name="parametros">Coleção de Parametros</param>
 			/// <returns>O resultado, ou Nothing, caso nada tenha sido retornado.</returns>
-			public static object ConsultarValor(ConnectionStringSettings ConnectionString, string sqlSelect, List<Parameter> parametros)
+			public static object ConsultarValor(ConnectionStringSettings ConnectionString, string sqlSelect, List<TenorParameter> parametros)
 			{
 				object valor = null;
 				DataTable tabela = ConsultarBanco(ConnectionString, sqlSelect, parametros);
@@ -328,13 +266,9 @@ namespace Tenor
 			/// <param name="parametros">Coleção de Parametros</param>
 			/// <returns></returns>
 			/// <remarks></remarks>
-			public static int AtualizarBanco(string sql, List<Parameter> parametros)
+			public static int AtualizarBanco(string sql, List<TenorParameter> parametros)
 			{
-				if (ConfigurationManager.ConnectionStrings.Count == 0)
-				{
-					throw (new Exception("Cannot find a ConnectionString. Check your configuration file."));
-				}
-				return AtualizarBanco(ConfigurationManager.ConnectionStrings[0], sql, parametros);
+				return AtualizarBanco(BLL.BLLBase.SystemConnection, sql, parametros);
 			}
 			
 			/// <summary>
@@ -346,7 +280,7 @@ namespace Tenor
 			/// <returns>Número de linhas afetadas para Update e Delete;
 			/// Índice atual da chave primária para INSERT INTO</returns>
 			/// <remarks></remarks>
-			public static int AtualizarBanco(ConnectionStringSettings ConnectionString, string sql, List<Parameter> parametros)
+			public static int AtualizarBanco(ConnectionStringSettings ConnectionString, string sql, List<TenorParameter> parametros)
 			{
 				DbProviderFactory factory = GetFactory(ConnectionString);
 				
@@ -366,17 +300,9 @@ namespace Tenor
 					cmd.CommandTimeout = Helper.DefaultTimeout;
 					if (parametros != null)
 					{
-                        foreach (Parameter param in parametros)
+                        foreach (TenorParameter param in parametros)
                         {
-                            System.Data.Common.DbParameter parametro = factory.CreateParameter();
-                            parametro.ParameterName = param.ParameterName;
-                            parametro.Value = param.Value;
-
-                            parametro.DbType = param.DbType;
-
-
-
-                            cmd.Parameters.Add(parametro);
+                            cmd.Parameters.Add(param.ToDbParameter(factory));
                         }
 					}
 					
@@ -393,7 +319,7 @@ namespace Tenor
 							traceInfo.AppendLine(" > " + ConnectionString.ConnectionString);
 							if (parametros != null)
 							{
-								foreach (Parameter p in parametros)
+								foreach (TenorParameter p in parametros)
 								{
 									if (p.Value == null)
 									{
@@ -472,11 +398,35 @@ namespace Tenor
 					{
 						conn.Close();
 					}
+                    conn.Dispose();
 				}
 				
 				return retorno;
 			}
-		}
+
+            internal static string GetParameterPrefix(ConnectionStringSettings Connection)
+            {
+                return GetParameterPrefix(GetFactory(Connection));
+            }
+
+
+            internal static string GetParameterPrefix(DbProviderFactory factory)
+            {
+                string param = factory.CreateParameter().GetType().Name;
+                switch (param)
+                {
+                    case "SqlParameter":
+                    case "SQLiteParameter":
+                        return "@";
+                    case "OracleParameter":
+                        return ":";
+                    default:
+                        throw new InvalidOperationException("Invalid provider");
+                }
+
+            }
+
+        }
 	}
 	
 }

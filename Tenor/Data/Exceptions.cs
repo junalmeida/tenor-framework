@@ -24,8 +24,25 @@ namespace Tenor
 		//        End Get
 		//    End Property
 		//End Class
+
+        public class InvalidMappingException : Exception
+        {
+
+
+            public InvalidMappingException()
+            {
+            }
+
+            public override string Message
+            {
+                get
+                {
+                    return "This class must inherit directly or indirecty from BLLBase.";
+                }
+            }
+        }
 		
-		public class MissingFieldsException : Exception
+		public class MissingFieldsException : InvalidMappingException
 		{
 			
 			
@@ -54,6 +71,18 @@ namespace Tenor
 				}
 			}
 		}
+        public class ManyRecordsFoundException : Exception
+        {
+
+
+            public override string Message
+            {
+                get
+                {
+                    return "Found more than one record that matches the current filter conditions.";
+                }
+            }
+        }
 		
 	}
 	

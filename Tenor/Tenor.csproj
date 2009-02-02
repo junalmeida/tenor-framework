@@ -19,15 +19,15 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -50,6 +50,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BLL\BLLBase.cs" />
+    <Compile Include="BLL\BLLBase\Cache.cs" />
+    <Compile Include="BLL\BLLBase\Connection.cs" />
+    <Compile Include="BLL\BLLBase\Lazy.cs" />
+    <Compile Include="BLL\BLLBase\Persistence.cs" />
+    <Compile Include="BLL\BLLBase\Reflection.cs" />
     <Compile Include="BLL\BLLCollection.cs" />
     <Compile Include="BLL\Util.cs" />
     <Compile Include="Configuration\Diagnostics.cs" />

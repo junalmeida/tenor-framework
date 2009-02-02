@@ -1008,7 +1008,8 @@ namespace Tenor
 					
 					#region " disabled properties "
 					
-					[BrowsableAttribute(false), EditorBrowsable(EditorBrowsableState.Never), Obsolete("This property is not available on Flash objects", true)]public override System.Drawing.Color BorderColor
+					[BrowsableAttribute(false), EditorBrowsable(EditorBrowsableState.Never)]
+                    public override System.Drawing.Color BorderColor
 					{
 						get
 						{
@@ -1017,10 +1018,12 @@ namespace Tenor
 						set
 						{
 							base.BorderColor = System.Drawing.Color.Empty;
+                            throw new NotSupportedException("This property is not available on Flash objects");
 						}
 					}
 					
-					[BrowsableAttribute(false), EditorBrowsable(EditorBrowsableState.Never), Obsolete("This property is not available on Flash objects", true)]public override System.Web.UI.WebControls.BorderStyle BorderStyle
+					[BrowsableAttribute(false), EditorBrowsable(EditorBrowsableState.Never)]
+                    public override System.Web.UI.WebControls.BorderStyle BorderStyle
 					{
 						get
 						{
@@ -1029,10 +1032,11 @@ namespace Tenor
 						set
 						{
 							base.BorderStyle = System.Web.UI.WebControls.BorderStyle.NotSet;
+                            throw new NotSupportedException("This property is not available on Flash objects");
 						}
 					}
 					
-					[BrowsableAttribute(false), EditorBrowsable(EditorBrowsableState.Never), Obsolete("This property is not available on Flash objects", true)]
+					[BrowsableAttribute(false), EditorBrowsable(EditorBrowsableState.Never)]
                     public override System.Web.UI.WebControls.Unit BorderWidth
 					{
 						get
@@ -1042,11 +1046,13 @@ namespace Tenor
 						set
 						{
 							base.BorderWidth = Unit.Empty;
+                            throw new NotSupportedException("This property is not available on Flash objects");
+
 						}
 					}
 					
 					
-					[BrowsableAttribute(false), EditorBrowsable(EditorBrowsableState.Never), Obsolete("This property is not available on Flash objects", true)]
+					[BrowsableAttribute(false), EditorBrowsable(EditorBrowsableState.Never)]
                     public override System.Web.UI.WebControls.FontInfo Font
 					{
 						get
@@ -1055,7 +1061,7 @@ namespace Tenor
 						}
 					}
 					
-					[BrowsableAttribute(false), EditorBrowsable(EditorBrowsableState.Never), Obsolete("This property is not available on Flash objects", true)]
+					[BrowsableAttribute(false), EditorBrowsable(EditorBrowsableState.Never)]
                     public override System.Drawing.Color ForeColor
 					{
 						get
@@ -1065,6 +1071,8 @@ namespace Tenor
 						set
 						{
 							base.ForeColor = System.Drawing.Color.Empty;
+                            throw new NotSupportedException("This property is not available on Flash objects");
+
 						}
 					}
 					

@@ -141,7 +141,7 @@ namespace Tenor
 				}
 			}
 			
-			[Obsolete("Passe a Connection", true)]public override string ToString()
+			public override string ToString()
 			{
 				return ToString(null, true);
 			}
@@ -153,17 +153,16 @@ namespace Tenor
 			
 			public string ToString(ConnectionStringSettings Connection, bool WithClassName)
 			{
-				if (Table == null || ! Table.IsSubclassOf(typeof(BLL.BLLBase)))
-				{
-					throw (new ArgumentException("Invalid Table type. You must specify a derived type of BLL.BLLBase", "Table", null));
-				}
-				
+                TableInfo table = TableInfo.CreateTableInfo(this.Table);
+                if (Connection == null)
+                    Connection = table.GetConnection();
+
 				System.Text.StringBuilder builder = new System.Text.StringBuilder();
 				
 				if (FieldInfo != null)
 				{
-					BLL.BLLBase currentInstance = (BLL.BLLBase) (Activator.CreateInstance(Table));
-					currentInstance.SetActiveConnection(Connection);
+					//BLL.BLLBase currentInstance = (BLL.BLLBase) (Activator.CreateInstance(Table));
+                    //currentInstance.Connection = Connection;    
 					
 					if (CastType != null)
 					{
@@ -173,18 +172,18 @@ namespace Tenor
 					//Implementar o Alias do sort.
 					if (WithClassName)
 					{
-						builder.Append(currentInstance.GetType().Name);
+						builder.Append(this.Table.Name);
 					}
 					else
 					{
-						builder.Append(BLL.BLLBase.GetSchemaAndTable(currentInstance));
+						builder.Append(table.GetSchemaAndTable());
 					}
 					builder.Append(".");
-					builder.Append(currentInstance.GetCommandBuilder().QuoteIdentifier(FieldInfo.DataFieldName));
+                    builder.Append(Helper.GetCommandBuilder(Connection).QuoteIdentifier(FieldInfo.DataFieldName));
 					
 					if (CastType != null)
 					{
-						builder.Append(" as " + Helper.GetDbTypeName(CastType, currentInstance) + ")");
+                        builder.Append(" as " + Helper.GetDbTypeName(CastType, Helper.GetFactory(Connection)) + ")");
 					}
 				}
 				else if (SpecialFieldInfo != null)

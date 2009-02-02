@@ -9,6 +9,7 @@ using System.IO;
 using System.Configuration;
 using ConnectionState = System.Data.ConnectionState;
 using SchemaType = System.Data.SchemaType;
+using System.Data.Common;
 //using DataRow = System.Data.DataRow;
 
 
@@ -41,7 +42,7 @@ namespace Tenor
 			/// <param name="CommandText">A string SQL de consulta para o DataTable.</param>
 			/// <param name="Parameters">Array de parametros para a consulta.</param>
 			/// <remarks></remarks>
-			public DataTable(string CommandText, Parameter[] Parameters) : this()
+			public DataTable(string CommandText, TenorParameter[] Parameters) : this()
 			{
 				
 				if (ConfigurationManager.ConnectionStrings.Count == 0)
@@ -62,7 +63,7 @@ namespace Tenor
 			/// <param name="Parameters">Array de parametros para a consulta.</param>
 			/// <param name="Connection">ConnectionString da web.config</param>
 			/// <remarks></remarks>
-			public DataTable(string CommandText, Parameter[] Parameters, ConnectionStringSettings Connection) : this()
+			public DataTable(string CommandText, TenorParameter[] Parameters, ConnectionStringSettings Connection) : this()
 			{
 				AttachConnection(Connection);
 				AttachParameters(Parameters);
@@ -145,17 +146,13 @@ namespace Tenor
 			
 			//End Sub
 			
-			private void AttachParameters(Parameter[] Parameters)
+			private void AttachParameters(TenorParameter[] parameters)
 			{
 				if (Parameters != null)
 				{
-					foreach (Parameter i in Parameters)
+					foreach (TenorParameter i in parameters)
 					{
-						if (i.root == null)
-						{
-							i.SetParameter(factory);
-						}
-						_Cmd.Parameters.Add(i.root);
+						_Cmd.Parameters.Add(i.ToDbParameter(factory));
 					}
 				}
 			}

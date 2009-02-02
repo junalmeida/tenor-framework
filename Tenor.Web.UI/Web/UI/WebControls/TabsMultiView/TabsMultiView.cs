@@ -766,7 +766,7 @@ namespace Tenor
 					
 					#region " Create Tabs "
 					
-					private Tabs _Tabs;
+					//private Tabs _Tabs;
 					
 					protected virtual Tabs CreateTabs()
 					{

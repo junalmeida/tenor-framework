@@ -504,7 +504,8 @@ namespace Tenor.Data
             {
                 throw (new ArgumentNullException("Table"));
             }
-            Include(Table, Table.Name);
+            TableInfo table = TableInfo.CreateTableInfo(Table);
+            Include(Table, table.GetTableAlias());
         }
 
         /// <summary>

@@ -16,7 +16,7 @@ namespace Tenor
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <remarks></remarks>
-		[Serializable()]public class BLLCollection<T> : ICollection<T>, IList<T>, ICollection where T : BLLBase
+		[Serializable()]public class BLLCollection<T> : ICollection<T>, IList<T>, ICollection, IList where T : BLLBase
 		{
             public int Count
             {
@@ -44,12 +44,12 @@ namespace Tenor
 			[NonSerialized()]private FieldInfo[] ForeignFields;
 			[NonSerialized()]private FieldInfo[] LocalFields;
 			
-			public BLLCollection(BLLBase Parent, string RelatedPropertyName)
+			internal BLLCollection(BLLBase Parent, string RelatedPropertyName)
 			{
 				Init(Parent, RelatedPropertyName, null);
 			}
-			
-			public BLLCollection(BLLBase Parent, string RelatedPropertyName, Type RelatedPropertyType)
+
+            internal BLLCollection(BLLBase Parent, string RelatedPropertyName, Type RelatedPropertyType)
 			{
 				Init(Parent, RelatedPropertyName, RelatedPropertyType);
 			}
@@ -494,7 +494,88 @@ namespace Tenor
 						}
 						
 						#endregion
-					}
+
+                        #region IList Members
+
+                        int IList.Add(object value)
+                        {
+                            this.Add((T)value);
+                            return this.IndexOf((T)value);
+                        }
+
+                        void IList.Clear()
+                        {
+                            this.Clear();
+                        }
+
+                        bool IList.Contains(object value)
+                        {
+                            return this.Contains((T)value);
+                        }
+
+                        int IList.IndexOf(object value)
+                        {
+                            return this.IndexOf((T)value);
+                        }
+
+                        void IList.Insert(int index, object value)
+                        {
+                            this.Insert(index, (T)value);
+                        }
+
+                        bool IList.IsFixedSize
+                        {
+                            get { return false; }
+                        }
+
+                        bool IList.IsReadOnly
+                        {
+                            get { return this.IsReadOnly; }
+                        }
+
+                        void IList.Remove(object value)
+                        {
+                            throw new NotImplementedException();
+                        }
+
+                        void IList.RemoveAt(int index)
+                        {
+                            this.RemoveAt(index);
+                        }
+
+                        object IList.this[int index]
+                        {
+                            get
+                            {
+                                return this[index];
+                            }
+                            set
+                            {
+                                this[index] = (T)value;
+                            }
+                        }
+
+                        #endregion
+
+                        #region ICollection Members
+
+                        void ICollection.CopyTo(Array array, int index)
+                        {
+                            this.CopyTo(array, index);
+                        }
+
+                        bool ICollection.IsSynchronized
+                        {
+                            get { return this.IsSynchronized; }
+                        }
+
+                        object ICollection.SyncRoot
+                        {
+                            get { return this.SyncRoot; }
+                        }
+
+                        #endregion
+        }
 					
 					
 				}

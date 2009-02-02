@@ -7,6 +7,7 @@ using System.Data;
 using System.Collections.Generic;
 using System.IO;
 using System.Configuration;
+using Tenor.BLL;
 
 
 namespace Tenor
@@ -225,10 +226,9 @@ namespace Tenor
 				}
 			}
 			
-			[Obsolete("Passe a connection!", true)]
             public override string ToString()
 			{
-				return ToString(Tenor.BLL.BLLBase.GetDefaultConnection());
+				return ToString(null);
 			}
 			
 			public string ToString(ConnectionStringSettings Connection)
@@ -240,13 +240,10 @@ namespace Tenor
 			
 			public string ToString(ConnectionStringSettings Connection, bool WithClassName)
 			{
-				if (Table == null || ! Table.IsSubclassOf(typeof(BLL.BLLBase)))
-				{
-					throw (new ArgumentException("Invalid Table type. You must specify a derived type of BLL.BLLBase", "Table", null));
-				}
-				
-				
-				
+                TableInfo table = TableInfo.CreateTableInfo(this.Table);
+
+                if (Connection == null)
+                    Connection = table.GetConnection();
 				
 				System.Text.StringBuilder str = new System.Text.StringBuilder();
 				
@@ -254,8 +251,8 @@ namespace Tenor
 				
 				if (FieldInfo != null)
 				{
-					BLL.BLLBase currentInstance = (BLL.BLLBase) (Activator.CreateInstance(Table));
-					currentInstance.SetActiveConnection(Connection);
+					//BLL.BLLBase currentInstance = (BLL.BLLBase) (Activator.CreateInstance(Table));
+					//currentInstance.Connection = Connection;
 					
 					if (CastType != null)
 					{
@@ -266,11 +263,11 @@ namespace Tenor
 					{
 						if (WithClassName)
 						{
-							str.Append(currentInstance.GetType().Name);
+							str.Append(this.Table.Name);
 						}
 						else
 						{
-							str.Append(BLL.BLLBase.GetSchemaAndTable(currentInstance));
+							str.Append(table.GetSchemaAndTable());
 						}
 					}
 					else
@@ -279,11 +276,11 @@ namespace Tenor
 					}
 					
 					str.Append(".");
-					str.Append(currentInstance.GetCommandBuilder().QuoteIdentifier(FieldInfo.DataFieldName));
+					str.Append(Helper.GetCommandBuilder(Connection).QuoteIdentifier(FieldInfo.DataFieldName));
 					
 					if (CastType != null)
 					{
-						str.Append(" as " + Helper.GetDbTypeName(CastType, currentInstance) + ")");
+                        str.Append(" as " + Helper.GetDbTypeName(CastType, Helper.GetFactory(Connection)) + ")");
 					}
 					
 				}
@@ -316,40 +313,40 @@ namespace Tenor
 				}
 				else
 				{
-					Parameter p = new Parameter(Connection, ParameterName, Value);
-					
+					//TenorParameter p = new Parameter(ParameterName, Value);
+                    string parameterPrefix = Helper.GetParameterPrefix(Connection);
 					switch (CompareOperator)
 					{
 						case Data.CompareOperator.Equal:
-							str.Append(" = " + p.ParameterPrefix + ParameterName);
+							str.Append(" = " + parameterPrefix + ParameterName);
 							break;
 						case Data.CompareOperator.NotEqual:
-							str.Append(" <>  " + p.ParameterPrefix + ParameterName);
+                            str.Append(" <>  " + parameterPrefix + ParameterName);
 							break;
 						case Data.CompareOperator.LessThan:
-							str.Append(" <  " + p.ParameterPrefix + ParameterName);
+                            str.Append(" <  " + parameterPrefix + ParameterName);
 							break;
 						case Data.CompareOperator.LessThanOrEqual:
-							str.Append(" <=  " + p.ParameterPrefix + ParameterName);
+                            str.Append(" <=  " + parameterPrefix + ParameterName);
 							break;
 						case Data.CompareOperator.GreaterThan:
-							str.Append(" >  " + p.ParameterPrefix + ParameterName);
+                            str.Append(" >  " + parameterPrefix + ParameterName);
 							break;
 						case Data.CompareOperator.GreaterThanOrEqual:
-							str.Append(" >=  " + p.ParameterPrefix + ParameterName);
+                            str.Append(" >=  " + parameterPrefix + ParameterName);
 							break;
 						case Data.CompareOperator.Like:
-							str.Append(" LIKE  " + p.ParameterPrefix + ParameterName);
+                            str.Append(" LIKE  " + parameterPrefix + ParameterName);
 							break;
 						case Data.CompareOperator.NotLike:
-							str.Append(" NOT LIKE  " + p.ParameterPrefix + ParameterName);
+                            str.Append(" NOT LIKE  " + parameterPrefix + ParameterName);
 							break;
 						case Data.CompareOperator.ContainsInFlags:
 							if (Connection.ProviderName != "System.Data.SqlClient")
 							{
 								throw (new ConfigurationErrorsException("ContainsInFlags can only be used with SqlClient"));
 							}
-							str = new System.Text.StringBuilder("(IsNull(" + str.ToString() + ", 0) & " + p.ParameterPrefix + ParameterName + ") = " + p.ParameterPrefix + ParameterName);
+                            str = new System.Text.StringBuilder("(IsNull(" + str.ToString() + ", 0) & " + parameterPrefix + ParameterName + ") = " + parameterPrefix + ParameterName);
 							break;
 						default:
 							throw (new ArgumentOutOfRangeException("CompareOperator", "Specified argument was out of the range of valid values."));

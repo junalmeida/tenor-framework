@@ -11,6 +11,7 @@ using System.Configuration;
 //using DataSet = System.Data.DataSet;
 using DbType = System.Data.DbType;
 using Tenor.BLL;
+using System.Data.Common;
 
 
 namespace Tenor
@@ -71,7 +72,7 @@ namespace Tenor
 			/// </summary>
 			/// <param name="RetrieveIDs">Determina se deverá preencher as classes com novos IDs após a operação.</param>
 			/// <remarks></remarks>
-			public BulkInsert(bool RetrieveIDs) : this(true, BLL.BLLBase.GetDefaultConnection())
+			public BulkInsert(bool RetrieveIDs) : this(true, null)
 			{
 			}
 			
@@ -84,10 +85,16 @@ namespace Tenor
 			public BulkInsert(bool RetrieveIDs, ConnectionStringSettings Connection)
 			{
 				this.Connection = Connection;
+                if (this.Connection == null)
+                {
+                    this.Connection = BLLBase.SystemConnection;
+
+                }
+
 				_RetrieveIDs = RetrieveIDs;
 				
 				bulkTempTable = "#BULKINSERT" + Guid.NewGuid().ToString().Replace("{", "").Replace("}", "").Replace("-", "");
-				@params = new List<Parameter>(MaxParameterCount);
+				@params = new List<TenorParameter>(MaxParameterCount);
 				bulkItems = new System.Text.StringBuilder();
 				variaveis = new System.Text.StringBuilder();
 				
@@ -96,7 +103,7 @@ namespace Tenor
 			
 			private ConnectionStringSettings Connection;
 			private string bulkTempTable;
-			private List<Parameter> @params;
+			private List<TenorParameter> @params;
 			private System.Text.StringBuilder bulkItems;
 			private System.Text.StringBuilder variaveis;
 			private List<List<Type>> related;
@@ -198,13 +205,13 @@ namespace Tenor
 				string sql = string.Format(BulkSql, createSqlIds, variaveis.ToString(), bulkItems.ToString(), selectSqlIds);
 				
 				Tenor.Data.DataTable rs = null;
+                Tenor.Diagnostics.Debug.DebugSQL(this.GetType().Name, sql, @params.ToArray(), Connection);
 				try
 				{
 					//Dim rs As Data.DataTable = Helper.ConsultarBanco(Connection, sql, params)
 					rs = new Tenor.Data.DataTable(sql, @params.ToArray(), Connection);
 					Diagnostics.Debug.PrintCurrentTime("Bulk Insert - Sql Start");
-					DoDebug(sql);
-					rs.Bind();
+                    rs.Bind();
 					Diagnostics.Debug.PrintCurrentTime("Bulk Insert - Sql Finish (" + this.Count.ToString() + " items, " + ParameterCount.ToString() + " parameters)");
 				}
 				catch (Exception ex)
@@ -229,64 +236,7 @@ namespace Tenor
 				}
 			}
 			
-			
-			private void DoDebug(string sql)
-			{
-				try
-				{
-					if (System.Diagnostics.Debugger.IsAttached)
-					{
-						
-						System.Text.StringBuilder traceInfo = new System.Text.StringBuilder();
-						traceInfo.AppendLine(this.GetType().Name);
-						traceInfo.AppendLine(" > " + Connection.ConnectionString);
-						foreach (Parameter p in @params)
-						{
-							traceInfo.AppendLine("DECLARE @" + p.ParameterName + " " + p.DbTypeName);
-							if (p.Value == null)
-							{
-								traceInfo.AppendLine("SET @" + p.ParameterName + " = NULL");
-							}
-							else
-							{
-								string value = p.Value.ToString();
-								if (p.Value is bool)
-								{
-									value = Math.Abs(System.Convert.ToInt32(p.Value)).ToString();
-								}
-								
-								if ((((((p.DbType == DbType.String) || (p.DbType == DbType.AnsiString)) || (p.DbType == DbType.AnsiStringFixedLength)) || (p.DbType == DbType.DateTime)) || (p.DbType == DbType.Date)) || (p.DbType == DbType.Time))
-								{
-									value = "\'" + value.Replace("\'", "\'\'") + "\'";
-								}
-								
-								traceInfo.AppendLine("SET @" + p.ParameterName + " = " + value);
-							}
-						}
-						traceInfo.AppendLine(sql.ToString());
-						
-						string st = Environment.StackTrace;
-						string fimDaondeNaoImporta = "Data.BulkInsert.DoDebug(String sql)" + Environment.NewLine;
-						int i = st.IndexOf(fimDaondeNaoImporta);
-						if (i > 0)
-						{
-							st = st.Substring(i + fimDaondeNaoImporta.Length);
-						}
-						
-						traceInfo.AppendLine("Stack Trace:");
-						traceInfo.AppendLine(st);
-						traceInfo.AppendLine("---------------------");
-						
-						System.Diagnostics.Trace.TraceInformation(traceInfo.ToString());
-						
-					}
-				}
-				catch (Exception ex)
-				{
-					Diagnostics.Debug.HandleError(ex);
-				}
-			}
-			
+
 			
 			/// <summary>
 			/// Retorna o número de parametros atuais do BulkInsert.
@@ -365,7 +315,7 @@ namespace Tenor
 					variaveis.Append(string.Format(DeclareItem, variavel, null));
 				}
                 FieldInfo autoKeyField = null; //Not used at this time.
-                bulkItems.AppendLine(string.Format(BulkItem, instance.GetSaveSql(false, paramPrefix, @params, ref autoKeyField, specialValues, Connection), variavel));
+                bulkItems.AppendLine(string.Format(BulkItem, instance.GetSaveSql(false, @params, ref autoKeyField, specialValues, Connection), variavel));
 				if (this.RetrieveIDs)
 				{
 					bulkItems.AppendLine(string.Format(BulkItemSaveId, bulkTempTable, variavel));

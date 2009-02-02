@@ -60,7 +60,8 @@ namespace Tenor
 					
 					
 					
-					[EditorBrowsable(EditorBrowsableState.Never), Browsable(false), Obsolete("Cannot have custom postback events. To use postback events use ASP.NET DropDownList instead", true)]public override bool AutoPostBack
+					[EditorBrowsable(EditorBrowsableState.Never), Browsable(false)]
+                    public override bool AutoPostBack
 					{
 						get
 						{
@@ -70,6 +71,7 @@ namespace Tenor
 						set
 						{
 							base.AutoPostBack = false;
+                            throw new NotSupportedException("Cannot have custom postback events. To use postback events use ASP.NET DropDownList instead.");
 						}
 					}
 					

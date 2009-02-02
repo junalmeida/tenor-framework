@@ -9,40 +9,32 @@ using System.IO;
 using System.Data.Common;
 using System.Configuration;
 using System.Globalization;
-//using MissingPrimaryKeyException = System.Data.MissingPrimaryKeyException;
-//using DataRow = System.Data.DataRow;
-//using DataSet = System.Data.DataSet;
 using DataTable = Tenor.Data.DataTable;
 using DbType = System.Data.DbType;
 using System.Text;
 using System.Threading;
 using System.ComponentModel;
+using System.Collections.Specialized;
 
 
 namespace Tenor.BLL
 {
 
     /// <summary>
-    /// Esta é a classe base de persistência de dados.
-    /// As classes que herdam desta ganham funções para ler e salvar dados em bancos de dados. <br />
-    /// Você pode utilizar o <a href="../zeus.htm">Modelo do MyGeneration</a> no arquivo BLLBased.zeus, contido nesta documentação.<br />
-    /// Autor: Marcos A. P. Almeida jr.
+    /// This is the base entity class. All of your class must inherit directly or indirectly from this
+    /// class.
+    /// Children classes gain functions to read and save data to a DataBase.
     /// </summary>
+    /// <remarks>
+    /// You can use the MyGeneration Template on file BLLBases.zeus to create your classes.
+    /// </remarks>
+    /// <seealso cref="../zeus.htm"/> 
     [Serializable()]
-    public abstract class BLLBase : object
+    public abstract partial class BLLBase : object
     {
-
+ 
 
         #region "Ctors"
-
-
-        //Private __LoadedFields As ObjectModel.Collection(Of String)
-        //Protected ReadOnly Property _LoadedFields() As ObjectModel.Collection(Of String)
-        //    Get
-        //        If __LoadedFields Is Nothing Then __LoadedFields = New ObjectModel.Collection(Of String)
-        //        Return __LoadedFields
-        //    End Get
-        //End Property
 
         private readonly string ChaveCache;
 
@@ -58,472 +50,11 @@ namespace Tenor.BLL
 
         #endregion
 
-        #region " Connection "
 
-        /// <summary>
-        /// Usado em aplicações Desktop
-        /// </summary>
-        /// <remarks></remarks>
-        private static ConnectionStringSettings _SystemConnection;
-
-        /// <summary>
-        /// Armazena aqui uma conexão a ser usada por todo o sistema.
-        ///
-        /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks>
-        /// O valor dessa propriedade define o valor da propriedade Connection de todas as BLLBases
-        /// </remarks>
-        public static ConnectionStringSettings SystemConnection
-        {
-            get
-            {
-                System.Web.HttpContext Context = System.Web.HttpContext.Current;
-                if (Context != null)
-                {
-                    if (!Context.Request.RawUrl.ToLower().Contains("/publicador"))
-                    {
-                        return null;
-                    }
-
-                    if (Context.Session != null)
-                    {
-                        string name = Context.Session[Tenor.Configuration.TenorModule.IdPrefix + "SYSTEMCONNECTION_name"].ToString();
-                        string cn = Context.Session[Tenor.Configuration.TenorModule.IdPrefix + "SYSTEMCONNECTION_cn"].ToString();
-                        string pn = Context.Session[Tenor.Configuration.TenorModule.IdPrefix + "SYSTEMCONNECTION_pn"].ToString();
-                        if (cn == null)
-                        {
-                            return null;
-                        }
-                        else
-                        {
-                            return new ConnectionStringSettings(name, cn, pn);
-                        }
-                    }
-                    else
-                    {
-                        throw (new Exception("No session state available."));
-                    }
-                }
-                else
-                {
-                    return _SystemConnection;
-                }
-            }
-            set
-            {
-                System.Web.HttpContext Context = System.Web.HttpContext.Current;
-
-                string name = Context.Session[Tenor.Configuration.TenorModule.IdPrefix + "SYSTEMCONNECTION_name"].ToString();
-                string cn = Context.Session[Tenor.Configuration.TenorModule.IdPrefix + "SYSTEMCONNECTION_cn"].ToString();
-                string pn = Context.Session[Tenor.Configuration.TenorModule.IdPrefix + "SYSTEMCONNECTION_pn"].ToString();
-
-                
-                if (Context != null)
-                {
-                    if (Context.Session != null)
-                    {
-                        if (value == null)
-                        {
-                            Context.Session.Remove(name);
-                            Context.Session.Remove(cn);
-                            Context.Session.Remove(pn);
-                        }
-                        else
-                        {
-                            Context.Session[name] = value.Name;
-                            Context.Session[cn] = value.ConnectionString;
-                            Context.Session[pn] = value.ProviderName;
-                        }
-                    }
-                    else
-                    {
-                        throw (new Exception("No session state available."));
-                    }
-                }
-                else
-                {
-                    _SystemConnection = value;
-                }
-            }
-        }
-
-        [NonSerialized()]
-        private ConnectionStringSettings _Connection;
-        /// <summary>
-        /// Armazena configurações de conexão.
-        /// </summary>
-        /// <value></value>
-        /// <returns>
-        /// Quando não setada, retorna a propriedade SystemConnection, ou a primeira conexão encontrada na web.config
-        /// </returns>
-        /// <remarks></remarks>
-        protected virtual ConnectionStringSettings Connection
-        {
-            get
-            {
-                if (_Connection == null)
-                {
-                    return GetDefaultConnection();
-                }
-                else
-                {
-                    return _Connection;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Retonar a conexão padrão para ser usada com a BLLBase.
-        /// </summary>
-        public static ConnectionStringSettings GetDefaultConnection()
-        {
-            if (SystemConnection != null)
-            {
-                return SystemConnection;
-            }
-
-            if (ConfigurationManager.ConnectionStrings.Count == 0)
-            {
-                throw (new ConfigurationErrorsException("Cannot find any usable connection string."));
-            }
-            else
-            {
-                int I = 0;
-                do
-                {
-                    if (!ConfigurationManager.ConnectionStrings[I].ConnectionString.ToLower().Contains("|DataFile|") && !ConfigurationManager.ConnectionStrings[I].ConnectionString.ToLower().Contains("aspnetdb.mdf"))
-                    {
-                        break;
-                    }
-
-                    I++;
-                    if (I > ConfigurationManager.ConnectionStrings.Count - 1)
-                    {
-                        throw (new ConfigurationErrorsException("Cannot find any usable connection string."));
-                    }
-                } while (true);
-                return ConfigurationManager.ConnectionStrings[I];
-            }
-
-        }
-
-        /// <summary>
-        /// Muda a conexão atual do objeto para a instancia escolhida da config
-        /// </summary>
-        /// <param name="configName">Nome da configuração na config</param>
-        /// <remarks></remarks>
-        public void SetActiveConnection(string configName)
-        {
-            SetActiveConnection(ConfigurationManager.ConnectionStrings[configName]);
-        }
-
-        /// <summary>
-        /// Muda a conexão atual do objeto para a instancia escolhida da config
-        /// </summary>
-        /// <param name="config">Configurações de conexão</param>
-        /// <remarks></remarks>
-        public void SetActiveConnection(ConnectionStringSettings config)
-        {
-            _Connection = config;
-        }
-
-        [NonSerialized()]
-        private DbProviderFactory _factory;
-        [NonSerialized()]
-        private DbCommandBuilder _cmdbuild;
-        /// <summary>
-        /// CommandBuilder necessário para construír os objetos para conexão ao banco de dados.
-        /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        protected DbCommandBuilder CommandBuilder
-        {
-            get
-            {
-                GetFactory();
-                if (_cmdbuild == null)
-                {
-                    _cmdbuild = _factory.CreateCommandBuilder();
-                    try
-                    {
-                        _cmdbuild.QuoteIdentifier("teste");
-                    }
-                    catch (Exception)
-                    {
-                        //Gambiarra para OLEDB
-                        _cmdbuild.QuotePrefix = "[";
-                        _cmdbuild.QuoteSuffix = "]";
-
-                        //_cmdbuild.RefreshSchema()
-
-                        //_cmdbuild.DataAdapter = _factory.CreateDataAdapter()
-                        //_cmdbuild.DataAdapter.SelectCommand = _factory.CreateCommand
-                        //_cmdbuild.DataAdapter.SelectCommand.Connection = _factory.CreateConnection
-                        //_cmdbuild.DataAdapter.SelectCommand.Connection.ConnectionString = Me.Connection.ConnectionString
-                        //_cmdbuild.DataAdapter.SelectCommand.Connection.Open()
-                    }
-                }
-
-                return _cmdbuild;
-            }
-        }
-
-        /// <summary>
-        /// Retorna o nome da tabela real no modelo relacional
-        /// </summary>
-        /// <remarks></remarks>
-        public virtual string TableName
-        {
-            get
-            {
-                return this.GetType().Name;
-            }
-        }
-
-        /// <summary>
-        /// Retorna o schema no modelo relacional
-        /// </summary>
-        /// <remarks></remarks>
-        public virtual string SchemaName
-        {
-            get
-            {
-                return string.Empty;
-            }
-        }
-
-        /// <summary>
-        /// Retorna o nome do banco de dados.
-        /// Esta propriedade não é escapada, para compatibilidade com Linked Servers.
-        /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public virtual string Database
-        {
-            get
-            {
-                return string.Empty;
-            }
-        }
-
-        internal DbCommandBuilder GetCommandBuilder()
-        {
-            return CommandBuilder;
-        }
-
-        internal DbProviderFactory GetFactory()
-        {
-            if (_factory == null)
-            {
-                _factory = DbProviderFactories.GetFactory(Connection.ProviderName);
-            }
-            return _factory;
-        }
-
-        #endregion
-
-        #region " Bind "
-
-
-        /// <summary>
-        /// Faz uma consulta ao banco usando usando a ActiveConnection e preenche os valores nas propriedades do tipo Field
-        /// </summary>
-        /// <remarks>Faz a consulta com LazyLoading</remarks>
-        public void Bind()
-        {
-            Bind(true);
-        }
-
-
-        ///'' <exception cref="MissingTableAttributeException">Ocorre se a classe não implementar um TableAttribute</exception>
-        ///' <summary>
-        ///' Faz uma consulta ao banco usando usando a ActiveConnection e preenche os valores nas propriedades do tipo Field
-        ///' </summary>
-        ///' <param name="LazyLoading">Ativa ou desativa o modo lazy loading para relacionamentos. O padrão é Verdadeiro.</param>
-        ///' <exception cref="MissingFieldsException">Ocorre se a classe não implementar nenhum campo com FieldAttribute</exception>
-        ///' <exception cref="MissingPrimaryKeyException">Ocorre se a classe não implementar nenhum campo com FieldAttribute marcado como PrimaryKey</exception>
-        ///' <remarks></remarks>
-        //Public Overridable Sub Bind(ByVal LazyLoading As Boolean)
-        //    Bind(Me, LazyLoading)
-        //End Sub
-
-
-
-        /// <summary>
-        /// Faz uma consulta ao banco usando usando a ActiveConnection e preenche os valores nas propriedades do tipo Field
-        /// </summary>
-        /// <param name="LazyLoading">Ativa ou desativa o Lazy Loading</param>
-        /// <exception cref="MissingFieldsException">Ocorre se a classe não implementar nenhum campo com FieldAttribute</exception>
-        /// <exception cref="System.Data.MissingPrimaryKeyException">Ocorre se a classe não implementar nenhum campo com FieldAttribute marcado como PrimaryKey</exception>
-        /// <remarks></remarks>
-        protected void Bind(bool LazyLoading)
-        {
-            BLLBase Instance = this;
-
-            List<string> fields = new List<string>();
-
-
-            foreach (FieldInfo f in GetFields(Instance.GetType()))
-            {
-                if (f.PrimaryKey)
-                {
-                    fields.Add(f.RelatedProperty.Name);
-                }
-            }
-            if (fields.Count == 0)
-            {
-                throw (new MissingPrimaryKeyException());
-            }
-
-            //For Each i As Reflection.PropertyInfo In Instance.GetType().GetProperties()
-            //    Dim attsfields As FieldAttribute() = CType(i.GetCustomAttributes(GetType(FieldAttribute), True), FieldAttribute())
-            //    If Not attsfields Is Nothing AndAlso attsfields.Length > 0 Then
-            //        If attsfields(0).PrimaryKey Then
-            //            fields.Add(i.Name)
-            //        End If
-            //    End If
-            //Next
-            Bind(LazyLoading, fields.ToArray());
-        }
-
-        /// <summary>
-        /// Faz uma consulta ao banco usando usando a ActiveConnection e preenche os valores nas propriedades do tipo Field
-        /// </summary>
-        /// <param name="LazyLoading">Ativa ou desativa o Lazy Loading</param>
-        /// <param name="FilterMembers">Membros da classe usados nos filtros</param>
-        /// <remarks></remarks>
-        protected void Bind(bool LazyLoading, string[] FilterMembers)
-        {
-            Bind(LazyLoading, FilterMembers, null);
-        }
-
-
-
-        /// <summary>
-        /// Faz uma consulta ao banco usando usando a ActiveConnection e preenche os valores nas propriedades do tipo Field
-        /// </summary>
-        /// <param name="LazyLoading">Ativa ou desativa o Lazy Loading</param>
-        /// <param name="FilterMembers">Membros da classe usados nos filtros</param>
-        /// <param name="DataRow">DataRow para usar no mapeamento dos dados</param>
-        /// <remarks>Se o DataRow for Nulo o sistema irá ao banco busca-lo</remarks>
-        protected virtual void Bind(bool LazyLoading, string[] FilterMembers, DataRow DataRow)
-        {
-            BLLBase Instance = this;
-
-            bool fromSearch = (DataRow != null);
-            //datarow é nothing quando for LoadForeign ou bind simples
-            //datarow não é nothing quando for pesquisa (Search)
-
-            if (!fromSearch && Cacheable && LoadFromCache())
-            {
-                //LoadFromCache retorna true
-                return;
-            }
-
-
-            //Carregar campos
-            DataRow dr;
-            if (!fromSearch)
-            {
-
-                SearchOptions so = new SearchOptions(Instance.GetType());
-
-
-
-                // SELECT e FILTROS
-
-                List<FieldInfo> filters = new List<FieldInfo>();
-                foreach (string s in FilterMembers)
-                {
-                    FieldInfo field = new FieldInfo(Instance.GetType().GetProperty(s));
-                    filters.Add(field);
-                }
-
-
-                foreach (FieldInfo field in filters)
-                {
-                    if (so.Conditions.Count > 0)
-                    {
-                        so.Conditions.Add(Tenor.Data.LogicalOperator.And);
-                    }
-                    so.Conditions.Add(field.RelatedProperty.Name, field.PropertyValue(Instance));
-                }
-
-
-                System.Data.DataTable dt = SearchWithDataTable(so, this.Connection);
-
-                if (dt.Rows.Count == 0)
-                {
-                    dt.Dispose();
-                    throw (new RecordNotFoundException());
-                }
-                else if (dt.Rows.Count > 1)
-                {
-                    Trace.TraceWarning("More than one row was returned. Using only the first row.");
-                }
-
-                dr = dt.Rows[0];
-
-            }
-            else
-            {
-                dr = DataRow;
-            }
-
-
-
-
-            FieldInfo[] fields = GetFields(Instance.GetType());
-            SpecialFieldInfo[] spfields = GetSpecialFields(Instance.GetType());
-            ForeignKeyInfo[] foreignkeys = GetForeignKeys(Instance.GetType());
-
-            foreach (FieldInfo f in fields)
-            {
-                if (f.PrimaryKey || !f.LazyLoading)
-                {
-
-                    //colocar os itens da tabela em suas propriedades correspondentes
-                    f.SetPropertyValue(Instance, dr[f.DataFieldName]);
-
-                    //----
-                }
-            }
-            foreach (SpecialFieldInfo f in spfields)
-            {
-                //colocar os itens da tabela em suas propriedades correspondentes
-                f.SetPropertyValue(Instance, dr[f.Alias]);
-            }
-
-
-            dr = null;
-
-
-
-            if (!LazyLoading)
-            {
-                foreach (ForeignKeyInfo f in foreignkeys)
-                {
-                    //Continuar em LazyLoading para evitar loops infinitos.
-                    Instance.LoadForeign(f.RelatedProperty.Name, true, this.Connection);
-                }
-            }
-
-
-            if (Cacheable)
-            {
-                SaveToCache();
-            }
-        }
-
-        #endregion
 
         #region " Search "
 
-        private static string ReadSelectFields(BLLBase Instance, FieldInfo[] Fields, SpecialFieldInfo[] SpFields)
+        private static string ReadSelectFields(string tableAlias, DbCommandBuilder builder, FieldInfo[] Fields, SpecialFieldInfo[] SpFields)
         {
             string campos = "";
             foreach (FieldInfo f in Fields)
@@ -531,7 +62,7 @@ namespace Tenor.BLL
                 if (f.PrimaryKey || !f.LazyLoading)
                 {
                     //determina o nome do campo
-                    campos += ", " + Instance.GetType().Name + "." + Instance.CommandBuilder.QuoteIdentifier(f.DataFieldName);
+                    campos += ", " + tableAlias + "." + builder.QuoteIdentifier(f.DataFieldName);
                 }
             }
             if (campos.Length < 2)
@@ -541,7 +72,7 @@ namespace Tenor.BLL
 
             foreach (SpecialFieldInfo f in SpFields)
             {
-                campos += ", (" + string.Format(f.Expression, Instance.GetType().Name) + ") " + f.Alias;
+                campos += ", (" + string.Format(f.Expression, tableAlias) + ") " + f.Alias;
             }
 
             return campos.Substring(2);
@@ -557,7 +88,7 @@ namespace Tenor.BLL
         /// <param name="BaseClass"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        private static string ReadConditions(ConditionCollection Conditions, List<Parameter> @params, ref Dictionary<string, Type> innerjoins, Type BaseClass, ConnectionStringSettings Connection)
+        private static string ReadConditions(ConditionCollection Conditions, List<TenorParameter> @params, ref Dictionary<string, Type> innerjoins, Type BaseClass, ConnectionStringSettings Connection)
         {
             if (Conditions == null || Conditions.Count == 0)
             {
@@ -595,7 +126,7 @@ namespace Tenor.BLL
 
                     if (sc.Value != null)
                     {
-                        @params.Add(new Parameter(Connection, sc.ParameterName, sc.Value));
+                        @params.Add(new TenorParameter(sc.ParameterName, sc.Value));
                     }
                 }
                 else if (obj.GetType() == typeof(LogicalOperator))
@@ -689,61 +220,13 @@ namespace Tenor.BLL
         }
 
         /// <summary>
-        /// </summary>
-        /// <param name="instance"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public static string GetSchemaAndTable(BLLBase instance)
-        {
-            string schemaName = instance.SchemaName;
-
-            string res = instance.Database;
-            if (!string.IsNullOrEmpty(res))
-            {
-                res += ".";
-            }
-
-            if (!string.IsNullOrEmpty(instance.SchemaName))
-            {
-                res += instance.CommandBuilder.QuoteIdentifier(schemaName) + ".";
-            }
-            else if (!string.IsNullOrEmpty(res))
-            {
-                res += ".";
-            }
-            res += instance.CommandBuilder.QuoteIdentifier(instance.TableName);
-
-            return res;
-        }
-
-        /// <summary>
-        /// Retorna o schema e a tabela. Caso a tabela seja localizada, usa a View correspondente no
-        /// Schema Localization.
-        /// </summary>
-        /// <param name="instance"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        protected static string GetSchemaAndView(BLLBase instance)
-        {
-            string schemaName = "Localization";
-
-
-            string res = string.Empty;
-            res = instance.CommandBuilder.QuoteIdentifier(schemaName) + ".";
-            res += instance.CommandBuilder.QuoteIdentifier(instance.SchemaName + instance.TableName);
-
-            return res;
-        }
-
-
-        /// <summary>
         /// Retorna o SQL gerado pelas condições.
         /// </summary>
         /// <param name="SearchOptions"></param>
         /// <param name="Connection">By ref</param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public static string GetSearchSql(SearchOptions SearchOptions, ref List<Parameter> Params, bool Count, ref ConnectionStringSettings Connection)
+        public static string GetSearchSql(SearchOptions SearchOptions, ref List<TenorParameter> Params, bool Count, ConnectionStringSettings Connection)
         {
             if (@Params == null)
             {
@@ -758,22 +241,23 @@ namespace Tenor.BLL
                 throw (new ArgumentNullException("SearchOptions", "You must specify a SearchOptions instance."));
             }
 
-            BLLBase instance = (BLLBase)(Activator.CreateInstance(SearchOptions._BaseClass));
+            TableInfo table = TableInfo.CreateTableInfo(SearchOptions._BaseClass);
+      //BLLBase instance = (BLLBase)(Activator.CreateInstance(SearchOptions._BaseClass));
 
 
             if (Connection == null)
             {
-                Connection = instance.Connection;
-            }
-            else
-            {
-                instance.SetActiveConnection(Connection);
+                Connection = table.GetConnection();
             }
 
-            //Escaneia os campos necessários para a consulta da classe base
+            
+            DbCommandBuilder builder = Helper.GetCommandBuilder(Connection);
+            
+            
+            //Get necessary fields to create the select statement.
             FieldInfo[] fields = BLLBase.GetFields(SearchOptions._BaseClass);
             SpecialFieldInfo[] spfields = BLLBase.GetSpecialFields(SearchOptions._BaseClass);
-            string campos = ReadSelectFields(instance, fields, spfields);
+            string campos = ReadSelectFields(table.GetTableAlias(), builder, fields, spfields);
 
             Dictionary<string, Type> innerjoins = new Dictionary<string, Type>();
 
@@ -788,18 +272,14 @@ namespace Tenor.BLL
 
             //Sorting
             StringBuilder sqlSort = new StringBuilder();
+
             foreach (SortingCriteria sort in SearchOptions.Sorting)
             {
                 if (sort.Table == null)
                 {
                     sort._Table = SearchOptions._BaseClass;
                 }
-
-                if (!sort.Table.IsSubclassOf(typeof(BLL.BLLBase)))
-                {
-                    throw (new ArgumentException("Invalid Table type. You must specify a derived type of BLL.BLLBase on SortCriteria class", "Table", null));
-                }
-
+    
                 if (sort.FieldInfo == null && sort.SpecialFieldInfo == null)
                 {
                     throw (new ArgumentException("Invalid Property \'" + sort.Property + "\'. You must define a Field or a SpecialField property item on SortCriteria class.", "Property", null));
@@ -813,7 +293,7 @@ namespace Tenor.BLL
                     }
                 }
 
-                BLLBase sortIntance = (BLLBase)(Activator.CreateInstance(sort.Table));
+                //BLLBase sortIntance = (BLLBase)(Activator.CreateInstance(sort.Table));
 
                 if (sqlSort.Length > 0)
                 {
@@ -834,7 +314,7 @@ namespace Tenor.BLL
 
                     if (fieldInfo != null)
                     {
-                        fieldExpression = tableAlias + "." + instance.CommandBuilder.QuoteIdentifier(fieldInfo.DataFieldName);
+                        fieldExpression = tableAlias + "." + builder.QuoteIdentifier(fieldInfo.DataFieldName);
                     }
                     else if (spInfo != null)
                     {
@@ -851,10 +331,10 @@ namespace Tenor.BLL
 
 
 
-            //Monta a WHERE
+            //Creates the where part
             string sqlWHERE = ReadConditions(SearchOptions.Conditions, @Params, ref innerjoins, SearchOptions._BaseClass, Connection);
 
-            //WHERES dos INNERJOINS
+            //Creates the innerJoins conditions
             StringBuilder sqlIJ = new StringBuilder();
 
             if (innerjoins.Count > 0)
@@ -873,9 +353,9 @@ namespace Tenor.BLL
             {
                 Type IJ = innerjoins[IJkey];
 
-                BLLBase IJinstance = (BLLBase)(Activator.CreateInstance(IJ));
+                //BLLBase IJinstance = (BLLBase)(Activator.CreateInstance(IJ));
 
-                
+
 
                 ForeignKeyInfo[] fks = BLLBase.GetForeignKeys(IJ);
                 foreach (ForeignKeyInfo fk in fks)
@@ -884,10 +364,11 @@ namespace Tenor.BLL
                     if (fk.ElementType == SearchOptions._BaseClass || innerjoins.ContainsValue(fk.ElementType))
                     {
 
-                        BLLBase tabela = (BLLBase)(Activator.CreateInstance(fk.ElementType));
-                        tabela.SetActiveConnection(Connection);
+                        //BLLBase tabela = (BLLBase)(Activator.CreateInstance(fk.ElementType));
+                        //tabela.SetActiveConnection(Connection);
+                        TableInfo ijInfo = TableInfo.CreateTableInfo(fk.ElementType);
+                        string IJKeyleft = ijInfo.RelatedTable.Name;
 
-                        string IJKeyleft = tabela.GetType().Name;
                         foreach (string i in innerjoins.Keys)
                         {
                             if (innerjoins[i] == fk.ElementType)
@@ -906,8 +387,8 @@ namespace Tenor.BLL
                             throw (new InvalidOperationException("Cannot find local field for \'" + fk.ToString() + "\'"));
                         }
 
-                        string left = IJKeyleft + "." + tabela.CommandBuilder.QuoteIdentifier(fk.ForeignFields[0].DataFieldName);
-                        string right = IJkey + "." + tabela.CommandBuilder.QuoteIdentifier(fk.LocalFields[0].DataFieldName);
+                        string left = IJKeyleft + "." + builder.QuoteIdentifier(fk.ForeignFields[0].DataFieldName);
+                        string right = IJkey + "." + builder.QuoteIdentifier(fk.LocalFields[0].DataFieldName);
 
                         if (!sqlIJ.ToString().Contains(left + " = " + right) && !sqlIJ.ToString().Contains(right + " = " + left))
                         {
@@ -927,9 +408,6 @@ namespace Tenor.BLL
                             encontrados.Add(IJ);
                         }
 
-
-                        tabela = null;
-                        //Exit For
                     }
                 }
 
@@ -967,36 +445,39 @@ namespace Tenor.BLL
             }
 
 
-            string froms = GetSchemaAndTable(instance);
+            string froms = table.GetSchemaAndTable();
 
-            //' Tradução automática com a view correspondente
-            if (instance.Localizable && CultureInfo.CurrentCulture.IetfLanguageTag != Configuration.Localization.DefaultCulture)
-            {
-                froms = GetSchemaAndView(instance);
+            //TODO: Implement localizable searchs
 
-                if (sqlWHERE.Length > 0)
-                {
-                    sqlWHERE += " AND ";
-                }
-                sqlWHERE += "IetfLanguageTag = \'" + CultureInfo.CurrentCulture.IetfLanguageTag + "\'";
-            }
 
-            froms += " " + instance.GetType().Name; //alias da tabela é o nome da classe
-            // se houver classes em namepasces diferentes
+            ////' Tradução automática com a view correspondente
+            //if (instance.Localizable && CultureInfo.CurrentCulture.IetfLanguageTag != Configuration.Localization.DefaultCulture)
+            //{
+            //    froms = GetSchemaAndView(instance);
+
+            //    if (sqlWHERE.Length > 0)
+            //    {
+            //        sqlWHERE += " AND ";
+            //    }
+            //    sqlWHERE += "IetfLanguageTag = \'" + CultureInfo.CurrentCulture.IetfLanguageTag + "\'";
+            //}
+
+            froms += " " + table.GetTableAlias(); 
+            // TODO: Create different aliases.
 
             foreach (string ijkey in innerjoins.Keys)
             {
                 Type ij = innerjoins[ijkey];
-                BLLBase tabela = (BLLBase)(Activator.CreateInstance(ij));
-                tabela.SetActiveConnection(Connection);
-                string tbl = GetSchemaAndTable(tabela) + " " + ijkey;
+                TableInfo ijInfo = TableInfo.CreateTableInfo(ij);
+                //BLLBase tabela = (BLLBase)(Activator.CreateInstance(ij));
+                //tabela.SetActiveConnection(Connection);
+                string tbl = ijInfo.GetSchemaAndTable() + " " + ijkey;
 
                 if (!froms.ToString().Contains(tbl))
                 {
                     froms += ", " + tbl;
                 }
 
-                tabela = null;
             }
 
 
@@ -1025,62 +506,10 @@ namespace Tenor.BLL
                 sql.AppendLine(sqlSort.ToString());
             }
 
-            try
-            {
-                if (System.Diagnostics.Debugger.IsAttached)
-                {
 
-                    System.Text.StringBuilder traceInfo = new System.Text.StringBuilder();
-                    traceInfo.AppendLine(SearchOptions.ToString());
-                    traceInfo.AppendLine(" > " + Connection.ConnectionString);
-                    foreach (Parameter p in @Params)
-                    {
-                        traceInfo.AppendLine("DECLARE " + p.ParameterPrefix + p.ParameterName + " " + p.DbTypeName);
-                        if (p.Value == null)
-                        {
-                            traceInfo.AppendLine("SET " + p.ParameterPrefix + p.ParameterName + " = NULL");
-                        }
-                        else
-                        {
-                            string value = p.Value.ToString();
-                            if (p.Value is bool)
-                            {
-                                value = Math.Abs(System.Convert.ToInt32(p.Value)).ToString();
-                            }
-
-                            if ((((((p.DbType == DbType.String) || (p.DbType == DbType.AnsiString)) || (p.DbType == DbType.AnsiStringFixedLength)) || (p.DbType == DbType.DateTime)) || (p.DbType == DbType.Date)) || (p.DbType == DbType.Time))
-                            {
-                                value = "\'" + value.Replace("\'", "\'\'") + "\'";
-                            }
-
-                            traceInfo.AppendLine("SET " + p.ParameterPrefix + p.ParameterName + " = " + value);
-                        }
-                    }
-                    traceInfo.AppendLine(sql.ToString());
-
-                    string st = Environment.StackTrace;
-                    string fimDaondeNaoImporta = "Data.BulkInsert.DoDebug(String sql)" + Environment.NewLine;
-                    int i = st.IndexOf(fimDaondeNaoImporta);
-                    if (i > 0)
-                    {
-                        st = st.Substring(i + fimDaondeNaoImporta.Length);
-                    }
-
-                    traceInfo.AppendLine("Stack Trace:");
-                    traceInfo.AppendLine(st);
-                    traceInfo.AppendLine("---------------------");
-
-                    System.Diagnostics.Trace.TraceInformation(traceInfo.ToString());
-
-                }
-            }
-            catch (Exception ex)
-            {
-                Diagnostics.Debug.HandleError(ex);
-            }
+            Tenor.Diagnostics.Debug.DebugSQL("GetSearchSql()", sql.ToString(), Params.ToArray(), Connection);
 
             return sql.ToString();
-
         }
 
 
@@ -1102,7 +531,6 @@ namespace Tenor.BLL
             for (int i = 0; i <= instances.Length - 1; i++)
             {
                 instances[i] = (BLLBase)(Activator.CreateInstance(BaseClass));
-                instances[i]._Connection = Connection;
                 instances[i].Bind(LazyLoading, null, Table.Rows[i]);
             }
             return instances;
@@ -1128,9 +556,16 @@ namespace Tenor.BLL
 
         private static Tenor.Data.DataTable SearchWithDataTable(SearchOptions SearchOptions, ConnectionStringSettings Connection, bool Count)
         {
-            List<Parameter> @params = new List<Parameter>();
-            string sql = GetSearchSql(SearchOptions, ref @params, Count, ref Connection);
-            Tenor.Data.DataTable rs = new Tenor.Data.DataTable(sql, @params.ToArray(), Connection);
+
+            List<TenorParameter> parameters = new List<TenorParameter>();
+            if (Connection == null)
+            {
+                TableInfo table = TableInfo.CreateTableInfo(SearchOptions._BaseClass);
+                Connection = table.GetConnection();
+            }
+
+            string sql = GetSearchSql(SearchOptions, ref parameters, Count, Connection);
+            Tenor.Data.DataTable rs = new Tenor.Data.DataTable(sql, parameters.ToArray(), Connection);
             DataSet ds = new DataSet();
             ds.Tables.Add(rs);
             ds.EnforceConstraints = false;
@@ -1142,338 +577,11 @@ namespace Tenor.BLL
 
         #endregion
 
-        #region " Lazy Loading "
-
-        /// <summary>
-        /// Carrega as propriedades marcadas como chave extrangeira
-        /// </summary>
-        /// <param name="Property">Nome da propriedade que irá receber a carga</param>
-        /// <param name="LazyLoading">Ativa ou desativa o Lazy Loading</param>
-        /// <remarks></remarks>
-        protected virtual void LoadForeign(string @Property, bool LazyLoading)
-        {
-            LoadForeign(@Property, LazyLoading, ((Type)null));
-        }
-
-        /// <summary>
-        /// Carrega as propriedades marcadas como chave extrangeira
-        /// </summary>
-        /// <param name="Property">Nome da propriedade que irá receber a carga</param>
-        /// <param name="LazyLoading">Ativa ou desativa o Lazy Loading</param>
-        /// <remarks></remarks>
-        protected virtual void LoadForeign(string @Property, bool LazyLoading, Type Type)
-        {
-            System.Reflection.PropertyInfo FieldP = null;
-            if (Type != null)
-            {
-                FieldP = this.GetType().GetProperty(@Property, Type);
-            }
-            else
-            {
-                FieldP = this.GetType().GetProperty(@Property);
-            }
-            ForeignKeyInfo Field = new ForeignKeyInfo(FieldP);
-
-            BLLBase instance = (BLLBase)(Activator.CreateInstance(Field.ElementType));
-            LoadForeign(@Property, LazyLoading, Type, instance.Connection);
-        }
-
-        /// <summary>
-        /// Carrega as propriedades marcadas como chave extrangeira
-        /// </summary>
-        /// <param name="Property">Nome da propriedade que irá receber a carga</param>
-        /// <param name="LazyLoading">Ativa ou desativa o Lazy Loading</param>
-        /// <remarks></remarks>
-        protected virtual void LoadForeign(string @Property, bool LazyLoading, ConnectionStringSettings Connection)
-        {
-            LoadForeign(@Property, LazyLoading, null, Connection);
-        }
-
-        /// <summary>
-        /// Carrega as propriedades marcadas como chave extrangeira
-        /// </summary>
-        /// <param name="Property">Nome da propriedade que irá receber a carga</param>
-        /// <param name="LazyLoading">Ativa ou desativa o Lazy Loading</param>
-        /// <remarks></remarks>
-        protected virtual void LoadForeign(string @Property, bool LazyLoading, Type Type, ConnectionStringSettings Connection)
-        {
-
-            System.Reflection.PropertyInfo FieldP = null;
-            if (Type != null)
-            {
-                FieldP = this.GetType().GetProperty(@Property, Type);
-            }
-            else
-            {
-                FieldP = this.GetType().GetProperty(@Property);
-            }
-            ForeignKeyInfo Field = new ForeignKeyInfo(FieldP);
-
-
-            //Dim filters As String = ""
-            //Dim params As New List(Of Data.Parameter)
-
-            BLLBase instance = (BLLBase)(Activator.CreateInstance(Field.ElementType));
-            instance._Connection = Connection;
-            if (!Field.IsArray)
-            {
-                if ((instance != null) && instance.Cacheable)
-                {
-                    //Se for uma classe de cache
-                    for (int i = 0; i <= Field.ForeignFields.Length - 1; i++)
-                    {
-                        Field.ForeignFields[i].SetPropertyValue(instance, Field.LocalFields[i].PropertyValue(this));
-                    }
-                    instance.Bind(LazyLoading);
-                    Field.SetPropertyValue(this, instance);
-                    return;
-                }
-            }
-
-
-            SearchOptions sc = new SearchOptions(Field.ElementType);
-            sc.LazyLoading = LazyLoading;
-
-
-
-            for (int i = 0; i <= Field.ForeignFields.Length - 1; i++)
-            {
-                if (i > 0)
-                {
-                    sc.Conditions.Add(Tenor.Data.LogicalOperator.And);
-                }
-                // o  campo externo é igual ao campo local.
-                if (Field.LocalFields.Length - 1 < i)
-                {
-                    throw (new MissingFieldsException());
-                }
-                sc.Conditions.Add(Field.ForeignFields[i].RelatedProperty.Name, Field.LocalFields[i].PropertyValue(this));
-
-            }
-            if (sc.Conditions.Count == 0)
-            {
-                throw (new MissingFieldsException());
-            }
-
-
-            BLLBase[] instances = Search(sc, Connection);
-
-            if (this._IsLazyDisabled)
-            {
-                foreach (BLLBase i in instances)
-                {
-                    i._IsLazyDisabled = this._IsLazyDisabled;
-                }
-            }
-
-
-            if (Field.IsArray)
-            {
-                if (Field.RelatedProperty.PropertyType.IsArray)
-                {
-                    Field.SetPropertyValue(this, instances);
-                }
-                else
-                {
-
-                    bool lastValue = this._IsLazyDisabled;
-                    this._IsLazyDisabled = true;
-                    object obj = null;
-                    try
-                    {
-                        obj = Field.PropertyValue(this);
-                    }
-                    catch (Exception ex)
-                    {
-                        Exception up = new Exception("The property \'" + Field.RelatedProperty.Name + "\' must return an instance of a collection", ex);
-                        throw (up);
-                    }
-                    this._IsLazyDisabled = lastValue;
-
-                    if (obj == null)
-                    {
-                        NullReferenceException up = new NullReferenceException(null, new Exception("The property \'" + Field.RelatedProperty.Name + "\' must return an instance of a collection"));
-                        throw (up);
-                    }
-
-                    Type listof = Field.RelatedProperty.PropertyType;
-
-                    listof.GetMethod("Clear").Invoke(obj, null);
-                    foreach (BLLBase i in instances)
-                    {
-                        listof.GetMethod("Add").Invoke(obj, new object[] { i });
-                    }
-                }
-            }
-            else
-            {
-                if (instances.Length == 0)
-                {
-                    Field.SetPropertyValue(this, null);
-                }
-                else
-                {
-                    Field.SetPropertyValue(this, instances[0]);
-                    if (instances.Length > 1)
-                    {
-                        Trace.TraceWarning("LoadingForeignKey-1-1: More than one instance was returned");
-                    }
-                }
-            }
-
-        }
-
-
-
-
-
-        /// <summary>
-        /// Carrega as informações de um campo marcado para lazy loading
-        /// </summary>
-        /// <remarks></remarks>
-        protected virtual void LoadProperty(string @Property)
-        {
-            System.Reflection.PropertyInfo fieldP = this.GetType().GetProperty(@Property);
-            if (fieldP == null)
-            {
-                throw (new ArgumentException("The property specified was not found.", "Property", null));
-            }
-            FieldAttribute[] fieldAttrs = (FieldAttribute[])(fieldP.GetCustomAttributes(typeof(FieldAttribute), true));
-            if (fieldAttrs.Length == 0)
-            {
-                throw (new ArgumentException("The property specified is not a FieldAttribute type.", "Property", null));
-            }
-
-            FieldInfo field = new FieldInfo(fieldP);
-
-            string sql = "";
-            sql += " SELECT " + "\r\n";
-            sql += " --FIELDS--" + "\r\n";
-            sql += " FROM --TABLE-- " + "\r\n";
-            sql += " WHERE --CONDITION--";
-
-
-
-
-            sql = sql.Replace("--FIELDS--", this.CommandBuilder.QuoteIdentifier(field.DataFieldName));
-            sql = sql.Replace("--TABLE--", BLLBase.GetSchemaAndTable(this));
-
-            List<Parameter> @params = new List<Parameter>();
-            string filter = "";
-
-            foreach (FieldInfo f in GetFields(this.GetType()))
-            {
-                if (f.PrimaryKey)
-                {
-                    string paramName = f.DataFieldName.ToLower().Replace(" ", "_");
-                    Parameter param = new Parameter(this.Connection, paramName, f.PropertyValue(this));
-
-                    filter += " AND " + this.CommandBuilder.QuoteIdentifier(f.DataFieldName) + (" = " + param.ParameterPrefix + paramName);
-                    @params.Add(param);
-                }
-
-            }
-            if (string.IsNullOrEmpty(filter))
-            {
-                throw (new MissingPrimaryKeyException());
-            }
-            sql = sql.Replace("--CONDITION--", filter.Substring(5));
-
-            Tenor.Data.DataTable rs = new Tenor.Data.DataTable(sql, @params.ToArray(), this.Connection);
-            rs.Bind();
-
-            if (rs.Rows.Count == 0)
-            {
-                throw (new RecordNotFoundException());
-            }
-            else
-            {
-
-                field.SetPropertyValue(this, rs.Rows[0][field.DataFieldName]);
-
-            }
-
-
-
-        }
-
-
-
-        protected bool _IsLazyDisabled = false;
-        /// <summary>
-        /// Returns a value indicating whether or not this class is serializing.
-        /// </summary>
-        /// <returns>True or False</returns>
-        /// <remarks></remarks>
-        protected virtual bool LazyLoadingDisabled
-        {
-            get
-            {
-                return _IsLazyDisabled;
-            }
-        }
-
-
-        /// <summary>
-        /// Desativa o LazyLoading para as intâncias passadas.
-        /// </summary>
-        /// <param name="items"></param>
-        /// <remarks></remarks>
-        public static void DisableLazyLoading(BLLBase[] items)
-        {
-            foreach (BLLBase i in items)
-            {
-                i.ChangeLazyLoadingStatus(true);
-            }
-        }
-
-        /// <summary>
-        /// Ativa o LazyLoading para as intâncias passadas.
-        /// </summary>
-        /// <param name="items"></param>
-        /// <remarks></remarks>
-        public static void EnableLazyLoading(BLLBase[] items)
-        {
-            foreach (BLLBase i in items)
-            {
-                i.ChangeLazyLoadingStatus(false);
-            }
-        }
-
-
-        private void ChangeLazyLoadingStatus(bool status)
-        {
-            this._IsLazyDisabled = status;
-
-            foreach (ForeignKeyInfo fk in BLLBase.GetForeignKeys(this.GetType()))
-            {
-                if (fk.IsArray)
-                {
-                    ICollection col = (ICollection)(fk.PropertyValue(this, false));
-                    if (col != null)
-                    {
-                        foreach (BLLBase item in col)
-                        {
-                            item.ChangeLazyLoadingStatus(status);
-                        }
-                    }
-                }
-                else
-                {
-                    BLLBase obj = (BLLBase)(fk.PropertyValue(this, false));
-                    if (obj != null)
-                    {
-                        obj.ChangeLazyLoadingStatus(status);
-                    }
-                }
-            }
-        }
-        #endregion
 
         #region " Save "
 
         /// <summary>
-        /// Persiste no banco os valores das propriedades do tipo Field
+        /// Saves this entity data on the persistence layer.
         /// </summary>
         /// <remarks></remarks>
         public virtual void Save()
@@ -1497,56 +605,78 @@ namespace Tenor.BLL
                     break;
                 }
             }
-            Save(isUpdate);
+            Save(isUpdate, null);
         }
-
+        /// <summary>
+        /// Saves this entity data on the persistence layer.
+        /// </summary>
+        /// <param name="isUpdate">Force an Update instead of an Insert statement.</param>
+        /// <remarks></remarks>
+        public virtual void Save(bool isUpdate)
+        {
+            Save(isUpdate, null);
+        }
 
         internal static string GetParamName(string paramPrefix, FieldInfo field)
         {
             return paramPrefix + field.DataFieldName.Replace(" ", "_");
         }
 
-        internal string GetSaveSql(bool Update, string paramPrefix, List<Parameter> @params, ref FieldInfo AutoKeyField, System.Collections.Specialized.NameValueCollection SpecialValues, ConnectionStringSettings Connection)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="isUpdate"></param>
+        /// <param name="parameters"></param>
+        /// <param name="autoKeyField"></param>
+        /// <param name="specialValues">The special values can contains sql sentences/sequences/etc</param>
+        /// <param name="connection"></param>
+        /// <returns></returns>
+        internal string GetSaveSql(bool isUpdate, List<TenorParameter> parameters, ref FieldInfo autoKeyField, NameValueCollection specialValues, ConnectionStringSettings connection)
         {
+            TableInfo table = TableInfo.CreateTableInfo(this.GetType());
+            if (connection == null)
+                connection = table.GetConnection();
+
+            string paramPrefix = Helper.GetParameterPrefix(connection); // The @, :, ?
+            DbCommandBuilder builder = Helper.GetCommandBuilder(connection);
+
             string fieldValues = "";
             string clause = "";
             string fields = "";
             string values = "";
 
-            AutoKeyField = null;
+            autoKeyField = null;
             foreach (FieldInfo field in GetFields(this.GetType()))
             {
-                if (IsLoaded(field.RelatedProperty))
+                if (!field.LazyLoading || propertyData.ContainsKey(field.RelatedProperty.Name))
                 {
-                    string paramName = GetParamName(paramPrefix, field);
-                    Parameter param = new Parameter(Connection, paramName, field.PropertyValue(this));
+                    string paramName = GetParamName(table.GetTableAlias(), field);
+                    TenorParameter param = new TenorParameter(paramName, field.PropertyValue(this));
                     if (field.AutoNumber)
                     {
-                        AutoKeyField = field;
+                        autoKeyField = field;
                     }
                     else
                     {
-
-
 
                         if (!string.IsNullOrEmpty(fields))
                         {
                             fields += ", ";
                         }
-                        fields += this.CommandBuilder.QuoteIdentifier(field.DataFieldName);
+                        fields += builder.QuoteIdentifier(field.DataFieldName);
                         if (!string.IsNullOrEmpty(values))
                         {
                             values += ", ";
                         }
 
 
-                        if (SpecialValues == null || string.IsNullOrEmpty(SpecialValues[paramName]))
+                        if (specialValues == null || string.IsNullOrEmpty(specialValues[paramName]))
                         {
-                            values += param.ParameterPrefix + paramName;
+                            values += paramPrefix + paramName; // The straigt parameter
                         }
                         else
                         {
-                            values += SpecialValues[paramName];
+                            values += specialValues[paramName]; //Replaced by a SQL statement
                         }
 
                         if (!field.PrimaryKey)
@@ -1555,7 +685,14 @@ namespace Tenor.BLL
                             {
                                 fieldValues += ", ";
                             }
-                            fieldValues += this.CommandBuilder.QuoteIdentifier(field.DataFieldName) + " = " + param.ParameterPrefix + paramName;
+                            if (specialValues == null || string.IsNullOrEmpty(specialValues[paramName]))
+                            {
+                                fieldValues += builder.QuoteIdentifier(field.DataFieldName) + " = " + paramPrefix + paramName;
+                            }
+                            else
+                            {
+                                fieldValues += builder.QuoteIdentifier(field.DataFieldName) + " = " + specialValues[paramName];
+                            }
                         }
 
 
@@ -1567,49 +704,53 @@ namespace Tenor.BLL
                         {
                             clause += " AND ";
                         }
-                        clause += "" + this.CommandBuilder.QuoteIdentifier(field.DataFieldName) + " = " + param.ParameterPrefix + paramName;
+                        clause += "" + builder.QuoteIdentifier(field.DataFieldName) + " = " + paramPrefix + paramName;
                     }
 
-                    @params.Add(param);
+                    parameters.Add(param);
                 }
             }
 
             string query = "";
-            if (Update)
+            if (isUpdate)
             {
-                query = "UPDATE ---TABLE_NAME--- SET ---FIELD_VALUES--- WHERE ---CLAUSE---";
+                query = string.Format("UPDATE {0} SET {1} WHERE {2}",
+                    table.GetSchemaAndTable(),
+                    fieldValues,
+                    clause);
             }
             else
             {
-                query = "INSERT INTO ---TABLE_NAME--- (---FIELDS---) VALUES (---VALUES---)";
+                query = string.Format("INSERT INTO {0} ({1}) VALUES ({2})",
+                    table.GetSchemaAndTable(), 
+                    fields,
+                    values);
             }
-
-            query = query.Replace("---TABLE_NAME---", GetSchemaAndTable(this));
-            query = query.Replace("---FIELD_VALUES---", fieldValues);
-            query = query.Replace("---CLAUSE---", clause);
-            query = query.Replace("---FIELDS---", fields);
-            query = query.Replace("---VALUES---", values);
 
             return query;
         }
 
         /// <summary>
-        /// Persiste no banco os valores das propriedades do tipo Field
+        /// Saves this entity data on the persistence layer.
         /// </summary>
-        /// <param name="Update">Determina se é um update ou um insert</param>
+        /// <param name="isUpdate">Force an Update instead of an Insert statement.</param>
         /// <remarks></remarks>
-        public virtual void Save(bool Update)
+        public virtual void Save(bool isUpdate, ConnectionStringSettings connection)
         {
             if (Validate())
             {
+                TableInfo table = TableInfo.CreateTableInfo(this.GetType());
+                if (connection == null)
+                    connection = table.GetConnection();
+
                 FieldInfo AutoKeyField = null;
 
-                List<Parameter> @params = new List<Parameter>();
-                string query = GetSaveSql(Update, this.GetType().Name, @params, ref AutoKeyField, null, this.Connection);
+                List<TenorParameter> @params = new List<TenorParameter>();
+                string query = GetSaveSql(isUpdate, @params, ref AutoKeyField, null, connection);
 
-                int result = Helper.AtualizarBanco(this.Connection, query, @params);
+                int result = Helper.AtualizarBanco(connection, query, @params);
 
-                if (!Update && (AutoKeyField != null))
+                if (!isUpdate && (AutoKeyField != null))
                 {
                     AutoKeyField.SetPropertyValue(this, Convert.ChangeType(result, AutoKeyField.FieldType));
                 }
@@ -1640,7 +781,7 @@ namespace Tenor.BLL
             return SaveConditional(new string[] { ConditionalField }, isUpdate);
         }
 
-        /// <summary>
+                /// <summary>
         /// Quando isUpdate é False, o sistema cria um registro novo, se o mesmo não existir. Se o registro for criado,
         /// retorna True.
         /// Quando isUpdate é True, o sistema cria um registro novo se o mesmo não exister, caso contrário, atualiza.
@@ -1648,8 +789,24 @@ namespace Tenor.BLL
         /// </summary>
         public virtual bool SaveConditional(string[] ConditionalFields, bool isUpdate)
         {
+            return SaveConditional(ConditionalFields, isUpdate, null);
+        }
+        /// <summary>
+        /// Quando isUpdate é False, o sistema cria um registro novo, se o mesmo não existir. Se o registro for criado,
+        /// retorna True.
+        /// Quando isUpdate é True, o sistema cria um registro novo se o mesmo não exister, caso contrário, atualiza.
+        /// Se o registro for criado, retorna True.
+        /// </summary>
+        public virtual bool SaveConditional(string[] ConditionalFields, bool isUpdate, ConnectionStringSettings connection)
+        {
             if (Validate())
             {
+                TableInfo table = TableInfo.CreateTableInfo(this.GetType());
+                if (connection == null)
+                    connection = table.GetConnection();
+                DbProviderFactory factory = Helper.GetFactory(connection);
+                string paramPrefix = Helper.GetParameterPrefix(factory);
+                
                 FieldInfo[] fields = BLLBase.GetFields(this.GetType(), null, ConditionalFields);
 
                 if (ConditionalFields.Length == 0)
@@ -1666,11 +823,11 @@ namespace Tenor.BLL
 
                 FieldInfo AutoKeyField = null;
 
-                List<Parameter> @params = new List<Parameter>();
-                string insertQuery = GetSaveSql(false, this.GetType().Name, @params, ref AutoKeyField, null, this.Connection);
+                List<TenorParameter> @params = new List<TenorParameter>();
+                string insertQuery = GetSaveSql(false, @params, ref AutoKeyField, null, connection);
 
                 //updateQuery está com new List<Parameter> pois os parametros já foram definidos no insertQuery.
-                string updateQuery = GetSaveSql(true, this.GetType().Name, new List<Parameter>(), ref AutoKeyField, null, this.Connection);
+                string updateQuery = GetSaveSql(true, new List<TenorParameter>(), ref AutoKeyField, null, connection);
 
                 StringBuilder query = new StringBuilder();
                 StringBuilder queryDeclares = new StringBuilder();
@@ -1681,9 +838,9 @@ namespace Tenor.BLL
 
                 foreach (FieldInfo f in fieldsPrimary)
                 {
-                    Data.Parameter p = new Data.Parameter(this.Connection, f.RelatedProperty.Name + "__test", f.PropertyValue(this));
+                    TenorParameter p = new TenorParameter(f.RelatedProperty.Name + "__test", f.PropertyValue(this));
                     querySelect.Append(",");
-                    querySelect.Append(p.ParameterPrefix + this.GetType().Name + f.RelatedProperty.Name);
+                    querySelect.Append(paramPrefix + table.GetTableAlias() + f.RelatedProperty.Name);
                     querySelect.Append(" = ");
                     querySelect.Append(f.DataFieldName);
                 }
@@ -1691,20 +848,20 @@ namespace Tenor.BLL
 
                 foreach (FieldInfo f in fields)
                 {
-                    Data.Parameter p = new Data.Parameter(this.Connection, f.RelatedProperty.Name + "__test", f.PropertyValue(this));
-                    queryDeclares.AppendLine("DECLARE " + p.ParameterPrefix + f.RelatedProperty.Name + "_ " + p.DbTypeName);
+                    TenorParameter p = new TenorParameter(f.RelatedProperty.Name + "__test", f.PropertyValue(this));
+                    queryDeclares.AppendLine("DECLARE " + paramPrefix + f.RelatedProperty.Name + "_ " + Helper.GetDbTypeName(p.Value.GetType(), factory));
                     querySelect.Append(",");
-                    querySelect.Append(p.ParameterPrefix + f.RelatedProperty.Name + "_");
+                    querySelect.Append(paramPrefix + f.RelatedProperty.Name + "_");
                     querySelect.Append(" = ");
                     querySelect.Append(f.DataFieldName);
 
                     queryWhere.Append(" AND ");
                     queryWhere.Append(f.DataFieldName);
                     queryWhere.Append(" = ");
-                    queryWhere.Append(p.ParameterPrefix + this.GetType().Name + f.RelatedProperty.Name);
+                    queryWhere.Append(paramPrefix + table.GetTableAlias() + f.RelatedProperty.Name);
 
                     queryIsNull.Append(" AND ");
-                    queryIsNull.Append(p.ParameterPrefix + f.RelatedProperty.Name + "_ IS NULL");
+                    queryIsNull.Append(paramPrefix + f.RelatedProperty.Name + "_ IS NULL");
 
                 }
                 query.Append(queryDeclares);
@@ -1714,7 +871,7 @@ namespace Tenor.BLL
                 querySelect.Remove(0, 1);
                 query.Append(querySelect);
                 query.Append(" FROM ");
-                query.Append(BLLBase.GetSchemaAndTable(this));
+                query.Append(table.GetSchemaAndTable());
                 query.Append(" WHERE ");
                 queryWhere.Remove(0, 4);
                 query.AppendLine(queryWhere.ToString());
@@ -1734,7 +891,7 @@ namespace Tenor.BLL
                 query.AppendLine(" END ");
 
 
-                DataTable result = Helper.ConsultarBanco(this.Connection, query.ToString(), @params);
+                DataTable result = Helper.ConsultarBanco(connection, query.ToString(), @params);
 
                 if (!isUpdate && System.Convert.ToInt32(result.Rows[0][0]) == -1)
                 {
@@ -1764,14 +921,19 @@ namespace Tenor.BLL
         /// </summary>
         public void Delete()
         {
+            TableInfo table = TableInfo.CreateTableInfo(this.GetType());
+            ConnectionStringSettings connection = table.GetConnection();
+            DbCommandBuilder builder = Helper.GetCommandBuilder(connection);
+            string paramPrefix = Helper.GetParameterPrefix(connection);
+
             string clause = "";
-            List<Parameter> @params = new List<Parameter>();
+            List<TenorParameter> @params = new List<TenorParameter>();
             foreach (FieldInfo i in GetFields(this.GetType()))
             {
                 if (i.PrimaryKey)
                 {
-                    Parameter param = new Parameter(this.Connection, i.DataFieldName.Replace(" ", "_"), i.PropertyValue(this));
-                    clause += " AND " + CommandBuilder.QuoteIdentifier(i.DataFieldName) + (" = " + param.ParameterPrefix + i.DataFieldName.Replace(" ", "_"));
+                    TenorParameter param = new TenorParameter(i.DataFieldName.Replace(" ", "_"), i.PropertyValue(this));
+                    clause += " AND " + builder.QuoteIdentifier(i.DataFieldName) + (" = " + paramPrefix + param.ParameterName);
                     @params.Add(param);
                 }
             }
@@ -1784,9 +946,9 @@ namespace Tenor.BLL
                 clause = clause.Substring(4);
             }
 
-            string query = "DELETE FROM " + GetSchemaAndTable(this) + " WHERE " + clause;
+            string query = "DELETE FROM " + table.GetSchemaAndTable() + " WHERE " + clause;
 
-            Helper.AtualizarBanco(this.Connection, query, @params);
+            Helper.AtualizarBanco(connection, query, @params);
         }
 
         #endregion
@@ -1802,272 +964,6 @@ namespace Tenor.BLL
         }
         #endregion
 
-        #region " Cacheable "
-        [Browsable(false)]
-        public virtual bool Cacheable
-        {
-            get
-            {
-                return false;
-            }
-        }
-
-        private string GetCacheKey()
-        {
-
-            FieldInfo[] chavesPrimaria = BLLBase.GetPrimaryKeys(this.GetType());
-            if (chavesPrimaria.Length == 0)
-            {
-                throw (new MissingPrimaryKeyException());
-            }
-            string chavePrimaria = "";
-            foreach (FieldInfo f in chavesPrimaria)
-            {
-                chavePrimaria += "," + f.PropertyValue(this).ToString();
-            }
-
-
-            if (chavePrimaria.Length == 0)
-            {
-                throw (new MissingPrimaryKeyException());
-            }
-            else
-            {
-                chavePrimaria = chavePrimaria.Substring(1);
-            }
-            return chavePrimaria;
-        }
-
-
-        /// <summary>
-        /// Procura a instancia no cache e a inclue se não for encontrada.
-        /// </summary>
-        /// <returns>Verdadeiro se o item foi lido do cache. Falso se a intancia não foi encontrada. Caso retorne falso deverá ser carregado os dados da mesma.</returns>
-        /// <remarks></remarks>
-        private bool LoadFromCache()
-        {
-
-            string chavePrimaria = GetCacheKey();
-
-            System.Web.Caching.Cache Cache = null;
-            if (System.Web.HttpContext.Current != null)
-            {
-                Cache = System.Web.HttpContext.Current.Cache;
-            }
-
-            if (Cache != null)
-            {
-                Dictionary<string, BLLBase> obj = (Dictionary<string, BLLBase>)(Cache.Get(ChaveCache));
-
-                if (obj == null)
-                {
-                    obj = new Dictionary<string, BLLBase>();
-                    Cache.Add(ChaveCache, obj, null, System.Web.Caching.Cache.NoAbsoluteExpiration, new TimeSpan(0, 60, 0), System.Web.Caching.CacheItemPriority.Default, null);
-                }
-
-
-                object sync = new object();
-                lock (sync)
-                {
-                    if (obj.ContainsKey(chavePrimaria) && (obj[chavePrimaria] != null))
-                    {
-                        BLLBase item = obj[chavePrimaria];
-                        item.CopyTo(this);
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        private void SaveToCache()
-        {
-            System.Web.Caching.Cache Cache = null;
-            if (System.Web.HttpContext.Current != null)
-            {
-                Cache = System.Web.HttpContext.Current.Cache;
-            }
-            if (Cache != null)
-            {
-                object sync = new object();
-                lock (sync)
-                {
-                    Dictionary<string, BLLBase> obj = (Dictionary<string, BLLBase>)(Cache.Get(ChaveCache));
-                    if (obj == null)
-                    {
-                        obj = new Dictionary<string, BLLBase>();
-                        Cache.Add(ChaveCache, obj, null, System.Web.Caching.Cache.NoAbsoluteExpiration, new TimeSpan(0, 60, 0), System.Web.Caching.CacheItemPriority.Default, null);
-                    }
-                    string chavePrimaria = GetCacheKey();
-                    if (obj.ContainsKey(chavePrimaria))
-                    {
-                        //A chave do cache existe, mas por algum motivo não está lá.
-                        obj[chavePrimaria] = this;
-                    }
-                    else
-                    {
-                        //A chave do cache não existe
-                        obj.Add(chavePrimaria, this);
-                    }
-                }
-            }
-        }
-
-
-
-
-        /// <summary>
-        /// Copia os campos private para o objeto especificado.
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <remarks></remarks>
-        private void CopyTo(BLLBase obj)
-        {
-            if (obj.GetType() != this.GetType())
-            {
-                throw (new InvalidCastException());
-            }
-            System.Reflection.FieldInfo[] fields = this.GetType().GetFields(System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
-            foreach (System.Reflection.FieldInfo field in fields)
-            {
-                field.SetValue(obj, field.GetValue(this));
-            }
-
-        }
-
-        #endregion
-
-        #region " Reflection "
-
-        /// <summary>
-        /// Indica status do lazyloading na propriedade
-        /// </summary>
-        /// <param name="Property"></param>
-        /// <returns>True se a propriedade ainda não foi carregada.
-        /// False se já carregada.
-        /// </returns>
-        /// <remarks></remarks>
-        private bool IsLoaded(System.Reflection.PropertyInfo @Property)
-        {
-            System.Reflection.FieldInfo field = this.GetType().GetField("_" + @Property.Name + "_firstaccess", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
-            if (field != null)
-            {
-                return !System.Convert.ToBoolean(field.GetValue(this));
-            }
-            else
-            {
-                return true;
-            }
-        }
-
-
-        /// <summary>
-        /// Pega uma lista de FieldInfos com todos os fields da instância passada
-        /// </summary>
-        /// <param name="Instance">A instância do objeto que contém os campos</param>
-        /// <returns>Uma lista de FieldInfos</returns>
-        /// <remarks></remarks>
-        [Obsolete()]
-        private static List<FieldInfo> GetFields(BLLBase Instance)
-        {
-            return new List<FieldInfo>(GetFields(Instance.GetType()));
-        }
-
-        /// <summary>
-        /// Pega uma lista de FieldInfos com todos os fields da instância passada
-        /// </summary>
-        /// <param name="InstanceType">O tipo do objeto que contém os campos</param>
-        /// <returns>Uma lista de FieldInfos</returns>
-        /// <remarks></remarks>
-        internal static FieldInfo[] GetFields(Type InstanceType)
-        {
-            return GetFields(InstanceType, null);
-        }
-        /// <summary>
-        /// Pega uma lista de FieldInfos com todos os fields da instância passada
-        /// </summary>
-        /// <param name="InstanceType">O tipo do objeto que contém os campos</param>
-        /// <param name="IsPrimaryKey"></param>
-        /// <returns>Uma lista de FieldInfos</returns>
-        /// <remarks></remarks>
-        internal static FieldInfo[] GetFields(Type InstanceType, Nullable<bool> IsPrimaryKey)
-        {
-            return GetFields(InstanceType, IsPrimaryKey, null);
-        }
-
-
-        /// <summary>
-        /// Pega uma lista de FieldInfos com todos os fields da instância passada
-        /// </summary>
-        /// <param name="InstanceType">O tipo do objeto que contém os campos</param>
-        /// <param name="IsPrimaryKey"></param>
-        /// <returns>Uma lista de FieldInfos</returns>
-        /// <remarks></remarks>
-        internal static FieldInfo[] GetFields(Type InstanceType, System.Nullable<bool> IsPrimaryKey, string[] Filter)
-        {
-            List<FieldInfo> returnValue = new List<FieldInfo>();
-            foreach (System.Reflection.PropertyInfo i in InstanceType.GetProperties())
-            {
-                if (((FieldAttribute[])(i.GetCustomAttributes(typeof(FieldAttribute), true))).Length > 0)
-                {
-                    //Dim attribute As FieldAttribute = CType(i.GetCustomAttributes(GetType(FieldAttribute), True), FieldAttribute())(0)
-                    FieldInfo campo = new FieldInfo(i);
-
-                    if (!IsPrimaryKey.HasValue || (campo.PrimaryKey == IsPrimaryKey.Value))
-                    {
-                        if (Filter == null || Filter.Length == 0 || Array.IndexOf<string>(Filter, i.Name) > -1)
-                        {
-                            returnValue.Add(campo);
-                        }
-                    }
-                }
-            }
-            return returnValue.ToArray();
-        }
-
-        private static FieldInfo[] GetPrimaryKeys(Type InstanceType)
-        {
-            return GetFields(InstanceType, true);
-        }
-
-        /// <summary>
-        /// Pega uma lista de FieldInfos com todos os fields da instância passada
-        /// </summary>
-        /// <param name="InstanceType">O tipo da instancia</param>
-        /// <returns>Uma lista de FieldInfos</returns>
-        /// <remarks></remarks>
-        internal static ForeignKeyInfo[] GetForeignKeys(Type InstanceType)
-        {
-            List<ForeignKeyInfo> res = new List<ForeignKeyInfo>();
-            foreach (System.Reflection.PropertyInfo i in InstanceType.GetProperties())
-            {
-                ForeignKeyAttribute[] foreignkeys = (ForeignKeyAttribute[])(i.GetCustomAttributes(typeof(ForeignKeyAttribute), true));
-                if (foreignkeys.Length > 0)
-                {
-                    ForeignKeyInfo foreign = new ForeignKeyInfo(i);
-
-                    res.Add(foreign);
-                }
-            }
-            return res.ToArray();
-        }
-
-        private static SpecialFieldInfo[] GetSpecialFields(Type instanceType)
-        {
-            List<SpecialFieldInfo> res = new List<SpecialFieldInfo>();
-            foreach (System.Reflection.PropertyInfo i in instanceType.GetProperties())
-            {
-                SpecialFieldAttribute[] sps = (SpecialFieldAttribute[])(i.GetCustomAttributes(typeof(SpecialFieldAttribute), true));
-                if (sps.Length > 0)
-                {
-                    SpecialFieldInfo spInfo = new SpecialFieldInfo(i);
-                    res.Add(spInfo);
-                }
-            }
-            return res.ToArray();
-        }
-
-        #endregion
 
         #region "Find Functions"
 
@@ -2428,15 +1324,12 @@ namespace Tenor.BLL
         #endregion
 
         #region " Operadores "
-        /// <summary>
-        /// Compara duas instancias utilizando suas chaves primárias definidas.
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public static bool operator ==(BLLBase x, BLLBase y)
+
+        public override bool Equals(object obj)
         {
+            BLLBase x = this;
+            BLLBase y = obj as BLLBase;
+
             if (x == null && y == null)
             {
                 return true;
@@ -2468,9 +1361,31 @@ namespace Tenor.BLL
             }
         }
 
+        public override int GetHashCode()
+        {
+            int hash = 57;
+            foreach (FieldInfo i in GetPrimaryKeys(this.GetType()))
+            {
+                hash = 27 * hash * i.PropertyValue(this).GetHashCode();
+            }
+            return hash;
+        }
+
+        /// <summary>
+        /// Compara duas instancias utilizando suas chaves primárias definidas.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public static bool operator ==(BLLBase x, BLLBase y)
+        {
+            return object.Equals(x, y);
+        }
+
         public static bool operator !=(BLLBase x, BLLBase y)
         {
-            return !(x == y);
+            return !object.Equals(x, y);
         }
         #endregion
 
