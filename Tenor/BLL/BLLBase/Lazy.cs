@@ -90,14 +90,14 @@ namespace Tenor.BLL
                     // o  campo externo é igual ao campo local.
                     if (Field.LocalFields.Length - 1 < i)
                     {
-                        throw (new MissingFieldsException());
+                        throw (new MissingFieldsException(Field.ElementType, null));
                     }
                     sc.Conditions.Add(Field.ForeignFields[i].RelatedProperty.Name, Field.LocalFields[i].PropertyValue(this));
 
                 }
                 if (sc.Conditions.Count == 0)
                 {
-                    throw (new MissingFieldsException());
+                    throw (new MissingFieldsException(Field.ElementType, null));
                 }
 
 

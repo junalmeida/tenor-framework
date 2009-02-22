@@ -27,34 +27,45 @@ namespace Tenor
 
         public class InvalidMappingException : Exception
         {
+            Type type;
 
-
-            public InvalidMappingException()
+            internal InvalidMappingException(Type type)
             {
+                this.type = type;
             }
 
             public override string Message
             {
                 get
                 {
-                    return "This class must inherit directly or indirecty from BLLBase.";
+                    return string.Format("The type '{0}' must inherit directly or indirecty from BLLBase.", type.FullName);
                 }
             }
         }
 		
 		public class MissingFieldsException : InvalidMappingException
 		{
-			
-			
-			public MissingFieldsException()
-			{
-			}
+            Type type;
+            string propName;
+
+            internal MissingFieldsException(Type type, string propName) : base (type)
+            {
+                this.type = type;
+                this.propName = propName;
+            }
 			
 			public override string Message
 			{
 				get
 				{
-					return "This class does not implement any member with a FieldAttribute instance.";
+                    if (string.IsNullOrEmpty(propName))
+                    {
+                        return string.Format("The type '{0}' does not implement any member with a FieldAttribute instance.", type.FullName);
+                    }
+                    else
+                    {
+                        return string.Format("The type '{0}' does not implement '{1}' with a FieldAttribute instance.", type.FullName, propName);
+                    }
 				}
 			}
 		}

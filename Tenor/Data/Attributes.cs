@@ -23,7 +23,7 @@ namespace Tenor.Data
         {
             if (type.BaseType == typeof(object))
             {
-                throw new InvalidMappingException();
+                throw new InvalidMappingException(type);
             }
 
             TableAttribute[] att = (TableAttribute[])type.GetCustomAttributes(typeof(TableAttribute), false);
