@@ -103,7 +103,9 @@ namespace Tenor
 						app.Context.ClearError();
 						app.Response.ContentType = "text/plain";
 						app.Response.Write("Cache Count: " + app.Context.Cache.Count + "\r\n");
+#if !MONO
 						app.Response.Write("EffectivePrivateBytesLimit: " + (app.Context.Cache.EffectivePrivateBytesLimit / 1024 / 1024).ToString("N2") + " MB" + "\r\n");
+#endif
 						app.Response.Write("\r\n" + "\r\n" + lista.ToString());
 					}
 					catch (Exception)

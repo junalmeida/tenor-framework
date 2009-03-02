@@ -28,7 +28,10 @@ namespace Tenor
 				/// Implementa um controle de exibição de seções em Abas, usando os conceitos da MultiView.
 				/// </summary>
 				/// <remarks></remarks>
-				[Themeable(true), ControlBuilder(typeof(MultiViewControlBuilder)), DefaultEvent("ActiveViewChanged"), Designer("System.Web.UI.Design.WebControls.MultiViewDesigner, System.Design, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"), ParseChildren(typeof(TabView)), AspNetHostingPermission(SecurityAction.LinkDemand, Level = AspNetHostingPermissionLevel.Minimal), AspNetHostingPermission(SecurityAction.InheritanceDemand, Level = AspNetHostingPermissionLevel.Minimal), ToolboxData("<{0}:TabsMultiView runat=server></{0}:TabsMultiView>")]public class TabsMultiView : MultiView
+#if !MONO
+				[Themeable(true), ControlBuilder(typeof(MultiViewControlBuilder)), DefaultEvent("ActiveViewChanged"), Designer("System.Web.UI.Design.WebControls.MultiViewDesigner, System.Design, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"), ParseChildren(typeof(TabView)), AspNetHostingPermission(SecurityAction.LinkDemand, Level = AspNetHostingPermissionLevel.Minimal), AspNetHostingPermission(SecurityAction.InheritanceDemand, Level = AspNetHostingPermissionLevel.Minimal), ToolboxData("<{0}:TabsMultiView runat=server></{0}:TabsMultiView>")]
+#endif
+				public class TabsMultiView : MultiView
 				{
 					
 					

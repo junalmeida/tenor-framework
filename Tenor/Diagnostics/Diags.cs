@@ -463,8 +463,9 @@ namespace Tenor.Diagnostics
             {
                 extraInfo += "<br /><hr  width=\"100%\" size=\"1\" color=\"silver\" /><h2>Cache</h2><br />";
                 extraInfo += "<b>Count: </b>" + app.Context.Cache.Count.ToString() + "<br />";
+#if !MONO
                 extraInfo += "<b>EffectivePrivateBytesLimit: </b>" + app.Context.Cache.EffectivePrivateBytesLimit.ToString("N2") + "<br />";
-
+#endif
                 foreach (DictionaryEntry item in app.Context.Cache)
                 {
                     if (item.Value != null)
