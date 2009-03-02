@@ -18,71 +18,71 @@ namespace Tenor.Data
         {
         }
 
-        public SortingCollection(string @Property)
+        public SortingCollection(string propertyName)
         {
-            Add(@Property);
+            Add(propertyName);
         }
 
-        public SortingCollection(string @Property, Tenor.Data.SortOrder SortOrder)
+        public SortingCollection(string propertyName, SortOrder sortOrder)
         {
-            Add(@Property, SortOrder);
+            Add(propertyName, sortOrder);
         }
 
-        public SortingCollection(Type Table, string @Property)
+        public SortingCollection(string joinAlias, string propertyName)
         {
-            Add(Table, @Property);
+            Add(joinAlias, propertyName);
         }
 
-        public SortingCollection(Type Table, string @Property, Tenor.Data.SortOrder SortOrder)
+        public SortingCollection(string joinAlias, string propertyName, SortOrder sortOrder)
         {
-            Add(Table, @Property, SortOrder);
+            Add(joinAlias, propertyName, sortOrder);
         }
 
-        public void Add(string @Property)
+        public void Add(string propertyName)
         {
-            SortingCriteria item = new SortingCriteria(null, @Property);
+            SortingCriteria item = new SortingCriteria(null, propertyName);
             Add(item);
         }
 
-        public void Add(string @Property, Type CastType)
+        public void Add(string propertyName, Type castType)
         {
-            SortingCriteria item = new SortingCriteria(null, @Property, CastType);
+            SortingCriteria item = new SortingCriteria(null, propertyName, castType);
             Add(item);
         }
 
-        public void Add(string @Property, Tenor.Data.SortOrder SortOrder)
+        public void Add(string propertyName, SortOrder sortOrder)
         {
-            SortingCriteria item = new SortingCriteria(null, @Property, SortOrder);
+            SortingCriteria item = new SortingCriteria(null, propertyName, sortOrder);
             Add(item);
         }
 
-        public void Add(string @Property, Tenor.Data.SortOrder SortOrder, Type CastType)
+        public void Add(string propertyName, SortOrder sortOrder, Type castType)
         {
-            SortingCriteria item = new SortingCriteria(null, @Property, SortOrder, CastType);
+            SortingCriteria item = new SortingCriteria(null, propertyName, sortOrder, castType);
             Add(item);
         }
 
-        public void Add(Type Table, string @Property)
+        public void Add(string joinAlias, string propertyName)
         {
-            SortingCriteria item = new SortingCriteria(Table, @Property);
+            SortingCriteria item = new SortingCriteria(joinAlias, propertyName);
             Add(item);
         }
 
-        public void Add(Type Table, string @Property, Type CastType)
+        public void Add(string joinAlias, string propertyName, Type castType)
         {
-            SortingCriteria item = new SortingCriteria(Table, @Property, CastType);
+            SortingCriteria item = new SortingCriteria(joinAlias, propertyName, castType);
             Add(item);
         }
 
-        public void Add(Type Table, string @Property, Tenor.Data.SortOrder SortOrder)
+        public void Add(string joinAlias, string propertyName, SortOrder sortOrder)
         {
-            SortingCriteria item = new SortingCriteria(Table, @Property, SortOrder);
+            SortingCriteria item = new SortingCriteria(joinAlias, propertyName, sortOrder);
             Add(item);
         }
 
-        public void Add(Type Table, string @Property, Tenor.Data.SortOrder SortOrder, Type CastType)
+        public void Add(string joinAlias, string propertyName, Tenor.Data.SortOrder sortOrder, Type castType)
         {
-            SortingCriteria item = new SortingCriteria(Table, @Property, SortOrder, CastType);
+            SortingCriteria item = new SortingCriteria(joinAlias, propertyName, sortOrder, castType);
             Add(item);
         }
 

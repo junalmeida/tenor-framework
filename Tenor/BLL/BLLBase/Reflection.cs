@@ -38,21 +38,20 @@ namespace Tenor.BLL
         /// <param name="IsPrimaryKey"></param>
         /// <returns>Uma lista de FieldInfos</returns>
         /// <remarks></remarks>
-        internal static FieldInfo[] GetFields(Type InstanceType, bool? IsPrimaryKey, string[] Filter)
+        internal static FieldInfo[] GetFields(Type InstanceType, bool? isPrimaryKey, string[] filter)
         {
             List<FieldInfo> returnValue = new List<FieldInfo>();
             foreach (System.Reflection.PropertyInfo i in InstanceType.GetProperties())
             {
-                if (((FieldAttribute[])(i.GetCustomAttributes(typeof(FieldAttribute), true))).Length > 0)
-                {
-                    //Dim attribute As FieldAttribute = CType(i.GetCustomAttributes(GetType(FieldAttribute), True), FieldAttribute())(0)
-                    FieldInfo campo = new FieldInfo(i); 
 
-                    if (!IsPrimaryKey.HasValue || (campo.PrimaryKey == IsPrimaryKey.Value))
+                FieldInfo field = FieldInfo.Create(i); 
+                if (field != null)
+                {
+                    if (!isPrimaryKey.HasValue || (field.PrimaryKey == isPrimaryKey.Value))
                     {
-                        if (Filter == null || Filter.Length == 0 || Array.IndexOf<string>(Filter, i.Name) > -1)
+                        if (filter == null || filter.Length == 0 || Array.IndexOf<string>(filter, i.Name) > -1)
                         {
-                            returnValue.Add(campo);
+                            returnValue.Add(field);
                         }
                     }
                 }
@@ -60,9 +59,9 @@ namespace Tenor.BLL
             return returnValue.ToArray();
         }
 
-        private static FieldInfo[] GetPrimaryKeys(Type InstanceType)
+        private static FieldInfo[] GetPrimaryKeys(Type instanceType)
         {
-            return GetFields(InstanceType, true);
+            return GetFields(instanceType, true);
         }
 
         /// <summary>
@@ -76,11 +75,9 @@ namespace Tenor.BLL
             List<ForeignKeyInfo> res = new List<ForeignKeyInfo>();
             foreach (System.Reflection.PropertyInfo i in InstanceType.GetProperties())
             {
-                ForeignKeyAttribute[] foreignkeys = (ForeignKeyAttribute[])(i.GetCustomAttributes(typeof(ForeignKeyAttribute), true));
-                if (foreignkeys.Length > 0)
+                ForeignKeyInfo foreign = ForeignKeyInfo.Create(i);
+                if (foreign != null)
                 {
-                    ForeignKeyInfo foreign = new ForeignKeyInfo(i);
-
                     res.Add(foreign);
                 }
             }
@@ -92,10 +89,9 @@ namespace Tenor.BLL
             List<SpecialFieldInfo> res = new List<SpecialFieldInfo>();
             foreach (System.Reflection.PropertyInfo i in instanceType.GetProperties())
             {
-                SpecialFieldAttribute[] sps = (SpecialFieldAttribute[])(i.GetCustomAttributes(typeof(SpecialFieldAttribute), true));
-                if (sps.Length > 0)
+                SpecialFieldInfo spInfo = SpecialFieldInfo.Create(i);
+                if (spInfo != null)
                 {
-                    SpecialFieldInfo spInfo = new SpecialFieldInfo(i);
                     res.Add(spInfo);
                 }
             }

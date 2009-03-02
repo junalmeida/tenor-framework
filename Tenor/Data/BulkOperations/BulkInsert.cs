@@ -85,16 +85,11 @@ namespace Tenor
 			public BulkInsert(bool RetrieveIDs, ConnectionStringSettings Connection)
 			{
 				this.Connection = Connection;
-                if (this.Connection == null)
-                {
-                    this.Connection = BLLBase.SystemConnection;
-
-                }
 
 				_RetrieveIDs = RetrieveIDs;
 				
 				bulkTempTable = "#BULKINSERT" + Guid.NewGuid().ToString().Replace("{", "").Replace("}", "").Replace("-", "");
-				@params = new List<TenorParameter>(MaxParameterCount);
+				parameters = new List<TenorParameter>(MaxParameterCount);
 				bulkItems = new System.Text.StringBuilder();
 				variaveis = new System.Text.StringBuilder();
 				
@@ -103,7 +98,7 @@ namespace Tenor
 			
 			private ConnectionStringSettings Connection;
 			private string bulkTempTable;
-			private List<TenorParameter> @params;
+			private List<TenorParameter> parameters;
 			private System.Text.StringBuilder bulkItems;
 			private System.Text.StringBuilder variaveis;
 			private List<List<Type>> related;
@@ -205,11 +200,11 @@ namespace Tenor
 				string sql = string.Format(BulkSql, createSqlIds, variaveis.ToString(), bulkItems.ToString(), selectSqlIds);
 				
 				Tenor.Data.DataTable rs = null;
-                Tenor.Diagnostics.Debug.DebugSQL(this.GetType().Name, sql, @params.ToArray(), Connection);
+                Tenor.Diagnostics.Debug.DebugSQL(this.GetType().Name, sql, parameters.ToArray(), Connection);
 				try
 				{
 					//Dim rs As Data.DataTable = Helper.ConsultarBanco(Connection, sql, params)
-					rs = new Tenor.Data.DataTable(sql, @params.ToArray(), Connection);
+					rs = new Tenor.Data.DataTable(sql, parameters.ToArray(), Connection);
 					Diagnostics.Debug.PrintCurrentTime("Bulk Insert - Sql Start");
                     rs.Bind();
 					Diagnostics.Debug.PrintCurrentTime("Bulk Insert - Sql Finish (" + this.Count.ToString() + " items, " + ParameterCount.ToString() + " parameters)");
@@ -248,7 +243,7 @@ namespace Tenor
 			{
 				get
 				{
-					return this.@params.Count;
+					return this.parameters.Count;
 				}
 			}
 			
@@ -314,8 +309,13 @@ namespace Tenor
 				{
 					variaveis.Append(string.Format(DeclareItem, variavel, null));
 				}
+
+                
+                TenorParameter[] tenorParameters = null;
+                string identityQuery = null;
+                bool runOnSameQuery = false;
                 FieldInfo autoKeyField = null; //Not used at this time.
-                bulkItems.AppendLine(string.Format(BulkItem, instance.GetSaveSql(false, @params, ref autoKeyField, specialValues, Connection), variavel));
+                bulkItems.AppendLine(string.Format(BulkItem, instance.GetSaveSql(false, Connection, specialValues, out autoKeyField, out tenorParameters, out identityQuery, out runOnSameQuery), variavel));
 				if (this.RetrieveIDs)
 				{
 					bulkItems.AppendLine(string.Format(BulkItemSaveId, bulkTempTable, variavel));

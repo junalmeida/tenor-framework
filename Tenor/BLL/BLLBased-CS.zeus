@@ -11,31 +11,29 @@
 public class GeneratedGui : DotNetScriptGui
 {
 	public GeneratedGui(ZeusContext context) : base(context) {}
-
+	
+	
 	public override void Setup()
 	{
-		ui.Title = "Gerar códigos";
+		ui.Title = "Tenor Framework - Mapping";
 		ui.Width = 500;
-		ui.Height = 650;
+		ui.Height = 550;
 
-		GuiLabel lblDB = ui.AddLabel("lblDatabases", "Escolha um banco:", "Escolha um banco de dados.");
+		GuiLabel lblDB = ui.AddLabel("lblDatabases", "Choose a database:", "Choose a database.");
 		GuiComboBox cmbDatabases = ui.AddComboBox("cmbDatabase", "");
 
-		GuiLabel lblTbl = ui.AddLabel("lblTables", "Escolha uma tabela:", "Escolha uma tabela.");
+		GuiLabel lblTbl = ui.AddLabel("lblTables", "Desired tables:", "Choose the tables wish you want to generate classes.");
 		GuiCheckBoxList cmbTables = ui.AddCheckBoxList("cmbTable", "");
 		cmbTables.Height = 200;
-		GuiButton btn = ui.AddButton("btnSelectAll", "Selecionar Todos", "");
+		GuiButton btn = ui.AddButton("btnSelectAll", "Select all tables", "");
 		btn.AttachEvent("onclick", "btn_onclick");
 		
-		GuiLabel lblNamespace = ui.AddLabel("lblNamespace", "Namespace:", "Namespace da(s) classe(s).");
-		GuiTextBox txtNamespace = ui.AddTextBox("txtNamespace", (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.NameSpace",@"BLL.REES.Institucional"), "");
+		GuiLabel lblNamespace = ui.AddLabel("lblNamespace", "Namespace:", "Default namespace.");
+		GuiTextBox txtNamespace = ui.AddTextBox("txtNamespace", (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Namespace",@"BLL.REES.Institucional"), "");
 
-		/*GuiLabel lblClasse = ui.AddLabel("lblNomeClasse", "Nome da Classe:", "Nome da Classe. Mude se nÃ£o coincidir com o nome da tabela. Ex.: Usuario");
-		GuiTextBox txtNomeClasse = ui.AddTextBox("txtNomeClasse", "", "");
-*/
-		GuiLabel lblOutput = ui.AddLabel("lblOutput", "Pasta de destino:", "Pasta onde serão salvos os arquivos.");
-		GuiTextBox txtOutput = ui.AddTextBox("txtOutput", (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Pasta",@"C:\Documents and Settings\Produção\Meus documentos\templates"), "");
-		GuiFilePicker btnOutputPath = ui.AddFilePicker("btnOutputPath", "Escolha a pasta de destino para os arquivos gerados.", "Selecione a pasta de destino.", "txtOutput", true);
+		GuiLabel lblOutput = ui.AddLabel("lblOutput", "Target folder:", "Where do you want to save your files?");
+		GuiTextBox txtOutput = ui.AddTextBox("txtOutput", (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Folder",@"C:\Documents and Settings\Produção\Meus documentos\templates"), "");
+		GuiFilePicker btnOutputPath = ui.AddFilePicker("btnOutputPath", "Select the target folder.", "Select the target folder.", "txtOutput", true);
 
 		setupDatabaseDropdown(cmbDatabases);
 		cmbDatabases.AttachEvent("onchange", "cmbDatabases_onchange");
@@ -55,7 +53,7 @@ public class GeneratedGui : DotNetScriptGui
 				{
 					cmbDatabases.SelectedValue = MyMeta.DefaultDatabase.Name;
 					try {
-						cmbDatabases.SelectedValue = (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Banco",MyMeta.DefaultDatabase.Name);
+						cmbDatabases.SelectedValue = (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Database",MyMeta.DefaultDatabase.Name);
 					} catch (Exception e) { }
 					bindTables(cmbDatabases.SelectedValue);
 				}
@@ -75,7 +73,7 @@ public class GeneratedGui : DotNetScriptGui
 	
 	public void bindTables(string sDatabase)
 	{
-		string[] tabelas = ((string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Tabelas","")).Split(';');
+		string[] tabelas = ((string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Tables","")).Split(';');
 	
 		//GuiLabel lblError = ui["lblError"] as GuiLabel;
 		int count = 0;
@@ -137,83 +135,270 @@ public class GeneratedGui : DotNetScriptGui
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Win32;
+using System.Collections.Specialized;
+
+
 public class GeneratedTemplate : DotNetScriptTemplate
 {
-	public ITable tbl;
-	public string nomeDB;
-	public ArrayList tabelaEscolhida;
-	public string nomeTabela;
-	public string outputPath;
-	
-	public string Namespace;
-	public string OriginalNamespace;
+	private class CodeBlocks
+	{
+		public const string classHeader = @"
+using System.Collections.Generic;
+using System.Configuration;
+using System;
 
-	public string nomeClasse;
-	public string schema;
+using Tenor.BLL;
+using Tenor.Data;
 
-	public string tagHeaderAbrir;
-	public string tagHeaderFechar;
+namespace {namespace}
+{
+	/// <summary>
+	/// Represents the table {tableName}.
+	/// {description}
+	/// </summary>
+	[Serializable(), Table(""{tableName}"", ""{tableSchema}"")]
+	public partial class {className} : BLLBase
+	{
+		
+#region Properties
+";
+		public const string propertyLazyItem = @"
+		/// <summary>
+		/// Represents the field {fieldName}.
+		/// {description}
+		/// </summary>
+		{fieldAttributes}
+		public {returnType} {propertyName}
+		{
+			get
+			{
+				return ({returnType})GetPropertyValue();
+			}
+			set
+			{
+				{validationCode}				SetPropertyValue(value);
+			}
+		}		
+";
+		public const string propertyItem = @"
+		private {returnType} _{propertyName};
+		/// <summary>
+		/// Represents the field {fieldName}.
+		/// {description}
+		/// </summary>
+		{fieldAttributes}
+		public {returnType} {propertyName}
+		{
+			get
+			{
+				return _{propertyName};
+			}
+			set
+			{
+				{validationCode}				_{propertyName} = value;
+			}
+		}		
+";		
+		public const string propertiesEnum = @"
+		/// <summary>
+		/// Keeps a list of constants with property names.
+		/// </summary>
+		public partial class Properties : object {
+			private Properties() { }
+{propertyList}
+		}
+";
+		public const string propertyEnumItem = @"
+			public const string {propertyName} = ""{propertyName}"";
+";
+		
+		
+		public const string foreignKeysHeader = @"
+#endregion
+#region Foreign Keys
+";
+
+
+        		public const string metadataHeader = @"
+#endregion
+#region Constructors And Metadata
+";
+
+        public const string emptyConstructor = @"
+        public {className}()
+        { }
+";
+        public const string lazyConstructor = @"
+        public {className}(bool lazyLoadingDisabled) :
+            base(lazyLoadingDisabled)
+        { }
+";
+        public const string parameter = ", {type} p{name}";
+        public const string parameterAssign = "         this.{propertyName} = p{propertyName};\r\n";
+        public const string primaryKeysConstructor = @"
+		/// <summary>
+		/// Loads {className} from the database with these keys.
+		/// </summary><%
+        public {className}({parameters}) :
+            base()
+        { 
+{initialization}
+            Bind();
+        }
+";
+
+
+        public const string foreignKeyItemGet = @"
+		/// <summary>
+		/// Represents the relationship {relationshipName}.
+		/// </summary>
+		{propertyAttributes}
+		public {returnType} {propertyName} 
+        {
+            get
+            {
+                return ({returnType})GetPropertyValue();
+            }
+        }
+";
+        public const string foreignKeyItem = @"
+		/// <summary>
+		/// Represents the relationship {relationshipName}.
+		/// </summary>
+		{propertyAttributes}
+		public {returnType} {propertyName}
+		{
+			get 
+			{
+				return ({returnType})GetPropertyValue();
+			}
+			set
+			{
+				SetPropertyValue(value);
+			}
+        }
+";
+        public const string nullValue = "null";
+	    public const string nullableType = "{typeName}?";
+        public const string collectionType = "BLLCollection<{typeName}>";
+
+        public static string GetFieldAttributes(NameValueCollection items) 
+        {
+            string returnValue = "[Field(";
+			string attributes = string.Empty;
+			
+			foreach (string item in items.AllKeys){
+				string value = items[item];
+				if (item == "FieldName")
+					value = "\"" + value + "\"";
+				attributes+= ", " + item + "=" + value;
+			}
+			if (items.Count > 0)
+				attributes = attributes.Substring(2);
+            return returnValue + attributes + ")]";
+        }
+
+        public const string foreignKeyAttribute = "[ForeignKey({typeName}.Properties.{foreignName}, Properties.{localName})]";
+        public const string searchHeader = @"
+#endregion
+#region Search
+";
+
+        public const string searchBlocks=  @"
+
+        public static {className}[] Search(ConditionCollection conditions, SortingCollection sorting)
+        {
+            return Search(conditions, sorting, false);
+        }
+
+        public static {className}[] Search(ConditionCollection conditions, SortingCollection sorting, bool distinct)
+        {
+            return Search(conditions, sorting, distinct, 0);
+        }
+
+        public static {className}[] Search(ConditionCollection conditions, SortingCollection sorting, bool distinct, int limit)
+        {
+            return Search(conditions, sorting, distinct, limit, null);
+        }
+
+		/// <summary>
+		/// Performs a search within this class.
+		/// </summary>
+		public static {className}[] Search(ConditionCollection conditions, SortingCollection sorting, bool distinct, int limit, ConnectionStringSettings connection)
+		{
+			SearchOptions sc = new SearchOptions(typeof({className}));
+			if (conditions != null)
+				sc.Conditions = conditions;
+			if (sorting != null)
+				sc.Sorting = sorting;
+
+			sc.Distinct = distinct;
+            sc.Top = limit;
+
+			return ({className}[])(BLLBase.Search(sc, connection));
+		}
+";
+        public const string classFooter = @"
+#endregion
+    }
+}
+";
+	}
 
 	public GeneratedTemplate(ZeusContext context) : base(context) {}
-	
-	public void inicializarPropriedades()
+    private string database;
+	private string outputPath;
+    private string defaultNamespace;
+    private ArrayList tables;
+	public void Initialize()
 	{
-		this.nomeDB = input["cmbDatabase"].ToString();
+		database = input["cmbDatabase"].ToString();
 		
-		this.tabelaEscolhida = (ArrayList)input["cmbTable"];
-		//this.nomeTabela = input["cmbTable"].ToString();
+		tables = (ArrayList)input["cmbTable"];
 		this.outputPath = input["txtOutput"].ToString();
 		this.outputPath += this.outputPath.EndsWith("\\") ? "" : "\\";
 		
-		this.Namespace = input["txtNamespace"].ToString();
-		this.OriginalNamespace = input["txtNamespace"].ToString();
+		this.defaultNamespace = input["txtNamespace"].ToString();
 		
-		//this.nomeClasse = this.nomeTabela;
-		
-		//this.tbl = MyMeta.Databases[nomeDB].Tables[nomeTabela];
-
-		this.tagHeaderAbrir = "<" + "%" + "@";
-		this.tagHeaderFechar = "%" + ">";
-		
-		string tabelasEscolhidas = string.Empty;
-		foreach(object item in this.tabelaEscolhida) 
+		string parsedTables = string.Empty;
+		foreach(object item in tables) 
 		{
-			tabelasEscolhidas += ";" + item.ToString();
+			parsedTables += ";" + item.ToString();
 		}
-		Registry.CurrentUser.SetValue("BLLBase.NameSpace", this.Namespace);
-		Registry.CurrentUser.SetValue("BLLBase.Pasta", this.outputPath);
-		Registry.CurrentUser.SetValue("BLLBase.Banco", this.nomeDB);
-		Registry.CurrentUser.SetValue("BLLBase.Tabelas", tabelasEscolhidas);
+		Registry.CurrentUser.SetValue("BLLBase.Namespace", this.defaultNamespace);
+		Registry.CurrentUser.SetValue("BLLBase.Folder", this.outputPath);
+		Registry.CurrentUser.SetValue("BLLBase.Database", database);
+		Registry.CurrentUser.SetValue("BLLBase.Tables", parsedTables);
 	}
 
 	public override void Render()
 	{
-		this.inicializarPropriedades();
+		Initialize();
 
 		string fileName = "";
 		
-		foreach(ITable tabela in MyMeta.Databases[nomeDB].Tables)
+		foreach(ITable table in MyMeta.Databases[this.database].Tables)
 		{
-			if (this.tabelaEscolhida.Contains(tabela.Name))
+			if (this.tables.Contains(table.Name))
 			{
-				this.tbl = tabela;
-				this.nomeTabela = tbl.Name;
-				this.nomeClasse = this.nomeTabela;
-				this.schema = tbl.Schema;
-				this.Namespace = this.OriginalNamespace;
-				if (this.schema != "dbo") {
-					this.Namespace += "." + this.schema;
+				string currentNamespace = this.defaultNamespace;
+                string folderName = string.Empty;
+				if (!string.IsNullOrEmpty(table.Schema) && table.Schema != "dbo") //For Microsoft SQL Server 
+                {
+                    folderName = table.Schema;
+                    currentNamespace += "." + folderName;
 				}
 				
-				fileName = nomeClasse + ".cs";
-				this.gerarClasse(fileName);
+				fileName = table.Name + ".cs";
+
+                CreateClass(folderName, fileName, currentNamespace, table);
 			}
 		}
 		
-		try {
+		try 
+        {
 			System.Diagnostics.Process.Start(Environment.ExpandEnvironmentVariables("%SystemRoot%") + "\\explorer.exe", "\"" + this.outputPath + "\"");
 		} catch { }
-		
 	}
 	
 	
@@ -240,399 +425,286 @@ public class GeneratedTemplate : DotNetScriptTemplate
 		}
 		return string.Join("", l.ToArray());
 	}
+
+
+    public void CreateClass(string folderName, string fileName, string currentNamespace, ITable table)
+    {
+		output.clear();
 	
+        string classHeader = CodeBlocks.classHeader;
+		classHeader = classHeader.Replace("{className}", table.Name);
+        classHeader = classHeader.Replace("{namespace}", currentNamespace);
+        classHeader = classHeader.Replace("{tableSchema}", table.Schema);
+        classHeader = classHeader.Replace("{tableName}", table.Name);
+        classHeader = classHeader.Replace("{description}", table.Description);
 
-	public void gerarClasse(string fileName)
-	{
+        output.writeln(classHeader);
 
-%>
-using System.Collections.Generic;
-using System.Configuration;
-using System;
 
-using Tenor.BLL;
-using Tenor.Data;
+        StringBuilder defaults = new StringBuilder();
+        StringBuilder constCampos = new StringBuilder();
+        foreach (IColumn col in table.Columns)
+        {
 
-namespace <%=Namespace%>
-{
-	/// <summary>
-	/// Represents the table <%= tbl.Name %>.
-	/// <%= tbl.Description.Replace("\r\n","\r\n	///") %>
-	/// </summary>
-	[Serializable(), Table("<%= tbl.Name %>", "<%= tbl.Schema %>")]
-	public partial class <%= tbl.Name %> : BLLBase
-	{
-		
-#region Campos
-<%
-		//Para aproveitar o FOR das colunas, os valores padrão serão salvos no StringBuilder
-		StringBuilder defaults = new StringBuilder();
-		StringBuilder constCampos = new StringBuilder();
-		foreach (IColumn col in tbl.Columns)
-		{
-		
-		
-			string nomeCampo = col.Name;
-			string atributos = "";
-			
-			bool mudarNomeCampo = false;
-			foreach(IForeignKey fk in tbl.ForeignKeys) {
-				string nomeCampoFK = string.Empty;
-				if (fk.ForeignTable.Equals(this.tbl))
-					nomeCampoFK = fk.PrimaryTable.Name;
-				else if(fk.PrimaryTable.Equals(this.tbl))
-					nomeCampoFK = fk.ForeignTable.Name;
-				if (string.Equals(nomeCampo, nomeCampoFK))
-					mudarNomeCampo = true;
-			}
+            NameValueCollection attributes = new NameValueCollection();
 
-			
-			if (mudarNomeCampo || nomeCampo.ToLower().Equals(tbl.Name.ToLower()))
-			{
-				nomeCampo = "Campo" + nomeCampo;
-				atributos += "FieldName=\"" + col.Name + "\", PrimaryKey=" + col.IsInPrimaryKey.ToString() + ", AutoNumber=" + col.IsAutoKey.ToString();
-			}
-			string tipoCampo = col.LanguageType;
-			if (col.IsNullable && !col.LanguageType.ToLower().Equals("string") && !col.LanguageType.ToLower().Contains("[]"))
-			{
-				tipoCampo = "" + col.LanguageType + "?";
-			}
-			if (string.IsNullOrEmpty(atributos) && col.IsInPrimaryKey)
-			{
-				atributos += "PrimaryKey=true, AutoNumber=" + col.IsAutoKey.ToString().ToLower();
-			}
+            string fieldName = col.Name;
 
-			constCampos.AppendLine("			public const string " + nomeCampo + " = \"" + nomeCampo + "\";");
+            bool changeName = false;
+            foreach (IForeignKey fk in table.ForeignKeys)
+            {
+                string fkFieldName = string.Empty;
+                if (fk.ForeignTable.Equals(table))
+                    fkFieldName = fk.PrimaryTable.Name;
+                else if (fk.PrimaryTable.Equals(table))
+                    fkFieldName = fk.ForeignTable.Name;
 
-			bool dolazyload = false;
-			if (col.LanguageType.ToLower() == "byte[]") {
-				if (!string.IsNullOrEmpty(atributos)) atributos += ", ";
-				atributos += "LazyLoading=true";
-				dolazyload=true;
-			}
-			
-			string field = "[Field(";
-			field += atributos;
-			field += ")]";
-			
-			// ----- Valor Padrão do Banco -----
+                if (string.Equals(fieldName, fkFieldName))
+                    changeName = true;
+            }
+
+
+            if (changeName || fieldName.ToLower().Equals(table.Name.ToLower()))
+            {
+                fieldName = "Field" + fieldName;
+                attributes.Add("FieldName", fieldName);
+            }
+            string tipoCampo = col.LanguageType;
+            if (col.IsNullable && !col.LanguageType.ToLower().Equals("string") && !col.LanguageType.ToLower().Contains("[]"))
+            {
+                tipoCampo = CodeBlocks.nullableType.Replace("{typeName}", tipoCampo);
+            }
+            if (col.IsInPrimaryKey)
+            {
+                attributes.Add("PrimaryKey", "true");
+            }
+            if (col.IsAutoKey)
+            {
+                attributes.Add("AutoNumber", "true");
+            }
+
+            string constField = CodeBlocks.propertyEnumItem;
+            constField = constField.Replace("{propertyName}", fieldName);
+            constCampos.AppendLine(constField);
+
+            bool dolazyload = false;
+            if (col.LanguageType.ToLower() == "byte[]")
+            {
+                attributes.Add("LazyLoading", "true");
+                dolazyload = true;
+            }
+
+            string fieldAttributes = CodeBlocks.GetFieldAttributes(attributes);
+            /*
+            // ----- Valor Padrão do Banco -----
 			
 				
-			if (!string.IsNullOrEmpty(col.Default)) {
-				string valor = col.Default;
-				switch (col.LanguageType) {
-					case "DateTime":
-						if (valor.ToLower().Contains("getdate()")) {
-							valor = nomeCampo + " = DateTime.Now();";
-						} else {
-							valor = nomeCampo + " = DateTime.Parse(" + valor + ");";
-						}
-					break;
-					case "string":
-						if (valor.StartsWith("N'")) {
-							valor = nomeCampo + " = \"" + valor.Substring(2, valor.Length - 5).Replace("''", "'") +  "\";";
-						} else if (valor.StartsWith("(N'")) {
-							valor = nomeCampo + " = \"" + valor.Substring(3, valor.Length - 6).Replace("''", "'") +  "\";";
-						} else if (valor.StartsWith("'")) {
-							valor = nomeCampo + " = \"" + valor.Substring(1, valor.Length - 4).Replace("''", "'") +  "\";";
-						} else {
-							valor = nomeCampo + " = " + valor.Replace("'","\"").Replace("\"\"", "'") + ";";
-						}
+            if (!string.IsNullOrEmpty(col.Default)) {
+                string valor = col.Default;
+                switch (col.LanguageType) {
+                    case "DateTime":
+                        if (valor.ToLower().Contains("getdate()")) {
+                            valor = nomeCampo + " = DateTime.Now();";
+                        } else {
+                            valor = nomeCampo + " = DateTime.Parse(" + valor + ");";
+                        }
+                    break;
+                    case "string":
+                        if (valor.StartsWith("N'")) {
+                            valor = nomeCampo + " = \"" + valor.Substring(2, valor.Length - 5).Replace("''", "'") +  "\";";
+                        } else if (valor.StartsWith("(N'")) {
+                            valor = nomeCampo + " = \"" + valor.Substring(3, valor.Length - 6).Replace("''", "'") +  "\";";
+                        } else if (valor.StartsWith("'")) {
+                            valor = nomeCampo + " = \"" + valor.Substring(1, valor.Length - 4).Replace("''", "'") +  "\";";
+                        } else {
+                            valor = nomeCampo + " = " + valor.Replace("'","\"").Replace("\"\"", "'") + ";";
+                        }
 						
 			
 								
-					break;
-					default:
-						valor = nomeCampo + " = " + valor + ";";
-					break;
-				}
+                    break;
+                    default:
+                        valor = nomeCampo + " = " + valor + ";";
+                    break;
+                }
 			
 				
-				defaults.AppendLine("			" + valor);
-			}
-			
-			
-			// ---------------------------------
-			
-			
-			
-			
-if (!dolazyload) { 
-%>		private <%= tipoCampo %> _<%= nomeCampo %>;
-<% 
-}
-%>		/// <summary>
-		/// Represents the field <%= nomeCampo %>.
-		/// <%= col.Description.Replace("\r\n","\r\n		///") %>
-		/// </summary>
-		<%= field %>
-		public <%= tipoCampo %> <%= nomeCampo %>
-		{
-			get
-			{
-<%
-				if (dolazyload) {
-%>				return (<%= tipoCampo %>)GetLazyProperty();
-<%				}
-				else
-				{
-%>				return _<%= nomeCampo %>;
-<%
-				}
-%>			}
-			set
-			{
-<%
-				if (dolazyload) {
-%>				SetLazyProperty(value);
-<%				}
-else 
-{
-				if (tipoCampo == "string" && col.CharacterMaxLength > 0) {
-%>				if (!string.IsNullOrEmpty(value) && value.Length > <%=col.CharacterMaxLength.ToString()%>)
-				{
-					throw new InvalidOperationException("Cannot set a string with Length greater than <%=col.CharacterMaxLength.ToString()%>");
-				}
-<%
-				}
-%>				_<%= nomeCampo %> = value;<%
-			}
-%>
-			}
-		}
-<%
-		}
-%>		
-
-		/// <summary>
-		/// Keeps a list of constants with property names.
-		/// </summary>
-		public partial class Campos : object {
-			private Campos() { }
-			
-<%=constCampos.ToString()%>		
-		}
-
-#endregion
-
-#region Foreign Keys
-		
-<%
-		foreach(IForeignKey fk in tbl.ForeignKeys)
-		{
-		
-			string nmeSpace = "";
-		
-			bool onetoone = false;
-			string nomeCampo = "";
-			string tipoCampo = "";
-			
-			string atributos = "";
-			string constructor = "";
-			string readOnly = "";
-			
-			bool isNew = false;
-			
-			if (fk.ForeignTable.Equals(this.tbl))
-			{
-				onetoone = true;
-				nomeCampo = fk.PrimaryTable.Name;
-				nmeSpace = fk.PrimaryTable.Schema;
-				if (nmeSpace != "" && nmeSpace != "dbo" && nmeSpace != tbl.Schema)
-					nmeSpace = nmeSpace + ".";
-				else
-					nmeSpace = "";
-				tipoCampo = nmeSpace+ fk.PrimaryTable.Name;
-				
-				// Consertar isto! Os itens abaixo devem ser nomes de propriedades.
-				atributos = "[ForeignKey(\"" + fk.PrimaryColumns[0].Name + "\", \"" + fk.ForeignColumns[0].Name + "\")]";
-				readOnly = "";
-			}
-			else if(fk.PrimaryTable.Equals(this.tbl) && fk.ForeignTable.PrimaryKeys.Count == 1 && fk.PrimaryColumns.Count == 1 && fk.ForeignColumns[0].IsInPrimaryKey) {
-				onetoone = true;
-				nomeCampo = fk.ForeignTable.Name;
-				nmeSpace = fk.ForeignTable.Schema;
-				if (nmeSpace != "" && nmeSpace != "dbo" && nmeSpace != tbl.Schema)
-					nmeSpace = nmeSpace + ".";
-				else
-					nmeSpace = "";
-				tipoCampo = nmeSpace + fk.ForeignTable.Name;
-				
-				// Consertar isto! Os itens abaixo devem ser nomes de propriedades.
-				atributos = "[ForeignKey(\"" + fk.ForeignColumns[0].Name + "\", \"" + fk.PrimaryColumns[0].Name + "\")]";
-				readOnly = "";
-			}
-			else if(fk.PrimaryTable.Equals(this.tbl))
-			{
-				nomeCampo = ToPlural(fk.ForeignTable.Name);
-				nmeSpace = fk.ForeignTable.Schema;
-				if (nmeSpace != "" && nmeSpace != "dbo" && nmeSpace != tbl.Schema)
-					nmeSpace = nmeSpace + ".";
-				else
-					nmeSpace = "";
-				
-				tipoCampo = "BLLCollection<" + nmeSpace + fk.ForeignTable.Name + ">";
-				constructor = "(this, \"" + nomeCampo + "\")";
-				isNew = true;
-				// Consertar isto! Os itens abaixo devem ser nomes de propriedades.
-				atributos = "[ForeignKey(\"" + fk.ForeignColumns[0].Name + "\", \"" + fk.PrimaryColumns[0].Name + "\")]";
-				readOnly = "ReadOnly ";
-			}
-			
-%>
-		/// <summary>
-		/// Represents the relationship <%=fk.Name%>.
-		/// </summary>
-		<%= atributos %>
-		public <%= tipoCampo %> <%= nomeCampo %>
-		{
-			get 
-			{
-				return (<%= tipoCampo %>)GetLazyProperty();
-			}<%
-			if(string.IsNullOrEmpty(readOnly))
-			{
-%>
-			set
-			{
-				SetLazyProperty(value);
-				<%
-			if (onetoone) {
-				string mynull = "null";
-				if (!fk.ForeignColumns[0].IsNullable)
-					mynull = "0";
-			%>
-				if (value == null) {
-					<%=fk.ForeignColumns[0].Name%> = <%=mynull %>;
-				} else {
-					<%=fk.ForeignColumns[0].Name%> = value.<%=fk.PrimaryColumns[0].Name%>;
-				}
-			<%
-			}
-			%>}<%
-			}
-%>
-		}
-<%
-		}
-%>
-
-#endregion
-
-#region Constructors And Metadata
-
-		public <%= tbl.Name %>() { }
-
-		public <%= tbl.Name %>(bool LazyLoadingDisabled) : base(LazyLoadingDisabled) { }
-		
-		/// <summary>
-		/// Carrega os dados de um <%= tbl.Name %> cadastrado com a chave primária passada
-		/// </summary><%
-		string assign = "";
-		string construtor = "";
-		foreach (IColumn col in tbl.PrimaryKeys)
-		{
-			construtor += (string.IsNullOrEmpty(construtor)) ? "" : ", ";
-			construtor += col.LanguageType + " p" + col.Name;
-			assign += "this." + col.Name + " = p" + col.Name + ";\r\n";
-%>
-		/// <param name="p<%= col.Name %>"><%= col.Name %> do <%= tbl.Name %></param><%
-		}
-%>
-		public <%= tbl.Name %>(<%= construtor %>) {
-			<%= assign %>
-			Bind();
-		}
-
-
-		/// <summary>
-		/// Carrega os dados de um <%= tbl.Name %> cadastrado com a chave primária passada
-		/// </summary><%
-		foreach (IColumn col in tbl.PrimaryKeys)
-		{
-%>
-		/// <param name="p<%= col.Name %>"><%= col.Name %> do <%= tbl.Name %></param><%
-		}
-		construtor += ", bool LazyLoadingDisabled";
-%>
-		public <%= tbl.Name %>(<%= construtor %>) : base(LazyLoadingDisabled) {
-			<%= assign %>
-			Bind();
-		}
-
-
-#endregion
-
-#region Search
-
-        public static <%= tbl.Name %>[] Search(ConditionCollection Conditions, SortingCollection Sorting) {
-            return Search(Conditions, Sorting, false);
-        }
-
-        public static <%= tbl.Name %>[] Search(ConditionCollection Conditions, SortingCollection Sorting, bool Distinct) {
-            return Search(Conditions, Sorting, Distinct, true);
-        }
-
-        public static <%= tbl.Name %>[] Search(ConditionCollection Conditions, SortingCollection Sorting, bool Distinct, bool LazyLoading) {
-            return Search(Conditions, Sorting, Distinct, LazyLoading, null);
-        }
-
-        /// <summary>
-        /// Realiza uma pesquisa e retorna uma coleção de CLASSE
-        /// </summary>
-        /// <param name="Conditions">Informe uma coleção de condições para sua consulta.</param>
-        /// <param name="Sorting">Informe uma coleção de ordenação para sua busca.</param>
-        /// <param name="Distinct">Indica se deve buscar somente registros únicos</param>
-        /// <param name="LazyLoading"></param>
-        /// <param name="Connection">Conexão usada.</param>
-        /// <returns>Uma lista com os resultados</returns>
-        /// <remarks></remarks>
-        public static <%= tbl.Name %>[] Search(ConditionCollection Conditions, SortingCollection Sorting, bool Distinct, bool LazyLoading, ConnectionStringSettings Connection) {
-            SearchOptions sc = new SearchOptions(typeof(<%= tbl.Name %>));
-            if (Conditions != null) {
-                sc.Conditions = Conditions;
+                defaults.AppendLine("			" + valor);
             }
-            if (Sorting != null) {
-                sc.Sorting = Sorting;
-            }
-            sc.Distinct = Distinct;
-            sc.LazyLoading = LazyLoading;
+            */
 
-            return (<%= tbl.Name %>[])(BLLBase.Search(sc, Connection));
+            // ---------------------------------
+
+            string propertyItem = CodeBlocks.propertyItem;
+			if (dolazyload)
+				propertyItem = CodeBlocks.propertyLazyItem;
+				
+            propertyItem = propertyItem.Replace("{fieldAttributes}", fieldAttributes);
+            propertyItem = propertyItem.Replace("{fieldName}", col.Name);
+            propertyItem = propertyItem.Replace("{description}", col.Description);
+            propertyItem = propertyItem.Replace("{returnType}", tipoCampo);
+            propertyItem = propertyItem.Replace("{propertyName}", fieldName);
+            string validationCode = string.Empty;//To be implemented
+            propertyItem = propertyItem.Replace("{validationCode}", validationCode);
+
+            output.writeln(propertyItem);
         }
-        
-#endregion
-		/// <summary>
-		/// Inicializa a classe com os valores padrão.
-		/// </summary>
-		protected void InicializarPadroes(){
-<%= defaults.ToString()%>		
-		}
-	}
-}
-<%
-		this.salvar(fileName);
-	}
 
-	public void salvar(string nomeArquivo)
+        string propertiesEnum = CodeBlocks.propertiesEnum;
+        propertiesEnum = propertiesEnum.Replace("{propertyList}", constCampos.ToString());
+
+        output.writeln(propertiesEnum);
+        output.writeln(CodeBlocks.foreignKeysHeader);
+
+        foreach (IForeignKey fk in table.ForeignKeys)
+        {
+
+            string fkNamespace = "";
+
+            bool toOne = false;
+            string propName = "";
+            string returnType = "";
+
+            string propAttributes = "";
+            bool readOnly = false;
+
+
+            if (fk.ForeignTable.Equals(table))
+            {
+                toOne = true;
+                propName = fk.PrimaryTable.Name;
+                fkNamespace = fk.PrimaryTable.Schema;
+                if (fkNamespace != "" && fkNamespace != "dbo" && fkNamespace != table.Schema)
+                    fkNamespace = fkNamespace + ".";
+                else
+                    fkNamespace = "";
+                returnType = fkNamespace + fk.PrimaryTable.Name;
+
+                // FIX ME: The items below must be property names.
+                for (int i = 0; i < fk.ForeignColumns.Count; i++)
+                {
+                    string item = CodeBlocks.foreignKeyAttribute;
+                    item = item.Replace("{typeName}", returnType);
+                    item = item.Replace("{foreignName}", fk.PrimaryColumns[i].Name);
+                    item = item.Replace("{localName}", fk.ForeignColumns[i].Name);
+                    propAttributes += item + "\r\n";
+                }
+                readOnly = false;
+            }
+            else if (fk.PrimaryTable.Equals(table) && fk.ForeignTable.PrimaryKeys.Count == 1 && fk.PrimaryColumns.Count == 1 && fk.ForeignColumns[0].IsInPrimaryKey)
+            {
+
+                toOne = true;
+                propName = fk.ForeignTable.Name;
+                fkNamespace = fk.ForeignTable.Schema;
+                if (fkNamespace != "" && fkNamespace != "dbo" && fkNamespace != table.Schema)
+                    fkNamespace = fkNamespace + ".";
+                else
+                    fkNamespace = "";
+                returnType = fkNamespace + fk.ForeignTable.Name;
+
+                // FIX ME: The items below must be property names.
+                for (int i = 0; i < fk.ForeignColumns.Count; i++)
+                {
+                    string item = CodeBlocks.foreignKeyAttribute;
+                    item = item.Replace("{typeName}", returnType);
+                    item = item.Replace("{foreignName}", fk.ForeignColumns[i].Name);
+                    item = item.Replace("{localName}", fk.PrimaryColumns[i].Name);
+                    propAttributes += item + "\r\n";
+                }
+                readOnly = false;
+            }
+            else if (fk.PrimaryTable.Equals(table))
+            {
+                toOne = false;
+                propName = ToPlural(fk.ForeignTable.Name);
+                fkNamespace = fk.ForeignTable.Schema;
+                if (fkNamespace != "" && fkNamespace != "dbo" && fkNamespace != table.Schema)
+                    fkNamespace = fkNamespace + ".";
+                else
+                    fkNamespace = "";
+
+				string collectionType = fkNamespace + fk.ForeignTable.Name;
+                returnType = CodeBlocks.collectionType;
+                returnType = returnType.Replace("{typeName}", collectionType);
+
+                // FIX ME: The items below must be property names.
+                for (int i = 0; i < fk.ForeignColumns.Count; i++)
+                {
+                    string item = CodeBlocks.foreignKeyAttribute;
+                    item = item.Replace("{typeName}", collectionType);
+                    item = item.Replace("{foreignName}", fk.ForeignColumns[i].Name);
+                    item = item.Replace("{localName}", fk.PrimaryColumns[i].Name);
+                    propAttributes += item + "\r\n";
+                }
+                readOnly = true;
+            }
+
+            string fkProperty = (readOnly ? CodeBlocks.foreignKeyItemGet : CodeBlocks.foreignKeyItem);
+
+            fkProperty = fkProperty.Replace("{relationshipName}", fk.Name);
+            fkProperty = fkProperty.Replace("{propertyAttributes}", propAttributes);
+            fkProperty = fkProperty.Replace("{propertyName}", propName);
+            fkProperty = fkProperty.Replace("{returnType}", returnType);
+            fkProperty = fkProperty.Replace("{foreignProperty}", returnType);
+            fkProperty = fkProperty.Replace("{nullValue}", CodeBlocks.nullValue);
+
+            output.writeln(fkProperty);
+        }
+        output.writeln(CodeBlocks.metadataHeader);
+        string ctor = CodeBlocks.emptyConstructor;
+        ctor = ctor.Replace("{className}", table.Name);
+        output.writeln(ctor);
+
+        ctor = CodeBlocks.lazyConstructor;
+        ctor = ctor.Replace("{className}", table.Name);
+        output.writeln(ctor);
+
+
+        string ctorParams = string.Empty;
+        string ctorAssigns = string.Empty;
+        foreach (IColumn col in table.PrimaryKeys)
+        {
+            ctorParams += CodeBlocks.parameter.Replace("{type}", col.LanguageType).Replace("{name}", col.Name);
+            ctorAssigns += CodeBlocks.parameterAssign.Replace("{propertyName}", col.Name);
+        }
+        ctorParams = ctorParams.Substring(2);
+        ctor = CodeBlocks.primaryKeysConstructor;
+        ctor = ctor.Replace("{className}", table.Name);
+        ctor = ctor.Replace("{parameters}", ctorParams);
+        ctor = ctor.Replace("{initialization}", ctorAssigns);
+        output.writeln(ctor);
+
+        output.writeln(CodeBlocks.searchHeader);
+        string searchBlocks = CodeBlocks.searchBlocks;
+        searchBlocks = searchBlocks.Replace("{className}", table.Name);
+        output.writeln(searchBlocks);
+        output.writeln(CodeBlocks.classFooter);
+
+        this.Save(folderName, fileName);
+
+    }
+
+	public void Save(string folderName, string fileName)
 	{
-		this.salvar(nomeArquivo, true);
+		this.Save(folderName, fileName, true);
 	}
 	
-	public void salvar(string nomeArquivo, bool utf)
+	public void Save(string folderName, string fileName, bool utf)
 	{
 		string encoding = "utf8";
 		if(!utf)
 			encoding = "ascii";
 		
-		if (this.tbl.Schema != "dbo") {
-			output.saveEnc(this.outputPath + this.tbl.Schema + "\\AutoGenerated\\" + nomeArquivo, "o", encoding);
+		if (!string.IsNullOrEmpty(folderName)) {
+			output.saveEnc(this.outputPath + folderName + "\\AutoGenerated\\" + fileName, "o", encoding);
 		} else {
-			output.saveEnc(this.outputPath + "AutoGenerated\\" + nomeArquivo, "o", encoding);
+			output.saveEnc(this.outputPath + "AutoGenerated\\" + fileName, "o", encoding);
 		}
 		output.clear();
 	}
 
 }
+
 %>
 ##|BODY_END

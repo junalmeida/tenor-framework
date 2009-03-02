@@ -15,6 +15,7 @@ using System.Text;
 using System.Threading;
 using System.ComponentModel;
 using System.Collections.Specialized;
+using Tenor.Data.Dialects;
 
 
 namespace Tenor.BLL
@@ -54,146 +55,6 @@ namespace Tenor.BLL
 
         #region " Search "
 
-        private static string ReadSelectFields(string tableAlias, DbCommandBuilder builder, FieldInfo[] Fields, SpecialFieldInfo[] SpFields)
-        {
-            string campos = "";
-            foreach (FieldInfo f in Fields)
-            {
-                if (f.PrimaryKey || !f.LazyLoading)
-                {
-                    //determina o nome do campo
-                    campos += ", " + tableAlias + "." + builder.QuoteIdentifier(f.DataFieldName);
-                }
-            }
-            if (campos.Length < 2)
-            {
-                throw (new InvalidOperationException("Cannot find any TableFields for loading this type"));
-            }
-
-            foreach (SpecialFieldInfo f in SpFields)
-            {
-                campos += ", (" + string.Format(f.Expression, tableAlias) + ") " + f.Alias;
-            }
-
-            return campos.Substring(2);
-        }
-
-
-        /// <summary>
-        /// Faz o carregamento das condições com parametros e inner joins possíveis.
-        /// </summary>
-        /// <param name="Conditions">Uma instância com as informações da pesquisa.</param>
-        /// <param name="params"></param>
-        /// <param name="innerjoins"></param>
-        /// <param name="BaseClass"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        private static string ReadConditions(ConditionCollection Conditions, List<TenorParameter> @params, ref Dictionary<string, Type> innerjoins, Type BaseClass, ConnectionStringSettings Connection)
-        {
-            if (Conditions == null || Conditions.Count == 0)
-            {
-                return "";
-            }
-
-            System.Text.StringBuilder sqlWHERE = new System.Text.StringBuilder();
-
-
-            //Monta a WHERE
-            for (int i = 0; i <= Conditions.Count - 1; i++)
-            {
-                object obj = Conditions[i];
-
-                if (obj.GetType() == typeof(SearchCondition))
-                {
-                    SearchCondition sc = (SearchCondition)obj;
-                    if (sc.Table == null)
-                    {
-                        sc._Table = BaseClass;
-                    }
-
-                    sqlWHERE.Append(sc.ToString(Connection));
-
-                    bool containsKey = innerjoins.ContainsKey(sc.TableAlias);
-
-                    if (containsKey && !(innerjoins[sc.TableAlias] == sc.Table))
-                    {
-                        throw (new InvalidOperationException("You cannot use the same table alias for different types."));
-                    }
-                    else if (!containsKey && !(sc.Table == BaseClass))
-                    {
-                        innerjoins.Add(sc.TableAlias, sc.Table);
-                    }
-
-                    if (sc.Value != null)
-                    {
-                        @params.Add(new TenorParameter(sc.ParameterName, sc.Value));
-                    }
-                }
-                else if (obj.GetType() == typeof(LogicalOperator))
-                {
-                    LogicalOperator lOp = (LogicalOperator)obj;
-                    switch (lOp)
-                    {
-                        case Tenor.Data.LogicalOperator.And:
-                            sqlWHERE.AppendLine(" AND ");
-                            break;
-                        case Tenor.Data.LogicalOperator.Or:
-                            sqlWHERE.AppendLine(" OR ");
-                            break;
-                    }
-
-                    if (i == Conditions.Count - 1)
-                    {
-                        throw (new ArgumentException("Cannot have a collection that ends with an operator."));
-                    }
-
-                }
-                else if (obj.GetType() == typeof(ConditionCollection))
-                {
-                    string parenteses = ReadConditions(((ConditionCollection)obj), @params, ref innerjoins, BaseClass, Connection);
-                    if (string.IsNullOrEmpty(parenteses))
-                    {
-                        throw (new ArgumentException("Cannot have null or empty ConditionCollecion"));
-                    }
-                    sqlWHERE.AppendLine(" ( " + parenteses + " ) ");
-
-                }
-
-            }
-
-            return sqlWHERE.ToString();
-        }
-
-        /// <summary>
-        /// Faz o carregamento das classes relacionadas para inner join
-        /// </summary>
-        private static Dictionary<string, Type> ReadIncludes(ConditionCollection Conditions)
-        {
-            Dictionary<string, Type> dict = new Dictionary<string, Type>();
-            foreach (KeyValuePair<string, Type> i in Conditions.Includes)
-            {
-                if (!dict.ContainsKey(i.Key))
-                {
-                    dict.Add(i.Key, i.Value);
-                }
-            }
-
-            foreach (object i in Conditions)
-            {
-                if ((i) is ConditionCollection)
-                {
-                    foreach (KeyValuePair<string, Type> j in ReadIncludes((ConditionCollection)i))
-                    {
-                        if (!dict.ContainsKey(j.Key))
-                        {
-                            dict.Add(j.Key, j.Value);
-                        }
-                    }
-                }
-            }
-
-            return dict;
-        }
 
 
 
@@ -226,290 +87,55 @@ namespace Tenor.BLL
         /// <param name="Connection">By ref</param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public static string GetSearchSql(SearchOptions SearchOptions, ref List<TenorParameter> Params, bool Count, ConnectionStringSettings Connection)
+        public static string GetSearchSql(SearchOptions searchOptions, bool justCount, ConnectionStringSettings connection, out TenorParameter[] parameters)
         {
-            if (@Params == null)
+            IDialect dialect = DialectFactory.CreateDialect(connection);
+
+            if (searchOptions == null)
             {
-                throw (new ArgumentNullException("Params", "You must specify a List Of Parameter."));
-            }
-            @Params.Clear();
-
-
-
-            if (SearchOptions == null)
-            {
-                throw (new ArgumentNullException("SearchOptions", "You must specify a SearchOptions instance."));
+                throw (new ArgumentNullException("searchOptions", "You must specify a SearchOptions instance."));
             }
 
-            TableInfo table = TableInfo.CreateTableInfo(SearchOptions._BaseClass);
-      //BLLBase instance = (BLLBase)(Activator.CreateInstance(SearchOptions._BaseClass));
+            TableInfo table = TableInfo.CreateTableInfo(searchOptions._BaseClass);
 
-
-            if (Connection == null)
+            if (connection == null)
             {
-                Connection = table.GetConnection();
+                connection = table.GetConnection();
             }
 
             
-            DbCommandBuilder builder = Helper.GetCommandBuilder(Connection);
             
-            
+            //Read Joins
+
+            Join[] joins = DialectFactory.GetPlainJoins(searchOptions.Conditions, searchOptions._BaseClass);
+
             //Get necessary fields to create the select statement.
-            FieldInfo[] fields = BLLBase.GetFields(SearchOptions._BaseClass);
-            SpecialFieldInfo[] spfields = BLLBase.GetSpecialFields(SearchOptions._BaseClass);
-            string campos = ReadSelectFields(table.GetTableAlias(), builder, fields, spfields);
+            FieldInfo[] fieldInfos = BLLBase.GetFields(searchOptions._BaseClass);
+            SpecialFieldInfo[] spFields = BLLBase.GetSpecialFields(searchOptions._BaseClass);
 
-            Dictionary<string, Type> innerjoins = new Dictionary<string, Type>();
+            string sqlFields = dialect.CreateSelectSql(table.RelatedTable, fieldInfos, spFields);
 
-            //Força inner joins sem busca
-            foreach (KeyValuePair<string, Type> i in ReadIncludes(SearchOptions.Conditions))
-            {
-                if (!innerjoins.ContainsKey(i.Key))
-                {
-                    innerjoins.Add(i.Key, i.Value);
-                }
-            }
 
             //Sorting
-            StringBuilder sqlSort = new StringBuilder();
-
-            foreach (SortingCriteria sort in SearchOptions.Sorting)
-            {
-                if (sort.Table == null)
-                {
-                    sort._Table = SearchOptions._BaseClass;
-                }
-    
-                if (sort.FieldInfo == null && sort.SpecialFieldInfo == null)
-                {
-                    throw (new ArgumentException("Invalid Property \'" + sort.Property + "\'. You must define a Field or a SpecialField property item on SortCriteria class.", "Property", null));
-                }
-
-                if (sort.Table != SearchOptions._BaseClass && !innerjoins.ContainsKey(sort.Table.Name))
-                {
-                    if (!innerjoins.ContainsKey(sort.Table.Name))
-                    {
-                        innerjoins.Add(sort.Table.Name, sort.Table);
-                    }
-                }
-
-                //BLLBase sortIntance = (BLLBase)(Activator.CreateInstance(sort.Table));
-
-                if (sqlSort.Length > 0)
-                {
-                    sqlSort.Append(", ");
-                }
-
-                sqlSort.Append(sort.ToString(Connection));
-                //campos que entram no sort
-                if (SearchOptions.Distinct && !(sort.Table == SearchOptions._BaseClass))
-                {
-                    string tableAlias = sort.Table.Name;
-
-                    string fieldExpression = string.Empty;
-
-
-                    FieldInfo fieldInfo = sort.FieldInfo;
-                    SpecialFieldInfo spInfo = sort.SpecialFieldInfo;
-
-                    if (fieldInfo != null)
-                    {
-                        fieldExpression = tableAlias + "." + builder.QuoteIdentifier(fieldInfo.DataFieldName);
-                    }
-                    else if (spInfo != null)
-                    {
-                        fieldExpression = string.Format(spInfo.Expression, tableAlias) + " " + spInfo.Alias;
-                    }
-
-                    string campo = ", " + fieldExpression;
-                    if (!campos.Contains(campo))
-                    {
-                        campos += campo;
-                    }
-                }
-            }
-
-
+            string appendToSelect = null;
+            string sqlSort = dialect.CreateSortSql(searchOptions.Sorting, table.RelatedTable, joins, searchOptions.Distinct, out appendToSelect);
+            if (!string.IsNullOrEmpty(appendToSelect))
+                sqlFields += appendToSelect;
 
             //Creates the where part
-            string sqlWHERE = ReadConditions(SearchOptions.Conditions, @Params, ref innerjoins, SearchOptions._BaseClass, Connection);
+            string sqlWhere = dialect.CreateFiltersSql(searchOptions.Conditions, searchOptions._BaseClass, joins, out parameters);
 
-            //Creates the innerJoins conditions
-            StringBuilder sqlIJ = new StringBuilder();
-
-            if (innerjoins.Count > 0)
-            {
-                if (!innerjoins.ContainsKey(SearchOptions._BaseClass.Name))
-                {
-                    innerjoins.Add(SearchOptions._BaseClass.Name, SearchOptions._BaseClass);
-                }
-            }
+            // Creates the join parts
+            string sqlJoins = dialect.CreateJoinsSql(joins);
 
 
-
-            List<Type> encontrados = new List<Type>();
-
-            foreach (string IJkey in innerjoins.Keys)
-            {
-                Type IJ = innerjoins[IJkey];
-
-                //BLLBase IJinstance = (BLLBase)(Activator.CreateInstance(IJ));
+            // Creates the entire sql string
+            string sql = dialect.CreateFullSql(searchOptions._BaseClass, searchOptions.Distinct, justCount, searchOptions.Top, sqlFields, sqlJoins, sqlSort, sqlWhere);
 
 
+            Tenor.Diagnostics.Debug.DebugSQL("GetSearchSql()", sql, parameters, connection);
 
-                ForeignKeyInfo[] fks = BLLBase.GetForeignKeys(IJ);
-                foreach (ForeignKeyInfo fk in fks)
-                {
-                    //se a tabela atual contem referencia para classe base ou para outro item das condicoes
-                    if (fk.ElementType == SearchOptions._BaseClass || innerjoins.ContainsValue(fk.ElementType))
-                    {
-
-                        //BLLBase tabela = (BLLBase)(Activator.CreateInstance(fk.ElementType));
-                        //tabela.SetActiveConnection(Connection);
-                        TableInfo ijInfo = TableInfo.CreateTableInfo(fk.ElementType);
-                        string IJKeyleft = ijInfo.RelatedTable.Name;
-
-                        foreach (string i in innerjoins.Keys)
-                        {
-                            if (innerjoins[i] == fk.ElementType)
-                            {
-                                IJKeyleft = i;
-                                break;
-                            }
-                        }
-
-                        if (fk.ForeignFields.Length == 0)
-                        {
-                            throw (new InvalidOperationException("Cannot find foreign field for \'" + fk.ToString() + "\'"));
-                        }
-                        if (fk.LocalFields.Length == 0)
-                        {
-                            throw (new InvalidOperationException("Cannot find local field for \'" + fk.ToString() + "\'"));
-                        }
-
-                        string left = IJKeyleft + "." + builder.QuoteIdentifier(fk.ForeignFields[0].DataFieldName);
-                        string right = IJkey + "." + builder.QuoteIdentifier(fk.LocalFields[0].DataFieldName);
-
-                        if (!sqlIJ.ToString().Contains(left + " = " + right) && !sqlIJ.ToString().Contains(right + " = " + left))
-                        {
-                            if (sqlIJ.Length > 0)
-                            {
-                                sqlIJ.Append(" AND ");
-                            }
-                            sqlIJ.AppendLine(left + " = " + right);
-                        }
-
-                        if (!encontrados.Contains(fk.ElementType))
-                        {
-                            encontrados.Add(fk.ElementType);
-                        }
-                        if (!encontrados.Contains(IJ))
-                        {
-                            encontrados.Add(IJ);
-                        }
-
-                    }
-                }
-
-            }
-
-            foreach (string IJkey in innerjoins.Keys)
-            {
-                Type IJ = innerjoins[IJkey];
-                if (!encontrados.Contains(IJ))
-                {
-                    throw (new ArgumentException("Cannot create all Inner Join relations (" + IJ.Name + ")."));
-                }
-            }
-
-
-            //Montar SQL
-            System.Text.StringBuilder sql = new System.Text.StringBuilder();
-
-            sql.Append("SELECT ");
-            if (!Count)
-            {
-                if (SearchOptions.Distinct)
-                {
-                    sql.Append("DISTINCT ");
-                }
-                if (SearchOptions.Top > 0)
-                {
-                    sql.Append(" TOP " + SearchOptions.Top.ToString() + " ");
-                }
-                sql.AppendLine(campos);
-            }
-            else
-            {
-                sql.Append(" COUNT(*) ");
-            }
-
-
-            string froms = table.GetSchemaAndTable();
-
-            //TODO: Implement localizable searchs
-
-
-            ////' Tradução automática com a view correspondente
-            //if (instance.Localizable && CultureInfo.CurrentCulture.IetfLanguageTag != Configuration.Localization.DefaultCulture)
-            //{
-            //    froms = GetSchemaAndView(instance);
-
-            //    if (sqlWHERE.Length > 0)
-            //    {
-            //        sqlWHERE += " AND ";
-            //    }
-            //    sqlWHERE += "IetfLanguageTag = \'" + CultureInfo.CurrentCulture.IetfLanguageTag + "\'";
-            //}
-
-            froms += " " + table.GetTableAlias(); 
-            // TODO: Create different aliases.
-
-            foreach (string ijkey in innerjoins.Keys)
-            {
-                Type ij = innerjoins[ijkey];
-                TableInfo ijInfo = TableInfo.CreateTableInfo(ij);
-                //BLLBase tabela = (BLLBase)(Activator.CreateInstance(ij));
-                //tabela.SetActiveConnection(Connection);
-                string tbl = ijInfo.GetSchemaAndTable() + " " + ijkey;
-
-                if (!froms.ToString().Contains(tbl))
-                {
-                    froms += ", " + tbl;
-                }
-
-            }
-
-
-            sql.AppendLine(" FROM " + froms);
-
-            if (sqlWHERE.Length > 0 || sqlIJ.Length > 0)
-            {
-                sql.Append(" WHERE ");
-                if (sqlIJ.Length > 0)
-                {
-                    sql.Append(sqlIJ.ToString());
-                    if (sqlWHERE.Length > 0)
-                    {
-                        sql.AppendLine(" AND ");
-                    }
-                }
-                if (sqlWHERE.Length > 1)
-                {
-                    sql.AppendLine("(" + sqlWHERE.ToString() + ")");
-                }
-            }
-
-            if (sqlSort.Length > 0)
-            {
-                sql.Append(" ORDER BY ");
-                sql.AppendLine(sqlSort.ToString());
-            }
-
-
-            Tenor.Diagnostics.Debug.DebugSQL("GetSearchSql()", sql.ToString(), Params.ToArray(), Connection);
-
-            return sql.ToString();
+            return sql;
         }
 
 
@@ -554,18 +180,18 @@ namespace Tenor.BLL
             return SearchWithDataTable(SearchOptions, Connection, false);
         }
 
-        private static Tenor.Data.DataTable SearchWithDataTable(SearchOptions SearchOptions, ConnectionStringSettings Connection, bool Count)
+        private static Tenor.Data.DataTable SearchWithDataTable(SearchOptions searchOptions, ConnectionStringSettings connection, bool justCount)
         {
 
-            List<TenorParameter> parameters = new List<TenorParameter>();
-            if (Connection == null)
+            TenorParameter[] parameters = null;
+            if (connection == null)
             {
-                TableInfo table = TableInfo.CreateTableInfo(SearchOptions._BaseClass);
-                Connection = table.GetConnection();
+                TableInfo table = TableInfo.CreateTableInfo(searchOptions._BaseClass);
+                connection = table.GetConnection();
             }
 
-            string sql = GetSearchSql(SearchOptions, ref parameters, Count, Connection);
-            Tenor.Data.DataTable rs = new Tenor.Data.DataTable(sql, parameters.ToArray(), Connection);
+            string sql = GetSearchSql(searchOptions, justCount, connection, out parameters);
+            Tenor.Data.DataTable rs = new Tenor.Data.DataTable(sql, parameters, connection);
             DataSet ds = new DataSet();
             ds.Tables.Add(rs);
             ds.EnforceConstraints = false;
@@ -616,7 +242,7 @@ namespace Tenor.BLL
         {
             Save(isUpdate, null);
         }
-
+        [Obsolete]
         internal static string GetParamName(string paramPrefix, FieldInfo field)
         {
             return paramPrefix + field.DataFieldName.Replace(" ", "_");
@@ -631,103 +257,54 @@ namespace Tenor.BLL
         /// <param name="specialValues">The special values can contains sql sentences/sequences/etc</param>
         /// <param name="connection"></param>
         /// <returns></returns>
-        internal string GetSaveSql(bool isUpdate, List<TenorParameter> parameters, ref FieldInfo autoKeyField, NameValueCollection specialValues, ConnectionStringSettings connection)
+        internal string GetSaveSql(bool isUpdate, ConnectionStringSettings connection, NameValueCollection specialValues, out FieldInfo autoKeyField, out TenorParameter[] parameters, out string identityQuery, out bool runOnSameQuery)
         {
+            Dictionary<FieldInfo, object> data = new Dictionary<FieldInfo, object>();
+
             TableInfo table = TableInfo.CreateTableInfo(this.GetType());
             if (connection == null)
                 connection = table.GetConnection();
 
-            string paramPrefix = Helper.GetParameterPrefix(connection); // The @, :, ?
-            DbCommandBuilder builder = Helper.GetCommandBuilder(connection);
-
-            string fieldValues = "";
-            string clause = "";
-            string fields = "";
-            string values = "";
+            IDialect dialect = DialectFactory.CreateDialect(connection);
 
             autoKeyField = null;
-            foreach (FieldInfo field in GetFields(this.GetType()))
+            ConditionCollection conditions = new ConditionCollection();
+
+            List<FieldInfo> fieldInfos = new List<FieldInfo>(GetFields(this.GetType()));
+            for (int i = fieldInfos.Count - 1; i >= 0; i--)
             {
-                if (!field.LazyLoading || propertyData.ContainsKey(field.RelatedProperty.Name))
+                if (isUpdate && fieldInfos[i].PrimaryKey)
                 {
-                    string paramName = GetParamName(table.GetTableAlias(), field);
-                    TenorParameter param = new TenorParameter(paramName, field.PropertyValue(this));
-                    if (field.AutoNumber)
+                    if (conditions.Count != 0)
+                        conditions.Add(LogicalOperator.And);
+                    conditions.Add(fieldInfos[i].RelatedProperty.Name, fieldInfos[i].PropertyValue(this));
+
+                    if (fieldInfos[i].AutoNumber)
                     {
-                        autoKeyField = field;
+                        autoKeyField = fieldInfos[i];
+                        data.Add(fieldInfos[i], null);
                     }
-                    else
-                    {
-
-                        if (!string.IsNullOrEmpty(fields))
-                        {
-                            fields += ", ";
-                        }
-                        fields += builder.QuoteIdentifier(field.DataFieldName);
-                        if (!string.IsNullOrEmpty(values))
-                        {
-                            values += ", ";
-                        }
-
-
-                        if (specialValues == null || string.IsNullOrEmpty(specialValues[paramName]))
-                        {
-                            values += paramPrefix + paramName; // The straigt parameter
-                        }
-                        else
-                        {
-                            values += specialValues[paramName]; //Replaced by a SQL statement
-                        }
-
-                        if (!field.PrimaryKey)
-                        {
-                            if (!string.IsNullOrEmpty(fieldValues))
-                            {
-                                fieldValues += ", ";
-                            }
-                            if (specialValues == null || string.IsNullOrEmpty(specialValues[paramName]))
-                            {
-                                fieldValues += builder.QuoteIdentifier(field.DataFieldName) + " = " + paramPrefix + paramName;
-                            }
-                            else
-                            {
-                                fieldValues += builder.QuoteIdentifier(field.DataFieldName) + " = " + specialValues[paramName];
-                            }
-                        }
-
-
-                    }
-
-                    if (field.PrimaryKey)
-                    {
-                        if (!string.IsNullOrEmpty(clause))
-                        {
-                            clause += " AND ";
-                        }
-                        clause += "" + builder.QuoteIdentifier(field.DataFieldName) + " = " + paramPrefix + paramName;
-                    }
-
-                    parameters.Add(param);
+                    else 
+                        fieldInfos.RemoveAt(i);
+                }
+                else if (fieldInfos[i].AutoNumber)
+                {
+                    autoKeyField = fieldInfos[i];
+                    data.Add(fieldInfos[i], null);
+                }
+                else if (fieldInfos[i].LazyLoading && !propertyData.ContainsKey(fieldInfos[i].RelatedProperty.Name))
+                {
+                    fieldInfos.RemoveAt(i);
+                }
+                else
+                {
+                    data.Add(fieldInfos[i], fieldInfos[i].PropertyValue(this));
                 }
             }
+            string sql = dialect.CreateSaveSql(this.GetType(), data, specialValues, conditions, out parameters, out identityQuery, out runOnSameQuery);
 
-            string query = "";
-            if (isUpdate)
-            {
-                query = string.Format("UPDATE {0} SET {1} WHERE {2}",
-                    table.GetSchemaAndTable(),
-                    fieldValues,
-                    clause);
-            }
-            else
-            {
-                query = string.Format("INSERT INTO {0} ({1}) VALUES ({2})",
-                    table.GetSchemaAndTable(), 
-                    fields,
-                    values);
-            }
 
-            return query;
+            return sql;
         }
 
         /// <summary>
@@ -742,17 +319,18 @@ namespace Tenor.BLL
                 TableInfo table = TableInfo.CreateTableInfo(this.GetType());
                 if (connection == null)
                     connection = table.GetConnection();
+                TenorParameter[] parameters = null;
+                FieldInfo autoKeyField = null;
+                string identityQuery = null;
+                bool runOnSameQuery = false;
 
-                FieldInfo AutoKeyField = null;
+                string query = GetSaveSql(isUpdate, connection, null, out autoKeyField, out parameters, out identityQuery, out runOnSameQuery);
 
-                List<TenorParameter> @params = new List<TenorParameter>();
-                string query = GetSaveSql(isUpdate, @params, ref AutoKeyField, null, connection);
+                int result = Helper.AtualizarBanco(connection, query, parameters, identityQuery, runOnSameQuery);
 
-                int result = Helper.AtualizarBanco(connection, query, @params);
-
-                if (!isUpdate && (AutoKeyField != null))
+                if (!isUpdate && (autoKeyField != null))
                 {
-                    AutoKeyField.SetPropertyValue(this, Convert.ChangeType(result, AutoKeyField.FieldType));
+                    autoKeyField.SetPropertyValue(this, Convert.ChangeType(result, autoKeyField.FieldType));
                 }
             }
         }
@@ -760,25 +338,25 @@ namespace Tenor.BLL
         /// <summary>
         /// Somente salva a instancia se o Campo Condicional não existir.
         /// </summary>
-        public virtual bool SaveConditional(string ConditionalField)
+        public virtual bool SaveConditional(string conditionalField)
         {
-            return SaveConditional(new string[] { ConditionalField });
+            return SaveConditional(new string[] { conditionalField });
         }
 
         /// <summary>
         /// Somente salva a instancia se o Campo Condicional não existir.
         /// </summary>
-        public virtual bool SaveConditional(string[] ConditionalFields)
+        public virtual bool SaveConditional(string[] conditionalFields)
         {
-            return SaveConditional(ConditionalFields, false);
+            return SaveConditional(conditionalFields, false);
         }
 
         /// <summary>
         /// Salva ou atualiza a instancia de acordo com isUpdate
         /// </summary>
-        public virtual bool SaveConditional(string ConditionalField, bool isUpdate)
+        public virtual bool SaveConditional(string conditionalField, bool isUpdate)
         {
-            return SaveConditional(new string[] { ConditionalField }, isUpdate);
+            return SaveConditional(new string[] { conditionalField }, isUpdate);
         }
 
                 /// <summary>
@@ -787,9 +365,9 @@ namespace Tenor.BLL
         /// Quando isUpdate é True, o sistema cria um registro novo se o mesmo não exister, caso contrário, atualiza.
         /// Se o registro for criado, retorna True.
         /// </summary>
-        public virtual bool SaveConditional(string[] ConditionalFields, bool isUpdate)
+        public virtual bool SaveConditional(string[] conditionalFields, bool isUpdate)
         {
-            return SaveConditional(ConditionalFields, isUpdate, null);
+            return SaveConditional(conditionalFields, isUpdate, null);
         }
         /// <summary>
         /// Quando isUpdate é False, o sistema cria um registro novo, se o mesmo não existir. Se o registro for criado,
@@ -797,23 +375,21 @@ namespace Tenor.BLL
         /// Quando isUpdate é True, o sistema cria um registro novo se o mesmo não exister, caso contrário, atualiza.
         /// Se o registro for criado, retorna True.
         /// </summary>
-        public virtual bool SaveConditional(string[] ConditionalFields, bool isUpdate, ConnectionStringSettings connection)
+        public virtual bool SaveConditional(string[] conditionalFields, bool isUpdate, ConnectionStringSettings connection)
         {
             if (Validate())
             {
                 TableInfo table = TableInfo.CreateTableInfo(this.GetType());
                 if (connection == null)
                     connection = table.GetConnection();
-                DbProviderFactory factory = Helper.GetFactory(connection);
-                string paramPrefix = Helper.GetParameterPrefix(factory);
                 
-                FieldInfo[] fields = BLLBase.GetFields(this.GetType(), null, ConditionalFields);
 
-                if (ConditionalFields.Length == 0)
+                FieldInfo[] fields = BLLBase.GetFields(this.GetType(), null, conditionalFields);
+                if (conditionalFields.Length == 0)
                 {
                     throw (new ArgumentException("Cannot find one or more ConditionalFields", "ConditionalFields"));
                 }
-                else if (fields.Length != ConditionalFields.Length)
+                else if (fields.Length != conditionalFields.Length)
                 {
                     throw (new ArgumentException("Cannot find one or more ConditionalFields", "ConditionalFields"));
                 }
@@ -821,77 +397,22 @@ namespace Tenor.BLL
                 FieldInfo[] fieldsPrimary = BLLBase.GetFields(this.GetType(), true);
 
 
-                FieldInfo AutoKeyField = null;
+                FieldInfo autoKeyField = null;
 
-                List<TenorParameter> @params = new List<TenorParameter>();
-                string insertQuery = GetSaveSql(false, @params, ref AutoKeyField, null, connection);
+                TenorParameter[] parameters = null;
+                string identityQuery = null;
+                bool runOnSameQuery = false;
 
-                //updateQuery está com new List<Parameter> pois os parametros já foram definidos no insertQuery.
-                string updateQuery = GetSaveSql(true, new List<TenorParameter>(), ref AutoKeyField, null, connection);
+                string insertQuery = GetSaveSql(false, connection, null, out autoKeyField, out parameters, out identityQuery, out runOnSameQuery);
 
-                StringBuilder query = new StringBuilder();
-                StringBuilder queryDeclares = new StringBuilder();
+                //updateQuery doesn't need parameters cause it's already set.\
+                TenorParameter[] parameters2 = null;
+                string updateQuery = GetSaveSql(true, connection, null, out autoKeyField, out parameters2, out identityQuery, out runOnSameQuery);
+                parameters2 = null;
 
-                StringBuilder querySelect = new StringBuilder();
-                StringBuilder queryIsNull = new StringBuilder();
-                StringBuilder queryWhere = new StringBuilder();
+                string query = DialectFactory.CreateDialect(connection).CreateConditionalSaveSql(insertQuery, updateQuery, conditionalFields, fieldsPrimary);
 
-                foreach (FieldInfo f in fieldsPrimary)
-                {
-                    TenorParameter p = new TenorParameter(f.RelatedProperty.Name + "__test", f.PropertyValue(this));
-                    querySelect.Append(",");
-                    querySelect.Append(paramPrefix + table.GetTableAlias() + f.RelatedProperty.Name);
-                    querySelect.Append(" = ");
-                    querySelect.Append(f.DataFieldName);
-                }
-
-
-                foreach (FieldInfo f in fields)
-                {
-                    TenorParameter p = new TenorParameter(f.RelatedProperty.Name + "__test", f.PropertyValue(this));
-                    queryDeclares.AppendLine("DECLARE " + paramPrefix + f.RelatedProperty.Name + "_ " + Helper.GetDbTypeName(p.Value.GetType(), factory));
-                    querySelect.Append(",");
-                    querySelect.Append(paramPrefix + f.RelatedProperty.Name + "_");
-                    querySelect.Append(" = ");
-                    querySelect.Append(f.DataFieldName);
-
-                    queryWhere.Append(" AND ");
-                    queryWhere.Append(f.DataFieldName);
-                    queryWhere.Append(" = ");
-                    queryWhere.Append(paramPrefix + table.GetTableAlias() + f.RelatedProperty.Name);
-
-                    queryIsNull.Append(" AND ");
-                    queryIsNull.Append(paramPrefix + f.RelatedProperty.Name + "_ IS NULL");
-
-                }
-                query.Append(queryDeclares);
-                query.AppendLine();
-                query.Append("SELECT ");
-
-                querySelect.Remove(0, 1);
-                query.Append(querySelect);
-                query.Append(" FROM ");
-                query.Append(table.GetSchemaAndTable());
-                query.Append(" WHERE ");
-                queryWhere.Remove(0, 4);
-                query.AppendLine(queryWhere.ToString());
-
-                queryIsNull.Remove(0, 4);
-                query.Append("IF ");
-                query.Append(queryIsNull);
-                query.AppendLine(" BEGIN");
-                query.AppendLine("      " + insertQuery);
-                query.AppendLine("      SELECT SCOPE_IDENTITY()");
-                query.AppendLine(" END ELSE BEGIN ");
-                if (isUpdate)
-                {
-                    query.AppendLine("      " + updateQuery);
-                }
-                query.AppendLine("      SELECT -1 ");
-                query.AppendLine(" END ");
-
-
-                DataTable result = Helper.ConsultarBanco(connection, query.ToString(), @params);
+                DataTable result = Helper.ConsultarBanco(connection, query.ToString(), parameters);
 
                 if (!isUpdate && System.Convert.ToInt32(result.Rows[0][0]) == -1)
                 {
@@ -903,9 +424,9 @@ namespace Tenor.BLL
                 }
                 else
                 {
-                    if (AutoKeyField != null)
+                    if (autoKeyField != null)
                     {
-                        AutoKeyField.SetPropertyValue(this, Convert.ChangeType(result.Rows[0][0], AutoKeyField.FieldType));
+                        autoKeyField.SetPropertyValue(this, Convert.ChangeType(result.Rows[0][0], autoKeyField.FieldType));
                     }
                     return true;
                 }
@@ -921,34 +442,32 @@ namespace Tenor.BLL
         /// </summary>
         public void Delete()
         {
+            TenorParameter[] parameters = null;
             TableInfo table = TableInfo.CreateTableInfo(this.GetType());
             ConnectionStringSettings connection = table.GetConnection();
-            DbCommandBuilder builder = Helper.GetCommandBuilder(connection);
-            string paramPrefix = Helper.GetParameterPrefix(connection);
 
-            string clause = "";
-            List<TenorParameter> @params = new List<TenorParameter>();
+            IDialect dialect = DialectFactory.CreateDialect(connection);
+
+            ConditionCollection conditions = new ConditionCollection();
+
             foreach (FieldInfo i in GetFields(this.GetType()))
             {
                 if (i.PrimaryKey)
                 {
-                    TenorParameter param = new TenorParameter(i.DataFieldName.Replace(" ", "_"), i.PropertyValue(this));
-                    clause += " AND " + builder.QuoteIdentifier(i.DataFieldName) + (" = " + paramPrefix + param.ParameterName);
-                    @params.Add(param);
+                    if (conditions.Count != 0)
+                        conditions.Add(LogicalOperator.And);
+                    conditions.Add(i.RelatedProperty.Name, i.PropertyValue(this));
                 }
             }
-            if (string.IsNullOrEmpty(clause))
+            if (conditions.Count == 0)
             {
-                throw (new MissingPrimaryKeyException());
-            }
-            else
-            {
-                clause = clause.Substring(4);
+                throw (new Tenor.Data.MissingPrimaryKeyException(this.GetType()));
             }
 
-            string query = "DELETE FROM " + table.GetSchemaAndTable() + " WHERE " + clause;
 
-            Helper.AtualizarBanco(connection, query, @params);
+            string query = dialect.CreateDeleteSql(table.RelatedTable, conditions, out parameters);
+
+            Helper.AtualizarBanco(connection, query, parameters, null, false);
         }
 
         #endregion
@@ -1343,7 +862,7 @@ namespace Tenor.BLL
                 Type t = x.GetType();
                 if (t != y.GetType())
                 {
-                    throw (new InvalidCastException());
+                    return false;
                 }
                 FieldInfo[] primaryKeys = GetPrimaryKeys(t);
 

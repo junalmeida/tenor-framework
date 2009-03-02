@@ -96,7 +96,9 @@ namespace Tenor.BLL
                 List<FieldInfo> filters = new List<FieldInfo>();
                 foreach (string s in FilterMembers)
                 {
-                    FieldInfo field = new FieldInfo(this.GetType().GetProperty(s));
+                    FieldInfo field = FieldInfo.Create(this.GetType().GetProperty(s));
+                    if (field == null)
+                        throw new Tenor.Data.MissingFieldException(this.GetType(), s);
                     filters.Add(field);
                 }
 

@@ -118,45 +118,18 @@ namespace Tenor.Data
 
             return res;
         }
-
-        ///// <summary>
-        ///// Gets the full table identifier using a localization view. See the documentation.
-        ///// </summary>
-        ///// <param name="instance"></param>
-        ///// <returns></returns>
-        ///// <remarks></remarks>
-        //protected static string GetSchemaAndView(BLLBase instance)
-        //{
-        //    string schemaName = "Localization";
-
-
-        //    string res = string.Empty;
-        //    res = instance.CommandBuilder.QuoteIdentifier(schemaName) + ".";
-        //    res += instance.CommandBuilder.QuoteIdentifier(instance.SchemaName + instance.TableName);
-
-        //    return res;
-        //}
-
-        public string GetTableAlias()
-        {
-            return type.Name; //Change this to a valid table alias.
-        }
     }
 
     internal abstract class PropInfo
     {
 
 
-        private System.Reflection.PropertyInfo _RelatedProperty;
+        protected System.Reflection.PropertyInfo _RelatedProperty;
         public virtual System.Reflection.PropertyInfo RelatedProperty
         {
             get
             {
                 return _RelatedProperty;
-            }
-            set
-            {
-                _RelatedProperty = value;
             }
         }
 
@@ -235,19 +208,26 @@ namespace Tenor.Data
 
     internal sealed class ForeignKeyInfo : PropInfo
     {
-
-
-        public ForeignKeyInfo(System.Reflection.PropertyInfo @Property)
+        private ForeignKeyInfo()
         {
-            RelatedProperty = @Property;
+        }
 
-            _RelatedAttributes = (ForeignKeyAttribute[])(RelatedProperty.GetCustomAttributes(typeof(ForeignKeyAttribute), true));
-            if (_RelatedAttributes.Length == 0)
+
+        public static ForeignKeyInfo Create(System.Reflection.PropertyInfo theProperty)
+        {
+            ForeignKeyInfo fk = new ForeignKeyInfo();
+
+            fk._RelatedProperty = theProperty;
+
+            fk._RelatedAttributes = (ForeignKeyAttribute[])(fk.RelatedProperty.GetCustomAttributes(typeof(ForeignKeyAttribute), true));
+            if (fk._RelatedAttributes.Length == 0)
             {
-                throw (new MissingFieldException("Could not find the foreign key information for \'" + @Property.Name + "\'"));
-
+                return null;
             }
-            //acertar aki
+            else
+            {
+                return fk;
+            }
         }
 
 
@@ -257,10 +237,6 @@ namespace Tenor.Data
             get
             {
                 return _RelatedAttributes;
-            }
-            set
-            {
-                _RelatedAttributes = value;
             }
         }
 
@@ -335,10 +311,9 @@ namespace Tenor.Data
                     System.Reflection.PropertyInfo prop = this.ElementType.GetProperty(i.ForeignPropertyName);
                     if (prop != null)
                     {
-                        FieldAttribute[] atts = (FieldAttribute[])(prop.GetCustomAttributes(typeof(FieldAttribute), true));
-                        if (atts.Length > 0)
+                        FieldInfo field = FieldInfo.Create(prop);
+                        if (field != null)
                         {
-                            FieldInfo field = new FieldInfo(prop);
                             res.Add(field);
                         }
 
@@ -358,10 +333,9 @@ namespace Tenor.Data
                     System.Reflection.PropertyInfo prop = this.RelatedProperty.DeclaringType.GetProperty(i.LocalPropertyName);
                     if (prop != null)
                     {
-                        FieldAttribute[] atts = (FieldAttribute[])(prop.GetCustomAttributes(typeof(FieldAttribute), true));
-                        if (atts.Length > 0)
+                        FieldInfo field = FieldInfo.Create(prop);
+                        if (field != null)
                         {
-                            FieldInfo field = new FieldInfo(prop);
                             res.Add(field);
                         }
 
@@ -380,98 +354,78 @@ namespace Tenor.Data
     internal sealed class FieldInfo : PropInfo
     {
 
-
-        public FieldInfo(System.Reflection.PropertyInfo @Property)
+        private FieldInfo()
         {
+        }
 
+        public static FieldInfo Create(System.Reflection.PropertyInfo theProperty)
+        {
+            FieldInfo fi = new FieldInfo();
 
-            RelatedProperty = @Property;
-            FieldAttribute[] atts = (FieldAttribute[])(RelatedProperty.GetCustomAttributes(typeof(FieldAttribute), true));
+            fi._RelatedProperty = theProperty;
+            FieldAttribute[] atts = (FieldAttribute[])(fi.RelatedProperty.GetCustomAttributes(typeof(FieldAttribute), true));
+            if (atts.Length > 1)
+            {
+                throw new MissingFieldException(theProperty.DeclaringType, theProperty.Name);
+            }
             if (atts.Length == 0)
             {
-                throw (new Exception("Missing field attribute for \'" + @Property.Name + "\'"));
+                return null;
             }
-            _Attribute = atts[0];
 
-            FieldType = RelatedProperty.PropertyType;
-            if (string.IsNullOrEmpty(_Attribute.FieldName))
-            {
-                DataFieldName = RelatedProperty.Name;
-            }
-            else
-            {
-                DataFieldName = _Attribute.FieldName;
-            }
-            AutoNumber = _Attribute.AutoNumber;
-            PrimaryKey = _Attribute.PrimaryKey;
-            LazyLoading = _Attribute.LazyLoading;
+        
+            fi._Attribute = atts[0];
+
+            return fi;
         }
         private FieldAttribute _Attribute;
 
 
 
-        private Type _FieldType;
         public Type FieldType
         {
             get
             {
-                return _FieldType;
-            }
-            set
-            {
-                _FieldType = value;
+                return RelatedProperty.PropertyType;
             }
         }
 
-        private bool _PrimaryKey;
         public bool PrimaryKey
         {
             get
             {
-                return _PrimaryKey;
-            }
-            set
-            {
-                _PrimaryKey = value;
+                return _Attribute.PrimaryKey;
             }
         }
 
-        private bool _AutoNumber;
         public bool AutoNumber
         {
             get
             {
-                return _AutoNumber;
-            }
-            set
-            {
-                _AutoNumber = value;
+                return _Attribute.AutoNumber;
             }
         }
 
-        private bool _LazyLoading;
         public bool LazyLoading
         {
             get
             {
-                return _LazyLoading;
-            }
-            set
-            {
-                _LazyLoading = value;
+                return _Attribute.LazyLoading;
             }
         }
 
-        private string _DataFieldName;
         public string DataFieldName
         {
             get
             {
-                return _DataFieldName;
-            }
-            set
-            {
-                _DataFieldName = value;
+                if (string.IsNullOrEmpty(_Attribute.FieldName))
+                {
+                    return RelatedProperty.Name;
+                }
+                else
+                {
+                    return _Attribute.FieldName;
+                }
             }
         }
 
@@ -490,18 +444,24 @@ namespace Tenor.Data
     internal sealed class SpecialFieldInfo : PropInfo
     {
 
+        private SpecialFieldInfo() { }
 
-        public SpecialFieldInfo(System.Reflection.PropertyInfo @Property)
+        public static SpecialFieldInfo Create(System.Reflection.PropertyInfo theProperty)
         {
+            SpecialFieldInfo sp = new SpecialFieldInfo();
 
-
-            RelatedProperty = @Property;
-            SpecialFieldAttribute[] atts = (SpecialFieldAttribute[])(RelatedProperty.GetCustomAttributes(typeof(SpecialFieldAttribute), true));
+            sp._RelatedProperty = theProperty;
+            SpecialFieldAttribute[] atts = (SpecialFieldAttribute[])(sp.RelatedProperty.GetCustomAttributes(typeof(SpecialFieldAttribute), true));
             if (atts.Length == 0)
             {
-                throw (new Exception("Missing SpecialFieldAttribute for \'" + @Property.Name + "\'"));
+                return null;
             }
-            _Attribute = atts[0];
+            else if (atts.Length > 1)
+            {
+                throw new MissingSpecialFieldException(theProperty.DeclaringType, theProperty.Name);
+            }
+            sp._Attribute = atts[0];
+            return sp;
 
         }
 

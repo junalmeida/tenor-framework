@@ -14,31 +14,31 @@ namespace Tenor.BLL
             FieldInfo[] chavesPrimaria = GetPrimaryKeys(this.GetType());
             if (chavesPrimaria.Length == 0)
             {
-                throw (new MissingPrimaryKeyException());
+                throw (new Tenor.Data.MissingPrimaryKeyException(this.GetType()));
             }
-            string chavePrimaria = "";
+            string primaryKey = "";
             foreach (FieldInfo f in chavesPrimaria)
             {
-                chavePrimaria += "," + f.PropertyValue(this).ToString();
+                primaryKey += "," + f.PropertyValue(this).ToString();
             }
 
 
-            if (chavePrimaria.Length == 0)
+            if (primaryKey.Length == 0)
             {
-                throw (new MissingPrimaryKeyException());
+                throw (new Tenor.Data.MissingPrimaryKeyException(this.GetType()));
             }
             else
             {
-                chavePrimaria = chavePrimaria.Substring(1);
+                primaryKey = primaryKey.Substring(1);
             }
-            return chavePrimaria;
+            return primaryKey;
         }
 
 
         /// <summary>
-        /// Procura a instancia no cache e a inclue se não for encontrada.
+        /// Seeks for a cache instance. If not found, it will be put.
         /// </summary>
-        /// <returns>Verdadeiro se o item foi lido do cache. Falso se a intancia não foi encontrada. Caso retorne falso deverá ser carregado os dados da mesma.</returns>
+        /// <returns>Returns true if the item was read from cache. In case of false, the instance must be read from the persistence medium.</returns>
         /// <remarks></remarks>
         private bool LoadFromCache()
         {

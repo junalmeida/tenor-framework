@@ -150,9 +150,9 @@ namespace Tenor
 			/// <param name="sqlSelect">SQL de select</param>
 			/// <param name="parametros">Array de Parametros</param>
 			/// <returns>DataTable com os resultados, ou Nothing, caso nada tenha sido retornado.</returns>
-			public static DataTable ConsultarBanco(string sqlSelect, List<TenorParameter> parametros)
+			public static DataTable ConsultarBanco(string sqlSelect, TenorParameter[] parametros)
 			{
-				return ConsultarBanco(BLL.BLLBase.SystemConnection, sqlSelect, parametros);
+				return ConsultarBanco(null, sqlSelect, parametros);
 			}
 			
 			/// <summary>
@@ -162,14 +162,16 @@ namespace Tenor
 			/// <param name="sqlSelect">SQL de select</param>
 			/// <param name="parametros">Coleção de Parametros</param>
 			/// <returns>DataTable com os resultados, ou Nothing, caso nada tenha sido retornado.</returns>
-			public static DataTable ConsultarBanco(ConnectionStringSettings ConnectionString, string sqlSelect, List<TenorParameter> parametros)
+			public static DataTable ConsultarBanco(ConnectionStringSettings connectionString, string sqlSelect, TenorParameter[] parametros)
 			{
-				DbProviderFactory factory = GetFactory(ConnectionString);
+                if (connectionString == null)
+                    throw new ArgumentNullException("connectionString");
+				DbProviderFactory factory = GetFactory(connectionString);
 				
 				DataTable dtRetorno = null;
 				
 				DbConnection conn = factory.CreateConnection();
-				conn.ConnectionString = ConnectionString.ConnectionString;
+				conn.ConnectionString = connectionString.ConnectionString;
 				DbCommand cmd = null;
 				DbDataReader reader;
 
@@ -177,7 +179,7 @@ namespace Tenor
 				{
 					if (System.Diagnostics.Debugger.IsAttached)
 					{
-                        Tenor.Diagnostics.Debug.DebugSQL("Helper: ConsultarBanco()", sqlSelect, parametros.ToArray(), ConnectionString);
+                        Tenor.Diagnostics.Debug.DebugSQL("Helper: ConsultarBanco()", sqlSelect, parametros, connectionString);
 					}
 				}
 				catch (Exception ex)
@@ -236,7 +238,7 @@ namespace Tenor
 			/// <param name="sqlSelect">SQL de select</param>
 			/// <param name="parametros">Coleção de Parametros</param>
 			/// <returns>O resultado, ou Nothing, caso nada tenha sido retornado.</returns>
-			public static object ConsultarValor(string sqlSelect, List<TenorParameter> parametros)
+			public static object ConsultarValor(string sqlSelect, TenorParameter[] parametros)
 			{
 				return ConsultarValor(Tenor.BLL.BLLBase.SystemConnection, sqlSelect, parametros);
 			}
@@ -248,10 +250,10 @@ namespace Tenor
 			/// <param name="sqlSelect">SQL de select</param>
 			/// <param name="parametros">Coleção de Parametros</param>
 			/// <returns>O resultado, ou Nothing, caso nada tenha sido retornado.</returns>
-			public static object ConsultarValor(ConnectionStringSettings ConnectionString, string sqlSelect, List<TenorParameter> parametros)
+			public static object ConsultarValor(ConnectionStringSettings connectionString, string sqlSelect, TenorParameter[] parametros)
 			{
 				object valor = null;
-				DataTable tabela = ConsultarBanco(ConnectionString, sqlSelect, parametros);
+				DataTable tabela = ConsultarBanco(connectionString, sqlSelect, parametros);
 				if (tabela != null&& tabela.Rows.Count > 0)
 				{
 					valor = tabela.Rows[0][0];
@@ -266,9 +268,9 @@ namespace Tenor
 			/// <param name="parametros">Coleção de Parametros</param>
 			/// <returns></returns>
 			/// <remarks></remarks>
-			public static int AtualizarBanco(string sql, List<TenorParameter> parametros)
+			public static int AtualizarBanco(string sql, TenorParameter[] parametros)
 			{
-				return AtualizarBanco(BLL.BLLBase.SystemConnection, sql, parametros);
+				return AtualizarBanco(BLL.BLLBase.SystemConnection, sql, parametros, null, false);
 			}
 			
 			/// <summary>
@@ -280,7 +282,7 @@ namespace Tenor
 			/// <returns>Número de linhas afetadas para Update e Delete;
 			/// Índice atual da chave primária para INSERT INTO</returns>
 			/// <remarks></remarks>
-			public static int AtualizarBanco(ConnectionStringSettings ConnectionString, string sql, List<TenorParameter> parametros)
+			public static int AtualizarBanco(ConnectionStringSettings ConnectionString, string sql, TenorParameter[] parametros, string identityQuery, bool runOnSameQuery)
 			{
 				DbProviderFactory factory = GetFactory(ConnectionString);
 				
@@ -288,7 +290,7 @@ namespace Tenor
 				conn.ConnectionString = ConnectionString.ConnectionString;
 				DbCommand cmd;
 				
-				int retorno = - 99;
+				int returnValue = - 99;
 				
 				
 				
@@ -353,27 +355,51 @@ namespace Tenor
 					{
 						Diagnostics.Debug.HandleError(ex);
 					}
-					
-					
-					
+
+                    if (!string.IsNullOrEmpty(identityQuery) && runOnSameQuery)
+                    {
+                        cmd.CommandText += "\r\n" + identityQuery;
+                        object result = cmd.ExecuteScalar();
+                        if (!result.Equals(DBNull.Value))
+                        {
+                            returnValue = Convert.ToInt32(result);
+                        }
+                    }
+                    else if (!string.IsNullOrEmpty(identityQuery) && !runOnSameQuery)
+                    {
+                        returnValue = cmd.ExecuteNonQuery();
+
+                        cmd.CommandText = identityQuery;
+                        object result = cmd.ExecuteScalar();
+                        if (!result.Equals(DBNull.Value))
+                        {
+                            returnValue = Convert.ToInt32(result);
+                        }
+                    }
+                    else
+                    {
+                        returnValue = cmd.ExecuteNonQuery();
+                    }
+
+					/*
 					if (sql.Trim().StartsWith("INSERT INTO", StringComparison.CurrentCultureIgnoreCase))
 					{
-						if (cmd.Connection.GetType() == typeof(System.Data.SqlClient.SqlConnection))
-						{
-							cmd.CommandText += " SELECT SCOPE_IDENTITY()";
-						}
-						else if (cmd.Connection.GetType().FullName.Contains("MySQL"))
-						{
-							cmd.CommandText += " SELECT LAST_INSERT_ID()";
-						}
-						else if (cmd.Connection.GetType().FullName.Contains("SQLite"))
-						{
-							cmd.CommandText += ";" + Environment.NewLine + "SELECT LAST_INSERT_ROWID();";
-						}
-						else
-						{
-							cmd.CommandText += " SELECT -1";
-						}
+                        if (cmd.Connection.GetType() == typeof(System.Data.SqlClient.SqlConnection))
+                        {
+                            cmd.CommandText += " SELECT SCOPE_IDENTITY()";
+                        }
+                        else if (cmd.Connection.GetType().FullName.Contains("MySQL"))
+                        {
+                            cmd.CommandText += " SELECT LAST_INSERT_ID()";
+                        }
+                        else if (cmd.Connection.GetType().FullName.Contains("SQLite"))
+                        {
+                            cmd.CommandText += ";" + Environment.NewLine + "SELECT LAST_INSERT_ROWID();";
+                        }
+                        else
+                        {
+                            cmd.CommandText += " SELECT -1";
+                        }
 						
 						object resultado = cmd.ExecuteScalar();
 						if (! resultado.Equals(DBNull.Value))
@@ -386,7 +412,7 @@ namespace Tenor
 					{
 						retorno = cmd.ExecuteNonQuery();
 					}
-					
+					*/
 				}
 				catch (Exception)
 				{
@@ -400,16 +426,17 @@ namespace Tenor
 					}
                     conn.Dispose();
 				}
-				
-				return retorno;
+
+                return returnValue;
 			}
 
+            [Obsolete()]
             internal static string GetParameterPrefix(ConnectionStringSettings Connection)
             {
                 return GetParameterPrefix(GetFactory(Connection));
             }
 
-
+            [Obsolete()]
             internal static string GetParameterPrefix(DbProviderFactory factory)
             {
                 string param = factory.CreateParameter().GetType().Name;

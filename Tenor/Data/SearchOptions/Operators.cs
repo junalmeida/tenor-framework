@@ -7,105 +7,95 @@ using System.Data;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Tenor
+namespace Tenor.Data
 {
-	namespace Data
-	{
-		/// <summary>
-		/// Operadores disponíveis para a comparação de dados
-		/// </summary>
-		/// <remarks></remarks>
-		public enum CompareOperator
-		{
-			/// <summary>
-			/// Se é igual
-			/// </summary>
-			/// <remarks></remarks>
-			Equal,
-			/// <summary>
-			/// Se não é igual
-			/// </summary>
-			/// <remarks></remarks>
-			NotEqual,
-			/// <summary>
-			/// Menor que
-			/// </summary>
-			/// <remarks></remarks>
-			LessThan,
-			/// <summary>
-			/// Maior que
-			/// </summary>
-			/// <remarks></remarks>
-			GreaterThan,
-			/// <summary>
-			/// Menor ou igual
-			/// </summary>
-			/// <remarks></remarks>
-			LessThanOrEqual,
-			/// <summary>
-			/// Maior ou igual
-			/// </summary>
-			/// <remarks></remarks>
-			GreaterThanOrEqual,
-			/// <summary>
-			/// Operador Like para strings. Utilize % como caracter curinga.
-			/// </summary>
-			/// <remarks></remarks>
-			@Like,
-			/// <summary>
-			/// Se não é Like. Utilize % como caracter curinga.
-			/// </summary>
-			/// <remarks></remarks>
-			NotLike,
-			/// <summary>
-			/// Comparador para verificar se o valor contém na flag.
-			/// </summary>
-			/// <remarks></remarks>
-			ContainsInFlags
-		}
-		
-		
-		/// <summary>
-		/// Operadores disponíveis para portas lógicas.
-		/// Não haverão outros operadores além de AND e OR.
-		/// </summary>
-		/// <remarks></remarks>
-		public enum LogicalOperator
-		{
-			/// <summary>
-			/// Operador lógico AND
-			/// </summary>
-			/// <remarks></remarks>
-			@And,
-			/// <summary>
-			/// Operador lógico OU
-			/// </summary>
-			/// <remarks></remarks>
-			@Or
-		}
-		
-		/// <summary>
-		/// Direção da ordenação, ascendente ou descendente
-		/// </summary>
-		/// <remarks></remarks>
-		public enum SortOrder
-		{
-			/// <summary>
-			/// Ordenar de forma ascendente
-			/// </summary>
-			/// <remarks></remarks>
-			Ascending,
-			/// <summary>
-			/// Ordenar de forma descendente
-			/// </summary>
-			/// <remarks></remarks>
-			Descending,
-			/// <summary>
-			/// Não ordenar
-			/// </summary>
-			/// <remarks></remarks>
-			None
-		}
-		
-	}
+    /// <summary>
+    /// Keeps a list of compare operators.
+    /// </summary>
+    /// <remarks></remarks>
+    public enum CompareOperator
+    {
+        /// <summary>
+        /// Equality operator.
+        /// </summary>
+        /// <remarks></remarks>
+        Equal,
+        /// <summary>
+        /// Inequality operator.
+        /// </summary>
+        /// <remarks></remarks>
+        NotEqual,
+        /// <summary>
+        /// Less than operator.
+        /// </summary>
+        /// <remarks></remarks>
+        LessThan,
+        /// <summary>
+        /// Greater than operator.
+        /// </summary>
+        /// <remarks></remarks>
+        GreaterThan,
+        /// <summary>
+        /// Less than or equal operator.
+        /// </summary>
+        /// <remarks></remarks>
+        LessThanOrEqual,
+        /// <summary>
+        /// Greater than or equal operator.
+        /// </summary>
+        /// <remarks></remarks>
+        GreaterThanOrEqual,
+        /// <summary>
+        /// Like operator for strings.
+        /// </summary>
+        /// <remarks></remarks>
+        @Like,
+        /// <summary>
+        /// Not like operator for strings.
+        /// </summary>
+        /// <remarks></remarks>
+        NotLike,
+        /// <summary>
+        /// Checks if your value is in the flags field.
+        /// </summary>
+        /// <remarks></remarks>
+        ContainsInFlags
+    }
+
+
+    /// <summary>
+    /// Logical operators.
+    /// </summary>
+    /// <remarks></remarks>
+    public enum LogicalOperator
+    {
+        /// <summary>
+        /// AND logical operator.
+        /// </summary>
+        /// <remarks></remarks>
+        @And,
+        /// <summary>
+        /// OR logical operator.
+        /// </summary>
+        /// <remarks></remarks>
+        @Or
+    }
+
+    /// <summary>
+    /// Sort directions.
+    /// </summary>
+    /// <remarks></remarks>
+    public enum SortOrder
+    {
+        /// <summary>
+        /// Sorts the item in an ascending order.
+        /// </summary>
+        /// <remarks></remarks>
+        Ascending,
+        /// <summary>
+        /// Sorts the item in a descending order.
+        /// </summary>
+        /// <remarks></remarks>
+        Descending
+    }
 }

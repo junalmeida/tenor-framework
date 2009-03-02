@@ -11,161 +11,150 @@ using System.ComponentModel;
 
 namespace Tenor.Data
 {
-
+    /// <summary>
+    /// This class provides a way to make searches on entities.
+    /// </summary>
     public class ConditionCollection : Collection<object>
     {
 
 
-        #region " Construtores "
+        #region " Constructors "
+        /// <summary>
+        /// Creates an instance of this class.
+        /// </summary>
         public ConditionCollection()
         {
         }
 
-        public ConditionCollection(string @Property, object Value)
+        /// <summary>
+        /// Creates an instance with one equality filter. 
+        /// </summary>
+        /// <param name="property">The property name of the base class.</param>
+        /// <param name="value">Some value.</param>
+        public ConditionCollection(string property, object value)
         {
-            Add(@Property, Value);
+            Add(property, value);
         }
 
-        public ConditionCollection(string @Property, object Value, Tenor.Data.CompareOperator CompareOperator)
+        /// <summary>
+        /// Creates and instance with one filter.
+        /// </summary>
+        /// <param name="property">The property name of the base class.</param>
+        /// <param name="value">Some value.</param>
+        /// <param name="compareOperator">The <see cref="CompareOperator"/> used to compare values.</param>
+        public ConditionCollection(string property, object value, CompareOperator compareOperator)
         {
-            Add(@Property, Value, CompareOperator);
+            Add(property, value, compareOperator);
         }
 
-        public ConditionCollection(Type Table, string @Property, object Value)
-        {
-            Add(Table, @Property, Value);
-        }
+        ///// <summary>
+        ///// Creates an instance with one filter.
+        ///// </summary>
+        ///// <param name="Table"></param>
+        ///// <param name="Property"></param>
+        ///// <param name="value"></param>
+        //public ConditionCollection(Type Table, string propertyName, object value)
+        //{
+        //    Add(Table, propertyName, value);
+        //}
 
-        public ConditionCollection(Type Table, string @Property, object Value, Tenor.Data.CompareOperator CompareOperator)
-        {
-            Add(Table, @Property, Value, CompareOperator);
-        }
+        //public ConditionCollection(Type Table, string propertyName, object value, Tenor.Data.CompareOperator CompareOperator)
+        //{
+        //    Add(Table, propertyName, value, CompareOperator);
+        //}
         #endregion
 
         #region " Add "
         /// <summary>
-        /// Adiciona um operador lógico entre condições ou grupos de condições.
+        /// Adds a logical operator between conditions or condition groups.
         /// </summary>
-        /// <param name="LogicalOperator"></param>
+        /// <param name="logicalOperator">The <see cref="LogicalOperator"/>.</param>
         /// <remarks></remarks>
-        public void Add(LogicalOperator LogicalOperator)
+        public void Add(LogicalOperator logicalOperator)
         {
             if (this.Items.Count == 0)
             {
-                throw (new ArgumentException("Cannot insert a operator when the collection is empty.", "LogicalOperator", null));
+                throw (new ArgumentException("Cannot insert an operator when the collection is empty.", "logicalOperator", null));
             }
-            else if (this[this.Items.Count - 1].GetType() == typeof(Data.LogicalOperator))
+            else if (this[this.Items.Count - 1].GetType() == typeof(LogicalOperator))
             {
-                throw (new ArgumentException("Cannot insert a operator when the last item is another operator.", "LogicalOperator", null));
+                throw (new ArgumentException("Cannot insert an operator when the last item is another operator.", "logicalOperator", null));
             }
-            base.Add(LogicalOperator);
+            base.Add(logicalOperator);
         }
 
         /// <summary>
-        /// Adiciona uma condição de igualdade entre propriedade e valor.
+        /// Adds an equality filter.
         /// </summary>
-        /// <param name="Property"></param>
-        /// <param name="Value"></param>
-        /// <remarks></remarks>
-        public ConditionCollection Add(string @Property, object Value)
+        /// <param name="propertyName">The property name of the base class.</param>
+        /// <param name="value">Some value.</param>
+        /// <returns>This instance.</returns>
+        public ConditionCollection Add(string propertyName, object value)
         {
-            Add(new SearchCondition(null, @Property, Value, Tenor.Data.CompareOperator.Equal));
-            return this;
-        }
-
-        /// <summary>
-        /// Adiciona uma condição comparativa entre propriedade e valor.
-        /// </summary>
-        /// <param name="Property"></param>
-        /// <param name="Value"></param>
-        /// <param name="CompareOperator"></param>
-        /// <remarks></remarks>
-        public ConditionCollection Add(string @Property, object Value, Tenor.Data.CompareOperator CompareOperator)
-        {
-            Add(new SearchCondition(null, @Property, Value, CompareOperator));
+            Add(new SearchCondition(null, propertyName, value, CompareOperator.Equal));
             return this;
         }
 
         /// <summary>
-        /// Adiciona uma condição comparativa entre propriedade e valor
+        /// Adds a compare filter.
         /// </summary>
-        /// <param name="Property"></param>
-        /// <param name="Value"></param>
-        /// <param name="CompareOperator"></param>
-        /// <param name="CastType"></param>
-        /// <remarks></remarks>
-        public ConditionCollection Add(string @Property, object Value, Tenor.Data.CompareOperator CompareOperator, Type CastType)
+        /// <param name="propertyName">The property name of the base class.</param>
+        /// <param name="value">Some value.</param>
+        /// <param name="compareOperator">The <see cref="CompareOperator"/>.</param>
+        /// <returns>This instance.</returns>
+        public ConditionCollection Add(string propertyName, object value, CompareOperator compareOperator)
         {
-            Add(new SearchCondition(null, @Property, Value, CompareOperator, CastType));
+            Add(new SearchCondition(null, propertyName, value, compareOperator));
             return this;
         }
 
-        public ConditionCollection Add(string @Property, object Value, Tenor.Data.CompareOperator CompareOperator, Type CastType, string TableAlias)
+        /// <summary>
+        /// Adds a compare filter casting the database value.
+        /// </summary>
+        /// <param name="propertyName">The property name of the base class.</param>
+        /// <param name="value">Some value.</param>
+        /// <param name="compareOperator">The <see cref="CompareOperator"/>.</param>
+        /// <returns>This instance.</returns>
+        public ConditionCollection Add(string propertyName, object value, Tenor.Data.CompareOperator compareOperator, Type castType)
         {
-            Add(new SearchCondition(null, @Property, Value, CompareOperator, CastType, TableAlias));
+            Add(new SearchCondition(null, propertyName, value, compareOperator, castType));
             return this;
         }
 
-        public ConditionCollection Add(string @Property, object Value, Type CastType)
+        public ConditionCollection Add(string propertyName, object value, Type castType)
         {
-            Add(new SearchCondition(null, @Property, Value, Tenor.Data.CompareOperator.Equal, CastType));
+            Add(new SearchCondition(null, propertyName, value, Tenor.Data.CompareOperator.Equal, castType));
             return this;
         }
 
-        public ConditionCollection Add(string @Property, object Value, Type CastType, string TableAlias)
+        public ConditionCollection Add(string joinAlias, string propertyName, object value)
         {
-            Add(new SearchCondition(null, @Property, Value, Tenor.Data.CompareOperator.Equal, CastType, TableAlias));
+            Add(new SearchCondition(joinAlias, propertyName, value, Tenor.Data.CompareOperator.Equal));
             return this;
         }
 
-        public ConditionCollection Add(Type Table, string @Property, object Value)
+
+        public ConditionCollection Add(string joinAlias, string propertyName, object value, Tenor.Data.CompareOperator compareOperator)
         {
-            Add(new SearchCondition(Table, @Property, Value, Tenor.Data.CompareOperator.Equal));
+            Add(new SearchCondition(joinAlias, propertyName, value, compareOperator));
             return this;
         }
 
-        public ConditionCollection Add(Type Table, string @Property, object Value, string TableAlias)
+
+
+        public ConditionCollection Add(string joinAlias, string propertyName, object value, Tenor.Data.CompareOperator compareOperator, Type castType)
         {
-            Add(new SearchCondition(Table, @Property, Value, Tenor.Data.CompareOperator.Equal, TableAlias));
+            Add(new SearchCondition(joinAlias, propertyName, value, compareOperator, castType));
             return this;
         }
 
-        public ConditionCollection Add(Type Table, string @Property, object Value, Tenor.Data.CompareOperator CompareOperator)
+
+
+        public ConditionCollection Add(string joinAlias, string propertyName, object value, Type castType)
         {
-            Add(new SearchCondition(Table, @Property, Value, CompareOperator));
+            Add(new SearchCondition(joinAlias, propertyName, value, Tenor.Data.CompareOperator.Equal, castType));
             return this;
         }
-
-        public ConditionCollection Add(Type Table, string @Property, object Value, Tenor.Data.CompareOperator CompareOperator, string TableAlias)
-        {
-            Add(new SearchCondition(Table, @Property, Value, CompareOperator, TableAlias));
-            return this;
-        }
-
-        public ConditionCollection Add(Type Table, string @Property, object Value, Tenor.Data.CompareOperator CompareOperator, Type CastType)
-        {
-            Add(new SearchCondition(Table, @Property, Value, CompareOperator, CastType));
-            return this;
-        }
-
-        public ConditionCollection Add(Type Table, string @Property, object Value, Tenor.Data.CompareOperator CompareOperator, Type CastType, string TableAlias)
-        {
-            Add(new SearchCondition(Table, @Property, Value, CompareOperator, CastType, TableAlias));
-            return this;
-        }
-
-        public ConditionCollection Add(Type Table, string @Property, object Value, Type CastType)
-        {
-            Add(new SearchCondition(Table, @Property, Value, Tenor.Data.CompareOperator.Equal, CastType));
-            return this;
-        }
-
-        public ConditionCollection Add(Type Table, string @Property, object Value, Type CastType, string TableAlias)
-        {
-            Add(new SearchCondition(Table, @Property, Value, Tenor.Data.CompareOperator.Equal, CastType, TableAlias));
-            return this;
-        }
-
 
         /// <summary>
         /// Adiciona uma condição
@@ -219,25 +208,25 @@ namespace Tenor.Data
         /// Adiciona uma condição de igualdade entre propriedade e valor.
         /// </summary>
         /// <param name="Property"></param>
-        /// <param name="Value"></param>
+        /// <param name="value"></param>
         /// <remarks></remarks>
-        public ConditionCollection @And(string @Property, object Value)
+        public ConditionCollection @And(string propertyName, object value)
         {
             this.Add(Tenor.Data.LogicalOperator.And);
-            return this.Add(@Property, Value);
+            return this.Add(propertyName, value);
         }
 
         /// <summary>
         /// Adiciona uma condição comparativa entre propriedade e valor.
         /// </summary>
         /// <param name="Property"></param>
-        /// <param name="Value"></param>
+        /// <param name="value"></param>
         /// <param name="CompareOperator"></param>
         /// <remarks></remarks>
-        public ConditionCollection @And(string @Property, object Value, Tenor.Data.CompareOperator CompareOperator)
+        public ConditionCollection @And(string propertyName, object value, Tenor.Data.CompareOperator CompareOperator)
         {
             this.Add(Tenor.Data.LogicalOperator.And);
-            return this.Add(@Property, Value, CompareOperator);
+            return this.Add(propertyName, value, CompareOperator);
 
         }
 
@@ -245,81 +234,46 @@ namespace Tenor.Data
         /// Adiciona uma condição comparativa entre propriedade e valor
         /// </summary>
         /// <param name="Property"></param>
-        /// <param name="Value"></param>
+        /// <param name="value"></param>
         /// <param name="CompareOperator"></param>
-        /// <param name="CastType"></param>
+        /// <param name="castType"></param>
         /// <remarks></remarks>
-        public ConditionCollection @And(string @Property, object Value, Tenor.Data.CompareOperator CompareOperator, Type CastType)
+        public ConditionCollection @And(string propertyName, object value, Tenor.Data.CompareOperator compareOperator, Type castType)
         {
             this.Add(Tenor.Data.LogicalOperator.And);
-            return this.Add(@Property, Value, CompareOperator, CastType);
+            return this.Add(propertyName, value, compareOperator, castType);
         }
 
-        public ConditionCollection @And(string @Property, object Value, Tenor.Data.CompareOperator CompareOperator, Type CastType, string TableAlias)
+
+        public ConditionCollection @And(string propertyName, object value, Type castType)
         {
             this.Add(Tenor.Data.LogicalOperator.And);
-            return this.Add(@Property, Value, CompareOperator, CastType, TableAlias);
+            return this.Add(propertyName, value, castType);
         }
 
-        public ConditionCollection @And(string @Property, object Value, Type CastType)
+
+        public ConditionCollection @And(string joinAlias, string propertyName, object value)
         {
             this.Add(Tenor.Data.LogicalOperator.And);
-            return this.Add(@Property, Value, CastType);
+            return this.Add(joinAlias, propertyName, value);
         }
 
-        public ConditionCollection @And(string @Property, object Value, Type CastType, string TableAlias)
+        public ConditionCollection @And(string joinAlias, string propertyName, object value, Tenor.Data.CompareOperator CompareOperator)
         {
             this.Add(Tenor.Data.LogicalOperator.And);
-            return this.Add(@Property, Value, CastType, TableAlias);
+            return this.Add(joinAlias, propertyName, value, CompareOperator);
         }
 
-        public ConditionCollection @And(Type Table, string @Property, object Value)
+        public ConditionCollection @And(string joinAlias, string propertyName, object value, Tenor.Data.CompareOperator compareOperator, Type castType)
         {
             this.Add(Tenor.Data.LogicalOperator.And);
-            return this.Add(Table, @Property, Value);
+            return this.Add(joinAlias, propertyName, value, compareOperator, castType);
         }
 
-        public ConditionCollection @And(Type Table, string @Property, object Value, string TableAlias)
+        public ConditionCollection @And(string joinAlias, string propertyName, object value, Type castType)
         {
             this.Add(Tenor.Data.LogicalOperator.And);
-            this.Add(Table, @Property, Value, TableAlias);
-            return this;
-        }
-
-        public ConditionCollection @And(Type Table, string @Property, object Value, Tenor.Data.CompareOperator CompareOperator)
-        {
-            this.Add(Tenor.Data.LogicalOperator.And);
-            return this.Add(Table, @Property, Value, CompareOperator);
-        }
-
-        public ConditionCollection @And(Type Table, string @Property, object Value, Tenor.Data.CompareOperator CompareOperator, string TableAlias)
-        {
-            this.Add(Tenor.Data.LogicalOperator.And);
-            return this.Add(Table, @Property, Value, CompareOperator, TableAlias);
-        }
-
-        public ConditionCollection @And(Type Table, string @Property, object Value, Tenor.Data.CompareOperator CompareOperator, Type CastType)
-        {
-            this.Add(Tenor.Data.LogicalOperator.And);
-            return this.Add(Table, @Property, Value, CompareOperator, CastType);
-        }
-
-        public ConditionCollection @And(Type Table, string @Property, object Value, Tenor.Data.CompareOperator CompareOperator, Type CastType, string TableAlias)
-        {
-            this.Add(Tenor.Data.LogicalOperator.And);
-            return this.Add(Table, @Property, Value, CompareOperator, CastType, TableAlias);
-        }
-
-        public ConditionCollection @And(Type Table, string @Property, object Value, Type CastType)
-        {
-            this.Add(Tenor.Data.LogicalOperator.And);
-            return this.Add(Table, @Property, Value, CastType);
-        }
-
-        public ConditionCollection @And(Type Table, string @Property, object Value, Type CastType, string TableAlias)
-        {
-            this.Add(Tenor.Data.LogicalOperator.And);
-            return this.Add(Table, @Property, Value, CastType, TableAlias);
+            return this.Add(joinAlias, propertyName, value, castType);
         }
 
         public ConditionCollection @And(SearchCondition SearchCondition)
@@ -343,106 +297,71 @@ namespace Tenor.Data
         /// Adiciona uma condição de igualdade entre propriedade e valor.
         /// </summary>
         /// <param name="Property"></param>
-        /// <param name="Value"></param>
+        /// <param name="value"></param>
         /// <remarks></remarks>
-        public ConditionCollection @Or(string @Property, object Value)
+        public ConditionCollection @Or(string propertyName, object value)
         {
             this.Add(Tenor.Data.LogicalOperator.Or);
-            return this.Add(@Property, Value);
+            return this.Add(propertyName, value);
         }
 
         /// <summary>
         /// Adiciona uma condição comparativa entre propriedade e valor.
         /// </summary>
         /// <param name="Property"></param>
-        /// <param name="Value"></param>
+        /// <param name="value"></param>
         /// <param name="CompareOperator"></param>
         /// <remarks></remarks>
-        public ConditionCollection @Or(string @Property, object Value, Tenor.Data.CompareOperator CompareOperator)
+        public ConditionCollection @Or(string propertyName, object value, Tenor.Data.CompareOperator CompareOperator)
         {
             this.Add(Tenor.Data.LogicalOperator.Or);
-            return this.Add(@Property, Value, CompareOperator);
+            return this.Add(propertyName, value, CompareOperator);
         }
 
         /// <summary>
         /// Adiciona uma condição comparativa entre propriedade e valor
         /// </summary>
         /// <param name="Property"></param>
-        /// <param name="Value"></param>
+        /// <param name="value"></param>
         /// <param name="CompareOperator"></param>
-        /// <param name="CastType"></param>
+        /// <param name="castType"></param>
         /// <remarks></remarks>
-        public ConditionCollection @Or(string @Property, object Value, Tenor.Data.CompareOperator CompareOperator, Type CastType)
+        public ConditionCollection @Or(string propertyName, object value, Tenor.Data.CompareOperator compareOperator, Type castType)
         {
             this.Add(Tenor.Data.LogicalOperator.Or);
-            return this.Add(@Property, Value, CompareOperator, CastType);
+            return this.Add(propertyName, value, compareOperator, castType);
         }
 
-        public ConditionCollection @Or(string @Property, object Value, Tenor.Data.CompareOperator CompareOperator, Type CastType, string TableAlias)
+        public ConditionCollection @Or(string propertyName, object value, Type castType)
         {
             this.Add(Tenor.Data.LogicalOperator.Or);
-            return this.Add(@Property, Value, CompareOperator, CastType, TableAlias);
+            return this.Add(propertyName, value, castType);
         }
 
-        public ConditionCollection @Or(string @Property, object Value, Type CastType)
+        public ConditionCollection @Or(string joinAlias, string propertyName, object value)
         {
             this.Add(Tenor.Data.LogicalOperator.Or);
-            return this.Add(@Property, Value, CastType);
+            return this.Add(joinAlias, propertyName, value);
         }
 
-        public ConditionCollection @Or(string @Property, object Value, Type CastType, string TableAlias)
+        public ConditionCollection @Or(string joinAlias, string propertyName, object value, Tenor.Data.CompareOperator CompareOperator)
         {
             this.Add(Tenor.Data.LogicalOperator.Or);
-            return this.Add(@Property, Value, CastType, TableAlias);
+            return this.Add(joinAlias, propertyName, value, CompareOperator);
         }
 
-        public ConditionCollection @Or(Type Table, string @Property, object Value)
+        public ConditionCollection @Or(string joinAlias, string propertyName, object value, Tenor.Data.CompareOperator compareOperator, Type castType)
         {
             this.Add(Tenor.Data.LogicalOperator.Or);
-            return this.Add(Table, @Property, Value);
+            return this.Add(joinAlias, propertyName, value, compareOperator, castType);
         }
 
-        public ConditionCollection @Or(Type Table, string @Property, object Value, string TableAlias)
+        public ConditionCollection @Or(string joinAlias, string propertyName, object value, Type castType)
         {
             this.Add(Tenor.Data.LogicalOperator.Or);
-            return this.Add(Table, @Property, Value, TableAlias);
+            return this.Add(joinAlias, propertyName, value, castType);
         }
 
-        public ConditionCollection @Or(Type Table, string @Property, object Value, Tenor.Data.CompareOperator CompareOperator)
-        {
-            this.Add(Tenor.Data.LogicalOperator.Or);
-            return this.Add(Table, @Property, Value, CompareOperator);
-        }
-
-        public ConditionCollection @Or(Type Table, string @Property, object Value, Tenor.Data.CompareOperator CompareOperator, string TableAlias)
-        {
-            this.Add(Tenor.Data.LogicalOperator.Or);
-            return this.Add(Table, @Property, Value, CompareOperator, TableAlias);
-        }
-
-        public ConditionCollection @Or(Type Table, string @Property, object Value, Tenor.Data.CompareOperator CompareOperator, Type CastType)
-        {
-            this.Add(Tenor.Data.LogicalOperator.Or);
-            return this.Add(Table, @Property, Value, CompareOperator, CastType);
-        }
-
-        public ConditionCollection @Or(Type Table, string @Property, object Value, Tenor.Data.CompareOperator CompareOperator, Type CastType, string TableAlias)
-        {
-            this.Add(Tenor.Data.LogicalOperator.Or);
-            return this.Add(Table, @Property, Value, CompareOperator, CastType, TableAlias);
-        }
-
-        public ConditionCollection @Or(Type Table, string @Property, object Value, Type CastType)
-        {
-            this.Add(Tenor.Data.LogicalOperator.Or);
-            return this.Add(Table, @Property, Value, CastType);
-        }
-
-        public ConditionCollection @Or(Type Table, string @Property, object Value, Type CastType, string TableAlias)
-        {
-            this.Add(Tenor.Data.LogicalOperator.Or);
-            return this.Add(Table, @Property, Value, CastType, TableAlias);
-        }
 
         public ConditionCollection @Or(SearchCondition SearchCondition)
         {
@@ -491,36 +410,37 @@ namespace Tenor.Data
         #endregion
 
         #region " Include Table "
-        internal Dictionary<string, Type> Includes = new Dictionary<string, Type>();
+        internal List<Join> includes = new List<Join>();
 
         /// <summary>
-        /// Inclue uma classe nos relacionamentos
+        /// Creates a join.
         /// </summary>
-        /// <param name="Table">Tipo da classe desejada. Deve herdar de BLLBase direta ou indiretamente.</param>
         /// <remarks></remarks>
-        public void Include(Type Table)
+        public void Include(string propertyName, string joinAlias)
         {
-            if (Table == null)
-            {
-                throw (new ArgumentNullException("Table"));
-            }
-            TableInfo table = TableInfo.CreateTableInfo(Table);
-            Include(Table, table.GetTableAlias());
+            Include(null, propertyName, joinAlias, JoinMode.InnerJoin);
         }
 
         /// <summary>
-        /// Inclue uma classe nos relacionamentos
+        /// Creates a join.
         /// </summary>
-        /// <param name="Table">Tipo da classe desejada. Deve herdar de BLLBase direta ou indiretamente.</param>
-        /// <param name="Alias">Alias da classe</param>
         /// <remarks></remarks>
-        public void Include(Type Table, string @Alias)
+        public void Include(string parentAlias, string propertyName, string joinAlias, JoinMode joinMode)
         {
-            if (Table == null)
+            if (string.IsNullOrEmpty(propertyName))
             {
-                throw (new ArgumentNullException("Table"));
+                throw (new ArgumentNullException("propertyName"));
             }
-            Includes.Add(@Alias, Table);
+            if (string.IsNullOrEmpty(joinAlias))
+            {
+                throw (new ArgumentNullException("joinAlias"));
+            }
+            Join join = new Join();
+            join.parentAlias = parentAlias;
+            join.joinAlias = joinAlias;
+            join.propertyName = propertyName;
+            join.joinMode = joinMode;
+            includes.Add(join);
         }
         #endregion
 
@@ -536,16 +456,19 @@ namespace Tenor.Data
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public void Insert()
         {
+            throw new NotSupportedException();
         }
 
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public void Remove()
         {
+            throw new NotSupportedException();
         }
 
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public void RemoveAt()
         {
+            throw new NotSupportedException();
         }
     }
 }

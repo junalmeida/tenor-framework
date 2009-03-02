@@ -68,11 +68,16 @@
     <Compile Include="Data\DataTable.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Data\Dialects\General\AnsiDialect.cs" />
+    <Compile Include="Data\Dialects\General\DialectFactory.cs" />
+    <Compile Include="Data\Dialects\General\IDialect.cs" />
+    <Compile Include="Data\Dialects\TSql\TSql.cs" />
     <Compile Include="Data\DummyDataSource.cs" />
     <Compile Include="Data\Exceptions.cs" />
     <Compile Include="Data\Helper.cs" />
     <Compile Include="Data\Parameter.cs" />
     <Compile Include="Data\SearchOptions\ConditionCollection.cs" />
+    <Compile Include="Data\SearchOptions\JoinModes.cs" />
     <Compile Include="Data\SearchOptions\Operators.cs" />
     <Compile Include="Data\SearchOptions\SearchCondition.cs" />
     <Compile Include="Data\SearchOptions\SearchOptions.cs" />

@@ -686,10 +686,10 @@ namespace Tenor.Diagnostics
                     if (parameters != null)
                         foreach (TenorParameter p in parameters)
                         {
-                            traceInfo.AppendLine("DECLARE @" + p.ParameterName + " " + Helper.GetDbTypeName(p.Value.GetType(), factory));
+                            traceInfo.AppendLine("DECLARE " + p.ParameterName + " " + Helper.GetDbTypeName(p.Value.GetType(), factory).ToLower());
                             if (p.Value == null)
                             {
-                                traceInfo.AppendLine("SET @" + p.ParameterName + " = NULL");
+                                traceInfo.AppendLine("SET " + p.ParameterName + " = NULL");
                             }
                             else
                             {
@@ -711,7 +711,7 @@ namespace Tenor.Diagnostics
                                     value = p.Value.ToString();
                                 }
 
-                                traceInfo.AppendLine("SET @" + p.ParameterName + " = " + value);
+                                traceInfo.AppendLine("SET " + p.ParameterName + " = " + value);
                             }
                         }
                     traceInfo.AppendLine(sql.ToString());

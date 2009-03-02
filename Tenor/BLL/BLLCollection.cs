@@ -67,9 +67,12 @@ namespace Tenor
 				{
 					prop = Parent.GetType().GetProperty(RelatedPropertyName);
 				}
-				Data.ForeignKeyInfo x = new Data.ForeignKeyInfo(prop);
-				ForeignFields = x.ForeignFields;
-				LocalFields = x.LocalFields;
+				ForeignKeyInfo fkInfo = ForeignKeyInfo.Create(prop);
+                if (fkInfo == null)
+                    throw new MissingForeignKeyException(prop.DeclaringType, prop.Name);
+
+                ForeignFields = fkInfo.ForeignFields;
+                LocalFields = fkInfo.LocalFields;
 				
 				list = new List<T>();
 			}

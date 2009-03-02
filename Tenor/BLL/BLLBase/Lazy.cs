@@ -6,6 +6,7 @@ using System.Collections;
 using System.Configuration;
 using System.Data.Common;
 using System.Data;
+using Tenor.Data.Dialects;
 
 
 namespace Tenor.BLL
@@ -39,65 +40,61 @@ namespace Tenor.BLL
         {
             if (!propertyData.ContainsKey(property))
             {
-                System.Reflection.PropertyInfo FieldP = null;
+                System.Reflection.PropertyInfo fieldP = null;
                 if (returnType != null)
                 {
-                    FieldP = this.GetType().GetProperty(property, returnType);
+                    fieldP = this.GetType().GetProperty(property, returnType);
                 }
                 else
                 {
-                    FieldP = this.GetType().GetProperty(property);
+                    fieldP = this.GetType().GetProperty(property);
                 }
-                ForeignKeyInfo Field = new ForeignKeyInfo(FieldP);
-
+                ForeignKeyInfo field = ForeignKeyInfo.Create(fieldP);
+                if (field == null)
+                    throw new Tenor.Data.MissingFieldException(fieldP.DeclaringType, fieldP.Name);
 
                 //Dim filters As String = ""
                 //Dim params As New List(Of Data.Parameter)
 
-                TableInfo table = TableInfo.CreateTableInfo(Field.ElementType);
+                TableInfo table = TableInfo.CreateTableInfo(field.ElementType);
                 if (connection == null)
                     connection = table.GetConnection();
 
 
-                if (!Field.IsArray)
+                if (!field.IsArray)
                 {
                     if (table.Cacheable)
                     {
                         BLLBase instance = (BLLBase)Activator.CreateInstance(table.RelatedTable);
                         //We found a cacheble instance
-                        for (int i = 0; i <= Field.ForeignFields.Length - 1; i++)
+                        for (int i = 0; i <= field.ForeignFields.Length - 1; i++)
                         {
-                            Field.ForeignFields[i].SetPropertyValue(instance, Field.LocalFields[i].PropertyValue(this));
+                            field.ForeignFields[i].SetPropertyValue(instance, field.LocalFields[i].PropertyValue(this));
                         }
                         instance.Bind(LazyLoading);
-                        Field.SetPropertyValue(this, instance);
+                        field.SetPropertyValue(this, instance);
                         return instance;
                     }
                 }
 
 
-                SearchOptions sc = new SearchOptions(Field.ElementType);
+                SearchOptions sc = new SearchOptions(field.ElementType);
                 sc.LazyLoading = LazyLoading;
 
 
 
-                for (int i = 0; i <= Field.ForeignFields.Length - 1; i++)
+                for (int i = 0; i <= field.ForeignFields.Length - 1; i++)
                 {
                     if (i > 0)
                     {
                         sc.Conditions.Add(Tenor.Data.LogicalOperator.And);
                     }
-                    // o  campo externo é igual ao campo local.
-                    if (Field.LocalFields.Length - 1 < i)
-                    {
-                        throw (new MissingFieldsException(Field.ElementType, null));
-                    }
-                    sc.Conditions.Add(Field.ForeignFields[i].RelatedProperty.Name, Field.LocalFields[i].PropertyValue(this));
+                    sc.Conditions.Add(field.ForeignFields[i].RelatedProperty.Name, field.LocalFields[i].PropertyValue(this));
 
                 }
                 if (sc.Conditions.Count == 0)
                 {
-                    throw (new MissingFieldsException(Field.ElementType, null));
+                    throw (new InvalidOperationException());
                 }
 
 
@@ -112,16 +109,16 @@ namespace Tenor.BLL
                 }
 
 
-                if (Field.IsArray)
+                if (field.IsArray)
                 {
-                    if (Field.RelatedProperty.PropertyType.IsArray)
+                    if (field.RelatedProperty.PropertyType.IsArray)
                     {
                         propertyData.Add(property, instances);
                     }
                     else
                     {
                         //It must have another way to create it, string is not cool.
-                        Type listof = Type.GetType("Tenor.BLL.BLLCollection`1[[" + Field.ElementType.AssemblyQualifiedName + "]]");
+                        Type listof = Type.GetType("Tenor.BLL.BLLCollection`1[[" + field.ElementType.AssemblyQualifiedName + "]]");
                         System.Reflection.ConstructorInfo ctor = listof.GetConstructor(System.Reflection.BindingFlags.CreateInstance | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic, null, new Type[] { typeof(BLLBase), typeof(string) }, null);
                         IList obj = (IList)ctor.Invoke(new object[] { (BLLBase)this, property });
                         obj.Clear();
@@ -177,77 +174,64 @@ namespace Tenor.BLL
         /// </summary>
         /// <param name="propertyName"></param>
         /// <returns></returns>
-        protected object GetLazyProperty()
+        protected object GetPropertyValue()
         {
             string propertyName = GetCallingProperty();
-            return GetLazyProperty(propertyName);
+            return GetPropertyValue(propertyName);
         }
 
         /// <summary>
         /// Carrega as informações de um campo marcado para lazy loading
         /// </summary>
         /// <remarks></remarks>
-        internal virtual object GetLazyProperty(string propertyName)
+        internal virtual object GetPropertyValue(string propertyName)
         {
             if (!propertyData.ContainsKey(propertyName))
             {
+                TableInfo table = TableInfo.CreateTableInfo(this.GetType());
+
                 System.Reflection.PropertyInfo fieldP = this.GetType().GetProperty(propertyName);
                 if (fieldP == null)
                 {
-                    throw (new ArgumentException("The property specified was not found.", "Property", null));
+                    throw new Tenor.Data.MissingFieldException(this.GetType(), propertyName);
                 }
 
                 ForeignKeyInfo fkInfo = null;
-                try
-                {
-                    //TODO: Change this to something that don't throws exceptions
-                    fkInfo = new ForeignKeyInfo(fieldP);
-                }
-                catch { }
+        
+                fkInfo = ForeignKeyInfo.Create(fieldP);
+
                 if (fkInfo != null)
                 {
                     return LoadForeign(propertyName, true);
                 }
 
                 //Continue to the lazy property loading
-                FieldInfo field = new FieldInfo(fieldP);
-                string sql = "";
-                sql += " SELECT " + "\r\n";
-                sql += " {0}" + "\r\n";
-                sql += " FROM {1} " + "\r\n";
-                sql += " WHERE {2}";
+                FieldInfo field = FieldInfo.Create(fieldP);
+                if (field == null)
+                    throw new Tenor.Data.MissingFieldException(this.GetType(), fieldP.Name);
 
+                IDialect dialect = DialectFactory.CreateDialect(table.GetConnection());
 
-                TableInfo table = TableInfo.CreateTableInfo(this.GetType());
-                ConnectionStringSettings connection = table.GetConnection();
-                DbCommandBuilder builder = Helper.GetCommandBuilder(connection);
-
-                string fields = builder.QuoteIdentifier(field.DataFieldName);
-                string from = table.GetSchemaAndTable();
-
-                List<TenorParameter> parameters = new List<TenorParameter>();
-                string filter = string.Empty;
+                ConditionCollection conditions = new ConditionCollection();
 
                 foreach (FieldInfo f in GetFields(this.GetType(), true))
                 {
-                    //Get primary keys
-                    string paramName = f.DataFieldName.ToLower().Replace(" ", "_");
-                    TenorParameter param = new TenorParameter(paramName, f.PropertyValue(this));
-
-                    filter += " AND " + builder.QuoteIdentifier(f.DataFieldName) + (" = " + Helper.GetParameterPrefix(connection) + paramName);
-                    parameters.Add(param);
+                    conditions.Add(f.RelatedProperty.Name, f.PropertyValue(this));
                 }
-                if (string.IsNullOrEmpty(filter))
+                if (conditions.Count==0)
                 {
-                    throw (new MissingPrimaryKeyException());
+                    throw (new Tenor.Data.MissingPrimaryKeyException(this.GetType()));
                 }
-                filter = filter.Substring(5);
 
-                Tenor.Data.DataTable rs = new Tenor.Data.DataTable(string.Format(
-                    sql,
-                    fields,
-                    from,
-                    filter), parameters.ToArray(), connection);
+                TenorParameter[] parameters = null;
+                string fieldsPart = dialect.CreateSelectSql(table.RelatedTable, new FieldInfo[] { field }, null);
+                string wherePart = dialect.CreateFiltersSql(conditions, table.RelatedTable, null, out parameters);
+                string sql = dialect.CreateFullSql(table.RelatedTable,
+                                            false, false,
+                                            0, fieldsPart, null, null, wherePart);
+
+
+                Tenor.Data.DataTable rs = new Tenor.Data.DataTable(sql, parameters, table.GetConnection());
 
                 rs.Bind();
 
@@ -268,13 +252,13 @@ namespace Tenor.BLL
             return propertyData[propertyName];
         }
 
-        protected virtual void SetLazyProperty(object value)
+        protected virtual void SetPropertyValue(object value)
         {
             string propertyName = GetCallingProperty();
-            SetLazyProperty(propertyName, value);
+            SetPropertyValue(propertyName, value);
         }
 
-        internal virtual void SetLazyProperty(string propertyName, object value)
+        internal virtual void SetPropertyValue(string propertyName, object value)
         {
             //Just to check
             System.Reflection.PropertyInfo fieldP = this.GetType().GetProperty(propertyName);
