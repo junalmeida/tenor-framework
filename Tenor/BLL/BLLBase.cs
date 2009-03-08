@@ -33,7 +33,7 @@ namespace Tenor.BLL
     [Serializable()]
     public abstract partial class BLLBase : object
     {
- 
+        internal Transaction transaction;
 
         #region "Ctors"
 
@@ -50,8 +50,6 @@ namespace Tenor.BLL
         }
 
         #endregion
-
-
 
         #region " Search "
 
@@ -203,7 +201,6 @@ namespace Tenor.BLL
 
         #endregion
 
-
         #region " Save "
 
         /// <summary>
@@ -326,7 +323,11 @@ namespace Tenor.BLL
 
                 string query = GetSaveSql(isUpdate, connection, null, out autoKeyField, out parameters, out identityQuery, out runOnSameQuery);
 
-                int result = Helper.AtualizarBanco(connection, query, parameters, identityQuery, runOnSameQuery);
+                int result;
+                if (this.transaction != null && this.transaction.transaction != null)
+                    result = Helper.ExecuteQuery(connection, transaction.transaction, query, parameters, identityQuery, runOnSameQuery);
+                else
+                    result = Helper.ExecuteQuery(connection, query, parameters, identityQuery, runOnSameQuery);
 
                 if (!isUpdate && (autoKeyField != null))
                 {
@@ -438,36 +439,92 @@ namespace Tenor.BLL
         }
 
         /// <summary>
-        /// Remove esta instancia do banco de dados
+        /// Deletes this instance from the database.
         /// </summary>
         public void Delete()
         {
-            TenorParameter[] parameters = null;
+
+            ConditionCollection conditions = CreateDeleteConditions(this);
+
+
             TableInfo table = TableInfo.CreateTableInfo(this.GetType());
             ConnectionStringSettings connection = table.GetConnection();
-
             IDialect dialect = DialectFactory.CreateDialect(connection);
 
+            TenorParameter[] parameters = null;
+            string query = dialect.CreateDeleteSql(table.RelatedTable, conditions, out parameters);
+
+            if (this.transaction != null && this.transaction.transaction != null)
+                Helper.ExecuteQuery(connection, transaction.transaction, query, parameters, null, false);
+            else
+                Helper.ExecuteQuery(connection, query, parameters, null, false);
+        }
+
+        public static void Delete(BLLBase[] instances)
+        {
+            if (instances == null)
+                throw new ArgumentNullException("instances");
+            if (instances.Length == 0)
+                return;
+            Type type = null;
+            Transaction transaction = null;
+
+            ConditionCollection conditions = new ConditionCollection();
+            foreach (BLLBase item in instances)
+            {
+                if (item == null)
+                    throw new ArgumentNullException("instance");
+
+                if (conditions.Count > 0)
+                    conditions.Add(LogicalOperator.Or);
+                ConditionCollection cc = CreateDeleteConditions(item);
+
+                if (type == null)
+                    type = item.GetType();
+                else if (type != item.GetType())
+                    throw new TenorException("You can have only items with the same type.");
+
+                if (transaction == null)
+                    transaction = item.transaction;
+                else if (transaction != item.transaction)
+                    throw new TenorException("You can have only items on the same transaction.");
+            }
+
+            TableInfo table = TableInfo.CreateTableInfo(type);
+            ConnectionStringSettings connection = table.GetConnection();
+            IDialect dialect = DialectFactory.CreateDialect(connection);
+
+
+            TenorParameter[] parameters = null;
+            string query = dialect.CreateDeleteSql(type, conditions, out parameters);
+
+            if (transaction != null && transaction.transaction != null)
+                Helper.ExecuteQuery(connection, transaction.transaction, query, parameters, null, false);
+            else
+                Helper.ExecuteQuery(connection, query, parameters, null, false);
+
+
+        }
+
+        private static ConditionCollection CreateDeleteConditions(BLLBase instance)
+        {
             ConditionCollection conditions = new ConditionCollection();
 
-            foreach (FieldInfo i in GetFields(this.GetType()))
+            foreach (FieldInfo i in GetFields(instance.GetType()))
             {
                 if (i.PrimaryKey)
                 {
                     if (conditions.Count != 0)
                         conditions.Add(LogicalOperator.And);
-                    conditions.Add(i.RelatedProperty.Name, i.PropertyValue(this));
+                    conditions.Add(i.RelatedProperty.Name, i.PropertyValue(instance));
                 }
             }
             if (conditions.Count == 0)
             {
-                throw (new Tenor.Data.MissingPrimaryKeyException(this.GetType()));
+                throw (new Tenor.Data.MissingPrimaryKeyException(instance.GetType()));
             }
 
-
-            string query = dialect.CreateDeleteSql(table.RelatedTable, conditions, out parameters);
-
-            Helper.AtualizarBanco(connection, query, parameters, null, false);
+            return conditions;
         }
 
         #endregion
@@ -482,7 +539,6 @@ namespace Tenor.BLL
             }
         }
         #endregion
-
 
         #region "Find Functions"
 
@@ -739,9 +795,6 @@ namespace Tenor.BLL
         #endregion
 
         #region "Sort Functions"
-
-
-
         /// <summary>
         /// Realiza ordenação dos elementos de acordo com a expressão fornecida.
         /// </summary>
@@ -779,10 +832,9 @@ namespace Tenor.BLL
         #region " Extra "
 
         /// <summary>
-        /// Valida se os dados estão consistentes para a persistência no banco
+        /// Validates data before saving this instance. 
+        /// You can override this to write your validation rules.
         /// </summary>
-        /// <returns>Se validou ou não</returns>
-        /// <remarks>Sempre retorna True, deve ser sobrescrita</remarks>
         protected virtual bool Validate()
         {
             return true;
@@ -842,8 +894,7 @@ namespace Tenor.BLL
         //        ' from SYSOBJECTS WHERE xtype='U'
         #endregion
 
-        #region " Operadores "
-
+        #region " Operators "
         public override bool Equals(object obj)
         {
             BLLBase x = this;
@@ -890,13 +941,6 @@ namespace Tenor.BLL
             return hash;
         }
 
-        /// <summary>
-        /// Compara duas instancias utilizando suas chaves primárias definidas.
-        /// </summary>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public static bool operator ==(BLLBase x, BLLBase y)
         {
             return object.Equals(x, y);

@@ -47,21 +47,6 @@ namespace Tenor.Data
             Add(property, value, compareOperator);
         }
 
-        ///// <summary>
-        ///// Creates an instance with one filter.
-        ///// </summary>
-        ///// <param name="Table"></param>
-        ///// <param name="Property"></param>
-        ///// <param name="value"></param>
-        //public ConditionCollection(Type Table, string propertyName, object value)
-        //{
-        //    Add(Table, propertyName, value);
-        //}
-
-        //public ConditionCollection(Type Table, string propertyName, object value, Tenor.Data.CompareOperator CompareOperator)
-        //{
-        //    Add(Table, propertyName, value, CompareOperator);
-        //}
         #endregion
 
         #region " Add "
@@ -91,8 +76,7 @@ namespace Tenor.Data
         /// <returns>This instance.</returns>
         public ConditionCollection Add(string propertyName, object value)
         {
-            Add(new SearchCondition(null, propertyName, value, CompareOperator.Equal));
-            return this;
+            return Add(propertyName, value, CompareOperator.Equal);
         }
 
         /// <summary>
@@ -104,9 +88,16 @@ namespace Tenor.Data
         /// <returns>This instance.</returns>
         public ConditionCollection Add(string propertyName, object value, CompareOperator compareOperator)
         {
-            Add(new SearchCondition(null, propertyName, value, compareOperator));
-            return this;
+            return Add(propertyName, value, compareOperator, (Type)null);
         }
+
+
+
+        public ConditionCollection Add(string propertyName, object value, Type castType)
+        {
+            return Add(propertyName, value, Tenor.Data.CompareOperator.Equal, castType);
+        }
+
 
         /// <summary>
         /// Adds a compare filter casting the database value.
@@ -115,174 +106,158 @@ namespace Tenor.Data
         /// <param name="value">Some value.</param>
         /// <param name="compareOperator">The <see cref="CompareOperator"/>.</param>
         /// <returns>This instance.</returns>
-        public ConditionCollection Add(string propertyName, object value, Tenor.Data.CompareOperator compareOperator, Type castType)
+        public ConditionCollection Add(string propertyName, object value, CompareOperator compareOperator, Type castType)
         {
-            Add(new SearchCondition(null, propertyName, value, compareOperator, castType));
-            return this;
-        }
-
-        public ConditionCollection Add(string propertyName, object value, Type castType)
+            return Add(propertyName, value, compareOperator, castType, null);
+        }      
+        
+        
+        
+        public ConditionCollection Add(string propertyName, object value, string joinAlias)
         {
-            Add(new SearchCondition(null, propertyName, value, Tenor.Data.CompareOperator.Equal, castType));
-            return this;
-        }
-
-        public ConditionCollection Add(string joinAlias, string propertyName, object value)
-        {
-            Add(new SearchCondition(joinAlias, propertyName, value, Tenor.Data.CompareOperator.Equal));
-            return this;
+            return Add(propertyName, value, Tenor.Data.CompareOperator.Equal, joinAlias);
         }
 
 
-        public ConditionCollection Add(string joinAlias, string propertyName, object value, Tenor.Data.CompareOperator compareOperator)
+        public ConditionCollection Add(string propertyName, object value, Type castType, string joinAlias)
         {
-            Add(new SearchCondition(joinAlias, propertyName, value, compareOperator));
-            return this;
+            return Add(propertyName, value, Tenor.Data.CompareOperator.Equal, castType, joinAlias);
+        }
+
+        public ConditionCollection Add(string propertyName, object value, CompareOperator compareOperator, string joinAlias)
+        {
+            return Add(propertyName, value, compareOperator, null, joinAlias);
         }
 
 
-
-        public ConditionCollection Add(string joinAlias, string propertyName, object value, Tenor.Data.CompareOperator compareOperator, Type castType)
+        public ConditionCollection Add(string propertyName, object value, CompareOperator compareOperator, Type castType, string joinAlias)
         {
-            Add(new SearchCondition(joinAlias, propertyName, value, compareOperator, castType));
-            return this;
+            return Add(new SearchCondition(joinAlias, propertyName, value, compareOperator, castType));
         }
 
 
 
-        public ConditionCollection Add(string joinAlias, string propertyName, object value, Type castType)
-        {
-            Add(new SearchCondition(joinAlias, propertyName, value, Tenor.Data.CompareOperator.Equal, castType));
-            return this;
-        }
 
         /// <summary>
-        /// Adiciona uma condição
+        /// Adds a Search Condition.
         /// </summary>
         /// <param name="SearchCondition"></param>
         /// <remarks></remarks>
-        public ConditionCollection Add(SearchCondition SearchCondition)
+        public ConditionCollection Add(SearchCondition searchCondition)
         {
-            if (SearchCondition == null)
+            if (searchCondition == null)
             {
-                throw (new ArgumentException("Cannot insert a Null object."));
+                throw (new ArgumentNullException("searchCondition"));
             }
             else if (Count > 0 && this[Count - 1].GetType() != typeof(Data.LogicalOperator))
             {
-                throw (new ArgumentException("Cannot insert a SearchCondition when the last item is not an operator.", "SearchCondition", null));
+                throw (new ArgumentException("Cannot insert a SearchCondition when the last item is not an operator.", "searchCondition"));
             }
 
-            base.Add(SearchCondition);
+            base.Add(searchCondition);
             return this;
         }
 
 
         /// <summary>
-        /// Adiciona um grupo de condições.
+        /// Adds a condition group.
         /// </summary>
         /// <param name="SearchConditions"></param>
         /// <remarks></remarks>
-        public ConditionCollection Add(ConditionCollection SearchConditions)
+        public ConditionCollection Add(ConditionCollection searchConditions)
         {
-            if (SearchConditions == null || SearchConditions.Count == 0)
+            if (searchConditions == null || searchConditions.Count == 0)
             {
                 throw (new ArgumentException("Cannot insert Null or empty collection."));
             }
             else if (this.Items.Count > 0 && (this[this.Items.Count - 1].GetType() == typeof(SearchCondition) || this[this.Items.Count - 1].GetType() == typeof(ConditionCollection)))
             {
-                throw (new ArgumentException("Cannot insert a SearchCondition when the last item is not an operator.", "SearchConditions", null));
+                throw (new ArgumentException("Cannot insert a SearchCondition when the last item is not an operator.", "searchConditions", null));
             }
-            else if (!(SearchConditions[SearchConditions.Count - 1].GetType() == typeof(SearchCondition) || SearchConditions[SearchConditions.Count - 1].GetType() == typeof(ConditionCollection)))
+            else if (!(searchConditions[searchConditions.Count - 1].GetType() == typeof(SearchCondition) || searchConditions[searchConditions.Count - 1].GetType() == typeof(ConditionCollection)))
             {
-                throw (new ArgumentException("Invalid ConditionCollecion. Collections cannot end with an operator.", "SearchConditions", null));
+                throw (new ArgumentException("Invalid ConditionCollecion. Collections cannot end with an operator.", "searchConditions", null));
             }
-            base.Add(SearchConditions);
+            base.Add(searchConditions);
 
             return this;
+        }
+
+
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+        public new void Add(object item)
+        {
+            base.Add(item);
         }
 
         #endregion
 
         #region " AND "
         /// <summary>
-        /// Adiciona uma condição de igualdade entre propriedade e valor.
+        /// Adds an equality comparison.
         /// </summary>
         /// <param name="Property"></param>
         /// <param name="value"></param>
         /// <remarks></remarks>
-        public ConditionCollection @And(string propertyName, object value)
+        public ConditionCollection And(string propertyName, object value)
         {
-            this.Add(Tenor.Data.LogicalOperator.And);
-            return this.Add(propertyName, value);
+            return And(propertyName, value, CompareOperator.Equal);
         }
 
         /// <summary>
-        /// Adiciona uma condição comparativa entre propriedade e valor.
+        /// Adds a comparison.
         /// </summary>
         /// <param name="Property"></param>
         /// <param name="value"></param>
         /// <param name="CompareOperator"></param>
         /// <remarks></remarks>
-        public ConditionCollection @And(string propertyName, object value, Tenor.Data.CompareOperator CompareOperator)
+        public ConditionCollection And(string propertyName, object value, CompareOperator compareOperator)
         {
-            this.Add(Tenor.Data.LogicalOperator.And);
-            return this.Add(propertyName, value, CompareOperator);
-
+            return And(propertyName, value, compareOperator, (Type)null);
         }
 
-        /// <summary>
-        /// Adiciona uma condição comparativa entre propriedade e valor
-        /// </summary>
-        /// <param name="Property"></param>
-        /// <param name="value"></param>
-        /// <param name="CompareOperator"></param>
-        /// <param name="castType"></param>
-        /// <remarks></remarks>
-        public ConditionCollection @And(string propertyName, object value, Tenor.Data.CompareOperator compareOperator, Type castType)
+        public ConditionCollection And(string propertyName, object value, Type castType)
         {
-            this.Add(Tenor.Data.LogicalOperator.And);
-            return this.Add(propertyName, value, compareOperator, castType);
+            return And(propertyName, value, CompareOperator.Equal, castType);
+        }
+
+        public ConditionCollection And(string propertyName, object value, CompareOperator compareOperator, Type castType)
+        {
+            return And(propertyName, value, compareOperator, castType, null);
         }
 
 
-        public ConditionCollection @And(string propertyName, object value, Type castType)
+
+
+
+        public ConditionCollection And(string propertyName, object value, string joinAlias)
+        {
+            return And(propertyName, value, CompareOperator.Equal, joinAlias);
+        }
+
+        public ConditionCollection And(string propertyName, object value, CompareOperator compareOperator, string joinAlias)
+        {
+            return And(propertyName, value, compareOperator, null, joinAlias);
+        }
+
+        public ConditionCollection And(string propertyName, object value, Type castType, string joinAlias)
+        {
+            return And(propertyName, value, CompareOperator.Equal, castType, joinAlias);
+        }
+        public ConditionCollection And(string propertyName, object value, CompareOperator compareOperator, Type castType, string joinAlias)
         {
             this.Add(Tenor.Data.LogicalOperator.And);
-            return this.Add(propertyName, value, castType);
+            return this.Add(propertyName, value, compareOperator, castType, joinAlias);
         }
 
 
-        public ConditionCollection @And(string joinAlias, string propertyName, object value)
-        {
-            this.Add(Tenor.Data.LogicalOperator.And);
-            return this.Add(joinAlias, propertyName, value);
-        }
-
-        public ConditionCollection @And(string joinAlias, string propertyName, object value, Tenor.Data.CompareOperator CompareOperator)
-        {
-            this.Add(Tenor.Data.LogicalOperator.And);
-            return this.Add(joinAlias, propertyName, value, CompareOperator);
-        }
-
-        public ConditionCollection @And(string joinAlias, string propertyName, object value, Tenor.Data.CompareOperator compareOperator, Type castType)
-        {
-            this.Add(Tenor.Data.LogicalOperator.And);
-            return this.Add(joinAlias, propertyName, value, compareOperator, castType);
-        }
-
-        public ConditionCollection @And(string joinAlias, string propertyName, object value, Type castType)
-        {
-            this.Add(Tenor.Data.LogicalOperator.And);
-            return this.Add(joinAlias, propertyName, value, castType);
-        }
-
-        public ConditionCollection @And(SearchCondition SearchCondition)
+        public ConditionCollection And(SearchCondition SearchCondition)
         {
             this.Add(Tenor.Data.LogicalOperator.And);
             return this.Add(SearchCondition);
         }
 
-        public ConditionCollection @And(ConditionCollection SearchConditions)
+        public ConditionCollection And(ConditionCollection SearchConditions)
         {
             this.Add(Tenor.Data.LogicalOperator.And);
             return this.Add(SearchConditions);
@@ -292,84 +267,57 @@ namespace Tenor.Data
 
         #region " Or "
 
-
-        /// <summary>
-        /// Adiciona uma condição de igualdade entre propriedade e valor.
-        /// </summary>
-        /// <param name="Property"></param>
-        /// <param name="value"></param>
-        /// <remarks></remarks>
-        public ConditionCollection @Or(string propertyName, object value)
+        public ConditionCollection Or(string propertyName, object value)
         {
-            this.Add(Tenor.Data.LogicalOperator.Or);
-            return this.Add(propertyName, value);
+            return Or(propertyName, value, CompareOperator.Equal);
         }
 
-        /// <summary>
-        /// Adiciona uma condição comparativa entre propriedade e valor.
-        /// </summary>
-        /// <param name="Property"></param>
-        /// <param name="value"></param>
-        /// <param name="CompareOperator"></param>
-        /// <remarks></remarks>
-        public ConditionCollection @Or(string propertyName, object value, Tenor.Data.CompareOperator CompareOperator)
+        public ConditionCollection Or(string propertyName, object value, CompareOperator compareOperator)
         {
-            this.Add(Tenor.Data.LogicalOperator.Or);
-            return this.Add(propertyName, value, CompareOperator);
+            return Or(propertyName, value, compareOperator, (Type)null);
         }
 
-        /// <summary>
-        /// Adiciona uma condição comparativa entre propriedade e valor
-        /// </summary>
-        /// <param name="Property"></param>
-        /// <param name="value"></param>
-        /// <param name="CompareOperator"></param>
-        /// <param name="castType"></param>
-        /// <remarks></remarks>
-        public ConditionCollection @Or(string propertyName, object value, Tenor.Data.CompareOperator compareOperator, Type castType)
+        public ConditionCollection Or(string propertyName, object value, Type castType)
         {
-            this.Add(Tenor.Data.LogicalOperator.Or);
-            return this.Add(propertyName, value, compareOperator, castType);
+            return Or(propertyName, value, CompareOperator.Equal, castType);
         }
 
-        public ConditionCollection @Or(string propertyName, object value, Type castType)
+        public ConditionCollection Or(string propertyName, object value, CompareOperator compareOperator, Type castType)
         {
-            this.Add(Tenor.Data.LogicalOperator.Or);
-            return this.Add(propertyName, value, castType);
-        }
-
-        public ConditionCollection @Or(string joinAlias, string propertyName, object value)
-        {
-            this.Add(Tenor.Data.LogicalOperator.Or);
-            return this.Add(joinAlias, propertyName, value);
-        }
-
-        public ConditionCollection @Or(string joinAlias, string propertyName, object value, Tenor.Data.CompareOperator CompareOperator)
-        {
-            this.Add(Tenor.Data.LogicalOperator.Or);
-            return this.Add(joinAlias, propertyName, value, CompareOperator);
-        }
-
-        public ConditionCollection @Or(string joinAlias, string propertyName, object value, Tenor.Data.CompareOperator compareOperator, Type castType)
-        {
-            this.Add(Tenor.Data.LogicalOperator.Or);
-            return this.Add(joinAlias, propertyName, value, compareOperator, castType);
-        }
-
-        public ConditionCollection @Or(string joinAlias, string propertyName, object value, Type castType)
-        {
-            this.Add(Tenor.Data.LogicalOperator.Or);
-            return this.Add(joinAlias, propertyName, value, castType);
+            return Or(propertyName, value, compareOperator, castType, null);
         }
 
 
-        public ConditionCollection @Or(SearchCondition SearchCondition)
+        public ConditionCollection Or(string propertyName, object value, string joinAlias)
+        {
+            return Or(propertyName, value, CompareOperator.Equal, joinAlias);
+        }
+
+        public ConditionCollection Or(string propertyName, object value, CompareOperator compareOperator, string joinAlias)
+        {
+            return Or(propertyName, value, compareOperator, null, joinAlias);
+        }
+
+        public ConditionCollection @Or(string propertyName, object value, Type castType, string joinAlias)
+        {
+            return Or(propertyName, value, CompareOperator.Equal, castType, joinAlias);   
+        }
+
+        public ConditionCollection Or(string propertyName, object value, CompareOperator compareOperator, Type castType, string joinAlias)
+        {
+            this.Add(Tenor.Data.LogicalOperator.Or);
+            return this.Add(new SearchCondition(joinAlias, propertyName, value, compareOperator, castType));
+        }
+
+
+
+        public ConditionCollection Or(SearchCondition SearchCondition)
         {
             this.Add(Tenor.Data.LogicalOperator.Or);
             return this.Add(SearchCondition);
         }
 
-        public ConditionCollection @Or(ConditionCollection SearchConditions)
+        public ConditionCollection Or(ConditionCollection SearchConditions)
         {
             this.Add(Tenor.Data.LogicalOperator.Or);
             return this.Add(SearchConditions);
@@ -470,5 +418,7 @@ namespace Tenor.Data
         {
             throw new NotSupportedException();
         }
+
+        
     }
 }

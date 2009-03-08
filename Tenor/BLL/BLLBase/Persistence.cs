@@ -4,6 +4,7 @@ using System.Text;
 using Tenor.Data;
 using System.Data;
 using System.Configuration;
+using System.Data.Common;
 
 namespace Tenor.BLL
 {
@@ -168,6 +169,7 @@ namespace Tenor.BLL
                 SaveToCache();
             }
         }
+
 
     }
 }

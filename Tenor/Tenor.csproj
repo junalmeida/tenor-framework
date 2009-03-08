@@ -83,6 +83,7 @@
     <Compile Include="Data\SearchOptions\SearchOptions.cs" />
     <Compile Include="Data\SearchOptions\SortingCollection.cs" />
     <Compile Include="Data\SearchOptions\SortingCriteria.cs" />
+    <Compile Include="Data\Transaction\Transaction.cs" />
     <Compile Include="Diagnostics\Diags.cs" />
     <Compile Include="Drawing\IImage.cs" />
     <Compile Include="Drawing\Image.cs" />

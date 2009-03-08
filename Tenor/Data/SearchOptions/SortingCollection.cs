@@ -12,8 +12,6 @@ namespace Tenor.Data
 {
     public class SortingCollection : Collection<SortingCriteria>
     {
-
-
         public SortingCollection()
         {
         }
@@ -85,11 +83,5 @@ namespace Tenor.Data
             SortingCriteria item = new SortingCriteria(joinAlias, propertyName, sortOrder, castType);
             Add(item);
         }
-
-        public new void Add(SortingCriteria item)
-        {
-            base.Add(item);
-        }
     }
-
 }

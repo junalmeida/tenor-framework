@@ -375,6 +375,8 @@ namespace Tenor.Data.Dialects.TSql
                     }
                 }
             }
+            if (sqlSort.Length > 0)
+                sqlSort = sqlSort.Remove(0, 2);
             return sqlSort.ToString();
         }
 
@@ -383,25 +385,30 @@ namespace Tenor.Data.Dialects.TSql
             StringBuilder sql = new StringBuilder();
             foreach (Join join in joins)
             {
+                string tableName = join.ForeignTableInfo.Prefix + "." + commandBuilder.QuoteIdentifier(join.ForeignTableInfo.TableName) + " " + join.joinAlias;
                 switch (join.joinMode)
                 {
                     case JoinMode.InnerJoin:
-                        sql.Append(" INNER JOIN ON ");
+                        sql.Append(" INNER JOIN " + tableName + " ON ");
                         break;
                     case JoinMode.LeftJoin:
-                        sql.Append(" LEFT OUTER JOIN ON ");
+                        sql.Append(" LEFT OUTER JOIN " + tableName + " ON ");
                         break;
                     case JoinMode.RightJoin:
-                        sql.Append(" RIGHT OUTER JOIN ON ");
+                        sql.Append(" RIGHT OUTER JOIN " + tableName + " ON ");
                         break;
                     default:
                         break;
+                }
+                if (string.IsNullOrEmpty(join.parentAlias))
+                {
+                    join.parentAlias = CreateClassAlias(join.LocalTableInfo.RelatedTable);
                 }
                 StringBuilder fks = new StringBuilder();
                 for (int i = 0; i < join.ForeignKey.ForeignFields.Length; i++)
                 {
                     fks.Append(" AND ");
-                    fks.Append(join.joinAlias + "." + join.ForeignKey.LocalFields[i].DataFieldName);
+                    fks.Append(join.parentAlias + "." + join.ForeignKey.LocalFields[i].DataFieldName);
                     fks.Append(" =  ");
                     fks.Append(join.joinAlias + "." + join.ForeignKey.ForeignFields[i].DataFieldName);
                 }

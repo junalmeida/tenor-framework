@@ -8,175 +8,182 @@ using Tenor.Data;
 
 namespace SampleApp.Business.Entities
 {
-/// <summary>
-/// Represents the table Persons_Items.
-/// Some descrition of this relation.
-/// </summary>
-[Serializable(), Table("Persons_Items", "dbo")]
-public partial class Persons_Items : BLLBase
-{
+    /// <summary>
+    /// Represents the table Persons_Items.
+    /// Some descrition of this relation.
+    /// </summary>
+    [Serializable(), Table("PersonItem", "dbo")]
+    public partial class PersonItem : BLLBase
+    {
 
-#region Properties
-
-
-private int _ItemId;
-/// <summary>
-/// Represents the field ItemId.
-/// 
-/// </summary>
-[Field(PrimaryKey=true)]
-public int ItemId
-{
-get
-{
-return _ItemId;
-}
-set
-{
-				_ItemId = value;
-}
-}
+        #region Properties
 
 
-private int _PersonId;
-/// <summary>
-/// Represents the field PersonId.
-/// 
-/// </summary>
-[Field(PrimaryKey=true)]
-public int PersonId
-{
-get
-{
-return _PersonId;
-}
-set
-{
-				_PersonId = value;
-}
-}
+        private int _ItemId;
+        /// <summary>
+        /// Represents the field ItemId.
+        /// 
+        /// </summary>
+        [Field(PrimaryKey = true)]
+        public int ItemId
+        {
+            get
+            {
+                return _ItemId;
+            }
+            set
+            {
+                _ItemId = value;
+            }
+        }
 
 
-/// <summary>
-/// Keeps a list of constants with property names.
-/// </summary>
-public partial class Properties : object {
-private Properties() { }
-
-public const string ItemId = "ItemId";
-
-
-public const string PersonId = "PersonId";
-
-
-}
-
-
-#endregion
-#region Foreign Keys
-
-
-/// <summary>
-/// Represents the relationship FK_Persons_Items_Items.
-/// </summary>
-[ForeignKey(Items.Properties.ItemId, Properties.ItemId)]
-
-public Items Items
-{
-get
-{
-return (Items)GetPropertyValue();
-}
-set
-{
-SetPropertyValue(value);
-}
-}
+        private int _PersonId;
+        /// <summary>
+        /// Represents the field PersonId.
+        /// 
+        /// </summary>
+        [Field(PrimaryKey = true)]
+        public int PersonId
+        {
+            get
+            {
+                return _PersonId;
+            }
+            set
+            {
+                _PersonId = value;
+            }
+        }
 
 
-/// <summary>
-/// Represents the relationship FK_Persons_Items_Persons.
-/// </summary>
-[ForeignKey(Person.Properties.PersonId, Properties.PersonId)]
+        /// <summary>
+        /// Keeps a list of constants with property names.
+        /// </summary>
+        public partial class Properties : object
+        {
+            private Properties() { }
 
-public Person Persons
-{
-get
-{
-return (Person)GetPropertyValue();
-}
-set
-{
-SetPropertyValue(value);
-}
-}
+            public const string ItemId = "ItemId";
 
 
-#endregion
-#region Constructors And Metadata
+            public const string PersonId = "PersonId";
 
 
-public Persons_Items()
-{ }
+        }
 
 
-public Persons_Items(bool lazyLoadingDisabled) :
-base(lazyLoadingDisabled)
-{ }
+        #endregion
+        #region Foreign Keys
 
 
-/// <summary>
-/// Loads Persons_Items from the database with these keys.
-/// </summary><%
-public Persons_Items(int pItemId, int pPersonId) :
-base()
-{
-         this.ItemId = pItemId;
-         this.PersonId = pPersonId;
-
-Bind();
-}
-
-
-#endregion
-#region Search
-
-
-
-public static Persons_Items[] Search(ConditionCollection conditions, SortingCollection sorting)
-{
-return Search(conditions, sorting, false);
-}
-
-public static Persons_Items[] Search(ConditionCollection conditions, SortingCollection sorting, bool distinct)
-{
-return Search(conditions, sorting, distinct, 0);
-}
-
-public static Persons_Items[] Search(ConditionCollection conditions, SortingCollection sorting, bool distinct, int limit)
-{
-return Search(conditions, sorting, distinct, limit, null);
-}
-
-/// <summary>
-/// Performs a search within this class.
-/// </summary>
-public static Persons_Items[] Search(ConditionCollection conditions, SortingCollection sorting, bool distinct, int limit, ConnectionStringSettings connection)
-{
-SearchOptions sc = new SearchOptions(typeof(Persons_Items));
-if (conditions != null)
-sc.Conditions = conditions;
-if (sorting != null)
-sc.Sorting = sorting;
-
-sc.Distinct = distinct;
-sc.Top = limit;
-
-return (Persons_Items[])(BLLBase.Search(sc, connection));
-}
+        /// <summary>
+        /// Represents the relationship FK_Persons_Items_Items.
+        /// </summary>
+        [ForeignKey(Item.Properties.ItemId, Properties.ItemId)]
+        public Item Item
+        {
+            get
+            {
+                return (Item)GetPropertyValue();
+            }
+            set
+            {
+                SetPropertyValue(value);
+                if (value == null)
+                    ItemId = 0;
+                else
+                    ItemId = value.ItemId;
+            }
+        }
 
 
-#endregion
-}
+        /// <summary>
+        /// Represents the relationship FK_Persons_Items_Persons.
+        /// </summary>
+        [ForeignKey(Person.Properties.PersonId, Properties.PersonId)]
+        public Person Person
+        {
+            get
+            {
+                return (Person)GetPropertyValue();
+            }
+            set
+            {
+                SetPropertyValue(value);
+                if (value == null)
+                    PersonId = 0;
+                else
+                    PersonId = value.PersonId;
+            }
+        }
+
+
+        #endregion
+        #region Constructors And Metadata
+
+
+        public PersonItem()
+        { }
+
+
+        public PersonItem(bool lazyLoadingDisabled) :
+            base(lazyLoadingDisabled)
+        { }
+
+
+        /// <summary>
+        /// Loads Persons_Items from the database with these keys.
+        /// </summary><%
+        public PersonItem(int pItemId, int pPersonId) :
+            base()
+        {
+            this.ItemId = pItemId;
+            this.PersonId = pPersonId;
+
+            Bind();
+        }
+
+
+        #endregion
+        #region Search
+
+
+
+        public static PersonItem[] Search(ConditionCollection conditions, SortingCollection sorting)
+        {
+            return Search(conditions, sorting, false);
+        }
+
+        public static PersonItem[] Search(ConditionCollection conditions, SortingCollection sorting, bool distinct)
+        {
+            return Search(conditions, sorting, distinct, 0);
+        }
+
+        public static PersonItem[] Search(ConditionCollection conditions, SortingCollection sorting, bool distinct, int limit)
+        {
+            return Search(conditions, sorting, distinct, limit, null);
+        }
+
+        /// <summary>
+        /// Performs a search within this class.
+        /// </summary>
+        public static PersonItem[] Search(ConditionCollection conditions, SortingCollection sorting, bool distinct, int limit, ConnectionStringSettings connection)
+        {
+            SearchOptions sc = new SearchOptions(typeof(PersonItem));
+            if (conditions != null)
+                sc.Conditions = conditions;
+            if (sorting != null)
+                sc.Sorting = sorting;
+
+            sc.Distinct = distinct;
+            sc.Top = limit;
+
+            return (PersonItem[])(BLLBase.Search(sc, connection));
+        }
+
+
+        #endregion
+    }
 }
 

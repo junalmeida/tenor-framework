@@ -262,15 +262,15 @@ namespace Tenor
 			}
 			
 			/// <summary>
-			/// Executa funções de atualização no banco de dados
+            /// Executes a query on your database.
 			/// </summary>
-			/// <param name="sql">sql de atualização (UPDATE, INSERT INTO, DELETE)</param>
-			/// <param name="parametros">Coleção de Parametros</param>
+			/// <param name="sql">SQL query</param>
+			/// <param name="parametros">Parameters</param>
 			/// <returns></returns>
 			/// <remarks></remarks>
-			public static int AtualizarBanco(string sql, TenorParameter[] parametros)
+			public static int ExecuteQuery(string sql, TenorParameter[] parameters)
 			{
-				return AtualizarBanco(BLL.BLLBase.SystemConnection, sql, parametros, null, false);
+				return ExecuteQuery(BLL.BLLBase.SystemConnection, sql, parameters, null, false);
 			}
 			
 			/// <summary>
@@ -282,153 +282,165 @@ namespace Tenor
 			/// <returns>Número de linhas afetadas para Update e Delete;
 			/// Índice atual da chave primária para INSERT INTO</returns>
 			/// <remarks></remarks>
-			public static int AtualizarBanco(ConnectionStringSettings ConnectionString, string sql, TenorParameter[] parametros, string identityQuery, bool runOnSameQuery)
+			public static int ExecuteQuery(ConnectionStringSettings connection, string sql, TenorParameter[] parameters, string identityQuery, bool runOnSameQuery)
 			{
-				DbProviderFactory factory = GetFactory(ConnectionString);
+				DbProviderFactory factory = GetFactory(connection);
 				
 				DbConnection conn = factory.CreateConnection();
-				conn.ConnectionString = ConnectionString.ConnectionString;
-				DbCommand cmd;
-				
-				int returnValue = - 99;
-				
-				
-				
-				
-				try
-				{
-					cmd = conn.CreateCommand();
-					cmd.CommandText = sql;
-					cmd.CommandTimeout = Helper.DefaultTimeout;
-					if (parametros != null)
-					{
-                        foreach (TenorParameter param in parametros)
-                        {
-                            cmd.Parameters.Add(param.ToDbParameter(factory));
-                        }
-					}
-					
-					conn.Open();
-					
-					
-					try
-					{
-						if (System.Diagnostics.Debugger.IsAttached)
-						{
-							
-							System.Text.StringBuilder traceInfo = new System.Text.StringBuilder();
-							traceInfo.AppendLine("Helper: AtualizarBanco()");
-							traceInfo.AppendLine(" > " + ConnectionString.ConnectionString);
-							if (parametros != null)
-							{
-								foreach (TenorParameter p in parametros)
-								{
-									if (p.Value == null)
-									{
-										traceInfo.AppendLine(" > " + p.ParameterName + ": (null)");
-									}
-									else
-									{
-										traceInfo.AppendLine(" > " + p.ParameterName + ": " + p.Value.ToString());
-									}
-								}
-							}
-							traceInfo.AppendLine(sql);
-							
-							string st = Environment.StackTrace;
-							string fimDaondeNaoImporta = "get_StackTrace()" + Environment.NewLine;
-							int i = st.IndexOf(fimDaondeNaoImporta);
-							if (i > 0)
-							{
-								st = st.Substring(i + fimDaondeNaoImporta.Length);
-							}
-							
-							traceInfo.AppendLine("Stack Trace:");
-							traceInfo.AppendLine(st);
-							traceInfo.AppendLine("---------------------");
-							
-							System.Diagnostics.Trace.TraceInformation(traceInfo.ToString());
-							
-						}
-					}
-					catch (Exception ex)
-					{
-						Diagnostics.Debug.HandleError(ex);
-					}
-
-                    if (!string.IsNullOrEmpty(identityQuery) && runOnSameQuery)
+				conn.ConnectionString = connection.ConnectionString;
+                DbTransaction transaction = null;
+                try
+                {
+                    conn.Open();
+                    transaction = conn.BeginTransaction();
+                    int retVal = ExecuteQuery(connection, transaction, sql, parameters, identityQuery, runOnSameQuery);
+                    transaction.Commit();
+                    return retVal;
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+                finally
+                {
+                    if (conn.State == System.Data.ConnectionState.Open)
                     {
-                        cmd.CommandText += "\r\n" + identityQuery;
-                        object result = cmd.ExecuteScalar();
-                        if (!result.Equals(DBNull.Value))
-                        {
-                            returnValue = Convert.ToInt32(result);
-                        }
+                        conn.Close();
                     }
-                    else if (!string.IsNullOrEmpty(identityQuery) && !runOnSameQuery)
-                    {
-                        returnValue = cmd.ExecuteNonQuery();
+                    conn.Dispose();
+                }
 
-                        cmd.CommandText = identityQuery;
-                        object result = cmd.ExecuteScalar();
-                        if (!result.Equals(DBNull.Value))
+			}
+
+            internal static int ExecuteQuery(ConnectionStringSettings connSettings, DbTransaction transaction, string sql, TenorParameter[] parameters, string identityQuery, bool runOnSameQuery)
+            {
+                DbConnection conn = transaction.Connection;
+                DbProviderFactory factory = GetFactory(connSettings);
+                DbCommand cmd;
+
+                int returnValue = -99;
+
+                cmd = conn.CreateCommand();
+                cmd.Transaction = transaction;
+                cmd.CommandText = sql;
+                cmd.CommandTimeout = Helper.DefaultTimeout;
+                if (parameters != null)
+                {
+                    foreach (TenorParameter param in parameters)
+                    {
+                        cmd.Parameters.Add(param.ToDbParameter(factory));
+                    }
+                }
+
+
+
+                try
+                {
+                    if (System.Diagnostics.Debugger.IsAttached)
+                    {
+
+                        System.Text.StringBuilder traceInfo = new System.Text.StringBuilder();
+                        traceInfo.AppendLine("Helper: AtualizarBanco()");
+                        traceInfo.AppendLine(" > " + conn.ConnectionString);
+                        if (parameters != null)
                         {
-                            returnValue = Convert.ToInt32(result);
+                            foreach (TenorParameter p in parameters)
+                            {
+                                if (p.Value == null)
+                                {
+                                    traceInfo.AppendLine(" > " + p.ParameterName + ": (null)");
+                                }
+                                else
+                                {
+                                    traceInfo.AppendLine(" > " + p.ParameterName + ": " + p.Value.ToString());
+                                }
+                            }
                         }
+                        traceInfo.AppendLine(sql);
+
+                        string st = Environment.StackTrace;
+                        string fimDaondeNaoImporta = "get_StackTrace()" + Environment.NewLine;
+                        int i = st.IndexOf(fimDaondeNaoImporta);
+                        if (i > 0)
+                        {
+                            st = st.Substring(i + fimDaondeNaoImporta.Length);
+                        }
+
+                        traceInfo.AppendLine("Stack Trace:");
+                        traceInfo.AppendLine(st);
+                        traceInfo.AppendLine("---------------------");
+
+                        System.Diagnostics.Trace.TraceInformation(traceInfo.ToString());
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Diagnostics.Debug.HandleError(ex);
+                }
+
+                if (!string.IsNullOrEmpty(identityQuery) && runOnSameQuery)
+                {
+                    cmd.CommandText += "\r\n" + identityQuery;
+                    object result = cmd.ExecuteScalar();
+                    if (!result.Equals(DBNull.Value))
+                    {
+                        returnValue = Convert.ToInt32(result);
+                    }
+                }
+                else if (!string.IsNullOrEmpty(identityQuery) && !runOnSameQuery)
+                {
+                    returnValue = cmd.ExecuteNonQuery();
+
+                    cmd.CommandText = identityQuery;
+                    object result = cmd.ExecuteScalar();
+                    if (!result.Equals(DBNull.Value))
+                    {
+                        returnValue = Convert.ToInt32(result);
+                    }
+                }
+                else
+                {
+                    returnValue = cmd.ExecuteNonQuery();
+                }
+
+                /*
+                if (sql.Trim().StartsWith("INSERT INTO", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    if (cmd.Connection.GetType() == typeof(System.Data.SqlClient.SqlConnection))
+                    {
+                        cmd.CommandText += " SELECT SCOPE_IDENTITY()";
+                    }
+                    else if (cmd.Connection.GetType().FullName.Contains("MySQL"))
+                    {
+                        cmd.CommandText += " SELECT LAST_INSERT_ID()";
+                    }
+                    else if (cmd.Connection.GetType().FullName.Contains("SQLite"))
+                    {
+                        cmd.CommandText += ";" + Environment.NewLine + "SELECT LAST_INSERT_ROWID();";
                     }
                     else
                     {
-                        returnValue = cmd.ExecuteNonQuery();
+                        cmd.CommandText += " SELECT -1";
                     }
-
-					/*
-					if (sql.Trim().StartsWith("INSERT INTO", StringComparison.CurrentCultureIgnoreCase))
-					{
-                        if (cmd.Connection.GetType() == typeof(System.Data.SqlClient.SqlConnection))
-                        {
-                            cmd.CommandText += " SELECT SCOPE_IDENTITY()";
-                        }
-                        else if (cmd.Connection.GetType().FullName.Contains("MySQL"))
-                        {
-                            cmd.CommandText += " SELECT LAST_INSERT_ID()";
-                        }
-                        else if (cmd.Connection.GetType().FullName.Contains("SQLite"))
-                        {
-                            cmd.CommandText += ";" + Environment.NewLine + "SELECT LAST_INSERT_ROWID();";
-                        }
-                        else
-                        {
-                            cmd.CommandText += " SELECT -1";
-                        }
 						
-						object resultado = cmd.ExecuteScalar();
-						if (! resultado.Equals(DBNull.Value))
-						{
-							retorno = System.Convert.ToInt32(resultado);
-						}
+                    object resultado = cmd.ExecuteScalar();
+                    if (! resultado.Equals(DBNull.Value))
+                    {
+                        retorno = System.Convert.ToInt32(resultado);
+                    }
 						
-					}
-					else
-					{
-						retorno = cmd.ExecuteNonQuery();
-					}
-					*/
-				}
-				catch (Exception)
-				{
-					throw;
-				}
-				finally
-				{
-					if (conn.State == System.Data.ConnectionState.Open)
-					{
-						conn.Close();
-					}
-                    conn.Dispose();
-				}
+                }
+                else
+                {
+                    retorno = cmd.ExecuteNonQuery();
+                }
+                */
 
                 return returnValue;
-			}
+
+            }
 
             [Obsolete()]
             internal static string GetParameterPrefix(ConnectionStringSettings Connection)

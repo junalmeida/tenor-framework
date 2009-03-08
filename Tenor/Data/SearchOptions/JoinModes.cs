@@ -57,7 +57,8 @@ namespace Tenor.Data
             return hash;
         }
 
-        public Type Class;
+        public TableInfo LocalTableInfo;
+        public TableInfo ForeignTableInfo;
         public ForeignKeyInfo ForeignKey;
     }
 }

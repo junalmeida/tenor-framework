@@ -39,11 +39,11 @@ namespace Tenor.Data.Dialects
 
         private static void SetProperty(List<Join> list, Join join, Type baseClass)
         {
-            if (join.Class == null)
+            if (join.LocalTableInfo == null)
             {
                 if (string.IsNullOrEmpty(join.parentAlias))
                 {
-                    join.Class = baseClass;
+                    join.LocalTableInfo = TableInfo.CreateTableInfo(baseClass);
                 }
                 else
                 {
@@ -51,16 +51,17 @@ namespace Tenor.Data.Dialects
                     if (pos == -1)
                         throw new InvalidOperationException("Cannot find the parent alias for '" + join.joinAlias + "'");
                     Join parent = list[pos];
-                    if (parent.Class == null)
+                    if (parent.LocalTableInfo == null)
                         SetProperty(list, parent, baseClass);
 
-                    join.Class = parent.ForeignKey.ElementType;
+                    join.LocalTableInfo = TableInfo.CreateTableInfo(parent.ForeignKey.ElementType);
                 }
             }
 
-            join.ForeignKey = ForeignKeyInfo.Create(join.Class.GetProperty(join.propertyName));
+            join.ForeignKey = ForeignKeyInfo.Create(join.LocalTableInfo.RelatedTable.GetProperty(join.propertyName));
             if (join.ForeignKey == null)
-                throw new InvalidOperationException("Cannot find '" + join.propertyName + "' on '" + join.Class.Name + "' class. You must define a ForeignKey on that class.");
+                throw new InvalidOperationException("Cannot find '" + join.propertyName + "' on '" + join.LocalTableInfo.RelatedTable.Name + "' class. You must define a ForeignKey on that class.");
+            join.ForeignTableInfo = TableInfo.CreateTableInfo(join.ForeignKey.ElementType);
         }
 
 

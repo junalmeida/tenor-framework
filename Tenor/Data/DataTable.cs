@@ -258,14 +258,13 @@ namespace Tenor
 			//End Sub
 			
 			/// <summary>
-			/// Executa a query na fonte de dados e preenche a estrutura do DataTable com o resultado.
+            /// Runs the query and fills this datatable.
 			/// </summary>
-			/// <remarks>A conexão e a sql devem estar setadas préviamente.</remarks>
 			public void Bind()
 			{
 				if (_Cmd == null || _Ad == null)
 				{
-					throw (new Exception("The database connection is not set"));
+					throw (new TenorException("The database connection is not set"));
 				}
 				
 				bool exception = false;
@@ -311,7 +310,7 @@ namespace Tenor
 			}
 			
 			/// <summary>
-			/// Atualiza na fonte de dados as alterações desta DataTable.
+            /// Persists on the database the datatable changes.
 			/// </summary>
 			public void Update()
 			{

@@ -13,6 +13,8 @@ namespace Tenor
     {
         internal TenorException()
         { }
+
+        internal TenorException(string message) : base(message) { }
     }
 }
 
