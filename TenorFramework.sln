@@ -27,6 +27,8 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "SampleApp", "SampleApp\", "
 		DefaultWebSiteLanguage = "Visual C#"
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TenorTemplate", "TenorTemplate\TenorTemplate.csproj", "{68CAEADF-8DE8-4A43-8D4D-6373C05563A6}"
+EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
 		Svn-Managed = True
@@ -89,6 +91,21 @@ Global
 		{54987DF1-E68C-41A7-89D3-13A71CABFF87}.Release|Any CPU.ActiveCfg = Debug|.NET
 		{54987DF1-E68C-41A7-89D3-13A71CABFF87}.Release|Mixed Platforms.ActiveCfg = Debug|.NET
 		{54987DF1-E68C-41A7-89D3-13A71CABFF87}.Release|Mixed Platforms.Build.0 = Debug|.NET
+		{68CAEADF-8DE8-4A43-8D4D-6373C05563A6}.Debug|.NET.ActiveCfg = Debug|Any CPU
+		{68CAEADF-8DE8-4A43-8D4D-6373C05563A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68CAEADF-8DE8-4A43-8D4D-6373C05563A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68CAEADF-8DE8-4A43-8D4D-6373C05563A6}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{68CAEADF-8DE8-4A43-8D4D-6373C05563A6}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{68CAEADF-8DE8-4A43-8D4D-6373C05563A6}.MonoRelease|.NET.ActiveCfg = Release|Any CPU
+		{68CAEADF-8DE8-4A43-8D4D-6373C05563A6}.MonoRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{68CAEADF-8DE8-4A43-8D4D-6373C05563A6}.MonoRelease|Any CPU.Build.0 = Release|Any CPU
+		{68CAEADF-8DE8-4A43-8D4D-6373C05563A6}.MonoRelease|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{68CAEADF-8DE8-4A43-8D4D-6373C05563A6}.MonoRelease|Mixed Platforms.Build.0 = Release|Any CPU
+		{68CAEADF-8DE8-4A43-8D4D-6373C05563A6}.Release|.NET.ActiveCfg = Release|Any CPU
+		{68CAEADF-8DE8-4A43-8D4D-6373C05563A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68CAEADF-8DE8-4A43-8D4D-6373C05563A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68CAEADF-8DE8-4A43-8D4D-6373C05563A6}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{68CAEADF-8DE8-4A43-8D4D-6373C05563A6}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

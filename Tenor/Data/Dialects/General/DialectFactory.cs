@@ -4,23 +4,35 @@ using System.Text;
 
 namespace Tenor.Data.Dialects
 {
-    internal class DialectFactory
+    public static class DialectFactory
     {
         /// <summary>
         /// Creates an instance of a dialect based on current connection.
         /// </summary>
         internal static IDialect CreateDialect(System.Configuration.ConnectionStringSettings connection)
         {
-            switch (connection.ProviderName)
+            Dictionary<string, Type> dialects = GetAvailableDialectsAndTypes();
+            if (dialects.ContainsKey(connection.ProviderName))
             {
-                case "System.Data.SqlClient":
-                    return new TSql.TSql();
-                default:
-                    throw new NotSupportedException("The provider '" + connection.ProviderName + "' is not supported yet. Please send a feature request.");
+                return (IDialect)Activator.CreateInstance(dialects[connection.ProviderName]);
             }
-
+            else
+            {
+                throw new NotSupportedException("The provider '" + connection.ProviderName + "' is not supported yet. Please send a feature request.");
+            }
         }
 
+        public static string[] GetAvailableDialects()
+        {
+            return new List<string>(GetAvailableDialectsAndTypes().Keys).ToArray();
+        }
+
+        internal static Dictionary<string, Type> GetAvailableDialectsAndTypes()
+        {
+            Dictionary<string, Type> dialects = new Dictionary<string, Type>();
+            dialects.Add("System.Data.SqlClient", typeof(TSql.TSql));
+            return dialects;
+        }
 
         internal static Join[] GetPlainJoins(ConditionCollection conditions, Type baseClass)
         {
