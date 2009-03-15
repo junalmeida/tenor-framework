@@ -9,20 +9,20 @@ namespace $namespace$
     /// Represents the table $tablename$.
     /// $tabledescription$
     /// </summary>
-    [Serializable(), Table("$tablename$", "$schema")]
+    [Serializable(), Table("$tablename$", "$schema$")]
     public partial class $classname$ : BLLBase
     {
 
         #region Properties
 		
 $propertyfield$
-        private int _$propertyname$;
+        private $elementtype$ _$propertyname$;
         /// <summary>
         /// Represents the field $fieldname$.
         /// $fielddescription$
         /// </summary>
-        [Field($list$PrimaryKey = true, AutoNumber = true, FieldName = "$fieldname$", LazyLoading = true$endlist$)]
-        public int $propertyname$
+        [Field($list$PrimaryKey = true$$ AutoNumber = true$$ FieldName = "$fieldname$"$endlist$)]
+        public $elementtype$ $propertyname$ 
         {
             get
             {
@@ -33,22 +33,36 @@ $propertyfield$
                 _$propertyname$ = value;
             }
         }
-$endpropertyfield$
-
+$endpropertyfield$$lazypropertyfield$
+        /// <summary>
+        /// Represents the field $fieldname$.
+        /// $fielddescription$
+        /// </summary>
+        [Field(FieldName = "$fieldname$", LazyLoading = true)]
+        public $elementtype$ $propertyname$
+        {
+            get
+            {
+                return ($elementtype$)GetPropertyValue();
+            }
+            set
+            {
+                SetPropertyValue(value);
+            }
+        }
+$endlazypropertyfield$
 
         /// <summary>
         /// Keeps a list of constants with property names.
         /// </summary>
         public static partial class Properties
         {
-$constfield$
-            public const string $propertyname$ = "$propertyname$";
-$endconstfield$
+$constfields$            public const string $propertyname$ = "$propertyname$";
+$endconstfields$
         }
 
         #endregion
         #region Foreign Keys
-
 $propertytomany$
         /// <summary>
         /// Represents the relationship $fkname$.
@@ -68,7 +82,7 @@ $propertytoone$
         /// Represents the relationship $fkname$.
         /// </summary>
         [ForeignKey($foreign$, $local$)]
-        public $elementtype$ Category
+        public $elementtype$ $propertyname$
         {
             get
             {
@@ -99,9 +113,8 @@ $endpropertytoone$
         public $classname$($paramlist$$elementtype$ p$propertyname$$endparamlist$) :
             this()
         {
-$propset$
-            this.$propertyname$ = p$propertyname$;
-$endpropset$
+$ctorbody$            this.$propertyname$ = p$propertyname$;
+$endctorbody$
             Bind();
         }
         #endregion
@@ -127,7 +140,7 @@ $endpropset$
         /// </summary>
         public static $classname$[] Search(ConditionCollection conditions, SortingCollection sorting, bool distinct, int limit, ConnectionStringSettings connection)
         {
-            SearchOptions sc = new SearchOptions(typeof(Person));
+            SearchOptions sc = new SearchOptions(typeof($classname$));
             if (conditions != null)
                 sc.Conditions = conditions;
             if (sorting != null)

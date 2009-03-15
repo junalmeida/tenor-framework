@@ -8,7 +8,7 @@ Namespace $namespace$
     ''' Represents the table $tablename$.
     ''' $tabledescription$
     ''' </summary>
-    <Serializable(), Table("$tablename$", "$schema")> _
+    <Serializable(), Table("$tablename$", "$schema$")> _
     Public Partial Class $classname$ As BLLBase
         #region "Properties"
 		
@@ -27,7 +27,21 @@ $propertyfield$
                 _$propertyname$ = value
             End Set
         End Property
-$endpropertyfield$
+$endpropertyfield$$lazypropertyfield$
+        ''' <summary>
+        ''' Represents the field $fieldname$.
+        ''' $fielddescription$
+        ''' </summary>
+        <Field(FieldName := "$fieldname$", LazyLoading := true)> _
+        Public Property $propertyname$ As $elementtype$
+            Get
+                Return DirectCast(GetPropertyValue(), $elementtype$)
+            End Get
+            Set (value As $elementtype$)
+                SetPropertyValue(value)
+            End Set
+        End Property
+$endlazypropertyfield$
 
 
         ''' <summary>
@@ -39,7 +53,7 @@ $endconstfields$
         End Class
 
         #endregion
-        #region Foreign Keys
+        #region "Foreign Keys"
 $propertytomany$
         ''' <summary>
         ''' Represents the relationship $fkname$.
@@ -69,7 +83,7 @@ $endpropertytoone$
 
         #endregion
         
-        #region Constructors And Metadata
+        #region "Constructors And Metadata"
         Public Sub New()
         End Sub
 
@@ -90,7 +104,7 @@ $endctorbody$
         End Sub
         #endregion
         
-        #region Search
+        #region "Search"
         Public Shared Function Search(conditions As ConditionCollection, sorting As SortingCollection) As $classname$()
             Return Search(conditions, sorting, false)
         End Function

@@ -51,6 +51,8 @@
             this.label8 = new System.Windows.Forms.Label();
             this.tree = new System.Windows.Forms.TreeView();
             this.grpStep3 = new System.Windows.Forms.GroupBox();
+            this.txtNamespace = new System.Windows.Forms.TextBox();
+            this.label13 = new System.Windows.Forms.Label();
             this.btnChooseFile = new System.Windows.Forms.Button();
             this.txtTargetFolder = new System.Windows.Forms.TextBox();
             this.label11 = new System.Windows.Forms.Label();
@@ -59,9 +61,9 @@
             this.label9 = new System.Windows.Forms.Label();
             this.folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.grpStep4 = new System.Windows.Forms.GroupBox();
-            this.label12 = new System.Windows.Forms.Label();
-            this.listProgress = new System.Windows.Forms.ListBox();
             this.progressBar = new System.Windows.Forms.ProgressBar();
+            this.label12 = new System.Windows.Forms.Label();
+            this.txtProgress = new System.Windows.Forms.TextBox();
             this.grpStep1.SuspendLayout();
             this.grpStep2.SuspendLayout();
             this.grpStep3.SuspendLayout();
@@ -280,6 +282,8 @@
             // grpStep3
             // 
             this.grpStep3.BackColor = System.Drawing.Color.Transparent;
+            this.grpStep3.Controls.Add(this.txtNamespace);
+            this.grpStep3.Controls.Add(this.label13);
             this.grpStep3.Controls.Add(this.btnChooseFile);
             this.grpStep3.Controls.Add(this.txtTargetFolder);
             this.grpStep3.Controls.Add(this.label11);
@@ -293,10 +297,26 @@
             this.grpStep3.TabStop = false;
             this.grpStep3.Tag = "Step 3 of 4 - Choose language and target";
             // 
+            // txtNamespace
+            // 
+            this.txtNamespace.Location = new System.Drawing.Point(24, 118);
+            this.txtNamespace.Name = "txtNamespace";
+            this.txtNamespace.Size = new System.Drawing.Size(332, 20);
+            this.txtNamespace.TabIndex = 7;
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(21, 102);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(104, 13);
+            this.label13.TabIndex = 6;
+            this.label13.Text = "Default Namespace:";
+            // 
             // btnChooseFile
             // 
             this.btnChooseFile.Image = global::TenorTemplate.Properties.Resources.openfolderHS;
-            this.btnChooseFile.Location = new System.Drawing.Point(325, 132);
+            this.btnChooseFile.Location = new System.Drawing.Point(326, 182);
             this.btnChooseFile.Name = "btnChooseFile";
             this.btnChooseFile.Size = new System.Drawing.Size(31, 23);
             this.btnChooseFile.TabIndex = 5;
@@ -305,7 +325,7 @@
             // 
             // txtTargetFolder
             // 
-            this.txtTargetFolder.Location = new System.Drawing.Point(23, 134);
+            this.txtTargetFolder.Location = new System.Drawing.Point(24, 184);
             this.txtTargetFolder.Name = "txtTargetFolder";
             this.txtTargetFolder.ReadOnly = true;
             this.txtTargetFolder.Size = new System.Drawing.Size(296, 20);
@@ -314,7 +334,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(20, 118);
+            this.label11.Location = new System.Drawing.Point(21, 168);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(70, 13);
             this.label11.TabIndex = 3;
@@ -353,8 +373,8 @@
             // grpStep4
             // 
             this.grpStep4.BackColor = System.Drawing.Color.Transparent;
+            this.grpStep4.Controls.Add(this.txtProgress);
             this.grpStep4.Controls.Add(this.progressBar);
-            this.grpStep4.Controls.Add(this.listProgress);
             this.grpStep4.Controls.Add(this.label12);
             this.grpStep4.Location = new System.Drawing.Point(142, 24);
             this.grpStep4.Name = "grpStep4";
@@ -362,6 +382,13 @@
             this.grpStep4.TabIndex = 16;
             this.grpStep4.TabStop = false;
             this.grpStep4.Tag = "Step 4 of 4 - Let\'s generate";
+            // 
+            // progressBar
+            // 
+            this.progressBar.Location = new System.Drawing.Point(16, 305);
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(368, 23);
+            this.progressBar.TabIndex = 2;
             // 
             // label12
             // 
@@ -372,20 +399,14 @@
             this.label12.TabIndex = 0;
             this.label12.Text = "Please wait while your code is being generated.";
             // 
-            // listProgress
+            // txtProgress
             // 
-            this.listProgress.FormattingEnabled = true;
-            this.listProgress.Location = new System.Drawing.Point(16, 52);
-            this.listProgress.Name = "listProgress";
-            this.listProgress.Size = new System.Drawing.Size(368, 238);
-            this.listProgress.TabIndex = 1;
-            // 
-            // progressBar
-            // 
-            this.progressBar.Location = new System.Drawing.Point(16, 305);
-            this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(368, 23);
-            this.progressBar.TabIndex = 2;
+            this.txtProgress.Location = new System.Drawing.Point(16, 42);
+            this.txtProgress.Multiline = true;
+            this.txtProgress.Name = "txtProgress";
+            this.txtProgress.Size = new System.Drawing.Size(368, 257);
+            this.txtProgress.TabIndex = 3;
+            this.txtProgress.WordWrap = false;
             // 
             // frmMain
             // 
@@ -455,7 +476,9 @@
         private System.Windows.Forms.GroupBox grpStep4;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.ProgressBar progressBar;
-        private System.Windows.Forms.ListBox listProgress;
+        private System.Windows.Forms.TextBox txtNamespace;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.TextBox txtProgress;
 
     }
 }

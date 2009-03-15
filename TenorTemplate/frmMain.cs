@@ -8,46 +8,13 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Diagnostics;
+using MyMeta;
 
 namespace TenorTemplate
 {
     public partial class frmMain : Form
     {
-        private class DriverData
-        {
-            public DriverData(MyMeta.dbDriver driver, string name, string conn)
-            {
-                this.driver = driver;
-                this.name = name;
-                this.conn = conn;
-            }
-            public MyMeta.dbDriver driver;
-            public string name;
-            public string conn;
 
-            public override string ToString()
-            {
-                return name;
-            }
-        }
-        private DriverData[] CustomConnections 
-        {
-            get
-            {
-                List<DriverData> list = new List<DriverData>();
-                list.Add(new DriverData(MyMeta.dbDriver.SQL, "Microsoft Sql Server", "Provider=SQLNCLI.1;Data Source={0};Initial Catalog={1};User Id={2};Password={3};"));
-                /*
-                list.Add(MyMeta.dbDriver.Oracle, "Oracle");
-                list.Add(MyMeta.dbDriver.MySql2, "MySql");
-                list.Add(MyMeta.dbDriver.PostgreSQL8, "PostgreSql");
-                list.Add(MyMeta.dbDriver.Firebird, "Firebird");
-                list.Add(MyMeta.dbDriver.Interbase, "Interbase");
-                list.Add(MyMeta.dbDriver.SQLite, "SQLite");
-                list.Add(MyMeta.dbDriver.Access, "Microsoft Access");
-                */
-                return list.ToArray();
-            }
-        }
 
         public frmMain()
         {
@@ -105,12 +72,36 @@ namespace TenorTemplate
 
 
         #region Step 1 - Database
+        Settings config;
+        public Settings Config
+        {
+            get
+            {
+                if (config == null)
+                    config = Settings.Load();
+                return config;
+            }
+        }
+
         private void LoadStep1()
         {
             try
             {
-                cmbProvider.DataSource = CustomConnections;
+                Program.DriverData[] drivers = Program.CustomConnections;
+                cmbProvider.DataSource = drivers;
                 cmbProvider.SelectedIndex = -1;
+                if (Config.Driver.HasValue)
+                    foreach (Program.DriverData driver in drivers)
+                    {
+                        if (driver.driver == Config.Driver.Value)
+                            cmbProvider.SelectedIndex = Array.IndexOf(drivers, driver);
+                    }
+                txtCatalog.Text = Config.Catalog;
+                txtConnection.Text = Config.ConnectionString;
+                txtServer.Text = Config.Server;
+                txtUsername.Text = Config.UserName;
+                txtPassword.Text = Config.Password;
+
             }
             catch (Exception ex)
             {
@@ -124,7 +115,7 @@ namespace TenorTemplate
             if (cmbProvider.SelectedItem == null)
                 connTemplate = null;
             else
-                connTemplate = ((DriverData)cmbProvider.SelectedItem).conn;
+                connTemplate = ((Program.DriverData)cmbProvider.SelectedItem).conn;
         }
 
         private void txt_TextChanged(object sender, EventArgs e)
@@ -142,13 +133,22 @@ namespace TenorTemplate
                 MessageBoxError("Please select a provider.");
                 return false;
             }
-            DriverData driver = (DriverData)cmbProvider.SelectedItem;
+            Program.DriverData driver = (Program.DriverData)cmbProvider.SelectedItem;
             
             IDbConnection connection = null;
             try
             {
                 connection = new MyMeta.dbRoot().BuildConnection(driver.driver.ToString(), txtConnection.Text);
                 connection.Open();
+
+                Config.Driver = driver.driver;
+
+                Config.Catalog = txtCatalog.Text;
+                Config.ConnectionString = txtConnection.Text;
+                Config.Server = txtServer.Text;
+                Config.UserName = txtUsername.Text;
+                Config.Password = txtPassword.Text;
+                Config.Save();
                 return true;
             }
             catch (Exception ex)
@@ -177,15 +177,16 @@ namespace TenorTemplate
                     myMeta.Dispose();
 
                 myMeta = new MyMeta.dbRoot();
-                if (myMeta.Connect(((DriverData)cmbProvider.SelectedItem).driver, txtConnection.Text))
+                if (myMeta.Connect(((Program.DriverData)cmbProvider.SelectedItem).driver, txtConnection.Text))
                 {
                     tree.Nodes.Clear();
                     
-                    foreach (MyMeta.Database db in myMeta.Databases)
+                    for (int i =0; i< myMeta.Databases.Count; i++)
                     {
+                        IDatabase db = myMeta.Databases[i];
                         TreeNode tn = new TreeNode();
+                        tn.Name = i.ToString();
                         tn.Text = db.Name;
-                        tn.Name = db.Name;
                         //tn.ImageKey = "database";
                         tree.Nodes.Add(tn);
                         HideTreeNodeCheckBox(tn);
@@ -204,7 +205,7 @@ namespace TenorTemplate
             }
         }
 
-        private void LoadTypes(TreeNode root, MyMeta.Database db)
+        private void LoadTypes(TreeNode root, IDatabase db)
         {
             TreeNode tn = new TreeNode();
             //-- Tables
@@ -225,10 +226,11 @@ namespace TenorTemplate
             LoadViews(tn, db);
         }
 
-        private void LoadTables(TreeNode root, MyMeta.Database db)
+        private void LoadTables(TreeNode root, IDatabase db)
         {
-            foreach (MyMeta.Table table in db.Tables)
+            for (int i = 0; i < db.Tables.Count; i++)
             {
+                ITable table = db.Tables[i];
                 TreeNode schema = null;
                 if (root.Nodes.ContainsKey(table.Schema))
                     schema = root.Nodes[table.Schema];
@@ -245,17 +247,18 @@ namespace TenorTemplate
 
                 TreeNode tn = new TreeNode();
                 tn.Text = table.Name;
-                tn.Name = table.Name;
+                tn.Name = i.ToString();
                 //tn.ImageKey = "table";
 
                 schema.Nodes.Add(tn);
             }
         }
 
-        private void LoadViews(TreeNode root, MyMeta.Database db)
+        private void LoadViews(TreeNode root, IDatabase db)
         {
-            foreach (MyMeta.View view in db.Views)
+            for (int i = 0; i < db.Views.Count;i++ )
             {
+                IView view = db.Views[i];
                 TreeNode schema = null;
                 if (root.Nodes.ContainsKey(view.Schema))
                     schema = root.Nodes[view.Schema];
@@ -272,7 +275,7 @@ namespace TenorTemplate
 
                 TreeNode tn = new TreeNode();
                 tn.Text = view.Name;
-                tn.Name = view.Name;
+                tn.Name = i.ToString();
                 //tn.ImageKey = "view";
 
                 schema.Nodes.Add(tn);
@@ -305,25 +308,97 @@ namespace TenorTemplate
         #endregion
 
         #region Step 4 - Ready to rumble
+        private TreeNode[] GetCheckedNodes()
+        {
+            return GetCheckedNodes(tree.Nodes);
+        }
+
+        private TreeNode[] GetCheckedNodes(TreeNodeCollection treeNodeCollection)
+        {
+            List<TreeNode> nodes = new List<TreeNode>();
+            foreach (TreeNode node in treeNodeCollection)
+            {
+                if (node.Checked)
+                    nodes.Add(node);
+                nodes.AddRange(GetCheckedNodes(node.Nodes));
+            }
+            return nodes.ToArray();
+        }
+
+        private MyMeta.Single GetItem(TreeNode node)
+        {
+            bool isTable = node.Parent.Parent.Name == "Tables";
+            bool isView = node.Parent.Parent.Name == "Views";
+            //there can be more types here.
+            int database = int.Parse(node.Parent.Parent.Parent.Name);
+
+            if (isTable)
+            {
+                int table = int.Parse(node.Name);
+                return (MyMeta.Single)myMeta.Databases[database].Tables[table];
+            }
+            else if (isView)
+            {
+                int view = int.Parse(node.Name);
+                return (MyMeta.Single)myMeta.Databases[database].Views[view];
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         private void LoadStep4()
         {
+            
             //Can start generating files.
             this.Enabled = true;
             progressBar.Value = 0;
-            listProgress.Items.Clear();
-            listProgress.Items.Add("Generating classes...");
+            
+            txtProgress.Text = "Generating classes...";
+            Application.DoEvents();
+            TreeNode[] nodes = GetCheckedNodes();
+            progressBar.Maximum = nodes.Length -1;
 
-            for (int i = 0; i <= 100; i++)
+            Language language = (Language)cmbLanguage.SelectedIndex;
+            switch (language)
             {
-                if (i % 4 == 0)
-                {
-                    listProgress.Items.Add("Generating " + i.ToString());
-                    listProgress.SetSelected(listProgress.Items.Count - 1, true);
-                }
-                progressBar.Value = i;
+                case Language.CSharp:
+                    myMeta.Language = "C#";
+                    break;
+                case Language.VBNet:
+                    myMeta.Language = "VB.NET";
+                    break;
+                default:
+                    break;
             }
 
-            listProgress.Items.Add("Process complete. You can close this wizard.");
+            for (int i = 0; i < nodes.Length; i++)
+            {
+                MyMeta.Single item = GetItem(nodes[i]);
+                txtProgress.Text += "\r\nGenerating " + item.Name  + "... ";
+                int index = txtProgress.Lines.Length -1;
+                txtProgress.SelectionStart = txtProgress.Text.LastIndexOf("\r\n");
+                txtProgress.ScrollToCaret();
+
+                progressBar.Value = i;
+
+                Application.DoEvents();
+                string result = null;
+                try
+                {
+                    Template t = new Template(language, txtNamespace.Text, item);
+                    t.Generate(txtTargetFolder.Text);
+                    result = "Done.";
+                }
+                catch (Exception ex)
+                {
+                    result = ex.Message;
+                }
+                txtProgress.Text += result;
+            }
+
+            txtProgress.Text += "\r\nProcess complete. You can close this wizard.";
             ProcessStartInfo pInfo = new ProcessStartInfo();
             pInfo.UseShellExecute = true;
             pInfo.FileName = txtTargetFolder.Text;
@@ -408,7 +483,7 @@ namespace TenorTemplate
         private const int TVIS_STATEIMAGEMASK = 0xF000;
         private const int TV_FIRST = 0x1100;
         private const int TVM_SETITEM = TV_FIRST + 63;
-
+#pragma warning disable
         private struct TVITEM
         {
             public int mask;
@@ -424,6 +499,7 @@ namespace TenorTemplate
             public IntPtr lParam;
 
         }
+#pragma warning restore
 
         [DllImport("user32.dll")]
         static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam,
