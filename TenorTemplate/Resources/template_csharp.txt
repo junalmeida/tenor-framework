@@ -1,0 +1,145 @@
+﻿using System;
+using System.Configuration;
+using Tenor.BLL;
+using Tenor.Data;
+
+namespace $namespace$
+{
+    /// <summary>
+    /// Represents the table $tablename$.
+    /// $tabledescription$
+    /// </summary>
+    [Serializable(), Table("$tablename$", "$schema")]
+    public partial class $classname$ : BLLBase
+    {
+
+        #region Properties
+		
+$propertyfield$
+        private int _$propertyname$;
+        /// <summary>
+        /// Represents the field $fieldname$.
+        /// $fielddescription$
+        /// </summary>
+        [Field($list$PrimaryKey = true, AutoNumber = true, FieldName = "$fieldname$", LazyLoading = true$endlist$)]
+        public int $propertyname$
+        {
+            get
+            {
+                return _$propertyname$;
+            }
+            set
+            {
+                _$propertyname$ = value;
+            }
+        }
+$endpropertyfield$
+
+
+        /// <summary>
+        /// Keeps a list of constants with property names.
+        /// </summary>
+        public static partial class Properties
+        {
+$constfield$
+            public const string $propertyname$ = "$propertyname$";
+$endconstfield$
+        }
+
+        #endregion
+        #region Foreign Keys
+
+$propertytomany$
+        /// <summary>
+        /// Represents the relationship $fkname$.
+        /// </summary>
+        [ForeignKey($foreign$, $local$)]
+        public BLLCollection<$elementtype$> $propertyname$
+        {
+            get
+            {
+                return (BLLCollection<$elementtype$>)GetPropertyValue();
+            }
+        }
+$endpropertytomany$
+
+$propertytoone$
+        /// <summary>
+        /// Represents the relationship $fkname$.
+        /// </summary>
+        [ForeignKey($foreign$, $local$)]
+        public $elementtype$ Category
+        {
+            get
+            {
+                return ($elementtype$)GetPropertyValue();
+            }
+            set
+            {
+                SetPropertyValue(value);
+            }
+        }
+$endpropertytoone$
+
+        #endregion
+        
+        #region Constructors And Metadata
+        public $classname$()
+        { }
+
+
+        public $classname$(bool lazyLoadingDisabled) :
+            base(lazyLoadingDisabled)
+        { }
+
+
+        /// <summary>
+        /// Loads $classname$ from the database with these keys.
+        /// </summary>
+        public $classname$($paramlist$$elementtype$ p$propertyname$$endparamlist$) :
+            this()
+        {
+$propset$
+            this.$propertyname$ = p$propertyname$;
+$endpropset$
+            Bind();
+        }
+        #endregion
+        
+        #region Search
+        public static $classname$[] Search(ConditionCollection conditions, SortingCollection sorting)
+        {
+            return Search(conditions, sorting, false);
+        }
+
+        public static $classname$[] Search(ConditionCollection conditions, SortingCollection sorting, bool distinct)
+        {
+            return Search(conditions, sorting, distinct, 0);
+        }
+
+        public static $classname$[] Search(ConditionCollection conditions, SortingCollection sorting, bool distinct, int limit)
+        {
+            return Search(conditions, sorting, distinct, limit, null);
+        }
+
+        /// <summary>
+        /// Performs a search within this class.
+        /// </summary>
+        public static $classname$[] Search(ConditionCollection conditions, SortingCollection sorting, bool distinct, int limit, ConnectionStringSettings connection)
+        {
+            SearchOptions sc = new SearchOptions(typeof(Person));
+            if (conditions != null)
+                sc.Conditions = conditions;
+            if (sorting != null)
+                sc.Sorting = sorting;
+
+            sc.Distinct = distinct;
+            sc.Top = limit;
+
+            return ($classname$[])(BLLBase.Search(sc, connection));
+        }
+
+        #endregion
+    }
+}
+

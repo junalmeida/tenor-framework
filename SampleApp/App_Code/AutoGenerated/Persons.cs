@@ -1,8 +1,5 @@
-﻿
-using System.Collections.Generic;
+﻿using System;
 using System.Configuration;
-using System;
-
 using Tenor.BLL;
 using Tenor.Data;
 
