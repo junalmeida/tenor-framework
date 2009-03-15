@@ -1,0 +1,124 @@
+﻿Imports System
+Imports System.Configuration
+Imports Tenor.BLL
+Imports Tenor.Data
+
+Namespace $namespace$
+    ''' <summary>
+    ''' Represents the table $tablename$.
+    ''' $tabledescription$
+    ''' </summary>
+    <Serializable(), Table("$tablename$", "$schema")> _
+    Public Partial Class $classname$ As BLLBase
+        #region "Properties"
+		
+$propertyfield$
+        private _$propertyname$ As Integer
+        ''' <summary>
+        ''' Represents the field $fieldname$.
+        ''' $fielddescription$
+        ''' </summary>
+        <Field($list$PrimaryKey := true$$ AutoNumber := true$$ FieldName := "$fieldname$"$$ LazyLoading := true$endlist$)> _
+        Public Property $propertyname$ As $elementtype$ 
+            Get
+                return _$propertyname$
+            End Get
+            Set (value as $elementtype$)
+                _$propertyname$ = value
+            End Set
+        End Property
+$endpropertyfield$
+
+
+        ''' <summary>
+        ''' Keeps a list of constants with property names.
+        ''' </summary>
+        Public Shared Partial Class Properties
+$constfields$            Public Const $propertyname$ As String = "$propertyname$"
+$endconstfields$
+        End Class
+
+        #endregion
+        #region Foreign Keys
+$propertytomany$
+        ''' <summary>
+        ''' Represents the relationship $fkname$.
+        ''' </summary>
+        <ForeignKey($foreign$, $local$)> _
+        Public Readonly Property $propertyname$ As BLLCollection(Of $elementtype$)
+            Get
+                Return DirectCast(GetPropertyValue(), BLLCollection(Of $elementtype$))
+            End Get
+        End Property
+$endpropertytomany$
+
+$propertytoone$
+        ''' <summary>
+        ''' Represents the relationship $fkname$.
+        ''' </summary>
+        <ForeignKey($foreign$, $local$)> _
+        Public Property $propertyname$ As $elementtype$ 
+            Get
+                Return DirectCast(GetPropertyValue(), $elementtype$)
+            End Get
+            Set (value as $elementtype$)
+                SetPropertyValue(value)
+            End Set
+        End Property
+$endpropertytoone$
+
+        #endregion
+        
+        #region Constructors And Metadata
+        Public Sub New()
+        End Sub
+
+
+        Public Sub New(lazyLoadingDisabled as Boolean)
+            MyBase.New(lazyLoadingDisabled)
+        End Sub
+
+
+        ''' <summary>
+        ''' Loads $classname$ from the database with these keys.
+        ''' </summary>
+        Public Sub New($paramlist$p$propertyname$ As $elementtype$$endparamlist$) 
+            MyClass.New()
+$ctorbody$            Me.$propertyname$ = p$propertyname$
+$endctorbody$
+            Bind()
+        End Sub
+        #endregion
+        
+        #region Search
+        Public Shared Function Search(conditions As ConditionCollection, sorting As SortingCollection) As $classname$()
+            Return Search(conditions, sorting, false)
+        End Function
+
+        Public Shared Function Search(conditions As ConditionCollection, sorting As SortingCollection, distinct As Boolean) As $classname$()
+            return Search(conditions, sorting, distinct, 0)
+        End Function
+
+        Public Shared Function Search(conditions As ConditionCollection, sorting As SortingCollection, distinct As Boolean, limit As Integer) As $classname$()
+            Return Search(conditions, sorting, distinct, limit, null)
+        End Function
+
+        ''' <summary>
+        ''' Performs a search within this class.
+        ''' </summary>
+        Public Shared Function Search(conditions As ConditionCollection, sorting As SortingCollection, distinct As Boolean, limit As Integer, connection As ConnectionStringSettings) As $classname$()
+            Dim sc As new SearchOptions(GetType($classname$))
+            if (conditions IsNot Nothing)
+                sc.Conditions = conditions
+            if (sorting != IsNot Nothing)
+                sc.Sorting = sorting
+
+            sc.Distinct = distinct
+            sc.Top = limit
+
+            Return DirectCast(BLLBase.Search(sc, connection), $classname$())
+        End Function
+
+        #endregion
+    End Class
+End Namespace
