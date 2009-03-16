@@ -61,9 +61,9 @@
             this.label9 = new System.Windows.Forms.Label();
             this.folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.grpStep4 = new System.Windows.Forms.GroupBox();
+            this.txtProgress = new System.Windows.Forms.TextBox();
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.label12 = new System.Windows.Forms.Label();
-            this.txtProgress = new System.Windows.Forms.TextBox();
             this.grpStep1.SuspendLayout();
             this.grpStep2.SuspendLayout();
             this.grpStep3.SuspendLayout();
@@ -383,6 +383,15 @@
             this.grpStep4.TabStop = false;
             this.grpStep4.Tag = "Step 4 of 4 - Let\'s generate";
             // 
+            // txtProgress
+            // 
+            this.txtProgress.Location = new System.Drawing.Point(16, 42);
+            this.txtProgress.Multiline = true;
+            this.txtProgress.Name = "txtProgress";
+            this.txtProgress.Size = new System.Drawing.Size(368, 257);
+            this.txtProgress.TabIndex = 3;
+            this.txtProgress.WordWrap = false;
+            // 
             // progressBar
             // 
             this.progressBar.Location = new System.Drawing.Point(16, 305);
@@ -399,21 +408,11 @@
             this.label12.TabIndex = 0;
             this.label12.Text = "Please wait while your code is being generated.";
             // 
-            // txtProgress
-            // 
-            this.txtProgress.Location = new System.Drawing.Point(16, 42);
-            this.txtProgress.Multiline = true;
-            this.txtProgress.Name = "txtProgress";
-            this.txtProgress.Size = new System.Drawing.Size(368, 257);
-            this.txtProgress.TabIndex = 3;
-            this.txtProgress.WordWrap = false;
-            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.BackgroundImage = global::TenorTemplate.Properties.Resources.tenortemplate1;
             this.ClientSize = new System.Drawing.Size(592, 419);
             this.Controls.Add(this.grpStep4);
             this.Controls.Add(this.grpStep3);

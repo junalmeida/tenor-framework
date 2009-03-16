@@ -412,7 +412,7 @@ namespace TenorTemplate
         private void btnNext_Click(object sender, EventArgs e)
         {
             this.UseWaitCursor = true;
-            this.Enabled = false;
+            //this.Enabled = false;
             Application.DoEvents();
 
             bool canGo = false;
