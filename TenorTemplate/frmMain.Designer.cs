@@ -64,6 +64,7 @@
             this.txtProgress = new System.Windows.Forms.TextBox();
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.label12 = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
             this.grpStep1.SuspendLayout();
             this.grpStep2.SuspendLayout();
             this.grpStep3.SuspendLayout();
@@ -408,12 +409,26 @@
             this.label12.TabIndex = 0;
             this.label12.Text = "Please wait while your code is being generated.";
             // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.BackColor = System.Drawing.Color.Transparent;
+            this.label14.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.label14.Font = new System.Drawing.Font("Trebuchet MS", 14F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label14.Location = new System.Drawing.Point(11, 15);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(118, 48);
+            this.label14.TabIndex = 17;
+            this.label14.Text = "Code\r\n   Generator";
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.BackgroundImage = global::TenorTemplate.Properties.Resources.bg;
             this.ClientSize = new System.Drawing.Size(592, 419);
+            this.Controls.Add(this.label14);
             this.Controls.Add(this.grpStep4);
             this.Controls.Add(this.grpStep3);
             this.Controls.Add(this.lblVersion);
@@ -478,6 +493,7 @@
         private System.Windows.Forms.TextBox txtNamespace;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.TextBox txtProgress;
+        private System.Windows.Forms.Label label14;
 
     }
 }
