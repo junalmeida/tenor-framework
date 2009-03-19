@@ -24,19 +24,56 @@ namespace Tenor.Data
         RightJoin
     }
 
+    /// <summary>
+    /// Represents join information.
+    /// </summary>
     internal class Join
     {
-        public Join()
-        {
-        }
+        public Join() { }
         public Join(string joinAlias)
         {
+            //, string parentAlias, string propertyName, JoinMode joinMode
             this.joinAlias = joinAlias;
+            //this.parentAlias = parentAlias;
+            //this.propertyName = propertyName;
+            //this.joinMode = joinMode;
         }
-        public string joinAlias;
-        public string parentAlias;
-        public string propertyName;
-        public JoinMode joinMode;
+
+        private string joinAlias;
+
+        public string JoinAlias
+        {
+            get { return joinAlias; }
+        }
+
+        private string parentAlias;
+
+        public string ParentAlias
+        {
+            get { return parentAlias; }
+            set { parentAlias = value; }
+        }
+
+
+        private JoinMode joinMode;
+
+        public JoinMode JoinMode
+        {
+            get { return joinMode; }
+            set { joinMode = value; }
+        }
+
+        private string propertyName;
+
+        public string PropertyName
+        {
+            get { return propertyName; }
+            set { propertyName = value; }
+        }
+
+        internal TableInfo LocalTableInfo;
+        internal TableInfo ForeignTableInfo;
+        internal ForeignKeyInfo ForeignKey;
 
         public override bool Equals(object obj)
         {
@@ -56,9 +93,5 @@ namespace Tenor.Data
             //hash = 27 * hash * joinMode.GetHashCode();
             return hash;
         }
-
-        public TableInfo LocalTableInfo;
-        public TableInfo ForeignTableInfo;
-        public ForeignKeyInfo ForeignKey;
     }
 }

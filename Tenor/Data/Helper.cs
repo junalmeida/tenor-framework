@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Data.Common;
 using System.Configuration;
+using Tenor.Data.Dialects;
 
 
 namespace Tenor
@@ -270,30 +271,30 @@ namespace Tenor
 			/// <remarks></remarks>
 			public static int ExecuteQuery(string sql, TenorParameter[] parameters)
 			{
-				return ExecuteQuery(BLL.BLLBase.SystemConnection, sql, parameters, null, false);
+				return ExecuteQuery(sql, parameters, null);
 			}
-			
 			/// <summary>
-			/// Executa funções de atualização no banco de dados
+            /// Executes a query on your database.
 			/// </summary>
-			/// <param name="ConnectionString">Conexão no web.config</param>
-			/// <param name="sql">SQL de atualização (UPDATE, INSERT INTO, DELETE)</param>
-			/// <param name="parametros">Coleção de Parametros</param>
-			/// <returns>Número de linhas afetadas para Update e Delete;
-			/// Índice atual da chave primária para INSERT INTO</returns>
+			/// <param name="sql">SQL query</param>
+			/// <param name="parametros">Parameters</param>
+			/// <returns></returns>
 			/// <remarks></remarks>
-			public static int ExecuteQuery(ConnectionStringSettings connection, string sql, TenorParameter[] parameters, string identityQuery, bool runOnSameQuery)
+            public static int ExecuteQuery(string sql, TenorParameter[] parameters, ConnectionStringSettings connection)
 			{
-				DbProviderFactory factory = GetFactory(connection);
-				
-				DbConnection conn = factory.CreateConnection();
+                if (connection == null)
+                    connection = BLL.BLLBase.SystemConnection;
+
+                IDialect dialect = DialectFactory.CreateDialect(connection);
+
+                DbConnection conn = dialect.Factory.CreateConnection();
 				conn.ConnectionString = connection.ConnectionString;
                 DbTransaction transaction = null;
                 try
                 {
                     conn.Open();
                     transaction = conn.BeginTransaction();
-                    int retVal = ExecuteQuery(connection, transaction, sql, parameters, identityQuery, runOnSameQuery);
+                    int retVal = ExecuteQuery(sql, parameters, transaction, dialect);
                     transaction.Commit();
                     return retVal;
                 }
@@ -313,10 +314,10 @@ namespace Tenor
 
 			}
 
-            internal static int ExecuteQuery(ConnectionStringSettings connSettings, DbTransaction transaction, string sql, TenorParameter[] parameters, string identityQuery, bool runOnSameQuery)
+            internal static int ExecuteQuery(string sql, TenorParameter[] parameters, DbTransaction transaction, IDialect dialect)
             {
+
                 DbConnection conn = transaction.Connection;
-                DbProviderFactory factory = GetFactory(connSettings);
                 DbCommand cmd;
 
                 int returnValue = -99;
@@ -329,7 +330,7 @@ namespace Tenor
                 {
                     foreach (TenorParameter param in parameters)
                     {
-                        cmd.Parameters.Add(param.ToDbParameter(factory));
+                        cmd.Parameters.Add(param.ToDbParameter(dialect.Factory));
                     }
                 }
 
@@ -341,7 +342,7 @@ namespace Tenor
                     {
 
                         System.Text.StringBuilder traceInfo = new System.Text.StringBuilder();
-                        traceInfo.AppendLine("Helper: AtualizarBanco()");
+                        traceInfo.AppendLine("Tenor.Data.Helper.ExecuteQuery()");
                         traceInfo.AppendLine(" > " + conn.ConnectionString);
                         if (parameters != null)
                         {
@@ -380,25 +381,29 @@ namespace Tenor
                     Diagnostics.Debug.HandleError(ex);
                 }
 
-                if (!string.IsNullOrEmpty(identityQuery) && runOnSameQuery)
+
+
+                if (dialect != null && (!string.IsNullOrEmpty(dialect.IdentityBeforeQuery) || !string.IsNullOrEmpty(dialect.IdentityAfterQuery)) && dialect.GetIdentityOnSameCommand)
                 {
-                    cmd.CommandText += "\r\n" + identityQuery;
+                    cmd.CommandText = string.Format("{0}{3}{1}{3}{2}", dialect.IdentityBeforeQuery, cmd.CommandText, dialect.IdentityAfterQuery, Environment.NewLine);
                     object result = cmd.ExecuteScalar();
                     if (!result.Equals(DBNull.Value))
                     {
                         returnValue = Convert.ToInt32(result);
                     }
                 }
-                else if (!string.IsNullOrEmpty(identityQuery) && !runOnSameQuery)
+                else if (dialect != null && (!string.IsNullOrEmpty(dialect.IdentityBeforeQuery) || !string.IsNullOrEmpty(dialect.IdentityAfterQuery)) && !dialect.GetIdentityOnSameCommand)
                 {
+                    string currentQuery = cmd.CommandText;
+                    cmd.CommandText = dialect.IdentityBeforeQuery;
+                    object value1 = cmd.ExecuteScalar();
+
+
+                    cmd.CommandText = currentQuery;
                     returnValue = cmd.ExecuteNonQuery();
 
-                    cmd.CommandText = identityQuery;
-                    object result = cmd.ExecuteScalar();
-                    if (!result.Equals(DBNull.Value))
-                    {
-                        returnValue = Convert.ToInt32(result);
-                    }
+                    cmd.CommandText = dialect.IdentityAfterQuery;
+                    object value2 = cmd.ExecuteScalar();
                 }
                 else
                 {

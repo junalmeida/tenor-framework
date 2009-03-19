@@ -383,11 +383,10 @@ namespace Tenor.Data
             {
                 throw (new ArgumentNullException("joinAlias"));
             }
-            Join join = new Join();
-            join.parentAlias = parentAlias;
-            join.joinAlias = joinAlias;
-            join.propertyName = propertyName;
-            join.joinMode = joinMode;
+            Join join = new Join(joinAlias);
+            join.ParentAlias = parentAlias;
+            join.PropertyName = propertyName;
+            join.JoinMode = joinMode;
             includes.Add(join);
         }
         #endregion

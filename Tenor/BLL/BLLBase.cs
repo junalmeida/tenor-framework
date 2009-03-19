@@ -105,7 +105,7 @@ namespace Tenor.BLL
             
             //Read Joins
 
-            Join[] joins = DialectFactory.GetPlainJoins(searchOptions.Conditions, searchOptions._BaseClass);
+            Join[] joins = GetPlainJoins(searchOptions.Conditions, searchOptions._BaseClass);
 
             //Get necessary fields to create the select statement.
             FieldInfo[] fieldInfos = BLLBase.GetFields(searchOptions._BaseClass);
@@ -121,7 +121,7 @@ namespace Tenor.BLL
                 sqlFields += appendToSelect;
 
             //Creates the where part
-            string sqlWhere = dialect.CreateFiltersSql(searchOptions.Conditions, searchOptions._BaseClass, joins, out parameters);
+            string sqlWhere = dialect.CreateWhereSql(searchOptions.Conditions, searchOptions._BaseClass, joins, out parameters);
 
             // Creates the join parts
             string sqlJoins = dialect.CreateJoinsSql(joins);
@@ -254,7 +254,7 @@ namespace Tenor.BLL
         /// <param name="specialValues">The special values can contains sql sentences/sequences/etc</param>
         /// <param name="connection"></param>
         /// <returns></returns>
-        internal string GetSaveSql(bool isUpdate, ConnectionStringSettings connection, NameValueCollection specialValues, out FieldInfo autoKeyField, out TenorParameter[] parameters, out string identityQuery, out bool runOnSameQuery)
+        internal string GetSaveSql(bool isUpdate, ConnectionStringSettings connection, NameValueCollection specialValues, out FieldInfo autoKeyField, out TenorParameter[] parameters, out IDialect dialect)
         {
             Dictionary<FieldInfo, object> data = new Dictionary<FieldInfo, object>();
 
@@ -262,7 +262,7 @@ namespace Tenor.BLL
             if (connection == null)
                 connection = table.GetConnection();
 
-            IDialect dialect = DialectFactory.CreateDialect(connection);
+            dialect = DialectFactory.CreateDialect(connection);
 
             autoKeyField = null;
             ConditionCollection conditions = new ConditionCollection();
@@ -298,7 +298,7 @@ namespace Tenor.BLL
                     data.Add(fieldInfos[i], fieldInfos[i].PropertyValue(this));
                 }
             }
-            string sql = dialect.CreateSaveSql(this.GetType(), data, specialValues, conditions, out parameters, out identityQuery, out runOnSameQuery);
+            string sql = dialect.CreateSaveSql(this.GetType(), data, specialValues, conditions, out parameters);
 
 
             return sql;
@@ -321,13 +321,14 @@ namespace Tenor.BLL
                 string identityQuery = null;
                 bool runOnSameQuery = false;
 
-                string query = GetSaveSql(isUpdate, connection, null, out autoKeyField, out parameters, out identityQuery, out runOnSameQuery);
+                IDialect dialect = null;
+                string query = GetSaveSql(isUpdate, connection, null, out autoKeyField, out parameters, out dialect);
 
                 int result;
                 if (this.transaction != null && this.transaction.transaction != null)
-                    result = Helper.ExecuteQuery(connection, transaction.transaction, query, parameters, identityQuery, runOnSameQuery);
+                    result = Helper.ExecuteQuery(query, parameters, transaction.transaction, dialect);
                 else
-                    result = Helper.ExecuteQuery(connection, query, parameters, identityQuery, runOnSameQuery);
+                    result = Helper.ExecuteQuery(query, parameters, connection);
 
                 if (!isUpdate && (autoKeyField != null))
                 {
@@ -404,14 +405,16 @@ namespace Tenor.BLL
                 string identityQuery = null;
                 bool runOnSameQuery = false;
 
-                string insertQuery = GetSaveSql(false, connection, null, out autoKeyField, out parameters, out identityQuery, out runOnSameQuery);
+                IDialect dialect = null;
+
+                string insertQuery = GetSaveSql(false, connection, null, out autoKeyField, out parameters, out dialect);
 
                 //updateQuery doesn't need parameters cause it's already set.\
                 TenorParameter[] parameters2 = null;
-                string updateQuery = GetSaveSql(true, connection, null, out autoKeyField, out parameters2, out identityQuery, out runOnSameQuery);
+                string updateQuery = GetSaveSql(true, connection, null, out autoKeyField, out parameters2, out dialect);
                 parameters2 = null;
 
-                string query = DialectFactory.CreateDialect(connection).CreateConditionalSaveSql(insertQuery, updateQuery, conditionalFields, fieldsPrimary);
+                string query = dialect.CreateConditionalSaveSql(insertQuery, updateQuery, conditionalFields, fieldsPrimary);
 
                 DataTable result = Helper.ConsultarBanco(connection, query.ToString(), parameters);
 
@@ -451,13 +454,16 @@ namespace Tenor.BLL
             ConnectionStringSettings connection = table.GetConnection();
             IDialect dialect = DialectFactory.CreateDialect(connection);
 
+
+            Join[] joins = GetPlainJoins(conditions, table.RelatedTable);
+            
             TenorParameter[] parameters = null;
-            string query = dialect.CreateDeleteSql(table.RelatedTable, conditions, out parameters);
+            string query = dialect.CreateDeleteSql(this.GetType(), conditions, joins, out parameters);
 
             if (this.transaction != null && this.transaction.transaction != null)
-                Helper.ExecuteQuery(connection, transaction.transaction, query, parameters, null, false);
+                Helper.ExecuteQuery(query, parameters, transaction.transaction, dialect);
             else
-                Helper.ExecuteQuery(connection, query, parameters, null, false);
+                Helper.ExecuteQuery(query, parameters, connection);
         }
 
         public static void Delete(BLLBase[] instances)
@@ -469,15 +475,14 @@ namespace Tenor.BLL
             Type type = null;
             Transaction transaction = null;
 
+            List<Join> joinList = new List<Join>();
+
+
             ConditionCollection conditions = new ConditionCollection();
             foreach (BLLBase item in instances)
             {
                 if (item == null)
                     throw new ArgumentNullException("instance");
-
-                if (conditions.Count > 0)
-                    conditions.Add(LogicalOperator.Or);
-                ConditionCollection cc = CreateDeleteConditions(item);
 
                 if (type == null)
                     type = item.GetType();
@@ -488,6 +493,14 @@ namespace Tenor.BLL
                     transaction = item.transaction;
                 else if (transaction != item.transaction)
                     throw new TenorException("You can have only items on the same transaction.");
+
+
+                ConditionCollection cc = CreateDeleteConditions(item);
+
+                if (conditions.Count > 0)
+                    conditions.Add(LogicalOperator.Or);
+                conditions.Add(cc);
+                joinList.AddRange(GetPlainJoins(cc, item.GetType()));
             }
 
             TableInfo table = TableInfo.CreateTableInfo(type);
@@ -496,12 +509,12 @@ namespace Tenor.BLL
 
 
             TenorParameter[] parameters = null;
-            string query = dialect.CreateDeleteSql(type, conditions, out parameters);
+            string query = dialect.CreateDeleteSql(type, conditions, joinList.ToArray(), out parameters);
 
             if (transaction != null && transaction.transaction != null)
-                Helper.ExecuteQuery(connection, transaction.transaction, query, parameters, null, false);
+                Helper.ExecuteQuery(query, parameters, transaction.transaction, dialect);
             else
-                Helper.ExecuteQuery(connection, query, parameters, null, false);
+                Helper.ExecuteQuery(query, parameters, connection);
 
 
         }
@@ -951,6 +964,81 @@ namespace Tenor.BLL
             return !object.Equals(x, y);
         }
         #endregion
+
+
+
+
+
+
+        #region Join Utility
+        internal static Join[] GetPlainJoins(ConditionCollection conditions, Type baseClass)
+        {
+            List<Join> list = new List<Join>();
+            GetPlainJoins(conditions, list);
+
+            foreach (Join join in list)
+            {
+                if (join.ForeignKey == null)
+                {
+                    SetProperty(list, join, baseClass);
+                }
+            }
+            return list.ToArray();
+        }
+
+        private static void GetPlainJoins(ConditionCollection conditions, List<Join> list)
+        {
+            foreach (Join join in conditions.includes)
+            {
+                if (list.Contains(join))
+                    throw new InvalidOperationException("The join '" + join.JoinAlias + "' is already on the list.");
+                else
+                    list.Add(join);
+            }
+            foreach (object item in conditions)
+            {
+                if (item.GetType() == typeof(ConditionCollection))
+                {
+                    GetPlainJoins((ConditionCollection)item, list);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sets the LocalTableInfo and ForeignTableInfo of all joins recursivelly.
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="join"></param>
+        /// <param name="baseClass"></param>
+        private static void SetProperty(List<Join> list, Join join, Type baseClass)
+        {
+            if (join.LocalTableInfo == null)
+            {
+                if (string.IsNullOrEmpty(join.ParentAlias))
+                {
+                    join.LocalTableInfo = TableInfo.CreateTableInfo(baseClass);
+                }
+                else
+                {
+                    int pos = list.IndexOf(new Join(join.ParentAlias));
+                    if (pos == -1)
+                        throw new InvalidOperationException("Cannot find the parent alias for '" + join.JoinAlias + "'");
+                    Join parent = list[pos];
+                    if (parent.LocalTableInfo == null)
+                        SetProperty(list, parent, baseClass);
+
+                    join.LocalTableInfo = TableInfo.CreateTableInfo(parent.ForeignKey.ElementType);
+                }
+            }
+
+            join.ForeignKey = ForeignKeyInfo.Create(join.LocalTableInfo.RelatedTable.GetProperty(join.PropertyName));
+            if (join.ForeignKey == null)
+                throw new InvalidOperationException("Cannot find '" + join.PropertyName + "' on '" + join.LocalTableInfo.RelatedTable.Name + "' class. You must define a ForeignKey on that class.");
+            join.ForeignTableInfo = TableInfo.CreateTableInfo(join.ForeignKey.ElementType);
+        }
+
+        #endregion
+
 
     }
 }

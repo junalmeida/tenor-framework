@@ -123,7 +123,6 @@ namespace Tenor.Data
     internal abstract class PropInfo
     {
 
-
         protected System.Reflection.PropertyInfo _RelatedProperty;
         public virtual System.Reflection.PropertyInfo RelatedProperty
         {
@@ -446,7 +445,7 @@ namespace Tenor.Data
 
         private SpecialFieldInfo() { }
 
-        public static SpecialFieldInfo Create(System.Reflection.PropertyInfo theProperty)
+        internal static SpecialFieldInfo Create(System.Reflection.PropertyInfo theProperty)
         {
             SpecialFieldInfo sp = new SpecialFieldInfo();
 
@@ -476,7 +475,7 @@ namespace Tenor.Data
         }
 
 
-        public string @Alias
+        public string Alias
         {
             get
             {

@@ -315,7 +315,8 @@ namespace Tenor
                 string identityQuery = null;
                 bool runOnSameQuery = false;
                 FieldInfo autoKeyField = null; //Not used at this time.
-                bulkItems.AppendLine(string.Format(BulkItem, instance.GetSaveSql(false, Connection, specialValues, out autoKeyField, out tenorParameters, out identityQuery, out runOnSameQuery), variavel));
+                Tenor.Data.Dialects.IDialect dialect = null;
+                bulkItems.AppendLine(string.Format(BulkItem, instance.GetSaveSql(false, Connection, specialValues, out autoKeyField, out tenorParameters, out dialect), variavel));
 				if (this.RetrieveIDs)
 				{
 					bulkItems.AppendLine(string.Format(BulkItemSaveId, bulkTempTable, variavel));
