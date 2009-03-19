@@ -1,0 +1,198 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{87AB0401-5634-4DAE-8ED9-77DCE524FD80}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Tenor.Web.UI</RootNamespace>
+    <AssemblyName>Tenor.Web.UI</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Nonshipping>true</Nonshipping>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>tenorwebui.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'MonoRelease|AnyCPU' ">
+    <OutputPath>bin\MonoRelease\</OutputPath>
+    <DefineConstants>TRACE;MONO</DefineConstants>
+    <Optimize>true</Optimize>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.XML" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Configuration\HttpModule.cs" />
+    <Compile Include="Configuration\Resources.cs" />
+    <Compile Include="Configuration\Tracking.cs" />
+    <Compile Include="Data\DummyDataSource.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Web\UI\Util.cs" />
+    <Compile Include="Web\UI\WebControls\ActionDropDown\ActionDropDownList.cs" />
+    <Compile Include="Web\UI\WebControls\Adapters\WebControlAdapterExtender.cs" />
+    <Compile Include="Web\UI\WebControls\BulletedList\BulletedList.cs" />
+    <Compile Include="Web\UI\WebControls\CheckBox\CheckBoxList.cs" />
+    <Compile Include="Web\UI\WebControls\ContextMenu\ContextMenu.cs" />
+    <Compile Include="Web\UI\WebControls\ControlDesigner.cs" />
+    <Compile Include="Web\UI\WebControls\CustomStyle.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Web\UI\WebControls\DataList\Datalist.cs" />
+    <Compile Include="Web\UI\WebControls\Flash\Flash.cs" />
+    <Compile Include="Web\UI\WebControls\Flash\FlashVersionConverter.cs" />
+    <Compile Include="Web\UI\WebControls\FloatingPanel\FloatingPanel.cs" />
+    <Compile Include="Web\UI\WebControls\HoverLink\HoverLink.cs" />
+    <Compile Include="Web\UI\WebControls\Menu\Menu.cs" />
+    <Compile Include="Web\UI\WebControls\PreviewImage\PreviewImage.cs" />
+    <Compile Include="Web\UI\WebControls\ReorderButton\Design\ControlDesigner.cs" />
+    <Compile Include="Web\UI\WebControls\ReorderButton\ReorderImageButton.cs" />
+    <Compile Include="Web\UI\WebControls\Repeater\PagerSettings.cs" />
+    <Compile Include="Web\UI\WebControls\Repeater\Repeater.cs" />
+    <Compile Include="Web\UI\WebControls\ResizablePanels\Designer\ResizablePanelsDesigner.cs" />
+    <Compile Include="Web\UI\WebControls\ResizablePanels\Item.cs" />
+    <Compile Include="Web\UI\WebControls\ResizablePanels\ResizablePanels.cs" />
+    <Compile Include="Web\UI\WebControls\ScriptManager\mootools\MooTools.cs" />
+    <Compile Include="Web\UI\WebControls\ScriptManager\Script.cs" />
+    <Compile Include="Web\UI\WebControls\ScriptManager\ScriptCollectionEditor.cs" />
+    <Compile Include="Web\UI\WebControls\ScriptManager\ScriptManager.cs" />
+    <Compile Include="Web\UI\WebControls\ScriptManager\ScriptManagerDesigner.cs" />
+    <Compile Include="Web\UI\WebControls\ScrollPanel\ScrollPanel.cs" />
+    <Compile Include="Web\UI\WebControls\SlidingPanel\SlidingPanel.cs" />
+    <Compile Include="Web\UI\WebControls\SlidingPanel\SlidingPanelItem.cs" />
+    <Compile Include="Web\UI\WebControls\SortableBulletedList\SortableBulletedList.cs" />
+    <Compile Include="Web\UI\WebControls\TabsMultiView\TabsMultiView.cs" />
+    <Compile Include="Web\UI\WebControls\Tabs\Tabs.cs" />
+    <Compile Include="Web\UI\WebControls\TextBox\TextBox.cs" />
+    <Compile Include="Web\UI\WebControls\Window\Design\WindowDesigner.cs" />
+    <Compile Include="Web\UI\WebControls\Window\janela\WindowPlasticStyle.cs" />
+    <Compile Include="Web\UI\WebControls\Window\Window.cs">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Web\UI\WebControls\ActionDropDown\dropdown.js" />
+    <Content Include="Web\UI\WebControls\Adapters\AdapterUtils.js" />
+    <Content Include="Web\UI\WebControls\CheckBox\checkboxlist.js" />
+    <Content Include="Web\UI\WebControls\ContextMenu\contextMenoo-src.js" />
+    <Content Include="Web\UI\WebControls\ContextMenu\contextMenoo.js" />
+    <Content Include="Web\UI\WebControls\Flash\AC_OETags.js" />
+    <Content Include="Web\UI\WebControls\Flash\flash.bmp" />
+    <Content Include="Web\UI\WebControls\Flash\flash.jpg" />
+    <Content Include="Web\UI\WebControls\Flash\flash.js" />
+    <Content Include="Web\UI\WebControls\FloatingPanel\floatingpanel.js" />
+    <Content Include="Web\UI\WebControls\Menu\menu.js" />
+    <Content Include="Web\UI\WebControls\PreviewImage\black-white.gif" />
+    <Content Include="Web\UI\WebControls\PreviewImage\gear.gif" />
+    <Content Include="Web\UI\WebControls\PreviewImage\gray.gif" />
+    <Content Include="Web\UI\WebControls\PreviewImage\prev-close.jpg" />
+    <Content Include="Web\UI\WebControls\PreviewImage\previewimage.js" />
+    <Content Include="Web\UI\WebControls\PreviewImage\white-black.gif" />
+    <Content Include="Web\UI\WebControls\ReorderButton\reorderbutton.js" />
+    <Content Include="Web\UI\WebControls\ResizablePanels\resizablepanels.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\iefix\blank.gif" />
+    <Content Include="Web\UI\WebControls\ScriptManager\iefix\ie7-content.htc" />
+    <Content Include="Web\UI\WebControls\ScriptManager\iefix\ie7-core.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\iefix\ie7-css-strict.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\iefix\ie7-css2-selectors.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\iefix\ie7-css3-selectors.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\iefix\ie7-dhtml.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\iefix\ie7-dynamic-attributes.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\iefix\ie7-fixed.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\iefix\ie7-html4.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\iefix\ie7-ie5.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\iefix\ie7-layout.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\iefix\ie7-load.htc" />
+    <Content Include="Web\UI\WebControls\ScriptManager\iefix\ie7-overflow.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\iefix\ie7-quirks.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\iefix\ie7-recalc.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\iefix\ie7-squish.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\iefix\ie7-standard-p.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\iefix\ie7-xml-extras.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\iefix\IE7.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\iefix\IE8.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\mootools\closebox.png" />
+    <Content Include="Web\UI\WebControls\ScriptManager\mootools\mootools-1.2-Core.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\mootools\mootools-1.2-Full.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\mootools\mootools-release-1.11-Core.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\mootools\mootools-release-1.11-CoreEffectsDrag.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\mootools\mootools-release-1.11-CoreRemote.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\mootools\mootools-release-1.11-CoreSmoothscroll.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\mootools\mootools-release-1.11-CoreSortables.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\mootools\mootools-release-1.11-CoreTips.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\mootools\mootools-release-1.11-Full.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\mootools\slimbox.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\mootools\sortableorder-src.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\mootools\sortableorder.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\rightclick.js" />
+    <Content Include="Web\UI\WebControls\ScriptManager\ScriptManager.bmp" />
+    <Content Include="Web\UI\WebControls\ScriptManager\select.js" />
+    <Content Include="Web\UI\WebControls\ScrollPanel\scrollpanel.js" />
+    <Content Include="Web\UI\WebControls\SlidingPanel\slidingpanel.js" />
+    <Content Include="Web\UI\WebControls\SortableBulletedList\sortable.js" />
+    <Content Include="Web\UI\WebControls\TextBox\Calendar\calendar-br.js" />
+    <Content Include="Web\UI\WebControls\TextBox\Calendar\calendar-en.js" />
+    <Content Include="Web\UI\WebControls\TextBox\Calendar\calendar-setup.js" />
+    <Content Include="Web\UI\WebControls\TextBox\Calendar\calendar-system.css" />
+    <Content Include="Web\UI\WebControls\TextBox\Calendar\calendar.js" />
+    <Content Include="Web\UI\WebControls\TextBox\Calendar\W2KStyle\calendar-win2k-2.css" />
+    <Content Include="Web\UI\WebControls\TextBox\Calendar\XPStyle\cal-d.jpg" />
+    <Content Include="Web\UI\WebControls\TextBox\Calendar\XPStyle\cal-h.jpg" />
+    <Content Include="Web\UI\WebControls\TextBox\Calendar\XPStyle\cal-n.jpg" />
+    <Content Include="Web\UI\WebControls\TextBox\jQuery.js" />
+    <Content Include="Web\UI\WebControls\TextBox\masks.js" />
+    <Content Include="Web\UI\WebControls\TextBox\masks2.js" />
+    <Content Include="Web\UI\WebControls\Window\csshover.htc" />
+    <Content Include="Web\UI\WebControls\Window\janela\bottom-left.gif" />
+    <Content Include="Web\UI\WebControls\Window\janela\bottom-right.gif" />
+    <Content Include="Web\UI\WebControls\Window\janela\bottom.gif" />
+    <Content Include="Web\UI\WebControls\Window\janela\close-up.gif" />
+    <Content Include="Web\UI\WebControls\Window\janela\close.gif" />
+    <Content Include="Web\UI\WebControls\Window\janela\left.gif" />
+    <Content Include="Web\UI\WebControls\Window\janela\right.gif" />
+    <Content Include="Web\UI\WebControls\Window\janela\title-left.gif" />
+    <Content Include="Web\UI\WebControls\Window\janela\title-right.gif" />
+    <Content Include="Web\UI\WebControls\Window\janela\title.gif" />
+    <Content Include="Web\UI\WebControls\Window\Window.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="tenorwebui.snk" />
+    <None Include="Web\UI\WebControls\Adapters\CSSFriendlyAdapters.browser" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
