@@ -12,7 +12,7 @@ namespace SampleApp.Business.Entities
     /// Represents the table Persons_Items.
     /// Some descrition of this relation.
     /// </summary>
-    [Serializable(), Table("PersonItem", "dbo")]
+    [Serializable(), Table("PersonItem", "")]
     public partial class PersonItem : BLLBase
     {
 

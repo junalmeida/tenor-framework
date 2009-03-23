@@ -9,7 +9,7 @@ namespace SampleApp.Business.Entities
     /// Represents the table Persons.
     /// Some description on table.
     /// </summary>
-    [Serializable(), Table("Persons", "dbo")]
+    [Serializable(), Table("Persons", "")]
     public partial class Person : BLLBase
     {
 

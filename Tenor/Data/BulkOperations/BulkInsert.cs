@@ -312,8 +312,7 @@ namespace Tenor
 
                 
                 TenorParameter[] tenorParameters = null;
-                string identityQuery = null;
-                bool runOnSameQuery = false;
+
                 FieldInfo autoKeyField = null; //Not used at this time.
                 Tenor.Data.Dialects.IDialect dialect = null;
                 bulkItems.AppendLine(string.Format(BulkItem, instance.GetSaveSql(false, Connection, specialValues, out autoKeyField, out tenorParameters, out dialect), variavel));

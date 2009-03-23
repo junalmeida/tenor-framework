@@ -546,7 +546,7 @@ namespace Tenor.Data.Dialects
                 string paramName = field.DataFieldName;
                 if (field.AutoNumber && string.IsNullOrEmpty(this.IdentityBeforeQuery))
                     continue;
-                else
+                else if (field.AutoNumber)
                     paramName = "identity";
 
                 TenorParameter param = new TenorParameter(this.ParameterIdentifier + paramName, data[field]);

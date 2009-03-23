@@ -36,6 +36,7 @@ namespace Tenor.Data.Dialects
         {
             Dictionary<string, Type> dialects = new Dictionary<string, Type>();
             dialects.Add("System.Data.SqlClient", typeof(TSql.TSql));
+            dialects.Add("MySql.Data.MySqlClient", typeof(MySql.MySql));
             return dialects;
         }
 

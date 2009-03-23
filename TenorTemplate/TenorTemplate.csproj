@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.50727</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{68CAEADF-8DE8-4A43-8D4D-6373C05563A6}</ProjectGuid>
     <OutputType>WinExe</OutputType>
@@ -96,6 +96,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\template_vbnet.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\bg.bmp" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -12,7 +12,7 @@ namespace SampleApp.Business.Entities
     /// Represents the table Items.
     /// This is an item.
     /// </summary>
-    [Serializable(), Table("Items", "dbo")]
+    [Serializable(), Table("Items", "")]
     public partial class Item : BLLBase
     {
         #region Properties

@@ -12,7 +12,7 @@ namespace SampleApp.Business.Entities
     /// Represents the table Categories.
     /// This is a category
     /// </summary>
-    [Serializable(), Table("Categories", "dbo")]
+    [Serializable(), Table("Categories", "")]
     public partial class Category : BLLBase
     {
 

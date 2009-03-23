@@ -318,8 +318,6 @@ namespace Tenor.BLL
                     connection = table.GetConnection();
                 TenorParameter[] parameters = null;
                 FieldInfo autoKeyField = null;
-                string identityQuery = null;
-                bool runOnSameQuery = false;
 
                 IDialect dialect = null;
                 string query = GetSaveSql(isUpdate, connection, null, out autoKeyField, out parameters, out dialect);
@@ -402,8 +400,6 @@ namespace Tenor.BLL
                 FieldInfo autoKeyField = null;
 
                 TenorParameter[] parameters = null;
-                string identityQuery = null;
-                bool runOnSameQuery = false;
 
                 IDialect dialect = null;
 
