@@ -107,4 +107,28 @@ public class Business
             throw new ApplicationException("Cannot search for persons.", ex);
         }
     }
+
+    public void Delete(int personId)
+    {
+        Transaction t = null;
+        try
+        {
+            t = new Transaction();
+            Person p = new Person();
+            p.PersonId = personId;
+            t.AddClass(p);
+            p.Delete();
+            t.Commit();
+        }
+        catch (ApplicationException)
+        {
+            t.Rollback();
+            throw;
+        }
+        catch (Exception ex)
+        {
+            t.Rollback();
+            throw new ApplicationException("Cannot delete this person.", ex);
+        }
+    }
 }

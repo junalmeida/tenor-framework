@@ -698,9 +698,9 @@ namespace Tenor.Data.Dialects
             TableInfo table = TableInfo.CreateTableInfo(baseClass);
 
 
-            string clause = ((IDialect)this).CreateWhereSql(conditions, baseClass, joins, out parameters);
+            string clause = CreateWhereSql(conditions, baseClass, joins, out parameters, false);
 
-            return "DELETE FROM " + table.GetSchemaAndTable() + " AS " + alias + " WHERE " + clause;
+            return "DELETE FROM " + table.GetSchemaAndTable() + " WHERE " + clause;
         }
 
         #endregion

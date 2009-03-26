@@ -13,13 +13,15 @@
         onclick="btnSearch_Click" />
 </asp:Panel>
 <asp:Panel ID="pnlResults" runat="server" Visible="false">
-    <asp:GridView ID="grdResults" runat="server" AutoGenerateColumns="False" Width="100%">
+    <asp:GridView ID="grdResults" runat="server" AutoGenerateColumns="False" Width="100%" OnRowDeleting="grdResults_RowDeleting">
         <Columns>
             <asp:BoundField DataField="Name" HeaderText="Name" />
             <asp:BoundField DataField="Email" HeaderText="Email" />
+            <asp:CheckBoxField DataField="Active" HeaderText="Active" />
             <asp:HyperLinkField DataNavigateUrlFields="PersonId" 
                 DataNavigateUrlFormatString="~/Person.aspx?id={0}" HeaderText="Edit" 
                 Text="Edit" />
+            <asp:CommandField ShowDeleteButton="True" />
         
         </Columns>
         

@@ -20,9 +20,15 @@ public partial class PersonList : System.Web.UI.Page
     }
     protected void btnSearch_Click(object sender, EventArgs e)
     {
+        Search();
+    }
+
+    private void Search()
+    {
         try
         {
             IList<Person> result = bp.ListPersons(txtName.Text, txtItemName.Text, txtCategory.Text);
+            grdResults.DataKeyNames = new string[] { "PersonId" };
             grdResults.DataSource = result;
             grdResults.DataBind();
             pnlResults.Visible = true;
@@ -31,5 +37,18 @@ public partial class PersonList : System.Web.UI.Page
         {
             Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
         }
+    }
+    protected void grdResults_RowDeleting(object sender, GridViewDeleteEventArgs e)
+    {
+        try
+        {
+            bp.Delete((int)grdResults.DataKeys[e.RowIndex].Value);
+        }
+        catch (ApplicationException ex)
+        {
+            Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
+            return;
+        }
+        Search();
     }
 }

@@ -91,6 +91,27 @@ namespace SampleApp.Business.Entities
             }
         }
 
+        private bool active;
+
+        [Field()]
+        public bool Active
+        {
+            get { return active; }
+            set { active = value; }
+        }
+
+        [Field(LazyLoading=true)]
+        public byte[] Photo
+        {
+            get
+            {
+                return (byte[])GetPropertyValue();
+            }
+            set
+            {
+                SetPropertyValue(value);
+            }
+        }
 
         /// <summary>
         /// Keeps a list of constants with property names.
@@ -100,17 +121,11 @@ namespace SampleApp.Business.Entities
             private Properties() { }
 
             public const string PersonId = "PersonId";
-
-
             public const string Name = "Name";
-
-
             public const string Email = "Email";
-
-
             public const string Expires = "Expires";
-
-
+            public const string Active = "Active";
+            public const string Photo = "Photo";
         }
 
 
