@@ -81,21 +81,21 @@ namespace SampleApp.Business.Entities
         {
             get
             {
-                if (PhotoSize > 0)
+                if (HasPhoto)
                     return TenorModule.GetInstanceUrl(this.GetType(), PersonId, Tenor.Drawing.ResizeMode.Proportional, 100, 100);
                 else
                     return null;
             }
         }
 
-        private long photoSize;
+        private bool hasPhoto;
 
-        
-        [SpecialField("length(Photo)")]
-        public long PhotoSize
+
+        [SpecialField("CastToTiny(length(photo) > 0)")]
+        public bool HasPhoto
         {
-            get { return photoSize; }
-            set { photoSize = value; }
+            get { return hasPhoto; }
+            set { hasPhoto = value; }
         }
 	
     }

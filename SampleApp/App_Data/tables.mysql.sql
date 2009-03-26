@@ -50,3 +50,17 @@ CREATE TABLE  `samplewebapp_dbo`.`persons` (
   `Expires` datetime DEFAULT NULL,
   PRIMARY KEY (`PersonId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+
+
+
+CREATE DEFINER = 'root'@'%' FUNCTION `CastToTiny`(
+        value BIGINT
+    )
+    RETURNS tinyint(1)
+    DETERMINISTIC
+    NO SQL
+    SQL SECURITY DEFINER
+    COMMENT ''
+BEGIN
+  RETURN value;
+END;
