@@ -10,6 +10,7 @@ using System.Web.UI.WebControls.WebParts;
 using Tenor.BLL;
 using System.Text;
 using Tenor.Data;
+using Tenor.Web;
 
 namespace SampleApp.Business.Entities
 {
@@ -61,5 +62,41 @@ namespace SampleApp.Business.Entities
             sc.Add(Person.Properties.Name, SortOrder.Ascending);
             return Person.Search(cc, sc, true);
         }
+
+
+
+        private Tenor.Drawing.Image image;
+        [ResponseProperty()]
+        public Tenor.Drawing.Image Image
+        {
+            get
+            {
+                if (image == null)
+                    image = new Tenor.Drawing.Image(Photo);
+                return image;
+            }
+        }
+
+        public string ThumbPhotoUrl
+        {
+            get
+            {
+                if (PhotoSize > 0)
+                    return TenorModule.GetInstanceUrl(this.GetType(), PersonId, Tenor.Drawing.ResizeMode.Proportional, 100, 100);
+                else
+                    return null;
+            }
+        }
+
+        private long photoSize;
+
+        
+        [SpecialField("length(Photo)")]
+        public long PhotoSize
+        {
+            get { return photoSize; }
+            set { photoSize = value; }
+        }
+	
     }
 }

@@ -109,6 +109,7 @@ namespace SampleApp.Business.Entities
             }
             set
             {
+                image = null;
                 SetPropertyValue(value);
             }
         }

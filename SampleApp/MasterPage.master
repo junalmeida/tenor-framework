@@ -10,9 +10,9 @@
 </head>
 <body>
     <form id="form1" runat="server">
-    <h1>
+    <h3>
         Tenor Sample Web App
-    </h1>
+    </h3>
     <div>
         <a href="Default.aspx">Home</a> | <a href="PersonList.aspx">Person List</a> | <a href="Person.aspx">New Person</a>
     </div>

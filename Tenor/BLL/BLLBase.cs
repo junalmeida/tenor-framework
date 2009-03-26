@@ -108,10 +108,15 @@ namespace Tenor.BLL
             Join[] joins = GetPlainJoins(searchOptions.Conditions, searchOptions._BaseClass);
 
             //Get necessary fields to create the select statement.
-            FieldInfo[] fieldInfos = BLLBase.GetFields(searchOptions._BaseClass);
+            List<FieldInfo> fieldInfos = new List<FieldInfo>();
+            foreach (FieldInfo f in BLLBase.GetFields(searchOptions._BaseClass))
+            {
+                if (f.PrimaryKey || !f.LazyLoading)
+                    fieldInfos.Add(f);
+            }
             SpecialFieldInfo[] spFields = BLLBase.GetSpecialFields(searchOptions._BaseClass);
 
-            string sqlFields = dialect.CreateSelectSql(table.RelatedTable, fieldInfos, spFields);
+            string sqlFields = dialect.CreateSelectSql(table.RelatedTable, fieldInfos.ToArray(), spFields);
 
 
             //Sorting

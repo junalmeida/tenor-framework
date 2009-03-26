@@ -330,7 +330,7 @@ namespace Tenor.Data.Dialects
                 else if (obj.GetType() == typeof(ConditionCollection))
                 {
                     TenorParameter[] groupParameters = null;
-                    string group = ((IDialect)this).CreateWhereSql(((ConditionCollection)obj), baseClass, joins, out groupParameters);
+                    string group = CreateWhereSql(((ConditionCollection)obj), baseClass, joins, out groupParameters, generateAliases);
                     if (string.IsNullOrEmpty(group))
                     {
                         throw new InvalidCollectionArgument(CollectionProblem.NullCollection);
@@ -355,23 +355,25 @@ namespace Tenor.Data.Dialects
 
             foreach (FieldInfo f in fields)
             {
-                if (f.PrimaryKey || !f.LazyLoading)
-                {
-                    //determina o nome do campo
+                //TODO :Check if we can consider all fields from the parameter.
+                //if (f.PrimaryKey || !f.LazyLoading)
+                //{
+                    
                     fieldsSql.Append(", " + alias + "." + CommandBuilder.QuoteIdentifier(f.DataFieldName));
-                }
+                //
             }
             if (fieldsSql.Length == 0)
             {
                 throw new MissingFieldsException(baseClass, true);
             }
 
-            foreach (SpecialFieldInfo f in spFields)
-            {
-                fieldsSql.Append(", ");
-                fieldsSql.Append(GetSpecialFieldExpression(alias, f));
-                fieldsSql.Append(" AS ").Append(f.Alias);
-            }
+            if (spFields != null)
+                foreach (SpecialFieldInfo f in spFields)
+                {
+                    fieldsSql.Append(", ");
+                    fieldsSql.Append(GetSpecialFieldExpression(alias, f));
+                    fieldsSql.Append(" AS ").Append(f.Alias);
+                }
             fieldsSql = fieldsSql.Remove(0, 2);
             return fieldsSql.ToString();
         }
@@ -517,13 +519,13 @@ namespace Tenor.Data.Dialects
             sql.AppendLine(" FROM " + froms);
             sql.AppendLine(joinsPart);
 
-            if (wherePart.Length > 0)
+            if (!string.IsNullOrEmpty(wherePart))
             {
                 sql.Append(" WHERE ");
                 sql.AppendLine(wherePart);
             }
 
-            if (sortPart.Length > 0)
+            if (!string.IsNullOrEmpty(sortPart))
             {
                 sql.Append(" ORDER BY ");
                 sql.AppendLine(sortPart.ToString());

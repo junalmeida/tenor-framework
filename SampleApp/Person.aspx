@@ -16,10 +16,15 @@
         <asp:TextBox ID="txtEmail" runat="server" />
     </p>
     <p>
+        <asp:Label ID="lblPhoto" runat="server" Text="Photo:" />
+        <asp:FileUpload ID="fupPhoto" runat="server" />
+    </p>
+    <p>
         Choose the items for this person:
         <asp:DropDownList ID="cmbCategory" runat="server" AutoPostBack="true" 
             onselectedindexchanged="cmbCategory_SelectedIndexChanged" /><br />
         <asp:CheckBoxList ID="cblItems" runat="server" RepeatLayout="Flow" RepeatDirection="Vertical" />
     </p>
+    
     <asp:Button ID="btnSave" runat="server" Text="Save" onclick="btnSave_Click" />
 </asp:Content>

@@ -66,6 +66,10 @@ public partial class _Person : System.Web.UI.Page
             p.PersonId = PersonId;
             p.Name = txtName.Text;
             p.Email = txtEmail.Text;
+            if (fupPhoto.HasFile)
+            {
+                p.Photo = fupPhoto.FileBytes;
+            }
 
             List<Item> items = new List<Item>();
             foreach (ListItem li in cblItems.Items)

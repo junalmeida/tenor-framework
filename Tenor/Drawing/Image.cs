@@ -267,12 +267,12 @@ namespace Tenor.Drawing
 
                     Size sizeL = new Size();
                     sizeL.Width = Width;
-                    sizeL.Height = Width / this.Bitmap.Width * this.Bitmap.Height;
+                    sizeL.Height = Convert.ToInt32((double)Width / (double)this.Bitmap.Width * (double)this.Bitmap.Height);
 
                     //Novo tamanho baseado na altura especificada
                     Size sizeH = new Size();
                     sizeH.Height = Height;
-                    sizeH.Width = Height / this.Bitmap.Height * this.Bitmap.Width;
+                    sizeH.Width = Convert.ToInt32((double)Height / (double)this.Bitmap.Height * (double)this.Bitmap.Width);
 
 
                     rect = new Rectangle();

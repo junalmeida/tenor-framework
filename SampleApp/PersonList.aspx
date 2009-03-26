@@ -13,8 +13,10 @@
         onclick="btnSearch_Click" />
 </asp:Panel>
 <asp:Panel ID="pnlResults" runat="server" Visible="false">
-    <asp:GridView ID="grdResults" runat="server" AutoGenerateColumns="False" Width="100%" OnRowDeleting="grdResults_RowDeleting">
+    <asp:GridView ID="grdResults" runat="server" AutoGenerateColumns="False" Width="100%" OnRowDeleting="grdResults_RowDeleting" EmptyDataText="No items found.">
         <Columns>
+            <asp:ImageField DataImageUrlField="PhotoUrl" NullDisplayText="No Photo">
+            </asp:ImageField>
             <asp:BoundField DataField="Name" HeaderText="Name" />
             <asp:BoundField DataField="Email" HeaderText="Email" />
             <asp:CheckBoxField DataField="Active" HeaderText="Active" />
