@@ -15,7 +15,7 @@
 <asp:Panel ID="pnlResults" runat="server" Visible="false">
     <asp:GridView ID="grdResults" runat="server" AutoGenerateColumns="False" Width="100%" OnRowDeleting="grdResults_RowDeleting" EmptyDataText="No items found.">
         <Columns>
-            <asp:ImageField DataImageUrlField="PhotoUrl" NullDisplayText="No Photo">
+            <asp:ImageField DataImageUrlField="ThumbPhotoUrl" NullDisplayText="No Photo">
             </asp:ImageField>
             <asp:BoundField DataField="Name" HeaderText="Name" />
             <asp:BoundField DataField="Email" HeaderText="Email" />
