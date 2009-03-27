@@ -49,12 +49,14 @@ public partial class _Person : System.Web.UI.Page
                     cmbCategory.SelectedValue = pi.Item.CategoryId.ToString();
                     this.ListItems();
                 }
-                cblItems.Items.FindByValue(pi.ItemId.ToString()).Selected = true;
+                ListItem li = cblItems.Items.FindByValue(pi.ItemId.ToString());
+                if (li != null) li.Selected = true;
             }
 
         }
         catch (ApplicationException ex)
         {
+            throw;
             Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
         }
     }
@@ -86,6 +88,7 @@ public partial class _Person : System.Web.UI.Page
         }
         catch (ApplicationException ex)
         {
+            throw;
             Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
         }
     }

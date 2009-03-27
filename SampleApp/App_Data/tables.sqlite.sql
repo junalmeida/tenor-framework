@@ -1,0 +1,64 @@
+-- Drop
+DROP TABLE "main"."PersonItem";
+DROP TABLE "main"."Items";
+DROP TABLE "main"."Persons";
+DROP TABLE "main"."Categories";
+
+-- Schema
+CREATE TABLE "main"."Categories"
+(
+	"CategoryId" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	"Name" VARCHAR(50)  NOT NULL
+);
+
+CREATE TABLE "main"."Persons"
+(
+	"PersonId" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	"Name" VARCHAR(50) NOT NULL,
+	"Email" VARCHAR(150),
+	"Expires" DATETIME,
+	"Active" BOOLEAN NOT NULL,
+	"Photo" BLOB
+);
+
+CREATE TABLE "main"."Items"
+(
+	"ItemId" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	"Description" VARCHAR(50) NOT NULL,
+	"CategoryId" INTEGER NULL,
+	FOREIGN KEY("CategoryId") REFERENCES "Categories" ("CategoryId")
+);
+
+CREATE TABLE "main"."PersonItem" (
+    "ItemId" INTEGER NOT NULL,
+    "PersonId" INTEGER NOT NULL,
+	FOREIGN KEY("ItemId") REFERENCES "Items" ("ItemId"),
+	FOREIGN KEY("PersonId") REFERENCES "Persons" ("PersonId"),
+    PRIMARY KEY ("ItemId", "PersonId")
+);
+
+
+-- Data
+INSERT INTO "Categories" ("Name")
+VALUES ('First category');
+INSERT INTO "Categories" ("Name")
+VALUES ('Second category');
+
+INSERT INTO "Items" ("Description", "CategoryId")
+VALUES ('First item', NULL);
+INSERT INTO "Items" ("Description", "CategoryId")
+VALUES ('Second item', 1);
+INSERT INTO "Items" ("Description", "CategoryId")
+VALUES ('Third item', 2);
+
+INSERT INTO "Persons" ("Name", "Email", "Active")
+VALUES ('John Doe', 'john@aol.com', 1);
+INSERT INTO "Persons" ("Name", "Email", "Active")
+VALUES ('Jane Doe', 'jane@aol.com', 1);
+
+INSERT INTO "PersonItem" ("ItemId", "PersonId")
+VALUES (1, 1);
+INSERT INTO "PersonItem" ("ItemId", "PersonId")
+VALUES (2, 2);
+INSERT INTO "PersonItem" ("ItemId", "PersonId")
+VALUES (3, 2);

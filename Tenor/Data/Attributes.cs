@@ -9,6 +9,7 @@ using System.IO;
 using System.Configuration;
 using System.Data.Common;
 using Tenor.BLL;
+using Tenor.Data.Dialects;
 
 namespace Tenor.Data
 {
@@ -99,24 +100,6 @@ namespace Tenor.Data
                 }
                 return conn;
             }
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="instance"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public string GetSchemaAndTable()
-        {
-            DbCommandBuilder builder = Helper.GetCommandBuilder(this.GetConnection());
-
-            string res = builder.QuoteIdentifier(this.TableName);
-            if (!string.IsNullOrEmpty(this.Prefix))
-            {
-                res = this.Prefix + "." + res;
-            }
-
-            return res;
         }
     }
 

@@ -282,7 +282,7 @@ namespace Tenor
 				{
 					exception = true;
 					up.Data.Add("CommandText", CommandText);
-					throw (up);
+					throw;
 				}
 				finally
 				{

@@ -72,6 +72,7 @@
     <Compile Include="Data\Dialects\General\DialectFactory.cs" />
     <Compile Include="Data\Dialects\General\IDialect.cs" />
     <Compile Include="Data\Dialects\MySql\MySql.cs" />
+    <Compile Include="Data\Dialects\SQLite\SQLite.cs" />
     <Compile Include="Data\Dialects\TSql\TSql.cs" />
     <Compile Include="Data\DummyDataSource.cs" />
     <Compile Include="Data\Exceptions.cs" />

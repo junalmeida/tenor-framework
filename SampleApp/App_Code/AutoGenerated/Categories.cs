@@ -18,14 +18,15 @@ namespace SampleApp.Business.Entities
 
         #region Properties
 
-
-        private int _CategoryId;
+        // We had to put every autoincrement column as long, because SQLite only supports
+        // INTEGER AUTOINCREMENT, and INTEGER is mapped as Int64.
+        private long _CategoryId;
         /// <summary>
         /// Represents the field CategoryId.
         /// 
         /// </summary>
         [Field(PrimaryKey = true, AutoNumber = true)]
-        public int CategoryId
+        public long CategoryId
         {
             get
             {
@@ -103,7 +104,7 @@ namespace SampleApp.Business.Entities
         /// <summary>
         /// Loads Categories from the database with these keys.
         /// </summary><%
-        public Category(int pCategoryId) :
+        public Category(long pCategoryId) :
             base()
         {
             this.CategoryId = pCategoryId;

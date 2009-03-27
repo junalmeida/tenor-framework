@@ -81,22 +81,44 @@ namespace SampleApp.Business.Entities
         {
             get
             {
-                if (HasPhoto)
-                    return TenorModule.GetInstanceUrl(this.GetType(), PersonId, Tenor.Drawing.ResizeMode.Proportional, 100, 100);
+                if (HasPhoto && PersonId <= int.MaxValue)
+                    return TenorModule.GetInstanceUrl(this.GetType(), Convert.ToInt32(PersonId), Tenor.Drawing.ResizeMode.Proportional, 100, 100);
                 else
                     return null;
             }
         }
 
-        private bool hasPhoto;
+        // [SpecialField("CastToTiny(length(photo) > 0)")]
+        // In MySql it's necessary to cast a bigint to tinyint in order for it to come as a bool
+        // And, as there's no native function, we've created this one:
+        /*
+        CREATE DEFINER = 'root'@'%' FUNCTION `CastToTiny`(
+                value BIGINT
+            )
+            RETURNS tinyint(1)
+            DETERMINISTIC
+            NO SQL
+            SQL SECURITY DEFINER
+            COMMENT ''
+        BEGIN
+          RETURN value;
+        END;
+        */
 
+        // SQLite
+        // We've found no way of having the special field return any numeric type other than Int64 :(
+        long photoLength;
+        [SpecialField("ifnull(length(photo), 0)")]
+        public long PhotoLength
+        {
+            get { return photoLength; }
+            set { photoLength = value; }
+        }
 
-        [SpecialField("CastToTiny(length(photo) > 0)")]
         public bool HasPhoto
         {
-            get { return hasPhoto; }
-            set { hasPhoto = value; }
+            get { return PhotoLength > 0; }
         }
-	
+	    // End SQLite
     }
 }

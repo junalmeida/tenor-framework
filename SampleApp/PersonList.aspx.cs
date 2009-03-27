@@ -35,6 +35,7 @@ public partial class PersonList : System.Web.UI.Page
         }
         catch (ApplicationException ex)
         {
+            throw;
             Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
         }
     }

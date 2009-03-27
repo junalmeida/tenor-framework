@@ -440,7 +440,7 @@ namespace Tenor.Data.Dialects
             StringBuilder sql = new StringBuilder();
             foreach (Join join in joins)
             {
-                string tableName = join.ForeignTableInfo.Prefix + "." + CommandBuilder.QuoteIdentifier(join.ForeignTableInfo.TableName) + " " + join.JoinAlias;
+                string tableName = GetPrefixAndTable(join.ForeignTableInfo.Prefix, join.ForeignTableInfo.TableName) + " " + join.JoinAlias;
                 switch (join.JoinMode)
                 {
                     case JoinMode.InnerJoin:
@@ -498,7 +498,7 @@ namespace Tenor.Data.Dialects
             }
 
 
-            string froms = table.GetSchemaAndTable();
+            string froms = GetPrefixAndTable(table.Prefix, table.TableName);
 
             //TODO: Implement localizable searchs
 
@@ -609,14 +609,14 @@ namespace Tenor.Data.Dialects
                 parameterList.AddRange(whereParameters);
 
                 query = string.Format("UPDATE {0} SET {1} WHERE {2}",
-                    table.GetSchemaAndTable(),
+                    GetPrefixAndTable(table.Prefix, table.TableName),
                     fieldAndValues,
                     clause);
             }
             else
             {
                 query = string.Format("INSERT INTO {0} ({1}) VALUES ({2})",
-                    table.GetSchemaAndTable(),
+                    GetPrefixAndTable(table.Prefix, table.TableName),
                     fields,
                     values);
             }
@@ -702,7 +702,18 @@ namespace Tenor.Data.Dialects
 
             string clause = CreateWhereSql(conditions, baseClass, joins, out parameters, false);
 
-            return "DELETE FROM " + table.GetSchemaAndTable() + " WHERE " + clause;
+            return "DELETE FROM " + GetPrefixAndTable(table.Prefix, table.TableName) + " WHERE " + clause;
+        }
+
+        public virtual string GetPrefixAndTable(string prefix, string tableName)
+        {
+            string res = CommandBuilder.QuoteIdentifier(tableName);
+            if (!string.IsNullOrEmpty(prefix))
+            {
+                res = prefix + "." + res;
+            }
+
+            return res;
         }
 
         #endregion
