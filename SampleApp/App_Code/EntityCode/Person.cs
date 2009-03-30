@@ -88,6 +88,17 @@ namespace SampleApp.Business.Entities
             }
         }
 
+        public string PhotoUrl
+        {
+            get
+            {
+                if (HasPhoto && PersonId <= int.MaxValue)
+                    return TenorModule.GetInstanceUrl(this.GetType(), Convert.ToInt32(PersonId));
+                else
+                    return null;
+            }
+        }
+
         // [SpecialField("CastToTiny(length(photo) > 0)")]
         // In MySql it's necessary to cast a bigint to tinyint in order for it to come as a bool
         // And, as there's no native function, we've created this one:

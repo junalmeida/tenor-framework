@@ -41,6 +41,7 @@ public partial class _Person : System.Web.UI.Page
             Person p = (PersonId > 0 ? bp.LoadPerson(PersonId) : new Person());
             txtName.Text = p.Name;
             txtEmail.Text = p.Email;
+            chkActive.Checked = p.Active;
 
             foreach (PersonItem pi in p.PersonItemList)
             {
@@ -68,6 +69,8 @@ public partial class _Person : System.Web.UI.Page
             p.PersonId = PersonId;
             p.Name = txtName.Text;
             p.Email = txtEmail.Text;
+            p.Active = chkActive.Checked;
+
             if (fupPhoto.HasFile)
             {
                 p.Photo = fupPhoto.FileBytes;

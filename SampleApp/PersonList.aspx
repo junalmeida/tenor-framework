@@ -15,8 +15,11 @@
 <asp:Panel ID="pnlResults" runat="server" Visible="false">
     <asp:GridView ID="grdResults" runat="server" AutoGenerateColumns="False" Width="100%" OnRowDeleting="grdResults_RowDeleting" EmptyDataText="No items found.">
         <Columns>
-            <asp:ImageField DataImageUrlField="ThumbPhotoUrl" NullDisplayText="No Photo">
-            </asp:ImageField>
+            <asp:TemplateField>
+                <ItemTemplate>
+                    <asp:HyperLink ID="lnk" runat="server" ImageUrl='<%# Bind("ThumbPhotoUrl") %>' NavigateUrl='<%# Bind("PhotoUrl") %>' />
+                </ItemTemplate>
+            </asp:TemplateField>
             <asp:BoundField DataField="Name" HeaderText="Name" />
             <asp:BoundField DataField="Email" HeaderText="Email" />
             <asp:CheckBoxField DataField="Active" HeaderText="Active" />

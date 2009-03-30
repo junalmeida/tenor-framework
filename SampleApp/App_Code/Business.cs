@@ -40,11 +40,11 @@ public class Business
             t = new Transaction();
 
             //Calling entity's Save method. Validation is done automatically on Validate method.
-            t.AddClass(p);
+            t.Include(p);
             p.Save(p.PersonId > 0);
 
             //Persisting lists
-            t.AddClass(p.PersonItemList.ToArray());
+            t.Include(p.PersonItemList.ToArray());
             PersonItem.Delete(p.PersonItemList.ToArray());
 
             foreach (Item i in items)
@@ -52,7 +52,7 @@ public class Business
                 PersonItem pi = new PersonItem();
                 pi.Item = i;
                 pi.Person = p;
-                t.AddClass(pi);
+                t.Include(pi);
                 pi.Save(false);
             }
 
@@ -61,12 +61,12 @@ public class Business
         }
         catch (ApplicationException)
         {
-            t.Rollback();
+            if (t != null) t.Rollback();
             throw;
         }
         catch (Exception ex)
         {
-            t.Rollback();
+            if (t != null) t.Rollback();
             throw new ApplicationException("Cannot save this person.", ex);
         }
     }
@@ -108,26 +108,24 @@ public class Business
         }
     }
 
-    public void Delete(int personId)
+    public void Delete(Person person)
     {
         Transaction t = null;
         try
         {
             t = new Transaction();
-            Person p = new Person();
-            p.PersonId = personId;
-            t.AddClass(p);
-            p.Delete();
+            t.Include(person);
+            person.Delete();
             t.Commit();
         }
         catch (ApplicationException)
         {
-            t.Rollback();
+            if (t != null) t.Rollback();
             throw;
         }
         catch (Exception ex)
         {
-            t.Rollback();
+            if (t != null) t.Rollback();
             throw new ApplicationException("Cannot delete this person.", ex);
         }
     }

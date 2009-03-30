@@ -28,19 +28,19 @@ namespace Tenor.Data
         private ConnectionStringSettings connection;
 
 
-        public void AddClass(BLLBase item)
+        public void Include(BLLBase item)
         {
             if (item == null)
                 throw new ArgumentNullException("item");
             item.transaction = this;
         }
 
-        public void AddClass(IList<BLLBase> items)
+        public void Include(IList<BLLBase> items)
         {
             if (items == null)
                 throw new ArgumentNullException("items");
             foreach (BLLBase item in items)
-                AddClass(item);
+                Include(item);
         }
 
         private DbProviderFactory factory;
