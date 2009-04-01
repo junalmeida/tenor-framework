@@ -114,6 +114,16 @@ namespace SampleApp.Business.Entities
             }
         }
 
+        private MaritalStatus? maritalStatus;
+
+        [Field()]
+        public MaritalStatus? MaritalStatus
+        {
+            get { return maritalStatus; }
+            set { maritalStatus = value; }
+        }
+	
+
         /// <summary>
         /// Keeps a list of constants with property names.
         /// </summary>
@@ -127,6 +137,7 @@ namespace SampleApp.Business.Entities
             public const string Expires = "Expires";
             public const string Active = "Active";
             public const string Photo = "Photo";
+            public const string MaritalStatus = "MaritalStatus";
         }
 
 
@@ -214,5 +225,6 @@ namespace SampleApp.Business.Entities
 
         #endregion
     }
+
 }
 

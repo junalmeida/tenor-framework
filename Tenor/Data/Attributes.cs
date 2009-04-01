@@ -558,17 +558,23 @@ namespace Tenor.Data
         {
         }
 
-        public FieldAttribute(bool PrimaryKey, bool AutoNumber)
+        public FieldAttribute(string fieldName)
         {
-            _PrimaryKey = PrimaryKey;
-            _AutoNumber = AutoNumber;
+            _FieldName = fieldName;
         }
 
-        public FieldAttribute(string FieldName, bool AutoNumber, bool PrimaryKey)
+
+        public FieldAttribute(bool primaryKey, bool autoNumber)
         {
-            _FieldName = FieldName;
-            _PrimaryKey = PrimaryKey;
-            _AutoNumber = AutoNumber;
+            _PrimaryKey = primaryKey;
+            _AutoNumber = autoNumber;
+        }
+
+        public FieldAttribute(string fieldName, bool primaryKey, bool autoNumber)
+            : this(fieldName)
+        {
+            _PrimaryKey = primaryKey;
+            _AutoNumber = autoNumber;
         }
 
         private string _FieldName;

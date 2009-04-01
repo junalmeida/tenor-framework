@@ -18,6 +18,7 @@ public partial class _Person : System.Web.UI.Page
         if (!IsPostBack)
         {
             ListCategories();
+            ListMaritalStati();
             LoadPerson();
         }
     }
@@ -70,6 +71,9 @@ public partial class _Person : System.Web.UI.Page
             p.Name = txtName.Text;
             p.Email = txtEmail.Text;
             p.Active = chkActive.Checked;
+            if (!string.IsNullOrEmpty(cmbMaritalStatus.SelectedValue))
+                p.MaritalStatus = (MaritalStatus)int.Parse(cmbMaritalStatus.SelectedValue);
+
 
             if (fupPhoto.HasFile)
             {
@@ -110,6 +114,23 @@ public partial class _Person : System.Web.UI.Page
         {
             Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
         }
+    }
+
+    private void ListMaritalStati()
+    {
+        try
+        {
+            cmbMaritalStatus.DataTextField = "Value";
+            cmbMaritalStatus.DataValueField = "Key";
+            cmbMaritalStatus.DataSource = Tenor.Text.Strings.EnumToDictionary(typeof(MaritalStatus));
+            cmbMaritalStatus.DataBind();
+            cmbMaritalStatus.Items.Insert(0, new ListItem("Don't know", ""));
+        }
+        catch (ApplicationException ex)
+        {
+            Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
+        }
+
     }
 
     protected void cmbCategory_SelectedIndexChanged(object sender, EventArgs e)

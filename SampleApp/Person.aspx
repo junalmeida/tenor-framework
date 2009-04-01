@@ -25,6 +25,10 @@
         <asp:CheckBox ID="chkActive" runat="server" Text="Active?" TextAlign="Left" />
     </p>
     <p>
+        Choose the marital status:
+        <asp:DropDownList ID="cmbMaritalStatus" runat="server" />
+    </p>
+    <p>
         <asp:Label ID="lblPhoto" runat="server" Text="Photo:" />
         <asp:FileUpload ID="fupPhoto" runat="server" />
     </p>
