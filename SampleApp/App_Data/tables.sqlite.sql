@@ -18,7 +18,8 @@ CREATE TABLE "main"."Persons"
 	"Email" VARCHAR(150),
 	"Expires" DATETIME,
 	"Active" BOOLEAN NOT NULL,
-	"Photo" BLOB
+	"Photo" BLOB,
+	"MaritalStatus" INT(4)
 );
 
 CREATE TABLE "main"."Items"
