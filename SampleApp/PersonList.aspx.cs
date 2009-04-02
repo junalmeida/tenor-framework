@@ -44,7 +44,7 @@ public partial class PersonList : System.Web.UI.Page
         try
         {
             Person person = new Person();
-            person.PersonId = Convert.ToInt64(grdResults.DataKeys[e.RowIndex].Value);
+            person.PersonId = Convert.ToInt32(grdResults.DataKeys[e.RowIndex].Value);
             bp.Delete(person);
         }
         catch (ApplicationException ex)

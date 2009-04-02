@@ -19,13 +19,13 @@ namespace SampleApp.Business.Entities
         #region Properties
 
 
-        private long _ItemId;
+        private int _ItemId;
         /// <summary>
         /// Represents the field ItemId.
         /// 
         /// </summary>
         [Field(PrimaryKey = true)]
-        public long ItemId
+        public int ItemId
         {
             get
             {
@@ -38,13 +38,13 @@ namespace SampleApp.Business.Entities
         }
 
 
-        private long _PersonId;
+        private int _PersonId;
         /// <summary>
         /// Represents the field PersonId.
         /// 
         /// </summary>
         [Field(PrimaryKey = true)]
-        public long PersonId
+        public int PersonId
         {
             get
             {
@@ -135,7 +135,7 @@ namespace SampleApp.Business.Entities
         /// <summary>
         /// Loads Persons_Items from the database with these keys.
         /// </summary><%
-        public PersonItem(long pItemId, long pPersonId)
+        public PersonItem(int pItemId, int pPersonId)
             :
             base()
         {

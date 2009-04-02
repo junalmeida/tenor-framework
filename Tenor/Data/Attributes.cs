@@ -10,6 +10,7 @@ using System.Configuration;
 using System.Data.Common;
 using Tenor.BLL;
 using Tenor.Data.Dialects;
+using System.Reflection;
 
 namespace Tenor.Data
 {
@@ -166,9 +167,19 @@ namespace Tenor.Data
                 }
                 else
                 {
-                    RelatedProperty.SetValue(Instance, value, null);
+                    if (RelatedProperty.PropertyType.IsGenericType && RelatedProperty.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    {
+                        // if it's a nullable type, we need to make some stuff to convert enum types.
+                        Type[] nullType = RelatedProperty.PropertyType.GetGenericArguments();
+                        ConstructorInfo ctor = RelatedProperty.PropertyType.GetConstructor(nullType);
+                        value = ctor.Invoke(new object[] { value });
+                        RelatedProperty.SetValue(Instance, value, null);
+                    }
+                    else
+                    {
+                        RelatedProperty.SetValue(Instance, value, null);
+                    }
                 }
-
             }
             catch (Exception ex)
             {

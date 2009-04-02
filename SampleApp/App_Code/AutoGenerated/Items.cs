@@ -18,13 +18,13 @@ namespace SampleApp.Business.Entities
         #region Properties
 
 
-        private long _ItemId;
+        private int _ItemId;
         /// <summary>
         /// Represents the field ItemId.
         /// 
         /// </summary>
         [Field(PrimaryKey = true, AutoNumber = true)]
-        public long ItemId
+        public int ItemId
         {
             get
             {
@@ -139,7 +139,7 @@ namespace SampleApp.Business.Entities
         /// <summary>
         /// Loads Items from the database with these keys.
         /// </summary>
-        public Item(long pItemId)
+        public Item(int pItemId)
             :
             base()
         {

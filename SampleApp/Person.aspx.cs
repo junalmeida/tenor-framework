@@ -43,6 +43,7 @@ public partial class _Person : System.Web.UI.Page
             txtName.Text = p.Name;
             txtEmail.Text = p.Email;
             chkActive.Checked = p.Active;
+            cmbMaritalStatus.SelectedValue = (p.MaritalStatus.HasValue ? ((int)p.MaritalStatus.Value).ToString() : string.Empty);
 
             foreach (PersonItem pi in p.PersonItemList)
             {
