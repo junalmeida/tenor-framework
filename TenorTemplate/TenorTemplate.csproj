@@ -32,9 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MyMeta, Version=1.2.0.0, Culture=neutral, PublicKeyToken=647678227438c82a, processorArchitecture=x86">
+    <Reference Include="MyMeta, Version=1.3.0.0, Culture=neutral, PublicKeyToken=dbe33188b40af272, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Resources\MyMeta.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Arquivos de programas\MyGeneration13\MyMeta.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />

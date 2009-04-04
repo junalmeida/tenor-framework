@@ -58,7 +58,7 @@ $propertytomany$
         ''' <summary>
         ''' Represents the relationship $fkname$.
         ''' </summary>
-        <ForeignKey($foreign$, $local$)> _
+        <$fkheader$ForeignKey($elementtype$.Properties.$foreign$, Properties.$local$)$endfkheader$> _
         Public Readonly Property $propertyname$ As BLLCollection(Of $elementtype$)
             Get
                 Return DirectCast(GetPropertyValue(), BLLCollection(Of $elementtype$))
@@ -70,7 +70,7 @@ $propertytoone$
         ''' <summary>
         ''' Represents the relationship $fkname$.
         ''' </summary>
-        <ForeignKey($foreign$, $local$)> _
+        <$fkheader$ForeignKey($elementtype$.Properties.$foreign$, Properties.$local$)$endfkheader$> _
         Public Property $propertyname$ As $elementtype$ 
             Get
                 Return DirectCast(GetPropertyValue(), $elementtype$)

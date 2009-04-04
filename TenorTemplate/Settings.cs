@@ -62,7 +62,27 @@ namespace TenorTemplate
             set { server = value; }
         }
 
+        private string directory;
 
+        public string Directory
+        {
+            get { return directory; }
+            set { directory = value; }
+        }
+        private string baseNamespace;
+
+        public string BaseNamespace
+        {
+            get { return baseNamespace; }
+            set { baseNamespace = value; }
+        }
+        private Language language;
+
+        public Language Language
+        {
+            get { return language; }
+            set { language = value; }
+        }
 
         private static string FileName
         {

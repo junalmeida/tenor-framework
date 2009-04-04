@@ -178,13 +178,14 @@ namespace TenorTemplate
             {
                 if (myMeta != null)
                     myMeta.Dispose();
-
+                Cursor.Current = Cursors.WaitCursor;
+                Application.DoEvents();
                 myMeta = new MyMeta.dbRoot();
                 if (myMeta.Connect(((Program.DriverData)cmbProvider.SelectedItem).driver, txtConnection.Text))
                 {
                     tree.Nodes.Clear();
-                    
-                    for (int i =0; i< myMeta.Databases.Count; i++)
+
+                    for (int i = 0; i < myMeta.Databases.Count; i++)
                     {
                         IDatabase db = myMeta.Databases[i];
                         TreeNode tn = new TreeNode();
@@ -205,6 +206,11 @@ namespace TenorTemplate
             {
                 MessageBoxError("Could not load database tables and views.\r\n\r\n" + ex.Message);
                 PreviousStep();
+            }
+            finally
+            {
+                Cursor.Current = Cursors.Default;
+                Application.DoEvents();
             }
         }
 
@@ -291,11 +297,40 @@ namespace TenorTemplate
         #region Step 3 - Choose target
         private void LoadStep3()
         {
+            cmbLanguage.Items.Clear();
+            cmbLanguage.Items.Add(Language.CSharp);
+            cmbLanguage.Items.Add(Language.VBNet);
+
+            cmbLanguage.SelectedItem = Config.Language;
+            txtTargetFolder.Text = Config.Directory;
+            txtNamespace.Text = Config.BaseNamespace;
         }
 
         private bool ValidateStep3()
         {
-            return true;
+            if (cmbLanguage.SelectedIndex == -1)
+            {
+                this.MessageBoxError("Select a language.");
+                return false;
+            }
+            else if (string.IsNullOrEmpty(txtNamespace.Text))
+            {
+                this.MessageBoxError("Type a base namespace.");
+                return false;
+            }
+            else if (string.IsNullOrEmpty(txtTargetFolder.Text) || !System.IO.Directory.Exists(txtTargetFolder.Text))
+            {
+                this.MessageBoxError("Select a valid target folder.");
+                return false;
+            }
+            else
+            {
+                Config.Language = (Language)cmbLanguage.SelectedItem;
+                Config.Directory = txtTargetFolder.Text;
+                Config.BaseNamespace = txtNamespace.Text;
+                Config.Save();
+                return true;
+            }
         }
         private void btnChooseFile_Click(object sender, EventArgs e)
         {
@@ -363,6 +398,7 @@ namespace TenorTemplate
             TreeNode[] nodes = GetCheckedNodes();
             progressBar.Maximum = nodes.Length -1;
 
+            myMeta.LanguageMappingFileName = @"C:\Arquivos de programas\MyGeneration13\Settings\Languages.xml";
             Language language = (Language)cmbLanguage.SelectedIndex;
             switch (language)
             {
@@ -375,6 +411,7 @@ namespace TenorTemplate
                 default:
                     break;
             }
+
 
             for (int i = 0; i < nodes.Length; i++)
             {

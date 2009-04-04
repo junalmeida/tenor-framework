@@ -67,7 +67,7 @@ $propertytomany$
         /// <summary>
         /// Represents the relationship $fkname$.
         /// </summary>
-        [ForeignKey($foreign$, $local$)]
+        [$fkheader$ForeignKey($elementtype$.Properties.$foreign$, Properties.$local$)$endfkheader$]
         public BLLCollection<$elementtype$> $propertyname$
         {
             get
@@ -81,7 +81,7 @@ $propertytoone$
         /// <summary>
         /// Represents the relationship $fkname$.
         /// </summary>
-        [ForeignKey($foreign$, $local$)]
+        [$fkheader$ForeignKey($elementtype$.Properties.$foreign$, Properties.$local$)$endfkheader$]
         public $elementtype$ $propertyname$
         {
             get
