@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Tenor")]
 [assembly: AssemblyProduct("TenorTemplate")]
-[assembly: AssemblyCopyright("© Marcos Jr.")]
+[assembly: AssemblyCopyright("The MIT License")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

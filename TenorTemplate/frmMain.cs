@@ -27,6 +27,13 @@ namespace TenorTemplate
             LoadCurrentStep();
         }
 
+        public frmMain(MyMeta.dbRoot myMeta)
+            : this()
+        {
+            this.myMeta = myMeta;
+        }
+
+
         #region Steps
 
         private GroupBox[] steps;
@@ -176,11 +183,11 @@ namespace TenorTemplate
         {
             try
             {
-                if (myMeta != null)
-                    myMeta.Dispose();
+                if (myMeta == null)
+                    myMeta = new MyMeta.dbRoot();
+
                 Cursor.Current = Cursors.WaitCursor;
                 Application.DoEvents();
-                myMeta = new MyMeta.dbRoot();
                 if (myMeta.Connect(((Program.DriverData)cmbProvider.SelectedItem).driver, txtConnection.Text))
                 {
                     tree.Nodes.Clear();
@@ -398,7 +405,6 @@ namespace TenorTemplate
             TreeNode[] nodes = GetCheckedNodes();
             progressBar.Maximum = nodes.Length -1;
 
-            myMeta.LanguageMappingFileName = @"C:\Arquivos de programas\MyGeneration13\Settings\Languages.xml";
             Language language = (Language)cmbLanguage.SelectedIndex;
             switch (language)
             {
