@@ -22,7 +22,7 @@ public class GeneratedGui : DotNetScriptGui
 		GuiLabel lblDB = ui.AddLabel("lblDatabases", "Choose a database:", "Choose a database.");
 		GuiComboBox cmbDatabases = ui.AddComboBox("cmbDatabase", "");
 
-		GuiLabel lblTbl = ui.AddLabel("lblTables", "Desired tables:", "Choose the tables wish you want to generate classes.");
+		GuiLabel lblTbl = ui.AddLabel("lblTables", "Desired tables:", "Choose the tables from which you want to generate classes.");
 		GuiCheckBoxList cmbTables = ui.AddCheckBoxList("cmbTable", "");
 		cmbTables.Height = 200;
 		GuiButton btn = ui.AddButton("btnSelectAll", "Select all tables", "");
