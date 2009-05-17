@@ -1,0 +1,622 @@
+﻿##|TYPE Template
+##|UNIQUEID e2e7a5f3-b244-47d3-ba9b-310b58048069
+##|TITLE TenorBLL C# Version
+##|NAMESPACE 
+##|SOURCE_TYPE Source
+##|OUTPUT_LANGUAGE C#
+##|GUI_ENGINE .Net Script
+##|GUI_LANGUAGE C#
+##|GUI_BEGIN
+<%#REFERENCE System.Xml.dll %>
+<%#NAMESPACE System.Xml.Serialization, System.IO, System.Collections.Generic, System.Collections.Specialized %>
+
+public class GeneratedGui : DotNetScriptGui
+{
+	public GeneratedGui(ZeusContext context) : base(context) {}
+	
+	
+	public override void Setup()
+	{
+		StringReader reader = new StringReader(File.ReadAllText(@"C:\Documents and Settings\Win XP\Meus documentos\Visual Studio 2008\Projects\TenorFramework\Tenor\BLL\TemplateSnippets.xml"));
+		XmlSerializer serializer = new XmlSerializer(typeof(List<List<DictionaryEntry>>));
+		List<List<DictionaryEntry>> list = (List<List<DictionaryEntry>>)serializer.Deserialize(reader);
+		
+		ui.Title = "Tenor Framework - Mapping";
+		ui.Width = 500;
+		ui.Height = 600;
+		
+		GuiLabel lblDB = ui.AddLabel("lblDatabases", "Choose a database:", "Choose a database.");
+		GuiComboBox cmbDatabases = ui.AddComboBox("cmbDatabase", "");
+
+		GuiLabel lblLanguage = ui.AddLabel("lblLanguage", "Choose an output language:", "Choose an output language.");
+		GuiComboBox cmbLanguages = ui.AddComboBox("cmbLanguage", "");
+		
+		int i = 0;
+		foreach(List<DictionaryEntry> item in list)
+		{
+			cmbLanguages.Items.Add(i.ToString(), item[0].Value.ToString());
+		}
+		
+		cmbLanguages.SelectAtIndex(0);
+		
+		input["languages"] = list;
+		
+		GuiLabel lblTbl = ui.AddLabel("lblTables", "Desired tables:", "Choose the tables from which you want to generate classes.");
+		GuiCheckBoxList cmbTables = ui.AddCheckBoxList("cmbTable", "");
+		cmbTables.Height = 200;
+		GuiButton btn = ui.AddButton("btnSelectAll", "Select all tables", "");
+		btn.AttachEvent("onclick", "btn_onclick");
+		
+		GuiLabel lblNamespace = ui.AddLabel("lblNamespace", "Namespace:", "Default namespace.");
+		GuiTextBox txtNamespace = ui.AddTextBox("txtNamespace", (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Namespace",@"BLL.REES.Institucional"), "");
+
+		GuiLabel lblOutput = ui.AddLabel("lblOutput", "Target folder:", "Where do you want to save your files?");
+		GuiTextBox txtOutput = ui.AddTextBox("txtOutput", (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Folder",@"C:\Documents and Settings\Produção\Meus documentos\templates"), "");
+		GuiFilePicker btnOutputPath = ui.AddFilePicker("btnOutputPath", "Select the target folder.", "Select the target folder.", "txtOutput", true);
+
+		setupDatabaseDropdown(cmbDatabases);
+		cmbDatabases.AttachEvent("onchange", "cmbDatabases_onchange");
+		//cmbTables.AttachEvent("onchange", "cmbTables_onchange");
+		
+		ui.ShowGui = true;
+	}
+
+	public void setupDatabaseDropdown(GuiComboBox cmbDatabases)
+	{
+		try 
+		{	
+			if (MyMeta.IsConnected) 
+			{
+				cmbDatabases.BindData(MyMeta.Databases);
+				if (MyMeta.DefaultDatabase != null) 
+				{
+					cmbDatabases.SelectedValue = MyMeta.DefaultDatabase.Name;
+					try {
+						cmbDatabases.SelectedValue = (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Database",MyMeta.DefaultDatabase.Name);
+					} catch (Exception e) { }
+					bindTables(cmbDatabases.SelectedValue);
+				}
+	
+				//lblError.Text = "";
+			}
+			else
+			{
+				//lblError.Text = "Please set up your database connection in the Default Settings dialog.";
+			}
+		}
+		catch (Exception ex)
+		{
+			//lblError.Text = ex.Message;
+		}
+	}
+	
+	public void bindTables(string sDatabase)
+	{
+		string[] tabelas = ((string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Tables","")).Split(';');
+	
+		//GuiLabel lblError = ui["lblError"] as GuiLabel;
+		int count = 0;
+	
+		GuiCheckBoxList cmbTable = ui["cmbTable"] as GuiCheckBoxList;
+		
+		try 
+		{	
+			IDatabase db = MyMeta.Databases[sDatabase];
+			cmbTable.BindData(db.Tables);
+			
+			foreach(string item in tabelas) 
+			{
+				try 
+				{
+					cmbTable.Select(item);
+				} catch {}
+			}
+			//int index = cmbTable.Add("0", "(Todas)");
+			//lblError.Text = "";
+		}
+		catch (Exception ex)
+		{
+			//lblError.Text = ex.Message;
+		}
+	}
+	
+	public void cmbDatabases_onchange(GuiComboBox control)
+	{
+		GuiComboBox cmbDatabases = ui["cmbDatabase"] as GuiComboBox;
+	
+		bindTables(cmbDatabases.SelectedText);
+	}
+	public void btn_onclick(GuiButton control)
+	{
+		GuiCheckBoxList cmbTable = ui["cmbTable"] as GuiCheckBoxList;
+		cmbTable.SelectAll();
+		
+	}
+	/*
+	public void cmbTables_onchange(GuiComboBox control)
+	{
+		GuiComboBox cmbDb = ui["cmbDatabase"] as GuiComboBox;
+		GuiComboBox cmbTables = ui["cmbTable"] as GuiComboBox;
+		//GuiTextBox txtNomeClasse = ui["txtNomeClasse"] as GuiTextBox;
+		
+		ITable tbl = MyMeta.Databases[cmbDb.SelectedText].Tables[cmbTables.SelectedText];
+		//txtNomeClasse.Text = cmbTables.SelectedText;
+	}*/
+}
+##|GUI_END
+##|BODY_MODE Markup
+##|BODY_ENGINE .Net Script
+##|BODY_LANGUAGE C#
+##|BODY_TAG_START <%
+##|BODY_TAG_END %>
+##|BODY_BEGIN
+<%
+using System.Collections.Generic;
+using System.Text;
+using Microsoft.Win32;
+using System.Collections.Specialized;
+
+[Serializable()]
+public class TemplateSnippets
+{
+	public string language;
+	public string fileExtension;
+	public string classHeader;
+	public string tableDescription;
+	public string propertyLazyItem;
+	public string propertyItem;
+	public string fieldDescription;
+	public string propertiesEnum;
+	public string propertyEnumItem;
+	public string foreignKeysHeader;
+	public string metadataHeader;
+	public string emptyConstructor;
+	public string lazyConstructor;
+	public string parameter;
+	public string parameterAssign;
+	public string primaryKeysConstructor;
+	public string foreignKeyItemGet;
+	public string foreignKeyItem;
+	public string nullValue;
+	public string nullableType;
+	public string collectionType;
+	public string foreignKeyAttribute;
+	public string searchHeader;
+	public string searchBlocks;
+	public string classFooter;
+
+	public TemplateSnippets()
+	{
+	}
+
+	public string GetFieldAttributes(NameValueCollection items)
+	{
+		string returnValue = "[Field(";
+		string attributes = string.Empty;
+
+		foreach (string item in items.AllKeys)
+		{
+			string value = items[item];
+			if (item == "FieldName")
+				value = "\"" + value + "\"";
+			attributes += ", " + item + "=" + value;
+		}
+		if (items.Count > 0)
+			attributes = attributes.Substring(2);
+		return returnValue + attributes + ")]";
+	}
+}
+
+public class GeneratedTemplate : DotNetScriptTemplate
+{
+	public GeneratedTemplate(ZeusContext context) : base(context) {}
+	private string database;
+	private string outputPath;
+	private string defaultNamespace;
+	private ArrayList tables;
+	private TemplateSnippets snippets;
+	public void Initialize()
+	{
+		database = input["cmbDatabase"].ToString();
+		
+		tables = (ArrayList)input["cmbTable"];
+		this.outputPath = input["txtOutput"].ToString();
+		this.outputPath += this.outputPath.EndsWith("\\") ? "" : "\\";
+		
+		this.defaultNamespace = input["txtNamespace"].ToString();
+		
+		string parsedTables = string.Empty;
+		foreach(object item in tables) 
+		{
+			parsedTables += ";" + item.ToString();
+		}
+		Registry.CurrentUser.SetValue("BLLBase.Namespace", this.defaultNamespace);
+		Registry.CurrentUser.SetValue("BLLBase.Folder", this.outputPath);
+		Registry.CurrentUser.SetValue("BLLBase.Database", database);
+		Registry.CurrentUser.SetValue("BLLBase.Tables", parsedTables);
+		
+		List<List<DictionaryEntry>> items = (List<List<DictionaryEntry>>)input["languages"];
+		int selected = Convert.ToInt32(input["cmbLanguage"]);
+		
+		snippets = new TemplateSnippets();
+		
+		foreach(DictionaryEntry item in items[selected])
+		{
+			if (item.Key.ToString().Equals("language", StringComparison.InvariantCultureIgnoreCase)) snippets.language = item.Value.ToString();
+			else if (item.Key.ToString().Equals("fileExtension", StringComparison.InvariantCultureIgnoreCase)) snippets.fileExtension = item.Value.ToString();
+			else if (item.Key.ToString().Equals("classHeader", StringComparison.InvariantCultureIgnoreCase)) snippets.classHeader = item.Value.ToString();
+			else if (item.Key.ToString().Equals("tableDescription", StringComparison.InvariantCultureIgnoreCase)) snippets.tableDescription = item.Value.ToString();
+			else if (item.Key.ToString().Equals("propertyLazyItem", StringComparison.InvariantCultureIgnoreCase)) snippets.propertyLazyItem = item.Value.ToString();
+			else if (item.Key.ToString().Equals("propertyItem", StringComparison.InvariantCultureIgnoreCase)) snippets.propertyItem = item.Value.ToString();
+			else if (item.Key.ToString().Equals("propertiesEnum", StringComparison.InvariantCultureIgnoreCase)) snippets.propertiesEnum = item.Value.ToString();
+			else if (item.Key.ToString().Equals("fieldDescription", StringComparison.InvariantCultureIgnoreCase)) snippets.fieldDescription = item.Value.ToString();
+			else if (item.Key.ToString().Equals("propertyEnumItem", StringComparison.InvariantCultureIgnoreCase)) snippets.propertyEnumItem = item.Value.ToString();
+			else if (item.Key.ToString().Equals("foreignKeysHeader", StringComparison.InvariantCultureIgnoreCase)) snippets.foreignKeysHeader = item.Value.ToString();
+			else if (item.Key.ToString().Equals("metadataHeader", StringComparison.InvariantCultureIgnoreCase)) snippets.metadataHeader = item.Value.ToString();
+			else if (item.Key.ToString().Equals("emptyConstructor", StringComparison.InvariantCultureIgnoreCase)) snippets.emptyConstructor = item.Value.ToString();
+			else if (item.Key.ToString().Equals("lazyConstructor", StringComparison.InvariantCultureIgnoreCase)) snippets.lazyConstructor = item.Value.ToString();
+			else if (item.Key.ToString().Equals("parameter", StringComparison.InvariantCultureIgnoreCase)) snippets.parameter = item.Value.ToString();
+			else if (item.Key.ToString().Equals("parameterAssign", StringComparison.InvariantCultureIgnoreCase)) snippets.parameterAssign = item.Value.ToString();
+			else if (item.Key.ToString().Equals("primaryKeysConstructor", StringComparison.InvariantCultureIgnoreCase)) snippets.primaryKeysConstructor = item.Value.ToString();
+			else if (item.Key.ToString().Equals("foreignKeyItemGet", StringComparison.InvariantCultureIgnoreCase)) snippets.foreignKeyItemGet = item.Value.ToString();
+			else if (item.Key.ToString().Equals("foreignKeyItem", StringComparison.InvariantCultureIgnoreCase)) snippets.foreignKeyItem = item.Value.ToString();
+			else if (item.Key.ToString().Equals("nullValue", StringComparison.InvariantCultureIgnoreCase)) snippets.nullValue = item.Value.ToString();
+			else if (item.Key.ToString().Equals("nullableType", StringComparison.InvariantCultureIgnoreCase)) snippets.nullableType = item.Value.ToString();
+			else if (item.Key.ToString().Equals("collectionType", StringComparison.InvariantCultureIgnoreCase)) snippets.collectionType = item.Value.ToString();
+			else if (item.Key.ToString().Equals("foreignKeyAttribute", StringComparison.InvariantCultureIgnoreCase)) snippets.foreignKeyAttribute = item.Value.ToString();
+			else if (item.Key.ToString().Equals("searchHeader", StringComparison.InvariantCultureIgnoreCase)) snippets.searchHeader = item.Value.ToString();
+			else if (item.Key.ToString().Equals("searchBlocks", StringComparison.InvariantCultureIgnoreCase)) snippets.searchBlocks = item.Value.ToString();
+			else if (item.Key.ToString().Equals("classFooter", StringComparison.InvariantCultureIgnoreCase)) snippets.classFooter = item.Value.ToString();
+		}
+	}
+
+	public override void Render()
+	{
+		Initialize();
+
+		string fileName = "";
+		
+		foreach(string tableName in this.tables)
+		{
+			ITable table = MyMeta.Databases[this.database].Tables[tableName];
+			if (table != null)
+			{
+				string currentNamespace = this.defaultNamespace;
+				string folderName = string.Empty;
+				if (!string.IsNullOrEmpty(table.Schema) && table.Schema != "dbo") //For Microsoft SQL Server 
+				{
+					folderName = table.Schema;
+					currentNamespace += "." + folderName;
+				}
+				
+				fileName = table.Name + snippets.fileExtension;
+
+				CreateClass(folderName, fileName, currentNamespace, table);
+			}
+		}
+		
+		try 
+		{
+			System.Diagnostics.Process.Start(Environment.ExpandEnvironmentVariables("%SystemRoot%") + "\\explorer.exe", "\"" + this.outputPath + "\"");
+		} catch { }
+	}
+	
+	
+	public string ToPlural(string texto) {
+		List<string> l = new List<string>();
+		foreach (char i in texto) {
+			if (char.IsUpper(i)) {
+				l.Add(i.ToString());
+			} else {
+				if (l.Count == 0)
+					l.Add(i.ToString());
+				else
+					l[l.Count-1] += i.ToString();
+			}
+		}
+		for(int i=0;i<l.Count;i++) {
+			if (l[i].Substring(l[i].Length-1) == "m") {
+				l[i] = l[i].Substring(0,l[i].Length-1) + "ns";
+			} else if (l[i].Substring(l[i].Length-1) == "r") {
+				l[i] = l[i] + "es";
+			} else {
+				l[i] = l[i] + "s";
+			}
+		}
+		return string.Join("", l.ToArray());
+	}
+
+
+	public void CreateClass(string folderName, string fileName, string currentNamespace, ITable table)
+	{
+		output.clear();
+
+		string classHeader = snippets.classHeader;
+		classHeader = classHeader.Replace("{className}", table.Name);
+		classHeader = classHeader.Replace("{namespace}", currentNamespace);
+		classHeader = classHeader.Replace("{tableSchema}", table.Schema);
+		classHeader = classHeader.Replace("{tableName}", table.Name);
+		
+		string description = string.Empty;
+		if(!string.IsNullOrEmpty(table.Description))
+			description = snippets.tableDescription.Replace("{description}", table.Description);
+		
+		classHeader = classHeader.Replace("{description}", description);
+
+		output.writeln(classHeader);
+
+
+		StringBuilder defaults = new StringBuilder();
+		StringBuilder constCampos = new StringBuilder();
+		foreach (IColumn col in table.Columns)
+		{
+
+			NameValueCollection attributes = new NameValueCollection();
+
+			string fieldName = col.Name;
+
+			bool changeName = false;
+			foreach (IForeignKey fk in table.ForeignKeys)
+			{
+				string fkFieldName = string.Empty;
+				if (fk.ForeignTable.Equals(table))
+					fkFieldName = fk.PrimaryTable.Name;
+				else if (fk.PrimaryTable.Equals(table))
+					fkFieldName = fk.ForeignTable.Name;
+
+				if (string.Equals(fieldName, fkFieldName))
+					changeName = true;
+			}
+
+
+			if (changeName || fieldName.ToLower().Equals(table.Name.ToLower()))
+			{
+				fieldName = "Field" + fieldName;
+				attributes.Add("FieldName", fieldName);
+			}
+			string tipoCampo = col.LanguageType;
+			if (col.IsNullable && !col.LanguageType.ToLower().Equals("string") && !col.LanguageType.ToLower().Contains("[]"))
+			{
+				tipoCampo = snippets.nullableType.Replace("{typeName}", tipoCampo);
+			}
+			if (col.IsInPrimaryKey)
+			{
+				attributes.Add("PrimaryKey", "true");
+			}
+			if (col.IsAutoKey)
+			{
+				attributes.Add("AutoNumber", "true");
+			}
+
+			string constField = snippets.propertyEnumItem;
+			constField = constField.Replace("{propertyName}", fieldName);
+			constCampos.AppendLine(constField);
+
+			bool dolazyload = false;
+			if (col.LanguageType.ToLower() == "byte[]")
+			{
+				attributes.Add("LazyLoading", "true");
+				dolazyload = true;
+			}
+
+			string fieldAttributes = snippets.GetFieldAttributes(attributes);
+			/*
+			// ----- Valor Padrão do Banco -----
+			
+				
+			if (!string.IsNullOrEmpty(col.Default)) {
+				string valor = col.Default;
+				switch (col.LanguageType) {
+					case "DateTime":
+						if (valor.ToLower().Contains("getdate()")) {
+							valor = nomeCampo + " = DateTime.Now();";
+						} else {
+							valor = nomeCampo + " = DateTime.Parse(" + valor + ");";
+						}
+					break;
+					case "string":
+						if (valor.StartsWith("N'")) {
+							valor = nomeCampo + " = \"" + valor.Substring(2, valor.Length - 5).Replace("''", "'") +  "\";";
+						} else if (valor.StartsWith("(N'")) {
+							valor = nomeCampo + " = \"" + valor.Substring(3, valor.Length - 6).Replace("''", "'") +  "\";";
+						} else if (valor.StartsWith("'")) {
+							valor = nomeCampo + " = \"" + valor.Substring(1, valor.Length - 4).Replace("''", "'") +  "\";";
+						} else {
+							valor = nomeCampo + " = " + valor.Replace("'","\"").Replace("\"\"", "'") + ";";
+						}
+						
+			
+								
+					break;
+					default:
+						valor = nomeCampo + " = " + valor + ";";
+					break;
+				}
+			
+				
+				defaults.AppendLine("			" + valor);
+			}
+			*/
+
+			// ---------------------------------
+
+			string propertyItem = snippets.propertyItem;
+			if (dolazyload)
+				propertyItem = snippets.propertyLazyItem;
+				
+			propertyItem = propertyItem.Replace("{fieldAttributes}", fieldAttributes);
+			propertyItem = propertyItem.Replace("{fieldName}", col.Name);
+			
+			description = string.Empty;
+			if(!string.IsNullOrEmpty(col.Description))
+				description = snippets.fieldDescription.Replace("{description}", col.Description);
+
+			propertyItem = propertyItem.Replace("{description}", description);
+			
+			propertyItem = propertyItem.Replace("{returnType}", tipoCampo);
+			propertyItem = propertyItem.Replace("{propertyName}", fieldName);
+			string validationCode = string.Empty;//To be implemented, insert correct tabs after validation code
+			propertyItem = propertyItem.Replace("{validationCode}", validationCode);
+
+			output.writeln(propertyItem);
+		}
+
+		string propertiesEnum = snippets.propertiesEnum;
+		propertiesEnum = propertiesEnum.Replace("{propertyList}", constCampos.ToString());
+
+		output.writeln(propertiesEnum);
+		output.writeln(snippets.foreignKeysHeader);
+
+		foreach (IForeignKey fk in table.ForeignKeys)
+		{
+
+			string fkNamespace = "";
+
+			bool toOne = false;
+			string propName = "";
+			string returnType = "";
+
+			string propAttributes = "";
+			bool readOnly = false;
+
+
+			if (fk.ForeignTable.Equals(table))
+			{
+				toOne = true;
+				propName = fk.PrimaryTable.Name;
+				fkNamespace = fk.PrimaryTable.Schema;
+				if (fkNamespace != "" && fkNamespace != "dbo" && fkNamespace != table.Schema)
+					fkNamespace = fkNamespace + ".";
+				else
+					fkNamespace = "";
+				returnType = fkNamespace + fk.PrimaryTable.Name;
+
+				// FIX ME: The items below must be property names.
+				for (int i = 0; i < fk.ForeignColumns.Count; i++)
+				{
+					string item = snippets.foreignKeyAttribute;
+					item = item.Replace("{typeName}", returnType);
+					item = item.Replace("{foreignName}", fk.PrimaryColumns[i].Name);
+					item = item.Replace("{localName}", fk.ForeignColumns[i].Name);
+					propAttributes += item;
+				}
+				readOnly = false;
+			}
+			else if (fk.PrimaryTable.Equals(table) && fk.ForeignTable.PrimaryKeys.Count == 1 && fk.PrimaryColumns.Count == 1 && fk.ForeignColumns[0].IsInPrimaryKey)
+			{
+
+				toOne = true;
+				propName = fk.ForeignTable.Name;
+				fkNamespace = fk.ForeignTable.Schema;
+				if (fkNamespace != "" && fkNamespace != "dbo" && fkNamespace != table.Schema)
+					fkNamespace = fkNamespace + ".";
+				else
+					fkNamespace = "";
+				returnType = fkNamespace + fk.ForeignTable.Name;
+
+				// FIX ME: The items below must be property names.
+				for (int i = 0; i < fk.ForeignColumns.Count; i++)
+				{
+					string item = snippets.foreignKeyAttribute;
+					item = item.Replace("{typeName}", returnType);
+					item = item.Replace("{foreignName}", fk.ForeignColumns[i].Name);
+					item = item.Replace("{localName}", fk.PrimaryColumns[i].Name);
+					propAttributes += item;
+				}
+				readOnly = false;
+			}
+			else if (fk.PrimaryTable.Equals(table))
+			{
+				toOne = false;
+				propName = ToPlural(fk.ForeignTable.Name);
+				fkNamespace = fk.ForeignTable.Schema;
+				if (fkNamespace != "" && fkNamespace != "dbo" && fkNamespace != table.Schema)
+					fkNamespace = fkNamespace + ".";
+				else
+					fkNamespace = "";
+
+				string collectionType = fkNamespace + fk.ForeignTable.Name;
+				returnType = snippets.collectionType;
+				returnType = returnType.Replace("{typeName}", collectionType);
+
+				// FIX ME: The items below must be property names.
+				for (int i = 0; i < fk.ForeignColumns.Count; i++)
+				{
+					string item = snippets.foreignKeyAttribute;
+					item = item.Replace("{typeName}", collectionType);
+					item = item.Replace("{foreignName}", fk.ForeignColumns[i].Name);
+					item = item.Replace("{localName}", fk.PrimaryColumns[i].Name);
+					propAttributes += item;
+				}
+				readOnly = true;
+			}
+
+			string fkProperty = (readOnly ? snippets.foreignKeyItemGet : snippets.foreignKeyItem);
+
+			fkProperty = fkProperty.Replace("{relationshipName}", fk.Name);
+			fkProperty = fkProperty.Replace("{propertyAttributes}", propAttributes);
+			fkProperty = fkProperty.Replace("{propertyName}", propName);
+			fkProperty = fkProperty.Replace("{returnType}", returnType);
+			fkProperty = fkProperty.Replace("{foreignProperty}", returnType);
+			fkProperty = fkProperty.Replace("{nullValue}", snippets.nullValue);
+
+			output.writeln(fkProperty);
+		}
+		output.writeln(snippets.metadataHeader);
+		string ctor = snippets.emptyConstructor;
+		ctor = ctor.Replace("{className}", table.Name);
+		output.writeln(ctor);
+
+		ctor = snippets.lazyConstructor;
+		ctor = ctor.Replace("{className}", table.Name);
+		output.writeln(ctor);
+
+
+		string ctorParams = string.Empty;
+		string ctorAssigns = string.Empty;
+		foreach (IColumn col in table.PrimaryKeys)
+		{
+			ctorParams += snippets.parameter.Replace("{type}", col.LanguageType).Replace("{name}", col.Name);
+			if(ctorAssigns.Length > 0) ctorAssigns += Environment.NewLine;
+			ctorAssigns += snippets.parameterAssign.Replace("{propertyName}", col.Name);
+		}
+		ctorParams = ctorParams.Substring(2);
+		ctor = snippets.primaryKeysConstructor;
+		ctor = ctor.Replace("{className}", table.Name);
+		ctor = ctor.Replace("{parameters}", ctorParams);
+		ctor = ctor.Replace("{initialization}", ctorAssigns);
+		output.writeln(ctor);
+
+		output.writeln(snippets.searchHeader);
+		string searchBlocks = snippets.searchBlocks;
+		searchBlocks = searchBlocks.Replace("{className}", table.Name);
+		output.writeln(searchBlocks);
+		output.writeln(snippets.classFooter);
+
+		this.Save(folderName, fileName);
+
+	}
+
+	public void Save(string folderName, string fileName)
+	{
+		this.Save(folderName, fileName, true);
+	}
+	
+	public void Save(string folderName, string fileName, bool utf)
+	{
+		string encoding = "utf8";
+		if(!utf)
+			encoding = "ascii";
+		
+		if (!string.IsNullOrEmpty(folderName)) {
+			output.saveEnc(this.outputPath + folderName + "\\AutoGenerated\\" + fileName, "o", encoding);
+		} else {
+			output.saveEnc(this.outputPath + "AutoGenerated\\" + fileName, "o", encoding);
+		}
+		output.clear();
+	}
+
+}
+
+%>
+##|BODY_END
