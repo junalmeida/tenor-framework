@@ -65,6 +65,13 @@ namespace Tenor.Data.Dialects.TSql
         {
             get { return true; }
         }
-
+        public override LimitType LimitAt
+        {
+            get { return LimitType.Start; }
+        }
+        public override string CreateLimit(int limitValue)
+        {
+            return "TOP " + limitValue.ToString();
+        }
     }
 }

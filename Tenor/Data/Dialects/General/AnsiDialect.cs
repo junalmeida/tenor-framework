@@ -49,6 +49,16 @@ namespace Tenor.Data.Dialects
             get;
         }
 
+        public abstract LimitType LimitAt
+        {
+            get;
+        }
+
+        public enum LimitType
+        {
+            Start, WhereClause, End
+        }
+        public abstract string CreateLimit(int limitValue);
 
         protected virtual string GetOperator(LogicalOperator logicalOperator)
         {
@@ -486,9 +496,9 @@ namespace Tenor.Data.Dialects
                 {
                     sql.Append("DISTINCT ");
                 }
-                if (limit > 0)
+                if (limit > 0 && LimitAt == LimitType.Start)
                 {
-                    sql.Append(" TOP " + limit.ToString() + " ");
+                    sql.Append(CreateLimit(limit) + " ");
                 }
                 sql.AppendLine(fieldsPart);
             }
@@ -524,11 +534,29 @@ namespace Tenor.Data.Dialects
                 sql.Append(" WHERE ");
                 sql.AppendLine(wherePart);
             }
+            if (limit > 0 && LimitAt == LimitType.WhereClause)
+            {
+                if (string.IsNullOrEmpty(wherePart))
+                {
+                    sql.Append(" WHERE ");
+                }
+                else
+                {
+                    sql.Append(" AND ");
+                }
+                sql.AppendLine(" " + CreateLimit(limit) + " ");
+            }
+
 
             if (!string.IsNullOrEmpty(sortPart))
             {
                 sql.Append(" ORDER BY ");
                 sql.AppendLine(sortPart.ToString());
+            }
+
+            if (limit > 0 && LimitAt == LimitType.End)
+            {
+                sql.Append(" " + CreateLimit(limit));
             }
 
             return sql.ToString();

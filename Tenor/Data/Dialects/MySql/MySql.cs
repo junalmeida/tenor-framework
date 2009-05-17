@@ -59,5 +59,16 @@ namespace Tenor.Data.Dialects.MySql
         {
             throw new NotImplementedException();
         }
+
+        public override LimitType LimitAt
+        {
+            get { return LimitType.End; }
+        }
+
+        public override string CreateLimit(int limitValue)
+        {
+            return "LIMIT " + limitValue.ToString();
+        }
     }
+    
 }

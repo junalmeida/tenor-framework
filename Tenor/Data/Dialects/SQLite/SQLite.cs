@@ -63,5 +63,15 @@ namespace Tenor.Data.Dialects.SQLite
         {
             throw new NotImplementedException();
         }
+
+        public override LimitType LimitAt
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public override string CreateLimit(int limitValue)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
