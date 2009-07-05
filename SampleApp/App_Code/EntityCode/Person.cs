@@ -118,8 +118,14 @@ namespace SampleApp.Business.Entities
 
         // SQLite
         // We've found no way of having the special field return any numeric type other than Int64 :(
+        //[SpecialField("ifnull(length(photo), 0)")]
+	    // End SQLite
+
+        // SQL Server
+        //[SpecialField("isnull(len(photo), 0)")]
+
         long photoLength;
-        [SpecialField("ifnull(length(photo), 0)")]
+        [SpecialField("isnull(len(photo), 0)")]
         public long PhotoLength
         {
             get { return photoLength; }
@@ -130,6 +136,5 @@ namespace SampleApp.Business.Entities
         {
             get { return PhotoLength > 0; }
         }
-	    // End SQLite
     }
 }
