@@ -34,6 +34,11 @@ namespace Tenor.Data.Dialects
             get;
         }
 
+        string LineEnding
+        {
+            get;
+        }
+
         bool GetIdentityOnSameCommand
         {
             get;

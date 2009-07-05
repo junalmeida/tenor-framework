@@ -16,13 +16,13 @@ namespace SampleApp.Business.Entities
         #region Properties
 
 
-        private int _PersonId;
+        private long _PersonId;
         /// <summary>
         /// Represents the field PersonId.
         /// 
         /// </summary>
         [Field(PrimaryKey = true, AutoNumber = true)]
-        public int PersonId
+        public long PersonId
         {
             get
             {
@@ -175,7 +175,7 @@ namespace SampleApp.Business.Entities
         /// <summary>
         /// Loads Persons from the database with these keys.
         /// </summary><%
-        public Person(int pPersonId)
+        public Person(long pPersonId)
             :
             base()
         {

@@ -38,6 +38,7 @@ namespace Tenor.Data.Dialects
             dialects.Add("System.Data.SqlClient", typeof(TSql.TSql));
             dialects.Add("MySql.Data.MySqlClient", typeof(MySql.MySql));
             dialects.Add("System.Data.SQLite", typeof(SQLite.SQLite));
+            dialects.Add("System.Data.OracleClient", typeof(Oracle.Oracle));
             return dialects;
         }
 

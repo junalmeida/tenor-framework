@@ -45,6 +45,10 @@ namespace Tenor.Data.Dialects.TSql
             get { return "@"; }
         }
 
+        public override string LineEnding
+        {
+            get { return null; }
+        }
 
         protected override string GetContainsInFlagsExpression(string field, string parameterName)
         {
@@ -52,6 +56,11 @@ namespace Tenor.Data.Dialects.TSql
         }
 
         public override string IdentityBeforeQuery
+        {
+            get { return null; }
+        }
+
+        public override string IdentityDuringQuery
         {
             get { return null; }
         }

@@ -261,24 +261,39 @@ namespace Tenor.Data
         }
 
         /// <summary>
-        /// Executes a query on your database.
+        /// Executes a query on the database.
         /// </summary>
         /// <param name="sql">SQL query</param>
         /// <param name="parametros">Parameters</param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public static int ExecuteQuery(string sql, TenorParameter[] parameters)
+        public static object ExecuteQuery(string sql, TenorParameter[] parameters)
         {
             return ExecuteQuery(sql, parameters, null);
         }
+
         /// <summary>
-        /// Executes a query on your database.
+        /// Executes a query on the database.
         /// </summary>
         /// <param name="sql">SQL query</param>
-        /// <param name="parametros">Parameters</param>
+        /// <param name="parameters">Parameters</param>
+        /// <param name="connection">Connection</param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public static int ExecuteQuery(string sql, TenorParameter[] parameters, ConnectionStringSettings connection)
+        public static object ExecuteQuery(string sql, TenorParameter[] parameters, ConnectionStringSettings connection)
+        {
+            return ExecuteQuery(sql, parameters, connection, (string)null);
+        }
+
+        /// <summary>
+        /// Executes a query on the database.
+        /// </summary>
+        /// <param name="sql">SQL query</param>
+        /// <param name="parameters">Parameters</param>
+        /// <param name="connection">Connection</param>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public static object ExecuteQuery(string sql, TenorParameter[] parameters, ConnectionStringSettings connection, string secondSql)
         {
             if (connection == null)
                 connection = BLL.BLLBase.SystemConnection;
@@ -292,13 +307,17 @@ namespace Tenor.Data
             {
                 conn.Open();
                 transaction = conn.BeginTransaction();
-                int retVal = ExecuteQuery(sql, parameters, transaction, dialect);
+                object retVal = ExecuteQuery(sql, parameters, transaction, dialect);
+                if (!string.IsNullOrEmpty(secondSql))
+                {
+                    retVal = ExecuteQuery(secondSql, null, transaction, dialect);
+                }
                 transaction.Commit();
                 return retVal;
             }
             catch
             {
-                transaction.Rollback();
+                if (transaction != null) transaction.Rollback();
                 throw;
             }
             finally
@@ -309,21 +328,20 @@ namespace Tenor.Data
                 }
                 conn.Dispose();
             }
-
         }
 
-        internal static int ExecuteQuery(string sql, TenorParameter[] parameters, DbTransaction transaction, IDialect dialect)
+        internal static object ExecuteQuery(string sql, TenorParameter[] parameters, DbTransaction transaction, IDialect dialect)
         {
-
             DbConnection conn = transaction.Connection;
             DbCommand cmd;
 
-            int returnValue = -99;
+            object returnValue = 0;
 
             cmd = conn.CreateCommand();
             cmd.Transaction = transaction;
             cmd.CommandText = sql;
             cmd.CommandTimeout = Helper.DefaultTimeout;
+            
             if (parameters != null)
             {
                 foreach (TenorParameter param in parameters)
@@ -332,13 +350,10 @@ namespace Tenor.Data
                 }
             }
 
-
-
             try
             {
                 if (System.Diagnostics.Debugger.IsAttached)
                 {
-
                     System.Text.StringBuilder traceInfo = new System.Text.StringBuilder();
                     traceInfo.AppendLine("Tenor.Data.Helper.ExecuteQuery()");
                     traceInfo.AppendLine(" > " + conn.ConnectionString);
@@ -371,7 +386,6 @@ namespace Tenor.Data
                     traceInfo.AppendLine("---------------------");
 
                     System.Diagnostics.Trace.TraceInformation(traceInfo.ToString());
-
                 }
             }
             catch (Exception ex)
@@ -379,18 +393,13 @@ namespace Tenor.Data
                 Diagnostics.Debug.HandleError(ex);
             }
 
-
-
-            if (dialect != null && (!string.IsNullOrEmpty(dialect.IdentityBeforeQuery) || !string.IsNullOrEmpty(dialect.IdentityAfterQuery)) && dialect.GetIdentityOnSameCommand)
+            object result = cmd.ExecuteScalar();
+            if (result != null && !result.Equals(DBNull.Value))
             {
-                cmd.CommandText = string.Format("{0}{3}{1}{3}{2}", dialect.IdentityBeforeQuery, cmd.CommandText, dialect.IdentityAfterQuery, Environment.NewLine);
-                object result = cmd.ExecuteScalar();
-                if (!result.Equals(DBNull.Value))
-                {
-                    returnValue = Convert.ToInt32(result);
-                }
+                returnValue = result;
             }
-            else if (dialect != null && (!string.IsNullOrEmpty(dialect.IdentityBeforeQuery) || !string.IsNullOrEmpty(dialect.IdentityAfterQuery)) && !dialect.GetIdentityOnSameCommand)
+
+            /*else if (dialect != null && (!string.IsNullOrEmpty(dialect.IdentityBeforeQuery) || !string.IsNullOrEmpty(dialect.IdentityAfterQuery)) && !dialect.GetIdentityOnSameCommand)
             {
                 string currentQuery = cmd.CommandText;
                 cmd.CommandText = dialect.IdentityBeforeQuery;
@@ -406,7 +415,7 @@ namespace Tenor.Data
             else
             {
                 returnValue = cmd.ExecuteNonQuery();
-            }
+            }*/
 
             /*
             if (sql.Trim().StartsWith("INSERT INTO", StringComparison.CurrentCultureIgnoreCase))

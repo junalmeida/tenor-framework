@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Text;
 using System.Data.Common;
 
-namespace Tenor.Data.Dialects.MySql
+namespace Tenor.Data.Dialects.Oracle
 {
-    public class MySql : GeneralDialect, IDialect
+    public class Oracle : GeneralDialect, IDialect
     {
         private DbProviderFactory factory;
-        public override System.Data.Common.DbProviderFactory Factory
+        public override DbProviderFactory Factory
         {
             get
             {
@@ -20,29 +20,33 @@ namespace Tenor.Data.Dialects.MySql
 
 
         private DbCommandBuilder builder;
-        protected override System.Data.Common.DbCommandBuilder CommandBuilder
+        protected override DbCommandBuilder CommandBuilder
         {
             get
             {
                 if (builder == null)
+                {
                     builder = this.Factory.CreateCommandBuilder();
+                    //builder.QuotePrefix = "\"";
+                    //builder.QuoteSuffix = "\"";
+                }
                 return builder;
             }
         }
 
         public override string ProviderInvariantName
         {
-            get { return "MySql.Data.MySqlClient"; }
+            get { return "System.Data.OracleClient"; }
         }
 
         protected override string ParameterIdentifier
         {
-            get { return "@"; }
+            get { return ":"; }
         }
 
         public override string LineEnding
         {
-            get { return ";"; }
+            get { return null; }
         }
 
         public override string IdentityBeforeQuery
@@ -52,17 +56,17 @@ namespace Tenor.Data.Dialects.MySql
 
         public override string IdentityDuringQuery
         {
-            get { return null; }
+            get { return "\"{0}\".NEXTVAL"; }
         }
 
         public override string IdentityAfterQuery
         {
-            get { return "SELECT LAST_INSERT_ID()"; }
+            get { return "SELECT \"{0}\".CURRVAL FROM DUAL"; }
         }
 
         public override bool GetIdentityOnSameCommand
         {
-            get { return true; }
+            get { return false; }
         }
 
         protected override string GetContainsInFlagsExpression(string field, string parameterName)
@@ -72,13 +76,12 @@ namespace Tenor.Data.Dialects.MySql
 
         public override LimitType LimitAt
         {
-            get { return LimitType.End; }
+            get { throw new NotImplementedException(); }
         }
 
         public override string CreateLimit(int limitValue)
         {
-            return "LIMIT " + limitValue.ToString();
+            throw new NotImplementedException();
         }
     }
-    
 }

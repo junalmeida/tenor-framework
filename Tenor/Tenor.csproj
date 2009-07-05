@@ -72,6 +72,7 @@
     <Compile Include="Data\Dialects\General\DialectFactory.cs" />
     <Compile Include="Data\Dialects\General\IDialect.cs" />
     <Compile Include="Data\Dialects\MySql\MySql.cs" />
+    <Compile Include="Data\Dialects\Oracle\Oracle.cs" />
     <Compile Include="Data\Dialects\SQLite\SQLite.cs" />
     <Compile Include="Data\Dialects\TSql\TSql.cs" />
     <Compile Include="Data\DummyDataSource.cs" />
@@ -118,12 +119,16 @@
     <Compile Include="Web\UI\MailingPanel\MailingViews.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="BLL\BLLBased-beta.zeus" />
     <None Include="BLL\BLLBased-CS.zeus" />
     <None Include="BLL\BLLBased.zeus" />
     <None Include="tenor.snk" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Web\mime.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="BLL\TemplateSnippets.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

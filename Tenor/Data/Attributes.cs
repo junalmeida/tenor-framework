@@ -58,7 +58,6 @@ namespace Tenor.Data
             }
         }
 
-
         public string TableName
         {
             get
@@ -346,6 +345,8 @@ namespace Tenor.Data
 
     internal sealed class FieldInfo : PropInfo
     {
+        
+        private FieldAttribute _Attribute;
 
         private FieldInfo()
         {
@@ -371,9 +372,6 @@ namespace Tenor.Data
 
             return fi;
         }
-        private FieldAttribute _Attribute;
-
-
 
         public Type FieldType
         {
@@ -396,6 +394,14 @@ namespace Tenor.Data
             get
             {
                 return _Attribute.AutoNumber;
+            }
+        }
+
+        public string InsertSQL
+        {
+            get
+            {
+                return _Attribute.InsertSQL;
             }
         }
 
@@ -422,8 +428,6 @@ namespace Tenor.Data
             }
         }
 
-
-
         public string ParamName
         {
             get
@@ -431,7 +435,6 @@ namespace Tenor.Data
                 return DataFieldName.ToLower().Replace(" ", "_");
             }
         }
-
     }
 
     internal sealed class SpecialFieldInfo : PropInfo
@@ -661,23 +664,21 @@ namespace Tenor.Data
             }
         }
 
-        private string defaultValue;
+        private string _InsertSQL;
         /// <summary>
-        /// Sets the SQL instruction to run on insert commands.
-        /// Generally used to get a sequence value when this is not autmatic on your sgdb.
+        /// Used to set a sequence name used during an insert
         /// </summary>
         public string InsertSQL
         {
             get
             {
-                return defaultValue;
+                return _InsertSQL;
             }
             set
             {
-                defaultValue = value;
+                _InsertSQL = value;
             }
         }
-
     }
 
     /// <summary>

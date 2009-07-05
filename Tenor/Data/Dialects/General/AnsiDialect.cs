@@ -33,8 +33,17 @@ namespace Tenor.Data.Dialects
             get;
         }
 
+        public abstract string LineEnding
+        {
+            get;
+        }
 
         public abstract string IdentityBeforeQuery
+        {
+            get;
+        }
+
+        public abstract string IdentityDuringQuery
         {
             get;
         }
@@ -525,7 +534,7 @@ namespace Tenor.Data.Dialects
             //    sqlWHERE += "IetfLanguageTag = \'" + CultureInfo.CurrentCulture.IetfLanguageTag + "\'";
             //}
 
-            froms += " AS " + baseAlias;
+            froms += " " + baseAlias;
             sql.AppendLine(" FROM " + froms);
             sql.AppendLine(joinsPart);
 
@@ -559,6 +568,8 @@ namespace Tenor.Data.Dialects
                 sql.Append(" " + CreateLimit(limit));
             }
 
+            //sql.Append(LineEnding);
+
             return sql.ToString();
 
         }
@@ -570,32 +581,38 @@ namespace Tenor.Data.Dialects
             StringBuilder values = new StringBuilder();
             StringBuilder fieldAndValues = new StringBuilder();
             string alias = CreateClassAlias(baseClass);
+            bool update = conditions != null && conditions.Count > 0;
 
             foreach (FieldInfo field in data.Keys)
             {
                 string paramName = field.DataFieldName;
-                if (field.AutoNumber && string.IsNullOrEmpty(this.IdentityBeforeQuery))
+                
+                // does nothing in case it's autonumber and doesn't get identity during query
+                if (field.AutoNumber && string.IsNullOrEmpty(this.IdentityDuringQuery))
                     continue;
-                else if (field.AutoNumber)
-                    paramName = "identity";
 
                 TenorParameter param = new TenorParameter(this.ParameterIdentifier + paramName, data[field]);
 
-                if ((field.AutoNumber && !this.GetIdentityOnSameCommand) ||
-                    !field.AutoNumber
-                    )
+                if ((field.AutoNumber && !this.GetIdentityOnSameCommand) || !field.AutoNumber)
                     parameterList.Add(param);
 
                 fields.Append(", ");
                 fields.Append(CommandBuilder.QuoteIdentifier(field.DataFieldName));
 
-
                 values.Append(", ");
 
                 if (specialValues == null || string.IsNullOrEmpty(specialValues[paramName]))
                 {
-                    // The parameter as is.
-                    values.Append(param.ParameterName);
+                    if (field.AutoNumber && !update)
+                    {
+                        // adds the identity setter
+                        values.Append(string.Format(this.IdentityDuringQuery, field.InsertSQL));
+                    }
+                    else
+                    {
+                        // The parameter as is.
+                        values.Append(param.ParameterName);
+                    }
                 }
                 else
                 {
@@ -603,22 +620,23 @@ namespace Tenor.Data.Dialects
                     values.Append(specialValues[paramName]);
                 }
 
-
-                fieldAndValues.Append(", ");
-                fieldAndValues.Append(CommandBuilder.QuoteIdentifier(field.DataFieldName) + " = ");
-                if (specialValues == null || string.IsNullOrEmpty(specialValues[paramName]))
+                if (!field.AutoNumber)
                 {
-                    // The parameter as is.
-                    fieldAndValues.Append(param.ParameterName);
+                    fieldAndValues.Append(", ");
+                    fieldAndValues.Append(CommandBuilder.QuoteIdentifier(field.DataFieldName) + " = ");
+                    if (specialValues == null || string.IsNullOrEmpty(specialValues[paramName]))
+                    {
+                        // The parameter as is.
+                        fieldAndValues.Append(param.ParameterName);
+                    }
+                    else
+                    {
+                        //Replaced by a SQL statement
+                        fieldAndValues.Append(specialValues[paramName]);
+                    }
                 }
-                else
-                {
-                    //Replaced by a SQL statement
-                    fieldAndValues.Append(specialValues[paramName]);
-                }
-
-
             }
+
             if (fieldAndValues.Length > 0)
                 fieldAndValues = fieldAndValues.Remove(0, 2);
             if (fields.Length > 0)
@@ -630,7 +648,7 @@ namespace Tenor.Data.Dialects
             TableInfo table = TableInfo.CreateTableInfo(baseClass);
 
             string query = null;
-            if (conditions != null && conditions.Count > 0)
+            if (update)
             {
                 TenorParameter[] whereParameters = null;
                 string clause = CreateWhereSql(conditions, baseClass, null, out whereParameters, false);

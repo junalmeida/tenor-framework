@@ -54,8 +54,6 @@ namespace Tenor.BLL
         #region " Search "
 
 
-
-
         /// <summary>
         /// Faz uma consulta especial e retorna uma coleção de objetos
         /// </summary>
@@ -101,7 +99,6 @@ namespace Tenor.BLL
                 connection = table.GetConnection();
             }
 
-            
             
             //Read Joins
 
@@ -303,8 +300,29 @@ namespace Tenor.BLL
                     data.Add(fieldInfos[i], fieldInfos[i].PropertyValue(this));
                 }
             }
-            string sql = dialect.CreateSaveSql(this.GetType(), data, specialValues, conditions, out parameters);
 
+            string sql = dialect.CreateSaveSql(this.GetType(), data, specialValues, conditions, out parameters) + dialect.LineEnding;
+            
+            if (dialect.GetIdentityOnSameCommand && !isUpdate && autoKeyField != null)
+            {
+                string queryFormat = @"{0}
+{1}
+{2}";
+
+                string before = string.Empty;
+                if (!string.IsNullOrEmpty(dialect.IdentityBeforeQuery))
+                {
+                    before = dialect.IdentityBeforeQuery + dialect.LineEnding;
+                }
+
+                string after = string.Empty;
+                if (!string.IsNullOrEmpty(dialect.IdentityAfterQuery))
+                {
+                    after = string.Format(dialect.IdentityAfterQuery, autoKeyField.InsertSQL) + dialect.LineEnding;
+                }
+
+                sql = string.Format(queryFormat, before, sql, after);
+            }
 
             return sql;
         }
@@ -319,21 +337,35 @@ namespace Tenor.BLL
             if (Validate())
             {
                 TableInfo table = TableInfo.CreateTableInfo(this.GetType());
+                
                 if (connection == null)
                     connection = table.GetConnection();
+                
                 TenorParameter[] parameters = null;
                 FieldInfo autoKeyField = null;
 
                 IDialect dialect = null;
                 string query = GetSaveSql(isUpdate, connection, null, out autoKeyField, out parameters, out dialect);
 
-                int result;
-                if (this.transaction != null && this.transaction.transaction != null)
-                    result = Helper.ExecuteQuery(query, parameters, transaction.transaction, dialect);
-                else
-                    result = Helper.ExecuteQuery(query, parameters, connection);
+                string secondQuery = string.Empty;
 
-                if (!isUpdate && (autoKeyField != null))
+                if (!isUpdate && !dialect.GetIdentityOnSameCommand && !string.IsNullOrEmpty(dialect.IdentityAfterQuery))
+                    secondQuery = string.Format(dialect.IdentityAfterQuery, autoKeyField.InsertSQL);
+
+                object result;
+                if (this.transaction != null && this.transaction.transaction != null)
+                {
+                    result = Helper.ExecuteQuery(query, parameters, transaction.transaction, dialect);
+
+                    if (!string.IsNullOrEmpty(secondQuery))
+                        result = Helper.ExecuteQuery(secondQuery, null, transaction.transaction, dialect);
+                }
+                else
+                {
+                    result = Helper.ExecuteQuery(query, parameters, connection, secondQuery);
+                }
+
+                if (!isUpdate && autoKeyField != null)
                 {
                     autoKeyField.SetPropertyValue(this, Convert.ChangeType(result, autoKeyField.FieldType));
                 }

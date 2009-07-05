@@ -44,14 +44,24 @@ namespace Tenor.Data.Dialects.SQLite
             get { return "@"; }
         }
 
+        public override string LineEnding
+        {
+            get { return ";"; }
+        }
+
         public override string IdentityBeforeQuery
+        {
+            get { return null; }
+        }
+
+        public override string  IdentityDuringQuery
         {
             get { return null; }
         }
 
         public override string IdentityAfterQuery
         {
-            get { return "; SELECT LAST_INSERT_ROWID();"; }
+            get { return "SELECT LAST_INSERT_ROWID()"; }
         }
 
         public override bool GetIdentityOnSameCommand
