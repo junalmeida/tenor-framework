@@ -115,6 +115,11 @@ public class Business
         {
             t = new Transaction();
             t.Include(person);
+            foreach (PersonItem pi in person.PersonItemList)
+            {
+                t.Include(pi);
+                pi.Delete();
+            }
             person.Delete();
             t.Commit();
         }

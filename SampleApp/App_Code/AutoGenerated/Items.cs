@@ -16,14 +16,14 @@ namespace SampleApp.Business.Entities
     public partial class Item : BLLBase
     {
         #region Properties
-
+        // FOR ORACLE: InsertSQL = "ItemsSequence"
 
         private long _ItemId;
         /// <summary>
         /// Represents the field ItemId.
         /// 
         /// </summary>
-        [Field(PrimaryKey = true, AutoNumber = true)]
+        [Field(PrimaryKey = true, AutoNumber = true, InsertSQL = "ItemsSequence")]
         public long ItemId
         {
             get

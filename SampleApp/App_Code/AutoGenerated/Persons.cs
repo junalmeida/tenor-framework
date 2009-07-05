@@ -14,14 +14,14 @@ namespace SampleApp.Business.Entities
     {
 
         #region Properties
-
+        // FOR ORACLE: InsertSQL = "PersonsSequence"
 
         private long _PersonId;
         /// <summary>
         /// Represents the field PersonId.
         /// 
         /// </summary>
-        [Field(PrimaryKey = true, AutoNumber = true)]
+        [Field(PrimaryKey = true, AutoNumber = true, InsertSQL = "PersonsSequence")]
         public long PersonId
         {
             get

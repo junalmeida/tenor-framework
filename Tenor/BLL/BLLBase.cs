@@ -349,7 +349,8 @@ namespace Tenor.BLL
 
                 string secondQuery = string.Empty;
 
-                if (!isUpdate && !dialect.GetIdentityOnSameCommand && !string.IsNullOrEmpty(dialect.IdentityAfterQuery))
+                if (!isUpdate && autoKeyField != null && !dialect.GetIdentityOnSameCommand
+                    && !string.IsNullOrEmpty(dialect.IdentityAfterQuery))
                     secondQuery = string.Format(dialect.IdentityAfterQuery, autoKeyField.InsertSQL);
 
                 object result;

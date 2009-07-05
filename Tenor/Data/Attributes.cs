@@ -168,14 +168,33 @@ namespace Tenor.Data
                 {
                     if (RelatedProperty.PropertyType.IsGenericType && RelatedProperty.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
                     {
-                        // if it's a nullable type, we need to make some stuff to convert enum types.
                         Type[] nullType = RelatedProperty.PropertyType.GetGenericArguments();
+                        
+                        // Changes the type of the value for providers that don't detect types correctly
+                        Type type = null;
+                        if (nullType.Length > 0)
+                            type = nullType[0];
+
+                        if (type != null && value.GetType() != type)
+                        {
+                            if (type.IsEnum)
+                                type = typeof(Int32);
+                            
+                            value = Convert.ChangeType(value, type);
+                        }
+
+                        // if it's a nullable type, we need to set the value already converted
+                        // we call the constructor of the non-nullable part and then set the nullable property value
                         ConstructorInfo ctor = RelatedProperty.PropertyType.GetConstructor(nullType);
                         value = ctor.Invoke(new object[] { value });
                         RelatedProperty.SetValue(Instance, value, null);
                     }
                     else
                     {
+                        // Changes the type of the value for providers that don't detect types correctly
+                        if (value.GetType() != RelatedProperty.PropertyType)
+                            value = Convert.ChangeType(value, RelatedProperty.PropertyType);
+
                         RelatedProperty.SetValue(Instance, value, null);
                     }
                 }

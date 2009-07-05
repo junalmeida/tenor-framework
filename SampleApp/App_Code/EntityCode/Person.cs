@@ -124,8 +124,11 @@ namespace SampleApp.Business.Entities
         // SQL Server
         //[SpecialField("isnull(len(photo), 0)")]
 
+        // Oracle
+        //[SpecialField("nvl(dbms_lob.getlength(\"Photo\"), 0)")]
+
         long photoLength;
-        [SpecialField("isnull(len(photo), 0)")]
+        [SpecialField("nvl(dbms_lob.getlength(\"Photo\"), 0)")]
         public long PhotoLength
         {
             get { return photoLength; }

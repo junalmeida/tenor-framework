@@ -482,9 +482,9 @@ namespace Tenor.Data.Dialects
                 for (int i = 0; i < join.ForeignKey.ForeignFields.Length; i++)
                 {
                     fks.Append(" AND ");
-                    fks.Append(join.ParentAlias + "." + join.ForeignKey.LocalFields[i].DataFieldName);
+                    fks.Append(join.ParentAlias + "." + CommandBuilder.QuoteIdentifier(join.ForeignKey.LocalFields[i].DataFieldName));
                     fks.Append(" =  ");
-                    fks.Append(join.JoinAlias + "." + join.ForeignKey.ForeignFields[i].DataFieldName);
+                    fks.Append(join.JoinAlias + "." + CommandBuilder.QuoteIdentifier(join.ForeignKey.ForeignFields[i].DataFieldName));
                 }
                 sql.Append(fks.Remove(0, 4));
                 sql.AppendLine();

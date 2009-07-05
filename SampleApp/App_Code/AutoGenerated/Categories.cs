@@ -14,6 +14,7 @@ namespace SampleApp.Business.Entities
     [Serializable(), Table("Categories", "")]
     public partial class Category : BLLBase
     {
+        // FOR ORACLE: InsertSQL = "CategoriesSequence"
 
         #region Properties
 
@@ -24,7 +25,7 @@ namespace SampleApp.Business.Entities
         /// Represents the field CategoryId.
         /// 
         /// </summary>
-        [Field(PrimaryKey = true, AutoNumber = true)]
+        [Field(PrimaryKey = true, AutoNumber = true, InsertSQL = "CategoriesSequence")]
         public long CategoryId
         {
             get

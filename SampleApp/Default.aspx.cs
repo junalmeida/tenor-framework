@@ -15,11 +15,5 @@ public partial class _Default : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
-        Product p = new Product();
-        p.ID = 11;
-        p.Delete();
-
-        gv.DataSource = Product.Search(new SearchOptions(typeof(Product)));
-        gv.DataBind();
     }
 }
