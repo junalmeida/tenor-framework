@@ -124,47 +124,54 @@ namespace Tenor.Diagnostics
 
                 Mail.MailMessage errmail = new Mail.MailMessage();
                 //errmail.From = Mail.MailMessage.FromPadrao("Exception")
-                string webconfigemails = System.Configuration.ConfigurationManager.AppSettings[Tenor.Configuration.Diagnostics.WebConfigKey];
-                if (!string.IsNullOrEmpty(webconfigemails))
+
+                foreach (Tenor.Configuration.EmailElement email in Tenor.Configuration.Tenor.Current.Exceptions.Emails)
                 {
-                    if (webconfigemails.ToLower() == "false")
-                    {
-                        return;
-                    }
-                    else
-                    {
-                        string[] emails = webconfigemails.Split(',');
-
-
-                        foreach (string email in emails)
-                        {
-                            try
-                            {
-                                errmail.To.Add(new System.Net.Mail.MailAddress(email));
-                            }
-                            catch
-                            {
-
-                            }
-                        }
-                        if (errmail.To.Count == 0)
-                        {
-                            foreach (string email in Tenor.Configuration.Diagnostics.DebugEmails)
-                            {
-                                errmail.To.Add(new System.Net.Mail.MailAddress(email));
-                            }
-                        }
-                    }
+                    errmail.To.Add(new System.Net.Mail.MailAddress(email.Email, email.Name));
                 }
-                else
-                {
-                    foreach (string email in Tenor.Configuration.Diagnostics.DebugEmails)
-                    {
-                        errmail.To.Add(new System.Net.Mail.MailAddress(email));
-                    }
-                }
+
+                //string webconfigemails = System.Configuration.ConfigurationManager.AppSettings[Tenor.Configuration.Diagnostics.WebConfigKey];
+                //if (!string.IsNullOrEmpty(webconfigemails))
+                //{
+                //    if (webconfigemails.ToLower() == "false")
+                //    {
+                //        return;
+                //    }
+                //    else
+                //    {
+                //        string[] emails = webconfigemails.Split(',');
+
+
+                //        foreach (string email in emails)
+                //        {
+                //            try
+                //            {
+                //                errmail.To.Add(new System.Net.Mail.MailAddress(email));
+                //            }
+                //            catch
+                //            {
+
+                //            }
+                //        }
+                //        if (errmail.To.Count == 0)
+                //        {
+                //            foreach (string email in Tenor.Configuration.Diagnostics.DebugEmails)
+                //            {
+                //                errmail.To.Add(new System.Net.Mail.MailAddress(email));
+                //            }
+                //        }
+                //    }
+                //}
+                //else
+                //{
+                //    foreach (string email in Tenor.Configuration.Diagnostics.DebugEmails)
+                //    {
+                //        errmail.To.Add(new System.Net.Mail.MailAddress(email));
+                //    }
+                //}
                 if (errmail.To.Count == 0)
                 {
+                    errmail.Dispose();
                     return;
                 }
 

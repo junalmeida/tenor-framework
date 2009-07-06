@@ -49,6 +49,6 @@ namespace Tenor.Data.Dialects
             get;
         }
 
-        string GetPrefixAndTable(string prefix, string tableName);
+        //string GetPrefixAndTable(string prefix, string tableName);
     }
 }

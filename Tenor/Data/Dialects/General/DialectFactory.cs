@@ -35,10 +35,43 @@ namespace Tenor.Data.Dialects
         internal static Dictionary<string, Type> GetAvailableDialectsAndTypes()
         {
             Dictionary<string, Type> dialects = new Dictionary<string, Type>();
-            dialects.Add("System.Data.SqlClient", typeof(TSql.TSql));
-            dialects.Add("MySql.Data.MySqlClient", typeof(MySql.MySql));
-            dialects.Add("System.Data.SQLite", typeof(SQLite.SQLite));
-            dialects.Add("System.Data.OracleClient", typeof(Oracle.Oracle));
+
+            foreach (Tenor.Configuration.DialectElement d in Tenor.Configuration.Tenor.Current.Dialects)
+            {
+                try
+                {
+                    Type t = Type.GetType(d.Type, true);
+                    if (Array.IndexOf<Type>(t.GetInterfaces(), typeof(IDialect)) == -1)
+                    {
+                        throw new System.Configuration.ConfigurationErrorsException(string.Format("The type '{0}' does not implement the '{1}' interface.", t.FullName, typeof(IDialect).FullName));
+                    }
+                    dialects.Add(d.ProviderName, t);
+                }
+                catch (ConfigurationErrorsException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    throw new System.Configuration.ConfigurationErrorsException("Could not load the dialect type.", ex);
+                }
+            }
+    
+
+            if (!dialects.ContainsKey("System.Data.SqlClient"))
+                dialects.Add("System.Data.SqlClient", typeof(TSql.TSql));
+
+            if (!dialects.ContainsKey("MySql.Data.MySqlClient"))
+                dialects.Add("MySql.Data.MySqlClient", typeof(MySql.MySql));
+
+            if (!dialects.ContainsKey("System.Data.SQLite"))
+                dialects.Add("System.Data.SQLite", typeof(SQLite.SQLite));
+
+            if (!dialects.ContainsKey("System.Data.OracleClient"))
+                dialects.Add("System.Data.OracleClient", typeof(Oracle.Oracle));
+
+            
+
             return dialects;
         }
 

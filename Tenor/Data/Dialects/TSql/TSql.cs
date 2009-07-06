@@ -12,7 +12,7 @@ namespace Tenor.Data.Dialects.TSql
     /// <summary>
     /// Represents the T-SQL language.
     /// </summary>
-    internal sealed class TSql : GeneralDialect
+    public class TSql : GeneralDialect, IDialect
     {
         private const string provider = "System.Data.SqlClient";
         public override string ProviderInvariantName
