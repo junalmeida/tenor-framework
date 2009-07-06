@@ -58,7 +58,9 @@
     <Compile Include="BLL\BLLCollection.cs" />
     <Compile Include="BLL\Util.cs" />
     <Compile Include="Configuration\Diagnostics.cs" />
+    <Compile Include="Configuration\Dialects.cs" />
     <Compile Include="Configuration\HttpModule.cs" />
+    <Compile Include="Configuration\Instance.cs" />
     <Compile Include="Configuration\Localization.cs" />
     <Compile Include="Configuration\MailingPanel.cs" />
     <Compile Include="Configuration\MailMessage.cs" />
@@ -72,6 +74,7 @@
     <Compile Include="Data\Dialects\General\DialectFactory.cs" />
     <Compile Include="Data\Dialects\General\IDialect.cs" />
     <Compile Include="Data\Dialects\MySql\MySql.cs" />
+    <Compile Include="Data\Dialects\Oracle\Oracle.cs" />
     <Compile Include="Data\Dialects\SQLite\SQLite.cs" />
     <Compile Include="Data\Dialects\TSql\TSql.cs" />
     <Compile Include="Data\DummyDataSource.cs" />

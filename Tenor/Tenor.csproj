@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{5FAE8827-5AED-4918-9FFB-85B7E91901F5}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -58,7 +58,9 @@
     <Compile Include="BLL\BLLCollection.cs" />
     <Compile Include="BLL\Util.cs" />
     <Compile Include="Configuration\Diagnostics.cs" />
+    <Compile Include="Configuration\Dialects.cs" />
     <Compile Include="Configuration\HttpModule.cs" />
+    <Compile Include="Configuration\Tenor.cs" />
     <Compile Include="Configuration\Localization.cs" />
     <Compile Include="Configuration\MailingPanel.cs" />
     <Compile Include="Configuration\MailMessage.cs" />
@@ -127,10 +129,11 @@
   <ItemGroup>
     <EmbeddedResource Include="Web\mime.xml" />
   </ItemGroup>
-  <ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!--<ItemGroup>
     <Content Include="BLL\TemplateSnippets.xml" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  </ItemGroup>-->
+  <!--<Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />-->
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
