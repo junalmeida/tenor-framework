@@ -17,7 +17,7 @@ public class GeneratedGui : DotNetScriptGui
 	
 	public override void Setup()
 	{
-		StringReader reader = new StringReader(File.ReadAllText(@"C:\Documents and Settings\Win XP\Meus documentos\Visual Studio 2008\Projects\TenorFramework\Tenor\BLL\TemplateSnippets.xml"));
+		StringReader reader = new StringReader(File.ReadAllText(@"E:\projs\tenor\Tenor\BLL\TemplateSnippets.xml", System.Text.UnicodeEncoding.Unicode));
 		XmlSerializer serializer = new XmlSerializer(typeof(List<List<DictionaryEntry>>));
 		List<List<DictionaryEntry>> list = (List<List<DictionaryEntry>>)serializer.Deserialize(reader);
 		
@@ -242,31 +242,34 @@ public class GeneratedTemplate : DotNetScriptTemplate
 		
 		foreach(DictionaryEntry item in items[selected])
 		{
-			if (item.Key.ToString().Equals("language", StringComparison.InvariantCultureIgnoreCase)) snippets.language = item.Value.ToString();
-			else if (item.Key.ToString().Equals("fileExtension", StringComparison.InvariantCultureIgnoreCase)) snippets.fileExtension = item.Value.ToString();
-			else if (item.Key.ToString().Equals("classHeader", StringComparison.InvariantCultureIgnoreCase)) snippets.classHeader = item.Value.ToString();
-			else if (item.Key.ToString().Equals("tableDescription", StringComparison.InvariantCultureIgnoreCase)) snippets.tableDescription = item.Value.ToString();
-			else if (item.Key.ToString().Equals("propertyLazyItem", StringComparison.InvariantCultureIgnoreCase)) snippets.propertyLazyItem = item.Value.ToString();
-			else if (item.Key.ToString().Equals("propertyItem", StringComparison.InvariantCultureIgnoreCase)) snippets.propertyItem = item.Value.ToString();
-			else if (item.Key.ToString().Equals("propertiesEnum", StringComparison.InvariantCultureIgnoreCase)) snippets.propertiesEnum = item.Value.ToString();
-			else if (item.Key.ToString().Equals("fieldDescription", StringComparison.InvariantCultureIgnoreCase)) snippets.fieldDescription = item.Value.ToString();
-			else if (item.Key.ToString().Equals("propertyEnumItem", StringComparison.InvariantCultureIgnoreCase)) snippets.propertyEnumItem = item.Value.ToString();
-			else if (item.Key.ToString().Equals("foreignKeysHeader", StringComparison.InvariantCultureIgnoreCase)) snippets.foreignKeysHeader = item.Value.ToString();
-			else if (item.Key.ToString().Equals("metadataHeader", StringComparison.InvariantCultureIgnoreCase)) snippets.metadataHeader = item.Value.ToString();
-			else if (item.Key.ToString().Equals("emptyConstructor", StringComparison.InvariantCultureIgnoreCase)) snippets.emptyConstructor = item.Value.ToString();
-			else if (item.Key.ToString().Equals("lazyConstructor", StringComparison.InvariantCultureIgnoreCase)) snippets.lazyConstructor = item.Value.ToString();
-			else if (item.Key.ToString().Equals("parameter", StringComparison.InvariantCultureIgnoreCase)) snippets.parameter = item.Value.ToString();
-			else if (item.Key.ToString().Equals("parameterAssign", StringComparison.InvariantCultureIgnoreCase)) snippets.parameterAssign = item.Value.ToString();
-			else if (item.Key.ToString().Equals("primaryKeysConstructor", StringComparison.InvariantCultureIgnoreCase)) snippets.primaryKeysConstructor = item.Value.ToString();
-			else if (item.Key.ToString().Equals("foreignKeyItemGet", StringComparison.InvariantCultureIgnoreCase)) snippets.foreignKeyItemGet = item.Value.ToString();
-			else if (item.Key.ToString().Equals("foreignKeyItem", StringComparison.InvariantCultureIgnoreCase)) snippets.foreignKeyItem = item.Value.ToString();
-			else if (item.Key.ToString().Equals("nullValue", StringComparison.InvariantCultureIgnoreCase)) snippets.nullValue = item.Value.ToString();
-			else if (item.Key.ToString().Equals("nullableType", StringComparison.InvariantCultureIgnoreCase)) snippets.nullableType = item.Value.ToString();
-			else if (item.Key.ToString().Equals("collectionType", StringComparison.InvariantCultureIgnoreCase)) snippets.collectionType = item.Value.ToString();
-			else if (item.Key.ToString().Equals("foreignKeyAttribute", StringComparison.InvariantCultureIgnoreCase)) snippets.foreignKeyAttribute = item.Value.ToString();
-			else if (item.Key.ToString().Equals("searchHeader", StringComparison.InvariantCultureIgnoreCase)) snippets.searchHeader = item.Value.ToString();
-			else if (item.Key.ToString().Equals("searchBlocks", StringComparison.InvariantCultureIgnoreCase)) snippets.searchBlocks = item.Value.ToString();
-			else if (item.Key.ToString().Equals("classFooter", StringComparison.InvariantCultureIgnoreCase)) snippets.classFooter = item.Value.ToString();
+			string key = item.Key.ToString();
+			string value = item.Value.ToString().Replace("\n", Environment.NewLine);
+			
+			if (key.Equals("language", StringComparison.InvariantCultureIgnoreCase)) snippets.language = value;
+			else if (key.Equals("fileExtension", StringComparison.InvariantCultureIgnoreCase)) snippets.fileExtension = value;
+			else if (key.Equals("classHeader", StringComparison.InvariantCultureIgnoreCase)) snippets.classHeader = value;
+			else if (key.Equals("tableDescription", StringComparison.InvariantCultureIgnoreCase)) snippets.tableDescription = value;
+			else if (key.Equals("propertyLazyItem", StringComparison.InvariantCultureIgnoreCase)) snippets.propertyLazyItem = value;
+			else if (key.Equals("propertyItem", StringComparison.InvariantCultureIgnoreCase)) snippets.propertyItem = value;
+			else if (key.Equals("propertiesEnum", StringComparison.InvariantCultureIgnoreCase)) snippets.propertiesEnum = value;
+			else if (key.Equals("fieldDescription", StringComparison.InvariantCultureIgnoreCase)) snippets.fieldDescription = value;
+			else if (key.Equals("propertyEnumItem", StringComparison.InvariantCultureIgnoreCase)) snippets.propertyEnumItem = value;
+			else if (key.Equals("foreignKeysHeader", StringComparison.InvariantCultureIgnoreCase)) snippets.foreignKeysHeader = value;
+			else if (key.Equals("metadataHeader", StringComparison.InvariantCultureIgnoreCase)) snippets.metadataHeader = value;
+			else if (key.Equals("emptyConstructor", StringComparison.InvariantCultureIgnoreCase)) snippets.emptyConstructor = value;
+			else if (key.Equals("lazyConstructor", StringComparison.InvariantCultureIgnoreCase)) snippets.lazyConstructor = value;
+			else if (key.Equals("parameter", StringComparison.InvariantCultureIgnoreCase)) snippets.parameter = value;
+			else if (key.Equals("parameterAssign", StringComparison.InvariantCultureIgnoreCase)) snippets.parameterAssign = value;
+			else if (key.Equals("primaryKeysConstructor", StringComparison.InvariantCultureIgnoreCase)) snippets.primaryKeysConstructor = value;
+			else if (key.Equals("foreignKeyItemGet", StringComparison.InvariantCultureIgnoreCase)) snippets.foreignKeyItemGet = value;
+			else if (key.Equals("foreignKeyItem", StringComparison.InvariantCultureIgnoreCase)) snippets.foreignKeyItem = value;
+			else if (key.Equals("nullValue", StringComparison.InvariantCultureIgnoreCase)) snippets.nullValue = value;
+			else if (key.Equals("nullableType", StringComparison.InvariantCultureIgnoreCase)) snippets.nullableType = value;
+			else if (key.Equals("collectionType", StringComparison.InvariantCultureIgnoreCase)) snippets.collectionType = value;
+			else if (key.Equals("foreignKeyAttribute", StringComparison.InvariantCultureIgnoreCase)) snippets.foreignKeyAttribute = value;
+			else if (key.Equals("searchHeader", StringComparison.InvariantCultureIgnoreCase)) snippets.searchHeader = value;
+			else if (key.Equals("searchBlocks", StringComparison.InvariantCultureIgnoreCase)) snippets.searchBlocks = value;
+			else if (key.Equals("classFooter", StringComparison.InvariantCultureIgnoreCase)) snippets.classFooter = value;
 		}
 	}
 
