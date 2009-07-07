@@ -14,17 +14,28 @@ public class GeneratedGui : DotNetScriptGui
 {
 	public GeneratedGui(ZeusContext context) : base(context) {}
 	
-	
 	public override void Setup()
 	{
-		StringReader reader = new StringReader(File.ReadAllText(@"E:\projs\tenor\Tenor\BLL\TemplateSnippets.xml", System.Text.UnicodeEncoding.Unicode));
-		XmlSerializer serializer = new XmlSerializer(typeof(List<List<DictionaryEntry>>));
-		List<List<DictionaryEntry>> list = (List<List<DictionaryEntry>>)serializer.Deserialize(reader);
-		
 		ui.Title = "Tenor Framework - Mapping";
 		ui.Width = 500;
 		ui.Height = 600;
 		
+		List<List<DictionaryEntry>> list = null;
+		
+		try
+		{
+			StringReader reader = new StringReader(File.ReadAllText(this.context.ExecutingTemplate.FilePath + "aTemplateSnippets.xml", System.Text.UnicodeEncoding.Unicode));
+			XmlSerializer serializer = new XmlSerializer(typeof(List<List<DictionaryEntry>>));
+			list = (List<List<DictionaryEntry>>)serializer.Deserialize(reader);
+		}
+		catch(Exception)
+		{
+			GuiLabel lblError = ui.AddLabel("lblError", "Error: the file \"TemplateSnippets.xml\" must be placed in the same folder this template is being executed from.", "");
+			lblError.Height = 100;
+			ui.ShowGui = true;
+			return;
+		}		
+
 		GuiLabel lblDB = ui.AddLabel("lblDatabases", "Choose a database:", "Choose a database.");
 		GuiComboBox cmbDatabases = ui.AddComboBox("cmbDatabase", "");
 
@@ -275,6 +286,8 @@ public class GeneratedTemplate : DotNetScriptTemplate
 
 	public override void Render()
 	{
+		if(input["languages"] == null) return;
+		
 		Initialize();
 
 		string fileName = "";
