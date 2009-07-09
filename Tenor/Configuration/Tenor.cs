@@ -1,15 +1,19 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Configuration;
 
 namespace Tenor.Configuration
 {
+    /// <summary>
+    /// Encapsulates all Tenor Framework specific settings defined on app.config or web.config. 
+    /// </summary>
     public sealed class Tenor : ConfigurationSection
     {
-        private Tenor() : base() { }
+        private Tenor() { }
 
         private static Tenor current;
+        /// <summary>
+        /// Gets the Tenor.Configuration.Tenor object the represents the current context.
+        /// </summary>
         public static Tenor Current
         {
             get
@@ -32,7 +36,9 @@ namespace Tenor.Configuration
             }
         }
 
-
+        /// <summary>
+        /// Gets the an array of user-defined database dialects. 
+        /// </summary>
         [ConfigurationProperty("dialects")]
         public DialectsSection Dialects
         {
@@ -42,7 +48,9 @@ namespace Tenor.Configuration
             }
         }
 
-
+        /// <summary>
+        /// Gets an object that defines settings for exception handling.
+        /// </summary>
         [ConfigurationProperty("exceptions")]
         public ExceptionsSection Exceptions
         {

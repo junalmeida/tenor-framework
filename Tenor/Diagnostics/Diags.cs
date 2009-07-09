@@ -693,6 +693,7 @@ namespace Tenor.Diagnostics
                     if (parameters != null)
                         foreach (TenorParameter p in parameters)
                         {
+                            //TODO: Consider recieving the Dialect from a parameter.
                             traceInfo.AppendLine("DECLARE " + p.ParameterName + " " + Helper.GetDbTypeName(p.Value.GetType(), factory).ToLower());
                             if (p.Value == null)
                             {

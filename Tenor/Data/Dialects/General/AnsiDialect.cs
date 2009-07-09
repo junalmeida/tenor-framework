@@ -13,64 +13,112 @@ namespace Tenor.Data.Dialects
     /// </summary>
     public abstract class GeneralDialect : IDialect
     {
+        /// <summary>
+        /// Defines the max length of a parameter name.
+        /// </summary>
+        public const int ParameterMaxLength = 30;
+
+        /// <summary>
+        /// Gets the system default factory for the current provider. 
+        /// </summary>
         public abstract DbProviderFactory Factory
         {
             get;
         }
 
-        protected abstract DbCommandBuilder CommandBuilder
+        /// <summary>
+        /// Gets the command builder of the current factory.
+        /// </summary>
+        protected virtual DbCommandBuilder CommandBuilder
         {
-            get;
+            get
+            {
+                if (Factory != null)
+                    return Factory.CreateCommandBuilder();
+                else
+                    return null;
+            }
         }
 
+        /// <summary>
+        /// Gets the invariant provider name represented by this dialect.
+        /// </summary>
         public abstract string ProviderInvariantName
         {
             get;
         }
 
+        /// <summary>
+        /// Get the character used to define a parameter or a variable on SQL code. For examplan an '@' for T-SQL.
+        /// </summary>
         protected abstract string ParameterIdentifier
         {
             get;
         }
 
+        /// <summary>
+        /// Gets the characher used to define the end of a statement. Returns null when line ending is not necessary.
+        /// </summary>
         public abstract string LineEnding
         {
             get;
         }
 
+        /// <summary>
+        /// Gets the statement used to get an identity value before the query. Returns null when this is not supported.
+        /// </summary>
         public abstract string IdentityBeforeQuery
         {
             get;
         }
 
+        /// <summary>
+        /// Gets the statement used to get an identity value during the query. Returns null when this is not supported.
+        /// </summary>
         public abstract string IdentityDuringQuery
         {
             get;
         }
 
+        /// <summary>
+        /// Gets the statement used to get an identity value after the query. Returns null when this is not supported.
+        /// </summary>
         public abstract string IdentityAfterQuery
         {
             get;
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this provider can supply the identity value on the same round trip.
+        /// </summary>
         public abstract bool GetIdentityOnSameCommand
         {
             get;
         }
 
+        /// <summary>
+        /// Gets a LimitType value that defines where the limit statement will be written.
+        /// </summary>
         public abstract LimitType LimitAt
         {
             get;
         }
 
-        public enum LimitType
-        {
-            Start, WhereClause, End
-        }
+        /// <summary>
+        /// Creates the limit command using the valued passed as parameter.
+        /// </summary>
+        /// <param name="limitValue">A limit value used to limit the number of rows returned.</param>
+        /// <returns>A string with the limit query part.</returns>
         public abstract string CreateLimit(int limitValue);
 
+        /// <summary>
+        /// Creates the SQL operator.
+        /// </summary>
+        /// <param name="logicalOperator">The logical operator used on conditions.</param>
+        /// <returns>A string with the SQL representation of the operator.</returns>
         protected virtual string GetOperator(LogicalOperator logicalOperator)
         {
+            //TODO: Remove spaces around the operator.
             switch (logicalOperator)
             {
                 case Tenor.Data.LogicalOperator.And:
@@ -83,26 +131,45 @@ namespace Tenor.Data.Dialects
 
         }
 
+        /// <summary>
+        /// Creates an string alias based on the class type. 
+        /// </summary>
+        /// <param name="classType">A Type that implements a BLLBase</param>
+        /// <returns></returns>
         protected virtual string CreateClassAlias(Type classType)
         {
             if (classType == null)
                 throw new ArgumentNullException("classType");
+
+            if (!classType.IsSubclassOf(typeof(BLL.BLLBase)))
+                throw new ArgumentException(string.Format("The class '{0}' must derive directly or indirectly from '{1}'.", classType.FullName, typeof(BLL.BLLBase).FullName), "classType");
+
             return classType.FullName.Replace(".", "").ToLower();
         }
 
 
-
+        /// <summary>
+        /// Converts a system type name into a database type.
+        /// </summary>
+        /// <param name="systemType">A System.Type.</param>
+        /// <returns></returns>
         protected virtual string GetDbType(Type systemType)
         {
             return Helper.GetDbTypeName(systemType, Factory);
         }
 
+        /// <summary>
+        /// Creates the query part equivalent to a SpecialFieldAttribute.
+        /// </summary>
         private string GetSpecialFieldExpression(string classAlias, SpecialFieldInfo spFieldInfo)
         {
             string expression = spFieldInfo.Expression;
             return GetSpecialFieldExpression(classAlias, expression);
         }
 
+        /// <summary>
+        /// Creates the query part equivalent to a SpecialFieldAttribute.
+        /// </summary>
         protected virtual string GetSpecialFieldExpression(string classAlias, string expression)
         {
             if (expression.Contains("{0}"))
@@ -111,6 +178,17 @@ namespace Tenor.Data.Dialects
             return "(" + expression + ")";
         }
 
+        /// <summary>
+        /// Creates the SQL that can make a logical comparison between two parts.
+        /// </summary>
+        /// <param name="classType">The type that contains the property to be compared.</param>
+        /// <param name="classAlias">The classAlias used.</param>
+        /// <param name="propertyName">The property name to be compared.</param>
+        /// <param name="value">The value to be compared against the property.</param>
+        /// <param name="compareOperator">A logical operator.</param>
+        /// <param name="castType">Specifies that a cast is needed on the table field.</param>
+        /// <param name="parameterName">Ouputs the parameter generated by this method.</param>
+        /// <returns>Returns the query part that compares a field with a valued parameter.</returns>
         protected virtual string CreateCompareSql(Type classType, string classAlias, string propertyName, object value, CompareOperator compareOperator, Type castType, out string parameterName)
         {
             StringBuilder str = new StringBuilder();
@@ -122,7 +200,8 @@ namespace Tenor.Data.Dialects
 
             if (fieldInfo != null)
             {
-
+                //TODO: Check if cast can be used on all dialects... 
+                //I Guess not ¬¬
                 if (castType != null)
                 {
                     str.Append("CAST(");
@@ -147,6 +226,7 @@ namespace Tenor.Data.Dialects
             }
             else
             {
+                //This property is not mapped. duh!
                 throw new MissingFieldException(classType, propertyName, true);
             }
 
@@ -164,7 +244,7 @@ namespace Tenor.Data.Dialects
                 }
                 else
                 {
-                    throw (new InvalidOperationException("Cannot use this operator with null expressions."));
+                    throw (new TenorException("Cannot use this operator with null expressions."));
                 }
             }
             else
@@ -174,23 +254,25 @@ namespace Tenor.Data.Dialects
 
                 if (fieldInfo != null)
                 {
-                    parameterName = fieldInfo.DataFieldName.ToLower().Trim().Replace(" ", "_");
+                    //Remove spaces
+                    parameterName = fieldInfo.DataFieldName;
                 }
                 else if (spFieldInfo != null)
                 {
-                    parameterName = spFieldInfo.Alias.ToLower().Trim().Replace(" ", "_");
+                    parameterName = spFieldInfo.Alias;
                 }
+                //Remove spaces and changes the case to lower.
+                parameterName = parameterName.ToLower().Trim().Replace(" ", "_");
 
-
-                if (parameterName.Length > 30)
+                if (parameterName.Length > ParameterMaxLength)
                 {
-                    throw (new InvalidOperationException("Cannot generate parameter name. Identifier \'" + parameterName + "\' is too long."));
+                    throw (new TenorException(string.Format("Cannot generate parameter name. Identifier \'{0}\' is too long.", parameterName)));
                 }
 
                 parameterName += Guid.NewGuid().ToString().Replace("-", "");
-                if (parameterName.Length > 29)
+                if (parameterName.Length > ParameterMaxLength - ParameterIdentifier.Length)
                 {
-                    parameterName = parameterName.Substring(0, 29);
+                    parameterName = parameterName.Substring(0, ParameterMaxLength - ParameterIdentifier.Length);
                 }
                 parameterName = this.ParameterIdentifier + parameterName;
 
@@ -222,10 +304,6 @@ namespace Tenor.Data.Dialects
                         str.Append(" NOT LIKE  " + parameterName);
                         break;
                     case Data.CompareOperator.ContainsInFlags:
-                        //if (Connection.ProviderName != "System.Data.SqlClient")
-                        //{
-                        //    throw (new ConfigurationErrorsException("ContainsInFlags can only be used with SqlClient"));
-                        //}
                         str = new System.Text.StringBuilder(GetContainsInFlagsExpression(str.ToString(), parameterName));
                         break;
                     default:
@@ -236,8 +314,23 @@ namespace Tenor.Data.Dialects
             return str.ToString();
         }
 
+        /// <summary>
+        /// Creates an expression that can bitwise check if the value is in a flags field.
+        /// </summary>
+        /// <param name="field">The table field name.</param>
+        /// <param name="parameterName">The name of the parameter value to check.</param>
+        /// <returns>Returns the query part that checks if the parameter is in the field value.</returns>
         protected abstract string GetContainsInFlagsExpression(string field, string parameterName);
 
+        /// <summary>
+        /// Creates the SQL that can order the results of the query.
+        /// </summary>
+        /// <param name="classType">The type that contains the property to be compared.</param>
+        /// <param name="classAlias">The classAlias used.</param>
+        /// <param name="propertyName">The property name to be compared.</param>
+        /// <param name="sortOrder">A SortOrder value that defines how items are sorted.</param>
+        /// <param name="castType">Specifies that a cast is needed on the table field.</param>
+        /// <returns>Returns the query part that sorts the results.</returns>
         protected virtual string CreateOrderBy(Type classType, string classAlias, string propertyName, SortOrder sortOrder, Type castType)
         {
             if (string.IsNullOrEmpty(classAlias))
@@ -250,6 +343,7 @@ namespace Tenor.Data.Dialects
 
             if (fieldInfo != null)
             {
+                //TODO: Check if cast can be used on all dialects... 
                 if (castType != null)
                 {
                     str.Append("CAST(");
@@ -271,7 +365,7 @@ namespace Tenor.Data.Dialects
             }
             else
             {
-                throw (new ArgumentException("Invalid property \'" + propertyName + "\' on class '" + classType.Name + "'. You must define a Field or a SpecialField property item.", "propertyName", null));
+                throw (new ArgumentException("Invalid property \'" + propertyName + "\' on class '" + classType.Name + "'. You must define a Field or a SpecialField property item.", "propertyName"));
             }
 
             switch (sortOrder)
@@ -290,12 +384,20 @@ namespace Tenor.Data.Dialects
 
         #region IDialect Members
 
-
         string IDialect.CreateWhereSql(ConditionCollection conditions, Type baseClass, Join[] joins, out TenorParameter[] parameters)
         {
             return CreateWhereSql(conditions, baseClass, joins, out parameters, true);
         }
 
+        /// <summary>
+        /// Creates the SQL that can filter the results. 
+        /// </summary>
+        /// <param name="conditions">The ConditionCollection used by this query.</param>
+        /// <param name="baseClass">The base class that will be returned by the query.</param>
+        /// <param name="joins">An array of Join.</param>
+        /// <param name="parameters">Outputs an array of TenorParameters.</param>
+        /// <param name="generateAliases">Defines whether to create aliases for each class on this query. If false, direct access to fields will be written.</param>
+        /// <returns></returns>
         private string CreateWhereSql(ConditionCollection conditions, Type baseClass, Join[] joins, out TenorParameter[] parameters, bool generateAliases)
         {
 
@@ -763,5 +865,25 @@ namespace Tenor.Data.Dialects
         }
 
         #endregion
+    }
+
+
+    /// <summary>
+    /// Specifies where the limit part of a query will be written.
+    /// </summary>
+    public enum LimitType
+    {
+        /// <summary>
+        /// Writes the limit after the SELECT statement.
+        /// </summary>
+        Start,
+        /// <summary>
+        /// Writes the limit at the where clause. 
+        /// </summary>
+        WhereClause, 
+        /// <summary>
+        /// Writes the limit at the end of the query.
+        /// </summary>
+        End
     }
 }

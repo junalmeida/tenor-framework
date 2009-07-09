@@ -1,27 +1,13 @@
-using System.Diagnostics;
-using System;
-using System.Collections;
-using Tenor.Data;
-using System.Data;
-using System.Collections.Generic;
-using System.IO;
-
-
 namespace Tenor.Configuration
 {
+    /// <summary>
+    /// Encapsulates default settings for Localization logic.
+    /// </summary>
     internal class Localization
     {
-
-        /*
         /// <summary>
-        /// Indica a cultura padrÃ£o utilizada nos campos principais das tabelas.
+        /// Defines the cache key.
         /// </summary>
-        /// <remarks></remarks>
-        public const string DefaultCulture = "pt-BR";
-        */
-
-
-
-        public const string CacheKey = "__Tenor.BLL.Core.Localization";
+        public const string CacheKey = TenorModule.IdPrefix + "BLL_Core_Localization";
     }
 }

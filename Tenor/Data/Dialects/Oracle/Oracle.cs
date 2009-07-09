@@ -86,10 +86,7 @@ namespace Tenor.Data.Dialects.Oracle
 
         protected override string CreateClassAlias(Type classType)
         {
-            if (classType == null)
-                throw new ArgumentNullException("classType");
-
-            string alias = classType.FullName.Replace(".", "").ToLower();
+            string alias = base.CreateClassAlias(classType);
 
             // in case the alias is too long, removes part of it
             if (alias.Length > AliasMaxChar)

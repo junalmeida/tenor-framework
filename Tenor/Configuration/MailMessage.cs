@@ -1,30 +1,22 @@
-using System.Diagnostics;
-using System;
-using System.Collections;
-using Tenor.Data;
-using System.Data;
-using System.Collections.Generic;
-using System.IO;
-
-namespace Tenor
+namespace Tenor.Configuration
 {
-	namespace Configuration
-	{
-		
-		public class MailMessage
-		{
-			public const int MaxLengthTemplateKey = 120;
-			public const int MaxLengthTemplateValue = 4000;
-            /*
-			public const int MaxCharNome = 50;
-			public const int MaxCharEmail = 80;
-			public const int MaxCharTelefone = 50;
-			public const int MaxCharCPF = 50;
-			
-			
-			public static readonly string[] Verifica = new string[] {"verifica@tenorframework.com"};
-             */
-		}
-	}
-	
+    /// <summary>
+    /// Encapsulates default settings for MailMessage logic.
+    /// </summary>
+    public sealed class MailMessage
+    {
+        private MailMessage() { }
+
+        /// <summary>
+        /// Defines the max length of a template key.
+        /// </summary>
+        /// <seealso cref="Tenor.Mail.MailMessage"/>
+        public const int MaxLengthTemplateKey = 120;
+
+        /// <summary>
+        /// Defines the max length of a template value.
+        /// </summary>
+        /// <seealso cref="Tenor.Mail.MailMessage"/>
+        public const int MaxLengthTemplateValue = 4000;
+    }
 }

@@ -8,37 +8,37 @@ using System.IO;
 
 namespace Tenor.Configuration
 {
+    /// <summary>
+    /// Encapsulates all configuration constants of TenorModule.
+    /// </summary>
     internal class TenorModule
     {
-
-
         /// <summary>
-        /// ContÃ©m o tempo padrÃ£o para expirar a informaÃ§Ã£o
+        /// Defines the default expiration time in seconds.
         /// </summary>
         /// <remarks></remarks>
-        public const int DefaultExpiresTime = 1 * 60 * 60;
+        internal const int DefaultExpiresTime = 1 * 60 * 60;
         /// <summary>
-        /// ContÃ©m o nome do falso arquivo que irÃ¡ ativar este HttpModule
+        /// Defines the virtual file name that calls this module.
         /// </summary>
         /// <remarks></remarks>
-        public const string HandlerFileName = "Tenor.axd";
+        internal const string HandlerFileName = "Tenor.axd";
         /// <summary>
-        /// ContÃ©m o prefixo das chaves geradas.
+        /// Defines a base name of all keys.
         /// </summary>
         /// <remarks></remarks>
-        public const string IdPrefix = "__TENOR_";
+        internal const string IdPrefix = "__TENOR_";
 
         /// <summary>
-        /// ContÃ©m o prefixo que armazena as chaves.
+        /// Defines the base name of the cache key.
         /// </summary>
         /// <remarks></remarks>
-        public const string CacheKeys = IdPrefix + "KEYS";
+        internal const string CacheKeys = IdPrefix + "KEYS";
 
         /// <summary>
-        /// ContÃ©m o nome NoCache da queryString.
+        /// Defines the query string directive to clear the cache. 
         /// </summary>
         /// <remarks></remarks>
-        public const string NoCache = "nocache";
-
+        internal const string NoCache = "nocache";
     }
 }
