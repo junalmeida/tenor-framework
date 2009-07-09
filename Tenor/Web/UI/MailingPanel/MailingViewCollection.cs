@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System;
 using System.Collections;
-using Microsoft.VisualBasic;
 using Tenor.Data;
 using System.Data;
 using System.Collections.Generic;
@@ -14,76 +13,62 @@ using System.Web.UI.WebControls;
 using System.Security.Permissions;
 
 
-namespace Tenor
+namespace Tenor.Web.UI.WebControls.Core
 {
-	namespace Web
-	{
-		namespace UI
-		{
-			namespace WebControls
-			{
-				namespace Core
-				{
-					
-					
-					[DefaultProperty("Item"), AspNetHostingPermission(SecurityAction.LinkDemand, Level = AspNetHostingPermissionLevel.Minimal), AspNetHostingPermission(SecurityAction.InheritanceDemand, Level = AspNetHostingPermissionLevel.Minimal)]public class MailingViewCollection : ViewCollection
-					{
-						
-						
-						// Methods
-						public MailingViewCollection(Control owner) : base(owner)
-						{
-						}
-						
-						public override void Add(Control view)
-						{
-                            if (view == null)
-                                throw new ArgumentNullException("view");
 
-							if (Count == 0)
-							{
-                                if (view.GetType() != typeof(FormView))
-								{
-									throw (new ArgumentException("First view must be a FormView."));
-								}
-								base.Add(view);
-							}
-							else if (Count == 1)
-							{
-                                if (view.GetType() != typeof(ResultView))
-								{
-									throw (new ArgumentException("Second view must be a ResultView."));
-								}
-                                base.Add(view);
-							}
-							else
-							{
-								throw (new ArgumentException("You can only add one FormView and one ResultView."));
-							}
-						}
-						
-						[Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-                        public override void AddAt(int index, Control v)
-						{
-						}
-						
-						
-						// Properties
-						public new View this[int i]
-						{
-							get
-							{
-								return ((View) (base[i]));
-							}
-						}
-						
-					}
-					
-					
-					
-				}
-			}
-		}
-	}
-	
+
+    [DefaultProperty("Item"), AspNetHostingPermission(SecurityAction.LinkDemand, Level = AspNetHostingPermissionLevel.Minimal), AspNetHostingPermission(SecurityAction.InheritanceDemand, Level = AspNetHostingPermissionLevel.Minimal)]
+    public class MailingViewCollection : ViewCollection
+    {
+
+
+        // Methods
+        public MailingViewCollection(Control owner)
+            : base(owner)
+        {
+        }
+
+        public override void Add(Control view)
+        {
+            if (view == null)
+                throw new ArgumentNullException("view");
+
+            if (Count == 0)
+            {
+                if (view.GetType() != typeof(FormView))
+                {
+                    throw (new ArgumentException("First view must be a FormView."));
+                }
+                base.Add(view);
+            }
+            else if (Count == 1)
+            {
+                if (view.GetType() != typeof(ResultView))
+                {
+                    throw (new ArgumentException("Second view must be a ResultView."));
+                }
+                base.Add(view);
+            }
+            else
+            {
+                throw (new ArgumentException("You can only add one FormView and one ResultView."));
+            }
+        }
+
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+        public override void AddAt(int index, Control v)
+        {
+        }
+
+
+        // Properties
+        public new View this[int i]
+        {
+            get
+            {
+                return ((View)(base[i]));
+            }
+        }
+
+    }
 }

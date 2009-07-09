@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System;
 using System.Collections;
-using Microsoft.VisualBasic;
 using Tenor.Data;
 using System.Data;
 using System.Collections.Generic;
@@ -363,7 +362,7 @@ namespace Tenor.BLL
                 }
                 else
                 {
-                    result = Helper.ExecuteQuery(query, parameters, connection, secondQuery);
+                    result = Helper.UpdateData(query, parameters, connection, secondQuery);
                 }
 
                 if (!isUpdate && autoKeyField != null)
@@ -450,7 +449,7 @@ namespace Tenor.BLL
 
                 string query = dialect.CreateConditionalSaveSql(insertQuery, updateQuery, conditionalFields, fieldsPrimary);
 
-                DataTable result = Helper.ConsultarBanco(connection, query.ToString(), parameters);
+                DataTable result = Helper.QueryData(connection, query.ToString(), parameters);
 
                 if (!isUpdate && System.Convert.ToInt32(result.Rows[0][0]) == -1)
                 {
@@ -497,7 +496,7 @@ namespace Tenor.BLL
             if (this.transaction != null && this.transaction.transaction != null)
                 Helper.ExecuteQuery(query, parameters, transaction.transaction, dialect);
             else
-                Helper.ExecuteQuery(query, parameters, connection);
+                Helper.UpdateData(query, parameters, connection);
         }
 
         public static void Delete(BLLBase[] instances)
@@ -548,7 +547,7 @@ namespace Tenor.BLL
             if (transaction != null && transaction.transaction != null)
                 Helper.ExecuteQuery(query, parameters, transaction.transaction, dialect);
             else
-                Helper.ExecuteQuery(query, parameters, connection);
+                Helper.UpdateData(query, parameters, connection);
 
 
         }

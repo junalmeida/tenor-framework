@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System;
 using System.Collections;
-using Microsoft.VisualBasic;
 using Tenor.Data;
 using System.Data;
 using System.Collections.Generic;
@@ -17,10 +16,6 @@ namespace Tenor.Web
 {
     public partial class TenorModule
     {
-
-        //Funções Url de Instãncia
-
-
 
         /// <summary>
         /// Retorna uma string com a url que representa a instancia.

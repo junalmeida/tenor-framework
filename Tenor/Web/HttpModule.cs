@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System;
 using System.Collections;
-using Microsoft.VisualBasic;
 using Tenor.Data;
 using System.Data;
 using System.Collections.Generic;
@@ -20,10 +19,8 @@ namespace Tenor.Web
 {
 
     /// <summary>
-    /// MÃ³dulo de RequisiÃ§Ãµes Web.
-    ///
+    /// The TenorModule is an HttpModule to handle database, graphical and other http requests.
     /// </summary>
-    /// <remarks></remarks>
     public partial class TenorModule : IHttpModule //, System.Web.SessionState.IReadOnlySessionState
     {
         /*
@@ -95,11 +92,8 @@ namespace Tenor.Web
 
 
         /// <summary>
-        /// Tenta obter o valor da queryString mesmo que o ASP.NET tenha feito HtmlEnconde de partes dela indevidamente.
+        /// This is a workaround to HtmlEncode bug that we don't know why it happens.
         /// </summary>
-        /// <param name="Key"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
         private string QueryString(string Key)
         {
             HttpRequest Request = HttpContext.Current.Request;

@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System;
 using System.Collections;
-using Microsoft.VisualBasic;
 using Tenor.Data;
 using System.Data;
 using System.Collections.Generic;
@@ -24,10 +23,10 @@ namespace Tenor
 			
 			
 			
-			public static MailAddress FromPadrao(string DisplayName)
-			{
-				return new MailAddress(Configuration.MailMessage._FromPadrao, DisplayName);
-			}
+            //public static MailAddress FromPadrao(string DisplayName)
+            //{
+            //    return new MailAddress(Configuration.MailMessage._FromPadrao, DisplayName);
+            //}
 			
 			#region " Construtores "
 			
@@ -280,8 +279,8 @@ namespace Tenor
 					smtp.Credentials = new System.Net.NetworkCredential(UserName, Password);
 				}
 				smtp.EnableSsl = UseSSL;
-				
-				// Se não houver smtp server setado,
+				/*
+				this is not useful
 				if (string.IsNullOrEmpty(smtp.Host) || smtp.Host.Equals("127.0.0.1"))
 				{
 					// Seta o padrão
@@ -290,7 +289,7 @@ namespace Tenor
 					smtp.EnableSsl = Configuration.MailMessage._SmtpUseSSL;
 					smtp.Credentials = new System.Net.NetworkCredential(Configuration.MailMessage._UsuarioPadrao, Configuration.MailMessage._SenhaPadrao);
 				}
-				
+				*/
 				try
 				{
 					PrepareTemplate();

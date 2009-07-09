@@ -1,14 +1,11 @@
 using System.Diagnostics;
 using System.Collections;
-using Microsoft.VisualBasic;
 using System.Collections.Generic;
 using System;
 using System.Web.UI;
 
 
 [assembly:WebResource(Tenor.Configuration.Resources.JsAdapterUtils, "text/javascript")]
-
-
 [assembly:WebResource(Tenor.Configuration.Resources.JsCheckBoxList, "text/javascript")]
 
 

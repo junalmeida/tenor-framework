@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Collections;
-using Microsoft.VisualBasic;
 using System.Collections.Generic;
 using System;
 using System.Drawing;
@@ -14,36 +13,21 @@ using System.Reflection;
 using System.ComponentModel;
 
 
-namespace Tenor
+namespace Tenor.Web.UI.WebControls.Design
 {
-	namespace Web
-	{
-		namespace UI
-		{
-			namespace WebControls
-			{
-				namespace Design
-				{
-					
-					
-					
-					[ToolboxItem(false)]public class ControlDesigner : System.Web.UI.Design.ControlDesigner
-					{
-						
-						
-						public override void Initialize(System.ComponentModel.IComponent component)
-						{
-							base.Initialize(component);
-							
-							//Dim webApp As IWebApplication = CType(GetService(GetType(IWebApplication)), IWebApplication)
-							//Util.CheckWebConfig(webApp)
-						}
-						
-					}
-					
-				}
-			}
-		}
-	}
-	
+    [ToolboxItem(false)]
+    public class ControlDesigner : System.Web.UI.Design.ControlDesigner
+    {
+
+
+        public override void Initialize(System.ComponentModel.IComponent component)
+        {
+            base.Initialize(component);
+
+            //Dim webApp As IWebApplication = CType(GetService(GetType(IWebApplication)), IWebApplication)
+            //Util.CheckWebConfig(webApp)
+        }
+
+    }
+
 }

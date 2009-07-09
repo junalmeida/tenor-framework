@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Collections;
-using Microsoft.VisualBasic;
 using System.Collections.Generic;
 using System;
 using System.Drawing;
@@ -13,35 +12,19 @@ using System.Reflection;
 using System.ComponentModel;
 
 
-namespace Tenor
+namespace Tenor.Web.UI.WebControls.Design
 {
-	namespace Web
-	{
-		namespace UI
-		{
-			namespace WebControls
-			{
-				namespace Design
-				{
-					
-					
-					
-					
-					[ToolboxItem(false)]public class ScriptManagerDesigner : Design.ControlDesigner
-					{
-						
-						
-						public override string GetDesignTimeHtml()
-						{
-							return this.CreatePlaceHolderDesignTimeHtml();
-						}
-						
-						
-					}
-					
-				}
-			}
-		}
-	}
-	
+
+    [ToolboxItem(false)]
+    public class ScriptManagerDesigner : Design.ControlDesigner
+    {
+
+
+        public override string GetDesignTimeHtml()
+        {
+            return this.CreatePlaceHolderDesignTimeHtml();
+        }
+
+
+    }
 }

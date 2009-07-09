@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System;
 using System.Collections;
-using Microsoft.VisualBasic;
 using Tenor.Data;
 using System.Data;
 using System.Collections.Generic;
@@ -17,86 +16,48 @@ namespace Tenor.Data
     /// Autor: Rachel dos Santos Carvalho
     /// </summary>
     /// <remarks></remarks>
-    public class Helper
+    public sealed class Helper
     {
 
-
+        /// <summary>
+        /// This is the default timeout of any DbCommand.
+        /// TODO: Consider moving this to ConfigurationManager.
+        /// </summary>
         public const int DefaultTimeout = 260;
 
         /// <summary>
-        /// A classe não pode ser instanciada
+        /// This is an static class.
         /// </summary>
-        /// <remarks></remarks>
         private Helper()
-        {
-        }
+        { }
 
         /// <summary>
-        /// Cria um factory para criação de objetos baseados na provider
+        /// Creates the DbProviderFactory. 
+        /// TODO: Move all this stuff to dialects.
         /// </summary>
-        /// <param name="Connection">ConnectionString da Web.Config</param>
-        /// <returns>Factory específica</returns>
-        /// <remarks></remarks>
         internal static DbProviderFactory GetFactory(ConnectionStringSettings Connection)
         {
             DbProviderFactory factory = DbProviderFactories.GetFactory(Connection.ProviderName);
             return factory;
         }
+        /// <summary>
+        /// Creates the CommandBuilder. 
+        /// TODO: Move all this stuff to dialects.
+        /// </summary>
         internal static DbCommandBuilder GetCommandBuilder(ConnectionStringSettings connection)
         {
             DbCommandBuilder builder = GetFactory(connection).CreateCommandBuilder();
             return builder;
         }
 
-        ///' <summary>
-        ///' Cria conexão e adapter para a ConnectionString especificada.
-        ///' </summary>
-        ///' <param name="Connection">ConnectionString da config</param>
-        ///' <returns>Array de Object com Connection e Adapter</returns>
-        ///' <remarks></remarks>
-        //<Obsolete(Nothing, True)> _
-        //Friend Shared Function CreateConnection(ByVal Connection As ConnectionStringSettings) As System.Data.Common.DbConnection
-        //    If Connection Is Nothing Then
-        //        Throw New NullReferenceException()
-        //    End If
-        //    Select Case Connection.ProviderName.ToLower()
-        //        Case "system.data.sqlclient"
-        //            Return New SqlConnection(Connection.ConnectionString)
-        //        Case "system.data.odbc"
-        //            Return New Odbc.OdbcConnection(Connection.ConnectionString)
-        //        Case Else
-        //            Throw New Exception("The provider specified on connection '" + Connection.Name + "' cannot be found or is not supported.")
-        //    End Select
-
-        //End Function
-
-        ///' <summary>
-        ///' A estrutura de um SqlParameter
-        ///' </summary>
-        //<Serializable()> _
-        //Public Structure Parametro
-        //    Dim Nome As String
-        //    Dim Tipo As DbType
-        //    Dim Valor As Object
-
-        //    Public Sub New(ByVal nome As String, ByVal valor As Object)
-        //        Me.Nome = nome
-        //        Me.Valor = valor
-        //    End Sub
-
-        //    Public Sub New(ByVal nome As String, ByVal tipo As DbType, ByVal valor As Object)
-        //        Me.Nome = nome
-        //        Me.Tipo = tipo
-        //        Me.Valor = valor
-        //    End Sub
-        //End Structure
-
         /// <summary>
-        /// Resolve o nome do tipo do sistema no banco de dados
+        /// Converts a system type name into a database type.
         /// </summary>
         /// <param name="systemType">A system type</param>
         /// <param name="factory">A system database factory</param>
-        /// <returns></returns>
+        /// <returns>The database name.</returns>
+        /// <exception cref="Tenor.TenorException">Throws TenorException when cannot convert the desired system type.</exception>
+        /// <exception cref="System.ArgumentNullException">Throws ArgumentNullException when a null parameter was supplied.</exception>
         /// <remarks></remarks>
         public static string GetDbTypeName(Type systemType, DbProviderFactory factory)
         {
@@ -115,7 +76,7 @@ namespace Tenor.Data
             System.ComponentModel.TypeConverter conversor = System.ComponentModel.TypeDescriptor.GetConverter(tipo);
             if (conversor == null)
             {
-                throw (new Exception("GetDbTypeName: Cannot create converter."));
+                throw (new TenorException("GetDbTypeName: Cannot create converter."));
             }
             tipo = (DbType)(conversor.ConvertFrom(systemType.Name));
 
@@ -125,7 +86,7 @@ namespace Tenor.Data
             System.Data.Common.DbParameter param = factory.CreateParameter();
             if (param == null)
             {
-                throw (new Exception("GetDbTypeName: Cannot create parameter."));
+                throw (new TenorException("GetDbTypeName: Cannot create parameter."));
             }
             param.DbType = tipo;
 
@@ -144,24 +105,24 @@ namespace Tenor.Data
         }
 
         /// <summary>
-        /// Consulta o banco com os parâmetros passados e retorna uma DataTable
+        /// Executes a query on the database and them returns a datatable.
         /// </summary>
-        /// <param name="sqlSelect">SQL de select</param>
-        /// <param name="parametros">Array de Parametros</param>
-        /// <returns>DataTable com os resultados, ou Nothing, caso nada tenha sido retornado.</returns>
-        public static DataTable ConsultarBanco(string sqlSelect, TenorParameter[] parametros)
+        /// <param name="sqlSelect">A SQL query to execute.</param>
+        /// <param name="parameters">Parameters collection.</param>
+        /// <returns>A <see cref="System.Data.DataTable">DataTable</see> with results of the query.</returns>
+        public static DataTable QueryData(string sqlSelect, TenorParameter[] parameters)
         {
-            return ConsultarBanco(null, sqlSelect, parametros);
+            return QueryData(null, sqlSelect, parameters);
         }
 
         /// <summary>
-        /// Consulta o banco com os parâmetros passados e retorna uma DataTable
+        /// Executes a query on the database and them returns a datatable.
         /// </summary>
-        /// <param name="ConnectionString">Conexão no web.config</param>
-        /// <param name="sqlSelect">SQL de select</param>
-        /// <param name="parametros">Coleção de Parametros</param>
-        /// <returns>DataTable com os resultados, ou Nothing, caso nada tenha sido retornado.</returns>
-        public static DataTable ConsultarBanco(ConnectionStringSettings connectionString, string sqlSelect, TenorParameter[] parametros)
+        /// <param name="connectionString">The connection parameters.</param>
+        /// <param name="sqlSelect">A SQL query to execute.</param>
+        /// <param name="parameters">Parameters collection.</param>
+        /// <returns>A <see cref="System.Data.DataTable">DataTable</see> with results of the query.</returns>
+        public static DataTable QueryData(ConnectionStringSettings connectionString, string sqlSelect, TenorParameter[] parameters)
         {
             if (connectionString == null)
                 throw new ArgumentNullException("connectionString");
@@ -178,7 +139,7 @@ namespace Tenor.Data
             {
                 if (System.Diagnostics.Debugger.IsAttached)
                 {
-                    Tenor.Diagnostics.Debug.DebugSQL("Helper: ConsultarBanco()", sqlSelect, parametros, connectionString);
+                    Tenor.Diagnostics.Debug.DebugSQL("Helper: ConsultarBanco()", sqlSelect, parameters, connectionString);
                 }
             }
             catch (Exception ex)
@@ -193,9 +154,9 @@ namespace Tenor.Data
                 cmd = conn.CreateCommand();
                 cmd.CommandText = sqlSelect;
                 cmd.CommandTimeout = Helper.DefaultTimeout;
-                if (parametros != null)
+                if (parameters != null)
                 {
-                    foreach (TenorParameter param in parametros)
+                    foreach (TenorParameter param in parameters)
                     {
                         cmd.Parameters.Add(param.ToDbParameter(factory));
                     }
@@ -232,27 +193,27 @@ namespace Tenor.Data
         }
 
         /// <summary>
-        /// Consulta o banco com os parâmetros passados e retorna o valor
+        /// Executes a query on the database and them returns the scalar value.
         /// </summary>
-        /// <param name="sqlSelect">SQL de select</param>
-        /// <param name="parametros">Coleção de Parametros</param>
-        /// <returns>O resultado, ou Nothing, caso nada tenha sido retornado.</returns>
-        public static object ConsultarValor(string sqlSelect, TenorParameter[] parametros)
+        /// <param name="sqlSelect">A SQL query to execute.</param>
+        /// <param name="parameters">Parameters collection.</param>
+        /// <returns>The scalar value returned from the database. It could be any valued type, string, or null.</returns>
+        public static object QueryValue(string sqlSelect, TenorParameter[] parameters)
         {
-            return ConsultarValor(Tenor.BLL.BLLBase.SystemConnection, sqlSelect, parametros);
+            return QueryValue(Tenor.BLL.BLLBase.SystemConnection, sqlSelect, parameters);
         }
 
         /// <summary>
-        /// Consulta o banco com os parâmetros passados e retorna o valor
+        /// Executes a query on the database and them returns the scalar value.
         /// </summary>
-        /// <param name="ConnectionString">Conexão no web.config</param>
-        /// <param name="sqlSelect">SQL de select</param>
-        /// <param name="parametros">Coleção de Parametros</param>
-        /// <returns>O resultado, ou Nothing, caso nada tenha sido retornado.</returns>
-        public static object ConsultarValor(ConnectionStringSettings connectionString, string sqlSelect, TenorParameter[] parametros)
+        /// <param name="connectionString">The connection parameters.</param>
+        /// <param name="sqlSelect">A SQL query to execute.</param>
+        /// <param name="parameters">Parameters collection.</param>
+        /// <returns>The scalar value returned from the database. It could be any valued type, string, or null.</returns>
+        public static object QueryValue(ConnectionStringSettings connectionString, string sqlSelect, TenorParameter[] parameters)
         {
             object valor = null;
-            DataTable tabela = ConsultarBanco(connectionString, sqlSelect, parametros);
+            DataTable tabela = QueryData(connectionString, sqlSelect, parameters);
             if (tabela != null && tabela.Rows.Count > 0)
             {
                 valor = tabela.Rows[0][0];
@@ -263,13 +224,11 @@ namespace Tenor.Data
         /// <summary>
         /// Executes a query on the database.
         /// </summary>
-        /// <param name="sql">SQL query</param>
-        /// <param name="parametros">Parameters</param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public static object ExecuteQuery(string sql, TenorParameter[] parameters)
+        /// <param name="sqlSelect">A SQL query to execute.</param>
+        /// <param name="parameters">Parameters collection.</param>
+        public static object UpdateData(string sql, TenorParameter[] parameters)
         {
-            return ExecuteQuery(sql, parameters, null);
+            return UpdateData(sql, parameters, null);
         }
 
         /// <summary>
@@ -280,9 +239,9 @@ namespace Tenor.Data
         /// <param name="connection">Connection</param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public static object ExecuteQuery(string sql, TenorParameter[] parameters, ConnectionStringSettings connection)
+        public static object UpdateData(string sql, TenorParameter[] parameters, ConnectionStringSettings connection)
         {
-            return ExecuteQuery(sql, parameters, connection, (string)null);
+            return UpdateData(sql, parameters, connection, (string)null);
         }
 
         /// <summary>
@@ -293,7 +252,7 @@ namespace Tenor.Data
         /// <param name="connection">Connection</param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public static object ExecuteQuery(string sql, TenorParameter[] parameters, ConnectionStringSettings connection, string secondSql)
+        public static object UpdateData(string sql, TenorParameter[] parameters, ConnectionStringSettings connection, string secondSql)
         {
             if (connection == null)
                 connection = BLL.BLLBase.SystemConnection;

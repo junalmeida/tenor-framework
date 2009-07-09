@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System;
 using System.Collections;
-using Microsoft.VisualBasic;
 using Tenor.Data;
 using System.Data;
 using System.Collections.Generic;
@@ -14,31 +13,11 @@ using System.Web.UI.WebControls;
 using System.Security.Permissions;
 
 
-namespace Tenor
+namespace Tenor.Web.UI.WebControls.Core
 {
-	namespace Web
-	{
-		namespace UI
-		{
-			namespace WebControls
-			{
-				namespace Core
-				{
-					
-					public class FormView : View
-					{
-						
-						
-					}
-					
-					public class ResultView : View
-					{
-						
-						
-					}
-				}
-			}
-		}
-	}
-	
+    public class FormView : View
+    { }
+
+    public class ResultView : View
+    { }
 }

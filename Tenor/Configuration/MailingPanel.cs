@@ -1,23 +1,15 @@
 using System.Diagnostics;
 using System;
 using System.Collections;
-using Microsoft.VisualBasic;
 using Tenor.Data;
 using System.Data;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Tenor
+namespace Tenor.Configuration
 {
-	namespace Configuration
-	{
-		internal class MailingPanel
-		{
-			
-			
-			
-		}
-		
-	}
-	
+    internal class MailingPanel
+    {
+        //Reservede for future and used in past. Not for present.
+    }
 }
