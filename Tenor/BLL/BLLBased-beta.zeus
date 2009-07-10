@@ -24,7 +24,7 @@ public class GeneratedGui : DotNetScriptGui
 		
 		try
 		{
-			StringReader reader = new StringReader(File.ReadAllText(this.context.ExecutingTemplate.FilePath + "aTemplateSnippets.xml", System.Text.UnicodeEncoding.Unicode));
+			StringReader reader = new StringReader(File.ReadAllText(this.context.ExecutingTemplate.FilePath + "TemplateSnippets.xml", System.Text.UnicodeEncoding.Unicode));
 			XmlSerializer serializer = new XmlSerializer(typeof(List<List<DictionaryEntry>>));
 			list = (List<List<DictionaryEntry>>)serializer.Deserialize(reader);
 		}
