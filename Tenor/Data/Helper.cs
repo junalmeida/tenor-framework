@@ -257,7 +257,7 @@ namespace Tenor.Data
             if (connection == null)
                 connection = BLL.BLLBase.SystemConnection;
 
-            IDialect dialect = DialectFactory.CreateDialect(connection);
+            GeneralDialect dialect = DialectFactory.CreateDialect(connection);
 
             DbConnection conn = dialect.Factory.CreateConnection();
             conn.ConnectionString = connection.ConnectionString;
@@ -289,7 +289,7 @@ namespace Tenor.Data
             }
         }
 
-        internal static object ExecuteQuery(string sql, TenorParameter[] parameters, DbTransaction transaction, IDialect dialect)
+        internal static object ExecuteQuery(string sql, TenorParameter[] parameters, DbTransaction transaction, GeneralDialect dialect)
         {
             DbConnection conn = transaction.Connection;
             DbCommand cmd;

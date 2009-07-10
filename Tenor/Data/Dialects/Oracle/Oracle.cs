@@ -5,7 +5,7 @@ using System.Data.Common;
 
 namespace Tenor.Data.Dialects.Oracle
 {
-    public class Oracle : GeneralDialect, IDialect
+    public class Oracle : GeneralDialect
     {
         private DbProviderFactory factory;
         public override DbProviderFactory Factory

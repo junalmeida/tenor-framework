@@ -9,22 +9,14 @@ namespace Tenor.BLL
  
 
         /// <summary>
-        /// Pega uma lista de FieldInfos com todos os fields da instância passada
         /// </summary>
-        /// <param name="InstanceType">O tipo do objeto que contém os campos</param>
-        /// <returns>Uma lista de FieldInfos</returns>
-        /// <remarks></remarks>
         internal static FieldInfo[] GetFields(Type instanceType)
         {
             return GetFields(instanceType, null);
         }
         /// <summary>
-        /// Pega uma lista de FieldInfos com todos os fields da instância passada
         /// </summary>
-        /// <param name="InstanceType">O tipo do objeto que contém os campos</param>
-        /// <param name="IsPrimaryKey"></param>
-        /// <returns>Uma lista de FieldInfos</returns>
-        /// <remarks></remarks>
+        /// <param name="isPrimaryKey">True to get only primary keys, false to get only non-primary key fields, and null to get everything.</param>
         internal static FieldInfo[] GetFields(Type instanceType, bool? isPrimaryKey)
         {
             return GetFields(instanceType, isPrimaryKey, null);
@@ -32,12 +24,8 @@ namespace Tenor.BLL
 
 
         /// <summary>
-        /// Pega uma lista de FieldInfos com todos os fields da instância passada
         /// </summary>
-        /// <param name="InstanceType">O tipo do objeto que contém os campos</param>
-        /// <param name="IsPrimaryKey"></param>
-        /// <returns>Uma lista de FieldInfos</returns>
-        /// <remarks></remarks>
+        /// <param name="isPrimaryKey">True to get only primary keys, false to get only non-primary key fields, and null to get everything.</param>
         internal static FieldInfo[] GetFields(Type InstanceType, bool? isPrimaryKey, string[] filter)
         {
             List<FieldInfo> returnValue = new List<FieldInfo>();
@@ -65,15 +53,11 @@ namespace Tenor.BLL
         }
 
         /// <summary>
-        /// Pega uma lista de FieldInfos com todos os fields da instância passada
         /// </summary>
-        /// <param name="InstanceType">O tipo da instancia</param>
-        /// <returns>Uma lista de FieldInfos</returns>
-        /// <remarks></remarks>
-        internal static ForeignKeyInfo[] GetForeignKeys(Type InstanceType)
+        internal static ForeignKeyInfo[] GetForeignKeys(Type instanceType)
         {
             List<ForeignKeyInfo> res = new List<ForeignKeyInfo>();
-            foreach (System.Reflection.PropertyInfo i in InstanceType.GetProperties())
+            foreach (System.Reflection.PropertyInfo i in instanceType.GetProperties())
             {
                 ForeignKeyInfo foreign = ForeignKeyInfo.Create(i);
                 if (foreign != null)

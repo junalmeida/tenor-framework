@@ -11,13 +11,13 @@ namespace Tenor.BLL
         private string GetCacheKey()
         {
 
-            FieldInfo[] chavesPrimaria = GetPrimaryKeys(this.GetType());
-            if (chavesPrimaria.Length == 0)
+            FieldInfo[] primaryKeys = GetPrimaryKeys(this.GetType());
+            if (primaryKeys.Length == 0)
             {
                 throw (new Tenor.Data.MissingPrimaryKeyException(this.GetType()));
             }
             string primaryKey = "";
-            foreach (FieldInfo f in chavesPrimaria)
+            foreach (FieldInfo f in primaryKeys)
             {
                 primaryKey += "," + f.PropertyValue(this).ToString();
             }
@@ -36,38 +36,36 @@ namespace Tenor.BLL
 
 
         /// <summary>
-        /// Seeks for a cache instance. If not found, it will be put.
+        /// Seeks for a cache instance. If not found, it will be cached.
         /// </summary>
         /// <returns>Returns true if the item was read from cache. In case of false, the instance must be read from the persistence medium.</returns>
         /// <remarks></remarks>
         private bool LoadFromCache()
         {
 
-            string chavePrimaria = GetCacheKey();
+            string primaryKey = GetCacheKey();
 
-            System.Web.Caching.Cache Cache = null;
+            System.Web.Caching.Cache cache = null;
             if (System.Web.HttpContext.Current != null)
-            {
-                Cache = System.Web.HttpContext.Current.Cache;
-            }
+                cache = System.Web.HttpContext.Current.Cache;
 
-            if (Cache != null)
+            if (cache != null)
             {
-                Dictionary<string, BLLBase> obj = (Dictionary<string, BLLBase>)(Cache.Get(ChaveCache));
+                Dictionary<string, BLLBase> obj = (Dictionary<string, BLLBase>)(cache.Get(cacheKey));
 
                 if (obj == null)
                 {
                     obj = new Dictionary<string, BLLBase>();
-                    Cache.Add(ChaveCache, obj, null, System.Web.Caching.Cache.NoAbsoluteExpiration, new TimeSpan(0, 60, 0), System.Web.Caching.CacheItemPriority.Default, null);
+                    cache.Add(cacheKey, obj, null, System.Web.Caching.Cache.NoAbsoluteExpiration, new TimeSpan(0, 60, 0), System.Web.Caching.CacheItemPriority.Default, null);
                 }
 
 
                 object sync = new object();
                 lock (sync)
                 {
-                    if (obj.ContainsKey(chavePrimaria) && (obj[chavePrimaria] != null))
+                    if (obj.ContainsKey(primaryKey) && (obj[primaryKey] != null))
                     {
-                        BLLBase item = obj[chavePrimaria];
+                        BLLBase item = obj[primaryKey];
                         item.CopyTo(this);
                         return true;
                     }
@@ -78,32 +76,30 @@ namespace Tenor.BLL
 
         private void SaveToCache()
         {
-            System.Web.Caching.Cache Cache = null;
+            System.Web.Caching.Cache cache = null;
             if (System.Web.HttpContext.Current != null)
+                cache = System.Web.HttpContext.Current.Cache;
+
+            if (cache != null)
             {
-                Cache = System.Web.HttpContext.Current.Cache;
-            }
-            if (Cache != null)
-            {
-                object sync = new object();
-                lock (sync)
+                lock (this)
                 {
-                    Dictionary<string, BLLBase> obj = (Dictionary<string, BLLBase>)(Cache.Get(ChaveCache));
+                    Dictionary<string, BLLBase> obj = (Dictionary<string, BLLBase>)(cache.Get(cacheKey));
                     if (obj == null)
                     {
                         obj = new Dictionary<string, BLLBase>();
-                        Cache.Add(ChaveCache, obj, null, System.Web.Caching.Cache.NoAbsoluteExpiration, new TimeSpan(0, 60, 0), System.Web.Caching.CacheItemPriority.Default, null);
+                        cache.Add(cacheKey, obj, null, System.Web.Caching.Cache.NoAbsoluteExpiration, new TimeSpan(0, 60, 0), System.Web.Caching.CacheItemPriority.Default, null);
                     }
-                    string chavePrimaria = GetCacheKey();
-                    if (obj.ContainsKey(chavePrimaria))
+                    string primaryKey = GetCacheKey();
+                    if (obj.ContainsKey(primaryKey))
                     {
-                        //A chave do cache existe, mas por algum motivo não está lá.
-                        obj[chavePrimaria] = this;
+                        //The key already exists, but somehow it's not there.
+                        obj[primaryKey] = this;
                     }
                     else
                     {
-                        //A chave do cache não existe
-                        obj.Add(chavePrimaria, this);
+                        //The key does not exists.
+                        obj.Add(primaryKey, this);
                     }
                 }
             }
@@ -113,10 +109,10 @@ namespace Tenor.BLL
 
 
         /// <summary>
-        /// Copia os campos private para o objeto especificado.
+        /// Copies all private fields to the specified object.
         /// </summary>
-        /// <param name="obj"></param>
-        /// <remarks></remarks>
+        /// <param name="obj">An instance of BLLBase to copy data.</param>
+        /// <remarks>You can only copy data to instances of the same type.</remarks>
         private void CopyTo(BLLBase obj)
         {
             if (obj.GetType() != this.GetType())
@@ -128,10 +124,6 @@ namespace Tenor.BLL
             {
                 field.SetValue(obj, field.GetValue(this));
             }
-
         }
-
-  
-
     }
 }

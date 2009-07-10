@@ -4,6 +4,7 @@ using System.Text;
 using System.Data.Common;
 using System.Collections.Specialized;
 using System.Reflection;
+using Tenor.BLL;
 
 namespace Tenor.Data.Dialects
 {
@@ -11,7 +12,7 @@ namespace Tenor.Data.Dialects
     /// <summary>
     /// Represents the common code between all dialects.
     /// </summary>
-    public abstract class GeneralDialect : IDialect
+    public abstract class GeneralDialect : object
     {
         /// <summary>
         /// Defines the max length of a parameter name.
@@ -142,7 +143,7 @@ namespace Tenor.Data.Dialects
                 throw new ArgumentNullException("classType");
 
             if (!classType.IsSubclassOf(typeof(BLL.BLLBase)))
-                throw new ArgumentException(string.Format("The class '{0}' must derive directly or indirectly from '{1}'.", classType.FullName, typeof(BLL.BLLBase).FullName), "classType");
+                throw new InvalidTypeException(classType, "classType");
 
             return classType.FullName.Replace(".", "").ToLower();
         }
@@ -382,9 +383,8 @@ namespace Tenor.Data.Dialects
 
         }
 
-        #region IDialect Members
 
-        string IDialect.CreateWhereSql(ConditionCollection conditions, Type baseClass, Join[] joins, out TenorParameter[] parameters)
+        internal string CreateWhereSql(ConditionCollection conditions, Type baseClass, Join[] joins, out TenorParameter[] parameters)
         {
             return CreateWhereSql(conditions, baseClass, joins, out parameters, true);
         }
@@ -469,7 +469,7 @@ namespace Tenor.Data.Dialects
         }
 
 
-        string IDialect.CreateSelectSql(Type baseClass, FieldInfo[] fields, SpecialFieldInfo[] spFields)
+        internal string CreateSelectSql(Type baseClass, FieldInfo[] fields, SpecialFieldInfo[] spFields)
         {
             string alias = CreateClassAlias(baseClass);
             StringBuilder fieldsSql = new StringBuilder();
@@ -479,8 +479,8 @@ namespace Tenor.Data.Dialects
                 //TODO :Check if we can consider all fields from the parameter.
                 //if (f.PrimaryKey || !f.LazyLoading)
                 //{
-                    
-                    fieldsSql.Append(", " + alias + "." + CommandBuilder.QuoteIdentifier(f.DataFieldName));
+
+                fieldsSql.Append(", " + alias + "." + CommandBuilder.QuoteIdentifier(f.DataFieldName));
                 //
             }
             if (fieldsSql.Length == 0)
@@ -499,7 +499,7 @@ namespace Tenor.Data.Dialects
             return fieldsSql.ToString();
         }
 
-        string IDialect.CreateSortSql(SortingCollection sortCollection, Type baseClass, Join[] joins, bool isDistinct, out string appendToSelect)
+        internal string CreateSortSql(SortingCollection sortCollection, Type baseClass, Join[] joins, bool isDistinct, out string appendToSelect)
         {
             //Sorting
             StringBuilder sqlSort = new StringBuilder();
@@ -556,7 +556,7 @@ namespace Tenor.Data.Dialects
             return sqlSort.ToString();
         }
 
-        string IDialect.CreateJoinsSql(Join[] joins)
+        internal string CreateJoinsSql(Join[] joins)
         {
             StringBuilder sql = new StringBuilder();
             foreach (Join join in joins)
@@ -594,7 +594,7 @@ namespace Tenor.Data.Dialects
             return sql.ToString();
         }
 
-        string IDialect.CreateFullSql(Type baseClass, bool isDistinct, bool justCount, int limit, string fieldsPart, string joinsPart, string sortPart, string wherePart)
+        internal string CreateFullSql(Type baseClass, bool isDistinct, bool justCount, int limit, string fieldsPart, string joinsPart, string sortPart, string wherePart)
         {
             TableInfo table = TableInfo.CreateTableInfo(baseClass);
             string baseAlias = CreateClassAlias(baseClass);
@@ -676,7 +676,7 @@ namespace Tenor.Data.Dialects
 
         }
 
-        string IDialect.CreateSaveSql(Type baseClass, Dictionary<FieldInfo, object> data, NameValueCollection specialValues, ConditionCollection conditions, out TenorParameter[] parameters)
+        internal string CreateSaveSql(Type baseClass, Dictionary<FieldInfo, object> data, NameValueCollection specialValues, ConditionCollection conditions, out TenorParameter[] parameters)
         {
             List<TenorParameter> parameterList = new List<TenorParameter>();
             StringBuilder fields = new StringBuilder();
@@ -773,8 +773,9 @@ namespace Tenor.Data.Dialects
             return query;
         }
 
-        string IDialect.CreateConditionalSaveSql(string insertQuery, string updateQuery, string[] conditionalProperties, FieldInfo[] fieldsPrimary)
+        internal string CreateConditionalSaveSql(string insertQuery, string updateQuery, string[] conditionalProperties, FieldInfo[] fieldsPrimary)
         {
+            //TODO: Create this stuff
             throw new NotImplementedException();
             /*
             StringBuilder query = new StringBuilder();
@@ -841,7 +842,7 @@ namespace Tenor.Data.Dialects
              */
         }
 
-        string IDialect.CreateDeleteSql(Type baseClass, ConditionCollection conditions, Join[] joins, out TenorParameter[] parameters)
+        internal string CreateDeleteSql(Type baseClass, ConditionCollection conditions, Join[] joins, out TenorParameter[] parameters)
         {
             string alias = CreateClassAlias(baseClass);
 
@@ -853,6 +854,13 @@ namespace Tenor.Data.Dialects
             return "DELETE FROM " + GetPrefixAndTable(table.Prefix, table.TableName) + " WHERE " + clause;
         }
 
+
+        /// <summary>
+        /// Attaches a prefix and tableName in an SQL syntax, quoting the tableName when necessary.
+        /// </summary>
+        /// <param name="prefix">The prefix, usually a schema.</param>
+        /// <param name="tableName">The unquoted table name.</param>
+        /// <returns></returns>
         public virtual string GetPrefixAndTable(string prefix, string tableName)
         {
             string res = CommandBuilder.QuoteIdentifier(tableName);
@@ -864,7 +872,7 @@ namespace Tenor.Data.Dialects
             return res;
         }
 
-        #endregion
+
     }
 
 

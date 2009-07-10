@@ -195,9 +195,6 @@ namespace Tenor.Data
         /// <summary>
         /// Adds an equality comparison.
         /// </summary>
-        /// <param name="Property"></param>
-        /// <param name="value"></param>
-        /// <remarks></remarks>
         public ConditionCollection And(string propertyName, object value)
         {
             return And(propertyName, value, CompareOperator.Equal);
@@ -206,10 +203,6 @@ namespace Tenor.Data
         /// <summary>
         /// Adds a comparison.
         /// </summary>
-        /// <param name="Property"></param>
-        /// <param name="value"></param>
-        /// <param name="CompareOperator"></param>
-        /// <remarks></remarks>
         public ConditionCollection And(string propertyName, object value, CompareOperator compareOperator)
         {
             return And(propertyName, value, compareOperator, (Type)null);
@@ -391,13 +384,13 @@ namespace Tenor.Data
         #endregion
 
 
-        public new object this[int index]
-        {
-            get
-            {
-                return base[index];
-            }
-        }
+        //public new object this[int index]
+        //{
+        //    get
+        //    {
+        //        return base[index];
+        //    }
+        //}
 
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public void Insert()

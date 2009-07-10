@@ -5,7 +5,7 @@ using System.Data.Common;
 
 namespace Tenor.Data.Dialects.SQLite
 {
-    public class SQLite : GeneralDialect, IDialect
+    public class SQLite : GeneralDialect
     {
         private DbProviderFactory factory;
         public override System.Data.Common.DbProviderFactory Factory

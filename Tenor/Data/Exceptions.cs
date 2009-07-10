@@ -8,6 +8,9 @@ using System.IO;
 
 namespace Tenor
 {
+    /// <summary>
+    /// Indicates a general tenor internal logic exception.
+    /// </summary>
     public class TenorException : Exception
     {
         internal TenorException()
@@ -17,10 +20,39 @@ namespace Tenor
     }
 }
 
+namespace Tenor.BLL
+{
+    /// <summary>
+    /// Indicates that user-code passed an argument with a type that does not derive from BLLBase.
+    /// </summary>
+    public class InvalidTypeException : ArgumentException
+    {
+        Type type;
+        public InvalidTypeException(Type type, string paramName)
+            : base(null, paramName)
+        {
+            if (type == null)
+                throw new ArgumentNullException("type");
+            this.type = type;
+        }
+
+        public override string Message
+        {
+            get
+            {
+                return string.Format("The type '{0}' must derive directly or indirectly from '{1}'.", type.FullName, typeof(BLLBase).FullName);
+            }
+        }
+
+    }
+}
+
 namespace Tenor.Data
 {
 
-
+    /// <summary>
+    /// Occurs when an invalid mapping was done by user-code.
+    /// </summary>
     public class InvalidMappingException : TenorException
     {
         private Type type;
@@ -47,6 +79,9 @@ namespace Tenor.Data
         }
     }
 
+    /// <summary>
+    /// Occurs when primary key is missing.
+    /// </summary>
     public class MissingPrimaryKeyException : InvalidMappingException
     {
         internal MissingPrimaryKeyException(Type type)
@@ -64,6 +99,9 @@ namespace Tenor.Data
 
     }
 
+    /// <summary>
+    /// Occurs when a type does not have any mapped field.
+    /// </summary>
     public class MissingFieldsException : InvalidMappingException
     {
 
@@ -84,12 +122,17 @@ namespace Tenor.Data
             get
             {
                 if (justLoadableItems)
-                    return "Cannot find any field for loading '" + RelatedClass.FullName + "'. Please check your mapping.";
+                    return "Cannot find any field definition on loading '" + RelatedClass.FullName + "'. Please check your mapping.";
                 else
                     return string.Format("The type '{0}' does not implement any member with a FieldAttribute instance.", RelatedClass.FullName);
             }
         }
     }
+
+
+    /// <summary>
+    /// Occurs when a type misses some field mapping.
+    /// </summary>
     public class MissingFieldException : InvalidMappingException
     {
         string propName;
@@ -121,6 +164,9 @@ namespace Tenor.Data
         }
     }
 
+    /// <summary>
+    /// Occrus when when a type is missing some ForeignKeyAttribute.
+    /// </summary>
     public class MissingForeignKeyException : InvalidMappingException
     {
        string propName;
@@ -141,7 +187,9 @@ namespace Tenor.Data
 
     }
 
-
+    /// <summary>
+    /// Occurs when a type is missing some SpecialFieldAttribute.
+    /// </summary>
     public class MissingSpecialFieldException : InvalidMappingException
     {
         string propName;
@@ -162,7 +210,9 @@ namespace Tenor.Data
 
     }
 
-
+    /// <summary>
+    /// Occurs when no record was found on a read operation.
+    /// </summary>
     public class RecordNotFoundException : TenorException
     {
         public override string Message
@@ -174,10 +224,11 @@ namespace Tenor.Data
         }
     }
 
+    /// <summary>
+    /// Occurs when more than one record was found on a many to one relation.
+    /// </summary>
     public class ManyRecordsFoundException : TenorException
     {
-
-
         public override string Message
         {
             get
@@ -193,6 +244,10 @@ namespace Tenor.Data
         NullCollection,
         InvalidJoin
     }
+
+    /// <summary>
+    /// Occurs when condition information is missing or mistaked.
+    /// </summary>
     public class InvalidCollectionArgument : TenorException
     {
         CollectionProblem type;

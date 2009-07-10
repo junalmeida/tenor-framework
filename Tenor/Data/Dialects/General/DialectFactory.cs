@@ -10,12 +10,12 @@ namespace Tenor.Data.Dialects
         /// <summary>
         /// Creates an instance of a dialect based on current connection.
         /// </summary>
-        internal static IDialect CreateDialect(ConnectionStringSettings connection)
+        internal static GeneralDialect CreateDialect(ConnectionStringSettings connection)
         {
             Dictionary<string, Type> dialects = GetAvailableDialectsAndTypes();
             if (dialects.ContainsKey(connection.ProviderName))
             {
-                return (IDialect)Activator.CreateInstance(dialects[connection.ProviderName]);
+                return (GeneralDialect)Activator.CreateInstance(dialects[connection.ProviderName]);
             }
             else
             {
@@ -41,9 +41,9 @@ namespace Tenor.Data.Dialects
                 try
                 {
                     Type t = Type.GetType(d.Type, true);
-                    if (Array.IndexOf<Type>(t.GetInterfaces(), typeof(IDialect)) == -1)
+                    if (!t.IsSubclassOf(typeof(GeneralDialect)))
                     {
-                        throw new System.Configuration.ConfigurationErrorsException(string.Format("The type '{0}' does not implement the '{1}' interface.", t.FullName, typeof(IDialect).FullName));
+                        throw new System.Configuration.ConfigurationErrorsException(string.Format("The type '{0}' does not derive from '{1}'.", t.FullName, typeof(GeneralDialect).FullName));
                     }
                     dialects.Add(d.ProviderName, t);
                 }

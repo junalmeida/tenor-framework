@@ -151,29 +151,33 @@ namespace Tenor.BLL
         private string GetCallingProperty()
         {
             System.Diagnostics.StackTrace stack = new System.Diagnostics.StackTrace();
+            //2 steps here 'cause this is called from another method in Tenor logic.
             System.Reflection.MethodBase method = stack.GetFrame(2).GetMethod();
+
+            //TODO: Check if we can use a better way to get the GET section of a property.
             if (method.Name.StartsWith("get_") || method.Name.StartsWith("set_"))
             {
                 string propName = method.Name.Substring(4);
                 System.Reflection.PropertyInfo prop = this.GetType().GetProperty(propName);
                 if (prop == null)
                 {
-                    throw new InvalidOperationException("You can only call this method within a Property Get of the current instance.");
+                    throw new TenorException("You can only call this method within a Property Get of the current instance.");
                 }
                 return propName;
             }
             else
             {
-                throw new InvalidOperationException("You can only call this method within a Property Get.");
+                throw new TenorException("You can only call this method within a Property Get section.");
             }
         }
 
 
         /// <summary>
-        /// Load the lazyloading field.
+        /// Gets the object of a lazy loaded property.
+        /// This call can do a database access.
         /// </summary>
         /// <param name="propertyName"></param>
-        /// <returns></returns>
+        /// <returns>An object with the loaded value.</returns>
         protected object GetPropertyValue()
         {
             string propertyName = GetCallingProperty();
@@ -181,9 +185,9 @@ namespace Tenor.BLL
         }
 
         /// <summary>
-        /// Carrega as informações de um campo marcado para lazy loading
+        /// Gets the value of a lazy tagged property.
+        /// This call can do a database access.
         /// </summary>
-        /// <remarks></remarks>
         internal virtual object GetPropertyValue(string propertyName)
         {
             if (!propertyData.ContainsKey(propertyName))
@@ -210,7 +214,7 @@ namespace Tenor.BLL
                 if (field == null)
                     throw new Tenor.Data.MissingFieldException(this.GetType(), fieldP.Name);
 
-                IDialect dialect = DialectFactory.CreateDialect(table.GetConnection());
+                GeneralDialect dialect = DialectFactory.CreateDialect(table.GetConnection());
 
                 ConditionCollection conditions = new ConditionCollection();
 
@@ -252,6 +256,10 @@ namespace Tenor.BLL
             return propertyData[propertyName];
         }
 
+        /// <summary>
+        /// Sets the value of a lazy tagged property.
+        /// </summary>
+        /// <param name="value">The desired value from the property set section.</param>
         protected virtual void SetPropertyValue(object value)
         {
             string propertyName = GetCallingProperty();
@@ -283,7 +291,6 @@ namespace Tenor.BLL
         /// Returns a value indicating whether or not this class is serializing.
         /// </summary>
         /// <returns>True or False</returns>
-        /// <remarks></remarks>
         protected virtual bool LazyLoadingDisabled
         {
             get
@@ -294,10 +301,9 @@ namespace Tenor.BLL
 
 
         /// <summary>
-        /// Desativa o LazyLoading para as intâncias passadas.
+        /// Disables the lazy loading of the desired instances.
         /// </summary>
-        /// <param name="items"></param>
-        /// <remarks></remarks>
+        /// <param name="items">An array of entities.</param>
         public static void DisableLazyLoading(BLLBase[] items)
         {
             foreach (BLLBase i in items)
@@ -307,10 +313,9 @@ namespace Tenor.BLL
         }
 
         /// <summary>
-        /// Ativa o LazyLoading para as intâncias passadas.
+        /// Enables the lazy loading of the desired instances.
         /// </summary>
-        /// <param name="items"></param>
-        /// <remarks></remarks>
+        /// <param name="items">An array of entities.</param>
         public static void EnableLazyLoading(BLLBase[] items)
         {
             foreach (BLLBase i in items)
@@ -319,7 +324,10 @@ namespace Tenor.BLL
             }
         }
 
-
+        /// <summary>
+        /// Changes the current lazy loading flag.
+        /// </summary>
+        /// <param name="status">True to enable the lazy loading feature.</param>
         private void ChangeLazyLoadingStatus(bool status)
         {
             this._IsLazyDisabled = status;

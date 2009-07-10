@@ -5,7 +5,7 @@ using System.Data.Common;
 
 namespace Tenor.Data.Dialects.MySql
 {
-    public class MySql : GeneralDialect, IDialect
+    public class MySql : GeneralDialect
     {
         private DbProviderFactory factory;
         public override System.Data.Common.DbProviderFactory Factory

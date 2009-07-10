@@ -129,6 +129,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Web\mime.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="BLL\TemplateSnippets.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!--<ItemGroup>
     <Content Include="BLL\TemplateSnippets.xml" />

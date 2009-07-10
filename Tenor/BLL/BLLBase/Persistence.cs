@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using Tenor.Data;
-using System.Data;
 using System.Configuration;
 using System.Data.Common;
+using Tenor.Data.Dialects;
 
 namespace Tenor.BLL
 {
@@ -15,7 +15,6 @@ namespace Tenor.BLL
         /// <summary>
         /// Binds this entity instance to database data using primary keys current data.
         /// </summary>
-        /// <remarks>Faz a consulta com LazyLoading</remarks>
         public void Bind()
         {
             Bind(true);
@@ -27,8 +26,7 @@ namespace Tenor.BLL
         /// </summary>
         /// <param name="LazyLoading">Defines weather lazy loading is enabled.</param>
         /// <exception cref="MissingFieldsException">Ocurrs when no property with a FieldAttribute is defined.</exception>
-        /// <exception cref="System.Data.MissingPrimaryKeyException">Occurs when no FieldAttribute with primary key is defined.</exception>
-        /// <remarks></remarks>
+        /// <exception cref="MissingPrimaryKeyException">Occurs when no FieldAttribute with primary key is defined.</exception>
         protected void Bind(bool lazyLoading)
         {
             FieldInfo[] fields = GetFields(this.GetType(), true);
@@ -36,7 +34,7 @@ namespace Tenor.BLL
 
             if (fields.Length == 0)
             {
-                throw (new System.Data.MissingPrimaryKeyException());
+                throw (new MissingPrimaryKeyException(this.GetType()));
             }
 
             List<string> propertyNames = new List<string>();
@@ -67,7 +65,7 @@ namespace Tenor.BLL
         /// <param name="LazyLoading">Defines weather lazy loading is enabled.</param>
         /// <param name="FilterMembers">Property members used to filter data.</param>
         /// <param name="DataRow">A System.Data.DataRow to bind this instance. When this parameter is not set, Tenor return data from the database.</param>
-        protected virtual void Bind(bool LazyLoading, string[] FilterMembers, DataRow dataRow)
+        protected virtual void Bind(bool LazyLoading, string[] FilterMembers, System.Data.DataRow dataRow)
         {
             bool fromSearch = (dataRow != null);
             //dataRow is null when Bind is called from LoadForeing or directly from user code.
@@ -92,7 +90,7 @@ namespace Tenor.BLL
 
 
 
-                // SELECT e FILTROS
+                // SELECT and FILTERS
 
                 List<FieldInfo> filters = new List<FieldInfo>();
                 foreach (string s in FilterMembers)
@@ -157,7 +155,6 @@ namespace Tenor.BLL
             {
                 foreach (ForeignKeyInfo f in foreignkeys)
                 {
-                    //Continuar em LazyLoading para evitar loops infinitos.
                     //TODO: Try to bind lazy properties at the same database round
                     this.LoadForeign(f.RelatedProperty.Name, true, null, connection);
                 }
@@ -168,6 +165,154 @@ namespace Tenor.BLL
             {
                 SaveToCache();
             }
+        }
+
+
+
+
+        /// <summary>
+        /// Creates an update query of this entity data.
+        /// </summary>
+        /// <param name="isUpdate">Determines whether to update an existing record or create a new record.</param>
+        /// <param name="parameters">Outputs an array of TenorParameter with required parameters.</param>
+        /// <param name="autoKeyField">Outputs the autonumber FieldInfo.</param>
+        /// <param name="specialValues">The special values can contains sql sentences/sequences/etc</param>
+        /// <param name="connection">The Connection.</param>
+        /// <returns>Return a SQL query string.</returns>
+        internal string GetSaveSql(bool isUpdate, ConnectionStringSettings connection, System.Collections.Specialized.NameValueCollection specialValues, out FieldInfo autoKeyField, out TenorParameter[] parameters, out GeneralDialect dialect)
+        {
+            Dictionary<FieldInfo, object> data = new Dictionary<FieldInfo, object>();
+
+            TableInfo table = TableInfo.CreateTableInfo(this.GetType());
+            if (connection == null)
+                connection = table.GetConnection();
+
+            dialect = DialectFactory.CreateDialect(connection);
+
+            autoKeyField = null;
+            ConditionCollection conditions = new ConditionCollection();
+
+            List<FieldInfo> fieldInfos = new List<FieldInfo>(GetFields(this.GetType()));
+            for (int i = fieldInfos.Count - 1; i >= 0; i--)
+            {
+                if (isUpdate && fieldInfos[i].PrimaryKey)
+                {
+                    if (conditions.Count != 0)
+                        conditions.Add(LogicalOperator.And);
+                    conditions.Add(fieldInfos[i].RelatedProperty.Name, fieldInfos[i].PropertyValue(this));
+
+                    if (fieldInfos[i].AutoNumber)
+                    {
+                        autoKeyField = fieldInfos[i];
+                        data.Add(fieldInfos[i], null);
+                    }
+                    else
+                        fieldInfos.RemoveAt(i);
+                }
+                else if (fieldInfos[i].AutoNumber)
+                {
+                    autoKeyField = fieldInfos[i];
+                    data.Add(fieldInfos[i], null);
+                }
+                else if (fieldInfos[i].LazyLoading && !propertyData.ContainsKey(fieldInfos[i].RelatedProperty.Name))
+                {
+                    fieldInfos.RemoveAt(i);
+                }
+                else
+                {
+                    data.Add(fieldInfos[i], fieldInfos[i].PropertyValue(this));
+                }
+            }
+
+            string sql = dialect.CreateSaveSql(this.GetType(), data, specialValues, conditions, out parameters) + dialect.LineEnding;
+
+            if (dialect.GetIdentityOnSameCommand && !isUpdate && autoKeyField != null)
+            {
+                string queryFormat = @"{0}
+{1}
+{2}";
+
+                string before = string.Empty;
+                if (!string.IsNullOrEmpty(dialect.IdentityBeforeQuery))
+                {
+                    before = dialect.IdentityBeforeQuery + dialect.LineEnding;
+                }
+
+                string after = string.Empty;
+                if (!string.IsNullOrEmpty(dialect.IdentityAfterQuery))
+                {
+                    after = string.Format(dialect.IdentityAfterQuery, autoKeyField.InsertSQL) + dialect.LineEnding;
+                }
+
+                sql = string.Format(queryFormat, before, sql, after);
+            }
+
+            return sql;
+        }
+
+
+        /// <summary>
+        /// Creates the SQL query based on conditions using the current dialect.
+        /// Generally, you can call this method for debugging reasons.
+        /// </summary>
+        /// <param name="searchOptions">The search definitions.</param>
+        /// <param name="connection">The Connection.</param>
+        /// <param name="justCount">Indicates that this is a COUNT query.</param>
+        /// <param name="parameters">Outputs the generated parameters.</param>
+        /// <returns>A SQL query.</returns>
+        public static string GetSearchSql(SearchOptions searchOptions, bool justCount, ConnectionStringSettings connection, out TenorParameter[] parameters)
+        {
+            GeneralDialect dialect = DialectFactory.CreateDialect(connection);
+
+            if (searchOptions == null)
+            {
+                throw (new ArgumentNullException("searchOptions", "You must specify a SearchOptions instance."));
+            }
+
+            TableInfo table = TableInfo.CreateTableInfo(searchOptions._BaseClass);
+
+            if (connection == null)
+            {
+                connection = table.GetConnection();
+            }
+
+
+            //Read Joins
+
+            Join[] joins = GetPlainJoins(searchOptions.Conditions, searchOptions._BaseClass);
+
+            //Get necessary fields to create the select statement.
+            List<FieldInfo> fieldInfos = new List<FieldInfo>();
+            foreach (FieldInfo f in BLLBase.GetFields(searchOptions._BaseClass))
+            {
+                if (f.PrimaryKey || !f.LazyLoading)
+                    fieldInfos.Add(f);
+            }
+            SpecialFieldInfo[] spFields = BLLBase.GetSpecialFields(searchOptions._BaseClass);
+
+            string sqlFields = dialect.CreateSelectSql(table.RelatedTable, fieldInfos.ToArray(), spFields);
+
+
+            //Sorting
+            string appendToSelect = null;
+            string sqlSort = dialect.CreateSortSql(searchOptions.Sorting, table.RelatedTable, joins, searchOptions.Distinct, out appendToSelect);
+            if (!string.IsNullOrEmpty(appendToSelect))
+                sqlFields += appendToSelect;
+
+            //Creates the where part
+            string sqlWhere = dialect.CreateWhereSql(searchOptions.Conditions, searchOptions._BaseClass, joins, out parameters);
+
+            // Creates the join parts
+            string sqlJoins = dialect.CreateJoinsSql(joins);
+
+
+            // Creates the entire sql string
+            string sql = dialect.CreateFullSql(searchOptions._BaseClass, searchOptions.Distinct, justCount, searchOptions.Top, sqlFields, sqlJoins, sqlSort, sqlWhere);
+
+
+            Tenor.Diagnostics.Debug.DebugSQL("GetSearchSql()", sql, parameters, connection);
+
+            return sql;
         }
 
 

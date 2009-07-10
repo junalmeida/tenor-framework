@@ -26,7 +26,7 @@ namespace Tenor.BLL
     /// Children classes gain functions to read and save data to a DataBase.
     /// </summary>
     /// <remarks>
-    /// You can use the MyGeneration Template on file BLLBases.zeus to create your classes.
+    /// You can use the MyGeneration Template on file BLLBased.zeus to create your classes.
     /// </remarks>
     /// <seealso cref="../zeus.htm"/> 
     [Serializable()]
@@ -35,144 +35,94 @@ namespace Tenor.BLL
         internal Transaction transaction;
 
         #region "Ctors"
-
-        private readonly string ChaveCache;
-
+        private readonly string cacheKey;
         public BLLBase()
         {
-            ChaveCache = Tenor.Configuration.TenorModule.IdPrefix + this.GetType().FullName;
+            cacheKey = Tenor.Configuration.TenorModule.IdPrefix + this.GetType().FullName;
         }
 
         public BLLBase(bool LazyLoadingDisabled) : this()
         {
             _IsLazyDisabled = LazyLoadingDisabled;
         }
-
         #endregion
 
         #region " Search "
 
 
         /// <summary>
-        /// Faz uma consulta especial e retorna uma coleção de objetos
+        /// Search data on the database based on definitions.
         /// </summary>
-        /// <param name="SearchOptions">Uma instância de SearchOptions com as informações da pesquisa.</param>
-        /// <returns>Array de BLLBase</returns>
-        /// <remarks></remarks>
-        public static BLLBase[] Search(SearchOptions SearchOptions)
+        /// <param name="searchOptions">An instance of SearchOptions with search definitions.</param>
+        /// <returns>An array of entities.</returns>
+        public static BLLBase[] Search(SearchOptions searchOptions)
         {
-            return Search(SearchOptions, null);
+            return Search(searchOptions, null);
         }
 
         /// <summary>
-        /// Faz uma consulta especial e retorna uma coleção de objetos
+        /// Count data on the database based on definitions.
         /// </summary>
-        /// <param name="SearchOptions">Uma instância de SearchOptions com as informações da pesquisa.</param>
-        /// <returns>Array de BLLBase</returns>
+        /// <param name="searchOptions">An instance of SearchOptions with search definitions.</param>
+        /// <returns>The number os records found.</returns>
         /// <remarks></remarks>
-        public static int Count(SearchOptions SearchOptions)
+        public static int Count(SearchOptions searchOptions)
         {
-            return Count(SearchOptions, null);
+            return Count(searchOptions, null);
         }
 
         /// <summary>
-        /// Retorna o SQL gerado pelas condições.
+        /// Search data on the database based on definitions.
         /// </summary>
-        /// <param name="SearchOptions"></param>
-        /// <param name="Connection">By ref</param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public static string GetSearchSql(SearchOptions searchOptions, bool justCount, ConnectionStringSettings connection, out TenorParameter[] parameters)
+        /// <param name="searchOptions">The search definitions.</param>
+        /// <param name="connection">The Connection.</param>
+        /// <returns>An array of entities.</returns>
+        public static BLLBase[] Search(SearchOptions searchOptions, ConnectionStringSettings connection)
         {
-            IDialect dialect = DialectFactory.CreateDialect(connection);
-
-            if (searchOptions == null)
-            {
-                throw (new ArgumentNullException("searchOptions", "You must specify a SearchOptions instance."));
-            }
-
-            TableInfo table = TableInfo.CreateTableInfo(searchOptions._BaseClass);
-
-            if (connection == null)
-            {
-                connection = table.GetConnection();
-            }
-
-            
-            //Read Joins
-
-            Join[] joins = GetPlainJoins(searchOptions.Conditions, searchOptions._BaseClass);
-
-            //Get necessary fields to create the select statement.
-            List<FieldInfo> fieldInfos = new List<FieldInfo>();
-            foreach (FieldInfo f in BLLBase.GetFields(searchOptions._BaseClass))
-            {
-                if (f.PrimaryKey || !f.LazyLoading)
-                    fieldInfos.Add(f);
-            }
-            SpecialFieldInfo[] spFields = BLLBase.GetSpecialFields(searchOptions._BaseClass);
-
-            string sqlFields = dialect.CreateSelectSql(table.RelatedTable, fieldInfos.ToArray(), spFields);
-
-
-            //Sorting
-            string appendToSelect = null;
-            string sqlSort = dialect.CreateSortSql(searchOptions.Sorting, table.RelatedTable, joins, searchOptions.Distinct, out appendToSelect);
-            if (!string.IsNullOrEmpty(appendToSelect))
-                sqlFields += appendToSelect;
-
-            //Creates the where part
-            string sqlWhere = dialect.CreateWhereSql(searchOptions.Conditions, searchOptions._BaseClass, joins, out parameters);
-
-            // Creates the join parts
-            string sqlJoins = dialect.CreateJoinsSql(joins);
-
-
-            // Creates the entire sql string
-            string sql = dialect.CreateFullSql(searchOptions._BaseClass, searchOptions.Distinct, justCount, searchOptions.Top, sqlFields, sqlJoins, sqlSort, sqlWhere);
-
-
-            Tenor.Diagnostics.Debug.DebugSQL("GetSearchSql()", sql, parameters, connection);
-
-            return sql;
+            Tenor.Data.DataTable rs = SearchWithDataTable(searchOptions, connection);
+            return BindRows(rs, searchOptions._BaseClass, searchOptions.LazyLoading);
         }
-
 
         /// <summary>
-        /// Faz uma consulta especial e retorna uma coleção de objetos
+        /// Converts a datatable into a set of instances of baseClass.
         /// </summary>
-        /// <param name="SearchOptions">Uma instância de SearchOptions com as informações da pesquisa.</param>
-        /// <returns>Array de BLLBase</returns>
-        /// <remarks></remarks>
-        public static BLLBase[] Search(SearchOptions SearchOptions, ConnectionStringSettings Connection)
+        /// <param name="table">A System.Data.DataTable with raw database data.</param>
+        /// <param name="lazyLoading">Indicates whether to enable the lazyLoading on created instances.</param>
+        /// <param name="baseClass">Defines which type to load.</param>
+        /// <exception cref="System.ArgumentNullException">Occurs when table or baseClass parameters are null.</exception>
+        /// <returns>An array of entities.</returns>
+        public static BLLBase[] BindRows(DataTable table, Type baseClass, bool lazyLoading)
         {
-            Tenor.Data.DataTable rs = SearchWithDataTable(SearchOptions, Connection);
-            return Search(rs, SearchOptions._BaseClass, SearchOptions.LazyLoading, Connection);
-        }
+            if (table == null)
+                throw new ArgumentNullException("table");
+            if (baseClass == null)
+                throw new ArgumentNullException("baseClass");
+            if (!baseClass.IsSubclassOf(typeof(BLLBase)))
+                throw new Tenor.BLL.InvalidTypeException(baseClass, "baseClass");
 
-        public static BLLBase[] Search(DataTable Table, Type BaseClass, bool LazyLoading, ConnectionStringSettings Connection)
-        {
-            BLLBase[] instances = (BLLBase[])(Array.CreateInstance(BaseClass, Table.Rows.Count));
+            BLLBase[] instances = (BLLBase[])(Array.CreateInstance(baseClass, table.Rows.Count));
             for (int i = 0; i <= instances.Length - 1; i++)
             {
-                instances[i] = (BLLBase)(Activator.CreateInstance(BaseClass));
-                instances[i].Bind(LazyLoading, null, Table.Rows[i]);
+                instances[i] = (BLLBase)(Activator.CreateInstance(baseClass));
+                instances[i].Bind(lazyLoading, null, table.Rows[i]);
             }
             return instances;
         }
 
 
         /// <summary>
-        /// Faz uma consulta especial e retorna uma coleção de objetos
+        /// Count data on the database based on definitions.
         /// </summary>
-        /// <param name="SearchOptions">Uma instância de SearchOptions com as informações da pesquisa.</param>
-        /// <returns>Array de BLLBase</returns>
+        /// <param name="searchOptions">An instance of SearchOptions with search definitions.</param>
+        /// <param name="connection">The Connection.</param>
+        /// <returns>The number os records found.</returns>
         /// <remarks></remarks>
-        public static int Count(SearchOptions SearchOptions, ConnectionStringSettings Connection)
+        public static int Count(SearchOptions searchOptions, ConnectionStringSettings connection)
         {
-            Tenor.Data.DataTable rs = SearchWithDataTable(SearchOptions, Connection, true);
+            Tenor.Data.DataTable rs = SearchWithDataTable(searchOptions, connection, true);
             return System.Convert.ToInt32(rs.Rows[0][0]);
         }
+
 
         private static Tenor.Data.DataTable SearchWithDataTable(SearchOptions SearchOptions, ConnectionStringSettings Connection)
         {
@@ -246,91 +196,12 @@ namespace Tenor.BLL
             return paramPrefix + field.DataFieldName.Replace(" ", "_");
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="isUpdate"></param>
-        /// <param name="parameters"></param>
-        /// <param name="autoKeyField"></param>
-        /// <param name="specialValues">The special values can contains sql sentences/sequences/etc</param>
-        /// <param name="connection"></param>
-        /// <returns></returns>
-        internal string GetSaveSql(bool isUpdate, ConnectionStringSettings connection, NameValueCollection specialValues, out FieldInfo autoKeyField, out TenorParameter[] parameters, out IDialect dialect)
-        {
-            Dictionary<FieldInfo, object> data = new Dictionary<FieldInfo, object>();
-
-            TableInfo table = TableInfo.CreateTableInfo(this.GetType());
-            if (connection == null)
-                connection = table.GetConnection();
-
-            dialect = DialectFactory.CreateDialect(connection);
-
-            autoKeyField = null;
-            ConditionCollection conditions = new ConditionCollection();
-
-            List<FieldInfo> fieldInfos = new List<FieldInfo>(GetFields(this.GetType()));
-            for (int i = fieldInfos.Count - 1; i >= 0; i--)
-            {
-                if (isUpdate && fieldInfos[i].PrimaryKey)
-                {
-                    if (conditions.Count != 0)
-                        conditions.Add(LogicalOperator.And);
-                    conditions.Add(fieldInfos[i].RelatedProperty.Name, fieldInfos[i].PropertyValue(this));
-
-                    if (fieldInfos[i].AutoNumber)
-                    {
-                        autoKeyField = fieldInfos[i];
-                        data.Add(fieldInfos[i], null);
-                    }
-                    else 
-                        fieldInfos.RemoveAt(i);
-                }
-                else if (fieldInfos[i].AutoNumber)
-                {
-                    autoKeyField = fieldInfos[i];
-                    data.Add(fieldInfos[i], null);
-                }
-                else if (fieldInfos[i].LazyLoading && !propertyData.ContainsKey(fieldInfos[i].RelatedProperty.Name))
-                {
-                    fieldInfos.RemoveAt(i);
-                }
-                else
-                {
-                    data.Add(fieldInfos[i], fieldInfos[i].PropertyValue(this));
-                }
-            }
-
-            string sql = dialect.CreateSaveSql(this.GetType(), data, specialValues, conditions, out parameters) + dialect.LineEnding;
-            
-            if (dialect.GetIdentityOnSameCommand && !isUpdate && autoKeyField != null)
-            {
-                string queryFormat = @"{0}
-{1}
-{2}";
-
-                string before = string.Empty;
-                if (!string.IsNullOrEmpty(dialect.IdentityBeforeQuery))
-                {
-                    before = dialect.IdentityBeforeQuery + dialect.LineEnding;
-                }
-
-                string after = string.Empty;
-                if (!string.IsNullOrEmpty(dialect.IdentityAfterQuery))
-                {
-                    after = string.Format(dialect.IdentityAfterQuery, autoKeyField.InsertSQL) + dialect.LineEnding;
-                }
-
-                sql = string.Format(queryFormat, before, sql, after);
-            }
-
-            return sql;
-        }
 
         /// <summary>
         /// Saves this entity data on the persistence layer.
         /// </summary>
         /// <param name="isUpdate">Force an Update instead of an Insert statement.</param>
-        /// <remarks></remarks>
+        /// <remarks>This method calls the Validate method and only continue if True is returned. You can override the Validate method to create entity validation logic.</remarks>
         public virtual void Save(bool isUpdate, ConnectionStringSettings connection)
         {
             if (Validate())
@@ -343,7 +214,7 @@ namespace Tenor.BLL
                 TenorParameter[] parameters = null;
                 FieldInfo autoKeyField = null;
 
-                IDialect dialect = null;
+                GeneralDialect dialect = null;
                 string query = GetSaveSql(isUpdate, connection, null, out autoKeyField, out parameters, out dialect);
 
                 string secondQuery = string.Empty;
@@ -373,63 +244,68 @@ namespace Tenor.BLL
         }
 
         /// <summary>
-        /// Somente salva a instancia se o Campo Condicional não existir.
+        /// Saves this entity data on the persistence layer only if the entity does not exists.
         /// </summary>
-        public virtual bool SaveConditional(string conditionalField)
+        /// <param name="conditionalProperty">The property name to check using its value.</param>
+        public virtual bool SaveConditional(string conditionalProperty)
         {
-            return SaveConditional(new string[] { conditionalField });
+            return SaveConditional(new string[] { conditionalProperty });
         }
 
         /// <summary>
-        /// Somente salva a instancia se o Campo Condicional não existir.
+        /// Saves this entity data on the persistence layer only if the entity does not exists.
         /// </summary>
-        public virtual bool SaveConditional(string[] conditionalFields)
+        /// <param name="conditionalProperties">An array of properties to check using its values.</param>
+        public virtual bool SaveConditional(string[] conditionalProperties)
         {
-            return SaveConditional(conditionalFields, false);
+            return SaveConditional(conditionalProperties, false);
         }
 
         /// <summary>
-        /// Salva ou atualiza a instancia de acordo com isUpdate
+        /// Saves this entity data on the persistence layer only if the entity does not exists when canUpdate is false. Otherwise, creates a new record or updates an existing one.
         /// </summary>
-        public virtual bool SaveConditional(string conditionalField, bool isUpdate)
+        /// <param name="conditionalProperty">The property name to check using its value.</param>
+        /// <param name="isUpdate">If true, specifies that if a record existis, it will be updated. Otherwise, if a record exists, nothing will be done.</param>
+        public virtual bool SaveConditional(string conditionalProperty, bool canUpdate)
         {
-            return SaveConditional(new string[] { conditionalField }, isUpdate);
+            return SaveConditional(new string[] { conditionalProperty }, canUpdate);
         }
 
-                /// <summary>
-        /// Quando isUpdate é False, o sistema cria um registro novo, se o mesmo não existir. Se o registro for criado,
-        /// retorna True.
-        /// Quando isUpdate é True, o sistema cria um registro novo se o mesmo não exister, caso contrário, atualiza.
-        /// Se o registro for criado, retorna True.
-        /// </summary>
-        public virtual bool SaveConditional(string[] conditionalFields, bool isUpdate)
-        {
-            return SaveConditional(conditionalFields, isUpdate, null);
-        }
         /// <summary>
-        /// Quando isUpdate é False, o sistema cria um registro novo, se o mesmo não existir. Se o registro for criado,
-        /// retorna True.
-        /// Quando isUpdate é True, o sistema cria um registro novo se o mesmo não exister, caso contrário, atualiza.
-        /// Se o registro for criado, retorna True.
+        /// Saves this entity data on the persistence layer only if the entity does not exists when canUpdate is false. Otherwise, creates a new record or updates an existing one.
         /// </summary>
-        public virtual bool SaveConditional(string[] conditionalFields, bool isUpdate, ConnectionStringSettings connection)
+        /// <param name="conditionalProperties">An array of properties to check using its values.</param>
+        /// <param name="isUpdate">If true, specifies that if a record existis, it will be updated. Otherwise, if a record exists, nothing will be done.</param>
+        public virtual bool SaveConditional(string[] conditionalProperties, bool canUpdate)
+        {
+            return SaveConditional(conditionalProperties, canUpdate, null);
+        }
+
+        /// <summary>
+        /// Checks if the entity already exists based on the properties passed and inserts if it doesn't. In case of canUpdate is true and the entity already exists, updates it to the current values.
+        /// </summary>
+        /// <param name="conditionalProperties">Properties to be considered when checking existence of the entity.</param>
+        /// <param name="canUpdate">If true, specifies that if a record exists, it will be updated.</param>
+        /// <param name="connection">The connection.</param>     
+        public virtual bool SaveConditional(string[] conditionalProperties, bool canUpdate, ConnectionStringSettings connection)
         {
             if (Validate())
             {
+                if (conditionalProperties == null || conditionalProperties.Length == 0)
+                    throw new ArgumentNullException("conditionalProperties");
+
                 TableInfo table = TableInfo.CreateTableInfo(this.GetType());
                 if (connection == null)
                     connection = table.GetConnection();
-                
 
-                FieldInfo[] fields = BLLBase.GetFields(this.GetType(), null, conditionalFields);
-                if (conditionalFields.Length == 0)
+
+                FieldInfo[] fields = BLLBase.GetFields(this.GetType(), null, conditionalProperties);
+                if (fields.Length != conditionalProperties.Length)
                 {
-                    throw (new ArgumentException("Cannot find one or more ConditionalFields", "ConditionalFields"));
+                    throw new MissingFieldsException(this.GetType(), true);
+                    //throw (new ArgumentException("Cannot find one or more ConditionalFields", "conditionalProperties"));
                 }
-                else if (fields.Length != conditionalFields.Length)
-                {
-                    throw (new ArgumentException("Cannot find one or more ConditionalFields", "ConditionalFields"));
-                }
+
 
                 FieldInfo[] fieldsPrimary = BLLBase.GetFields(this.GetType(), true);
 
@@ -438,7 +314,7 @@ namespace Tenor.BLL
 
                 TenorParameter[] parameters = null;
 
-                IDialect dialect = null;
+                GeneralDialect dialect = null;
 
                 string insertQuery = GetSaveSql(false, connection, null, out autoKeyField, out parameters, out dialect);
 
@@ -447,15 +323,15 @@ namespace Tenor.BLL
                 string updateQuery = GetSaveSql(true, connection, null, out autoKeyField, out parameters2, out dialect);
                 parameters2 = null;
 
-                string query = dialect.CreateConditionalSaveSql(insertQuery, updateQuery, conditionalFields, fieldsPrimary);
+                string query = dialect.CreateConditionalSaveSql(insertQuery, updateQuery, conditionalProperties, fieldsPrimary);
 
                 DataTable result = Helper.QueryData(connection, query.ToString(), parameters);
 
-                if (!isUpdate && System.Convert.ToInt32(result.Rows[0][0]) == -1)
+                if (!canUpdate && System.Convert.ToInt32(result.Rows[0][0]) == -1)
                 {
                     return false;
                 }
-                else if (isUpdate && System.Convert.ToInt32(result.Rows[0][0]) == -1)
+                else if (canUpdate && System.Convert.ToInt32(result.Rows[0][0]) == -1)
                 {
                     return false;
                 }
@@ -485,7 +361,7 @@ namespace Tenor.BLL
 
             TableInfo table = TableInfo.CreateTableInfo(this.GetType());
             ConnectionStringSettings connection = table.GetConnection();
-            IDialect dialect = DialectFactory.CreateDialect(connection);
+            GeneralDialect dialect = DialectFactory.CreateDialect(connection);
 
 
             Join[] joins = GetPlainJoins(conditions, table.RelatedTable);
@@ -499,12 +375,17 @@ namespace Tenor.BLL
                 Helper.UpdateData(query, parameters, connection);
         }
 
+        /// <summary>
+        /// Deletes these instances from the database.
+        /// </summary>
+        /// <param name="instances">An array of entities.</param>
         public static void Delete(BLLBase[] instances)
         {
             if (instances == null)
                 throw new ArgumentNullException("instances");
             if (instances.Length == 0)
                 return;
+
             Type type = null;
             Transaction transaction = null;
 
@@ -538,7 +419,7 @@ namespace Tenor.BLL
 
             TableInfo table = TableInfo.CreateTableInfo(type);
             ConnectionStringSettings connection = table.GetConnection();
-            IDialect dialect = DialectFactory.CreateDialect(connection);
+            GeneralDialect dialect = DialectFactory.CreateDialect(connection);
 
 
             TenorParameter[] parameters = null;
@@ -576,6 +457,9 @@ namespace Tenor.BLL
         #endregion
 
         #region " Localizable "
+        /// <summary>
+        /// When overriden, indicates that this entity can be localized automatically.
+        /// </summary>
         [System.ComponentModel.Browsable(false)]
         public virtual bool Localizable
         {
@@ -590,11 +474,13 @@ namespace Tenor.BLL
 
         private static void SetFindDefinitions<t>(string PropertyExpression, object Value, Tenor.Data.CompareOperator @Operator) where t : BLLBase
         {
+            //TODO: Consider coding an anonymous delegate.
             SetFindDefinitions<t>(new string[] { PropertyExpression }, new object[] { Value }, new Tenor.Data.CompareOperator[] { @Operator }, new Tenor.Data.LogicalOperator[0]);
         }
 
         private static void SetFindDefinitions<t>(string[] PropertyExpression, object[] Value, Tenor.Data.CompareOperator[] @Operator, Tenor.Data.LogicalOperator[] Logical) where t : BLLBase
         {
+            //TODO: Consider coding an anonymous delegate.
             BLL.BLLCollection<t>._findProp = PropertyExpression;
             BLL.BLLCollection<t>._findValue = Value;
             BLL.BLLCollection<t>._findOperator = @Operator;
@@ -602,238 +488,224 @@ namespace Tenor.BLL
         }
 
         /// <summary>
-        /// Realiza uma busca nos objetos desta coleção
+        /// Search for an object on the collection.
         /// </summary>
-        /// <param name="Items">Array com a coleção dos itens</param>
-        /// <param name="PropertyExpression">Nome da propriedade do tipo usada para a busca</param>
-        /// <param name="Value">Valor usado para a busca</param>
-        /// <returns>O primeiro objeto encontrado</returns>
-        /// <remarks></remarks>
-        public static t Find<t>(t[] Items, string PropertyExpression, object Value) where t : BLLBase
+        /// <param name="items">An array of entities.</param>
+        /// <param name="propertyExpression">The property name used to match entities. You can use dot (.) separated properties to go down on the class.</param>
+        /// <param name="value">The value desired.</param>
+        /// <returns>The first found object.</returns>
+        public static T Find<T>(T[] items, string propertyExpression, object value) where T : BLLBase
         {
-            return Find(Items, PropertyExpression, Value, Tenor.Data.CompareOperator.Equal);
+            return Find(items, propertyExpression, value, Tenor.Data.CompareOperator.Equal);
         }
 
         /// <summary>
-        /// Realiza uma busca nos objetos desta coleção
+        /// Search for an object on the collection.
         /// </summary>
-        /// <param name="Items">Array com a coleção dos itens</param>
-        /// <param name="PropertyExpression">Nome da propriedade do tipo usada para a busca</param>
-        /// <param name="Value">Valor usado para a busca</param>
-        /// <param name="Operator">Operador de comparação para a busca</param>
-        /// <returns>O primeiro objeto encontrado</returns>
-        /// <remarks></remarks>
-        public static T Find<T>(T[] Items, string PropertyExpression, object Value, Tenor.Data.CompareOperator @Operator) where T : BLLBase
+        /// <param name="items">An array of entities.</param>
+        /// <param name="propertyExpression">The property name used to match entities. You can use dot (.) separated properties to go down on the class.</param>
+        /// <param name="value">The value desired.</param>
+        /// <param name="compareOperator">The compare operator to use against the property.</param>
+        /// <returns>The first found object.</returns>
+        public static T Find<T>(T[] items, string propertyExpression, object value, Tenor.Data.CompareOperator compareOperator) where T : BLLBase
         {
-            SetFindDefinitions<T>(PropertyExpression, Value, @Operator);
-            return Array.Find<T>(Items, new Predicate<T>(BLLCollection<T>.FindDelegate));
-        }
-
-
-        /// <summary>
-        /// Realiza uma busca nos objetos e retorna todos os itens encontrados
-        /// </summary>
-        /// <param name="Items">Array com a coleção dos itens</param>
-        /// <param name="PropertyExpression">Nome da propriedade do tipo usada para a busca</param>
-        /// <param name="Value">Valor usado para a busca</param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public static T[] FindAll<T>(T[] Items, string PropertyExpression, object Value) where T : BLLBase
-        {
-            return FindAll(Items, PropertyExpression, Value, Tenor.Data.CompareOperator.Equal);
-        }
-
-        /// <summary>
-        /// Realiza uma busca nos objetos e retorna todos os itens encontrados
-        /// </summary>
-        /// <param name="Items">Array com a coleção dos itens</param>
-        /// <param name="PropertyExpression">Nome da propriedade do tipo usada para a busca</param>
-        /// <param name="Value">Valor usado para a busca</param>
-        /// <param name="Operator">Operador de comparação para a busca</param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public static T[] FindAll<T>(T[] Items, string PropertyExpression, object Value, Tenor.Data.CompareOperator @Operator) where T : BLLBase
-        {
-            SetFindDefinitions<T>(PropertyExpression, Value, @Operator);
-            return Array.FindAll<T>(Items, new Predicate<T>(BLLCollection<T>.FindDelegate));
-        }
-
-        /// <summary>
-        /// Realiza uma busca nos objetos e retorna todos os itens encontrados. Esta busca permite que sejam especifícados mais de uma condição de pesquisa.
-        /// </summary>
-        /// <param name="PropertyExpressions">Um Array de caminhos para propriedade.s</param>
-        /// <param name="Values">Array de valores usados na comparação.</param>
-        /// <param name="Operators">Array de Operadores de comparação usados para comparar o conteúdo da propriedade com o valor fornecido.</param>
-        /// <param name="LogicalOperators">Array de operadores lógicos para a união das condições de pesquisa. Este array deverá ter um item a menos que os outros arrays.</param>
-        /// <returns>Um Array de elementos que satisfazem à busca</returns>
-        /// <remarks></remarks>
-        public static T[] FindAll<T>(T[] Items, string[] PropertyExpressions, object[] Values, Tenor.Data.CompareOperator[] Operators, Tenor.Data.LogicalOperator[] LogicalOperators) where T : BLLBase
-        {
-            SetFindDefinitions<T>(PropertyExpressions, Values, Operators, LogicalOperators);
-            return Array.FindAll<T>(Items, new Predicate<T>(BLLCollection<T>.FindDelegate));
-        }
-
-        /// <summary>
-        /// Realiza uma busca nos objetos desta coleção.
-        /// </summary>
-        /// <param name="Items">Array com a coleção dos itens</param>
-        /// <param name="PropertyExpression">Nome da propriedade do tipo usada para a busca</param>
-        /// <param name="Value">Valor usado para a busca</param>
-        /// <returns>O último objeto encontrado</returns>
-        /// <remarks></remarks>
-        public static T FindLast<T>(T[] Items, string PropertyExpression, object Value) where T : BLLBase
-        {
-            return FindLast(Items, PropertyExpression, Value, Tenor.Data.CompareOperator.Equal);
-        }
-
-        /// <summary>
-        /// Realiza uma busca nos objetos desta coleção.
-        /// </summary>
-        /// <param name="Items">Array com a coleção dos itens</param>
-        /// <param name="PropertyExpression">Nome da propriedade do tipo usada para a busca</param>
-        /// <param name="Value">Valor usado para a busca</param>
-        /// <param name="Operator">Operador de comparação para a busca</param>
-        /// <returns>O último objeto encontrado</returns>
-        /// <remarks></remarks>
-        public static T FindLast<T>(T[] Items, string PropertyExpression, object Value, Tenor.Data.CompareOperator @Operator) where T : BLLBase
-        {
-            SetFindDefinitions<T>(PropertyExpression, Value, @Operator);
-            return Array.FindLast<T>(Items, new Predicate<T>(BLLCollection<T>.FindDelegate));
-        }
-
-        /// <summary>
-        /// Realiza uma busca nos objetos desta coleção.
-        /// </summary>
-        /// <param name="Items">Array com a coleção dos itens</param>
-        /// <param name="PropertyExpression">Nome da propriedade do tipo usada para a busca</param>
-        /// <param name="Value">Valor usado para a busca</param>
-        /// <returns>O índice do primeiro objeto encontrado</returns>
-        /// <remarks></remarks>
-        public static int FindIndex<T>(T[] Items, string PropertyExpression, object Value) where T : BLLBase
-        {
-            SetFindDefinitions<T>(PropertyExpression, Value, Tenor.Data.CompareOperator.Equal);
-            return Array.FindIndex<T>(Items, new Predicate<T>(BLLCollection<T>.FindDelegate));
-        }
-
-        /// <summary>
-        /// Realiza uma busca nos objetos desta coleção.
-        /// </summary>
-        /// <param name="PropertyExpression">Nome da propriedade do tipo usada para a busca</param>
-        /// <param name="Value">Valor usado para a busca</param>
-        /// <returns>O índice do último objeto encontrado</returns>
-        /// <remarks></remarks>
-        public static int FindLastIndex<T>(T[] Items, string PropertyExpression, object Value) where T : BLLBase
-        {
-            SetFindDefinitions<T>(PropertyExpression, Value, Tenor.Data.CompareOperator.Equal);
-            return Array.FindLastIndex<T>(Items, new Predicate<T>(BLLCollection<T>.FindDelegate));
-        }
-
-        #region " Overloads de legacy "
-        /// <summary>
-        /// Realiza uma busca nos objetos desta coleção
-        /// </summary>
-        /// <param name="Items">Array com a coleção dos itens</param>
-        /// <param name="PropertyExpression">Nome da propriedade do tipo usada para a busca</param>
-        /// <param name="Value">Valor usado para a busca</param>
-        /// <returns>O primeiro objeto encontrado</returns>
-        /// <remarks></remarks>
-        public static BLLBase Find(BLLBase[] Items, string PropertyExpression, object Value)
-        {
-            return Find<BLLBase>(Items, PropertyExpression, Value);
-        }
-
-        /// <summary>
-        /// Realiza uma busca nos objetos desta coleção
-        /// </summary>
-        /// <param name="Items">Array com a coleção dos itens</param>
-        /// <param name="PropertyExpression">Nome da propriedade do tipo usada para a busca</param>
-        /// <param name="Value">Valor usado para a busca</param>
-        /// <param name="Operator">Operador de comparação para a busca</param>
-        /// <returns>O primeiro objeto encontrado</returns>
-        /// <remarks></remarks>
-        public static BLLBase Find(BLLBase[] Items, string PropertyExpression, object Value, Tenor.Data.CompareOperator @Operator)
-        {
-            return Find<BLLBase>(Items, PropertyExpression, Value, @Operator);
+            SetFindDefinitions<T>(propertyExpression, value, compareOperator);
+            return Array.Find<T>(items, new Predicate<T>(BLLCollection<T>.FindDelegate));
         }
 
 
         /// <summary>
-        /// Realiza uma busca nos objetos e retorna todos os itens encontrados
+        /// Search for objects on the collection.
         /// </summary>
-        /// <param name="Items">Array com a coleção dos itens</param>
-        /// <param name="PropertyExpression">Nome da propriedade do tipo usada para a busca</param>
-        /// <param name="Value">Valor usado para a busca</param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public static BLLBase[] FindAll(BLLBase[] Items, string PropertyExpression, object Value)
+        /// <param name="items">An array of entities.</param>
+        /// <param name="propertyExpression">The property name used to match entities. You can use dot (.) separated properties to go down on the class.</param>
+        /// <param name="value">The value desired.</param>
+        /// <returns>An array of objects.</returns>
+        public static T[] FindAll<T>(T[] items, string propertyExpression, object value) where T : BLLBase
         {
-            return FindAll<BLLBase>(Items, PropertyExpression, Value);
+            return FindAll(items, propertyExpression, value, Tenor.Data.CompareOperator.Equal);
         }
 
         /// <summary>
-        /// Realiza uma busca nos objetos e retorna todos os itens encontrados
+        /// Search for objects on the collection.
         /// </summary>
-        /// <param name="Items">Array com a coleção dos itens</param>
-        /// <param name="PropertyExpression">Nome da propriedade do tipo usada para a busca</param>
-        /// <param name="Value">Valor usado para a busca</param>
-        /// <param name="Operator">Operador de comparação para a busca</param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public static BLLBase[] FindAll(BLLBase[] Items, string PropertyExpression, object Value, Tenor.Data.CompareOperator @Operator)
+        /// <param name="items">An array of entities.</param>
+        /// <param name="propertyExpression">The property name used to match entities. You can use dot (.) separated properties to go down on the class.</param>
+        /// <param name="value">The value desired.</param>
+        /// <param name="compareOperator">The compare operator to use against the property.</param>
+        /// <returns>An array of objects.</returns>
+        public static T[] FindAll<T>(T[] items, string propertyExpression, object value, Tenor.Data.CompareOperator compareOperator) where T : BLLBase
         {
-            return FindAll<BLLBase>(Items, PropertyExpression, Value, @Operator);
+            SetFindDefinitions<T>(propertyExpression, value, compareOperator);
+            return Array.FindAll<T>(items, new Predicate<T>(BLLCollection<T>.FindDelegate));
         }
 
         /// <summary>
-        /// Realiza uma busca nos objetos desta coleção.
+        /// Search for objects on the collection.
         /// </summary>
-        /// <param name="Items">Array com a coleção dos itens</param>
-        /// <param name="PropertyExpression">Nome da propriedade do tipo usada para a busca</param>
-        /// <param name="Value">Valor usado para a busca</param>
-        /// <returns>O último objeto encontrado</returns>
-        /// <remarks></remarks>
-        public static BLLBase FindLast(BLLBase[] Items, string PropertyExpression, object Value)
+        /// <param name="items">An array of entities.</param>
+        /// <param name="propertyExpression">The property name used to match entities. You can use dot (.) separated properties to go down on the class.</param>
+        /// <param name="value">The value desired.</param>
+        /// <param name="compareOperator">An array of compare operators used against the properties.</param>
+        /// <param name="logicalOperators">An array of logical operators used to join the comparisons. Notice that this array must have one item less than the other arrays.</param>
+        /// <returns>An array of objects.</returns>
+        public static T[] FindAll<T>(T[] items, string[] propertyExpressions, object[] values, Tenor.Data.CompareOperator[] compareOperators, Tenor.Data.LogicalOperator[] logicalOperators) where T : BLLBase
         {
-            return FindLast<BLLBase>(Items, PropertyExpression, Value);
+            SetFindDefinitions<T>(propertyExpressions, values, compareOperators, logicalOperators);
+            return Array.FindAll<T>(items, new Predicate<T>(BLLCollection<T>.FindDelegate));
         }
 
         /// <summary>
-        /// Realiza uma busca nos objetos desta coleção.
+        /// Search for an object on the collection.
         /// </summary>
-        /// <param name="Items">Array com a coleção dos itens</param>
-        /// <param name="PropertyExpression">Nome da propriedade do tipo usada para a busca</param>
-        /// <param name="Value">Valor usado para a busca</param>
-        /// <param name="Operator">Operador de comparação para a busca</param>
-        /// <returns>O último objeto encontrado</returns>
-        /// <remarks></remarks>
-        public static BLLBase FindLast(BLLBase[] Items, string PropertyExpression, object Value, Tenor.Data.CompareOperator @Operator)
+        /// <param name="items">An array of entities.</param>
+        /// <param name="propertyExpression">The property name used to match entities. You can use dot (.) separated properties to go down on the class.</param>
+        /// <param name="value">The value desired.</param>
+        /// <returns>The last found object.</returns>
+        public static T FindLast<T>(T[] items, string propertyExpression, object value) where T : BLLBase
         {
-            return FindLast<BLLBase>(Items, PropertyExpression, Value, @Operator);
+            return FindLast(items, propertyExpression, value, Tenor.Data.CompareOperator.Equal);
         }
 
         /// <summary>
-        /// Realiza uma busca nos objetos desta coleção.
+        /// Search for an object on the collection.
         /// </summary>
-        /// <param name="Items">Array com a coleção dos itens</param>
-        /// <param name="PropertyExpression">Nome da propriedade do tipo usada para a busca</param>
-        /// <param name="Value">Valor usado para a busca</param>
-        /// <returns>O índice do primeiro objeto encontrado</returns>
-        /// <remarks></remarks>
-        public static int FindIndex(BLLBase[] Items, string PropertyExpression, object Value)
+        /// <param name="items">An array of entities.</param>
+        /// <param name="propertyExpression">The property name used to match entities. You can use dot (.) separated properties to go down on the class.</param>
+        /// <param name="value">The value desired.</param>
+        /// <param name="compareOperator">The compare operator to use against the property.</param>
+        /// <returns>The last found object.</returns>
+        public static T FindLast<T>(T[] items, string propertyExpression, object value, Tenor.Data.CompareOperator compareOperator) where T : BLLBase
         {
-            return FindIndex<BLLBase>(Items, PropertyExpression, Value);
+            SetFindDefinitions<T>(propertyExpression, value, compareOperator);
+            return Array.FindLast<T>(items, new Predicate<T>(BLLCollection<T>.FindDelegate));
         }
 
         /// <summary>
-        /// Realiza uma busca nos objetos desta coleção.
+        /// Search for an object on the collection.
         /// </summary>
-        /// <param name="PropertyExpression">Nome da propriedade do tipo usada para a busca</param>
-        /// <param name="Value">Valor usado para a busca</param>
-        /// <returns>O índice do último objeto encontrado</returns>
-        /// <remarks></remarks>
-        public static int FindLastIndex(BLLBase[] Items, string PropertyExpression, object Value)
+        /// <param name="items">An array of entities.</param>
+        /// <param name="propertyExpression">The property name used to match entities. You can use dot (.) separated properties to go down on the class.</param>
+        /// <param name="value">The value desired.</param>
+        /// <returns>The index of the first found object.</returns>
+        public static int FindIndex<T>(T[] items, string propertyExpression, object value) where T : BLLBase
         {
-            return FindLastIndex<BLLBase>(Items, PropertyExpression, Value);
+            SetFindDefinitions<T>(propertyExpression, value, Tenor.Data.CompareOperator.Equal);
+            return Array.FindIndex<T>(items, new Predicate<T>(BLLCollection<T>.FindDelegate));
+        }
+
+        /// <summary>
+        /// Search for an object on the collection.
+        /// </summary>
+        /// <param name="items">An array of entities.</param>
+        /// <param name="propertyExpression">The property name used to match entities. You can use dot (.) separated properties to go down on the class.</param>
+        /// <param name="value">The value desired.</param>
+        /// <returns>The index of the last found object.</returns>
+        public static int FindLastIndex<T>(T[] items, string propertyExpression, object value) where T : BLLBase
+        {
+            SetFindDefinitions<T>(propertyExpression, value, Tenor.Data.CompareOperator.Equal);
+            return Array.FindLastIndex<T>(items, new Predicate<T>(BLLCollection<T>.FindDelegate));
+        }
+
+        #region " Legacy Find Overloads"
+        /// <summary>
+        /// Search for an object on the collection.
+        /// </summary>
+        /// <param name="items">An array of entities.</param>
+        /// <param name="propertyExpression">The property name used to match entities. You can use dot (.) separated properties to go down on the class.</param>
+        /// <param name="value">The value desired.</param>
+        /// <returns>The first found object.</returns>
+        public static BLLBase Find(BLLBase[] items, string propertyExpression, object value)
+        {
+            return Find<BLLBase>(items, propertyExpression, value);
+        }
+
+        /// <summary>
+        /// Search for an object on the collection.
+        /// </summary>
+        /// <param name="items">An array of entities.</param>
+        /// <param name="propertyExpression">The property name used to match entities. You can use dot (.) separated properties to go down on the class.</param>
+        /// <param name="value">The value desired.</param>
+        /// <param name="compareOperator">The compare operator to use against the property.</param>
+        /// <returns>The first found object.</returns>
+        public static BLLBase Find(BLLBase[] items, string propertyExpression, object value, Tenor.Data.CompareOperator compareOperator)
+        {
+            return Find<BLLBase>(items, propertyExpression, value, compareOperator);
+        }
+
+
+        /// <summary>
+        /// Search for objects on the collection.
+        /// </summary>
+        /// <param name="items">An array of entities.</param>
+        /// <param name="propertyExpression">The property name used to match entities. You can use dot (.) separated properties to go down on the class.</param>
+        /// <param name="value">The value desired.</param>
+        /// <returns>An array of objects.</returns>
+        public static BLLBase[] FindAll(BLLBase[] items, string propertyExpression, object value)
+        {
+            return FindAll<BLLBase>(items, propertyExpression, value);
+        }
+
+        /// <summary>
+        /// Search for objects on the collection.
+        /// </summary>
+        /// <param name="items">An array of entities.</param>
+        /// <param name="propertyExpression">The property name used to match entities. You can use dot (.) separated properties to go down on the class.</param>
+        /// <param name="value">The value desired.</param>
+        /// <param name="compareOperator">The compare operator to use against the property.</param>
+        /// <returns>An array of objects.</returns>
+        public static BLLBase[] FindAll(BLLBase[] items, string propertyExpression, object value, Tenor.Data.CompareOperator compareOperator)
+        {
+            return FindAll<BLLBase>(items, propertyExpression, value, compareOperator);
+        }
+
+        /// <summary>
+        /// Search for an object on the collection.
+        /// </summary>
+        /// <param name="items">An array of entities.</param>
+        /// <param name="propertyExpression">The property name used to match entities. You can use dot (.) separated properties to go down on the class.</param>
+        /// <param name="value">The value desired.</param>
+        /// <returns>The last found object.</returns>
+        public static BLLBase FindLast(BLLBase[] items, string propertyExpression, object value)
+        {
+            return FindLast<BLLBase>(items, propertyExpression, value);
+        }
+
+        /// <summary>
+        /// Search for an object on the collection.
+        /// </summary>
+        /// <param name="items">An array of entities.</param>
+        /// <param name="propertyExpression">The property name used to match entities. You can use dot (.) separated properties to go down on the class.</param>
+        /// <param name="value">The value desired.</param>
+        /// <param name="compareOperator">The compare operator to use against the property.</param>
+        /// <returns>The last found object.</returns>
+        public static BLLBase FindLast(BLLBase[] items, string propertyExpression, object value, Tenor.Data.CompareOperator compareOperator)
+        {
+            return FindLast<BLLBase>(items, propertyExpression, value, compareOperator);
+        }
+
+        /// <summary>
+        /// Search for an object on the collection.
+        /// </summary>
+        /// <param name="items">An array of entities.</param>
+        /// <param name="propertyExpression">The property name used to match entities. You can use dot (.) separated properties to go down on the class.</param>
+        /// <param name="value">The value desired.</param>
+        /// <returns>The index of the first found object.</returns>
+        public static int FindIndex(BLLBase[] items, string propertyExpression, object value)
+        {
+            return FindIndex<BLLBase>(items, propertyExpression, value);
+        }
+
+        /// <summary>
+        /// Search for an object on the collection.
+        /// </summary>
+        /// <param name="items">An array of entities.</param>
+        /// <param name="propertyExpression">The property name used to match entities. You can use dot (.) separated properties to go down on the class.</param>
+        /// <param name="value">The value desired.</param>
+        /// <returns>The index of the last found object.</returns>
+        public static int FindLastIndex(BLLBase[] items, string propertyExpression, object value)
+        {
+            return FindLastIndex<BLLBase>(items, propertyExpression, value);
         }
         #endregion
 
@@ -842,16 +714,13 @@ namespace Tenor.BLL
 
         #region "Sort Functions"
         /// <summary>
-        /// Realiza ordenação dos elementos de acordo com a expressão fornecida.
+        /// Sorts the entities on the collection based on a property.
         /// </summary>
-        /// <param name="Items">Array de elementos à ordenar</param>
-        /// <param name="PropertyExpression">
-        /// Uma PropertyExpression para usar na ordenação. Você pode especificar mais de uma expressão separando-as por vírgula (,)
-        /// </param>
-        /// <remarks></remarks>
-        public static void Sort(BLLBase[] Items, string PropertyExpression)
+        /// <param name="items">An array of entities.</param>
+        /// <param name="propertyExpression">The property name used to match entities. You can use dot (.) separated properties to go down on the class.</param>
+        public static void Sort(BLLBase[] items, string propertyExpression)
         {
-            Array.Sort(Items, new BLLBaseComparer(PropertyExpression));
+            Array.Sort(items, new BLLBaseComparer(propertyExpression));
         }
 
 
@@ -885,62 +754,11 @@ namespace Tenor.BLL
         {
             return true;
         }
-
-
-        //Private __EmAprova As Boolean
-        //<Field(autonumber:=False, FieldName:="_EmAprova", PrimaryKey:=False)> _
-        //Public Property _EmAprova() As Boolean
-        //    Get
-        //        Return __EmAprova
-        //    End Get
-        //    Set(ByVal value As Boolean)
-        //        __EmAprova = value
-        //    End Set
-        //End Property
-
-
-
-
-        //        /* To prevent any potential data loss issues, you should review this script in detail before running it outside the context of the database designer.*/
-        //BEGIN TRANSACTION
-        //SET QUOTED_IDENTIFIER ON
-        //SET ARITHABORT ON
-        //SET NUMERIC_ROUNDABORT OFF
-        //SET CONCAT_NULL_YIELDS_NULL ON
-        //SET ANSI_NULLS ON
-        //SET ANSI_PADDING ON
-        //SET ANSI_WARNINGS ON
-        //COMMIT
-        //BEGIN TRANSACTION
-        //  ALTER TABLE dbo.SituacaoObra ADD   _EmAprova bit NOT NULL CONSTRAINT DF_SituacaoObra__EmAprova DEFAULT 0  GO
-        //  ALTER TABLE dbo.TipoImagem ADD   _EmAprova bit NOT NULL CONSTRAINT DF_TipoImagem__EmAprova DEFAULT 0  GO
-        //  ALTER TABLE dbo.Grupo ADD   _EmAprova bit NOT NULL CONSTRAINT DF_Grupo__EmAprova DEFAULT 0  GO
-        //  ALTER TABLE dbo.Bloco ADD   _EmAprova bit NOT NULL CONSTRAINT DF_Bloco__EmAprova DEFAULT 0  GO
-        //  ALTER TABLE dbo.Cronograma ADD   _EmAprova bit NOT NULL CONSTRAINT DF_Cronograma__EmAprova DEFAULT 0  GO
-        //  ALTER TABLE dbo.Unidade ADD   _EmAprova bit NOT NULL CONSTRAINT DF_Unidade__EmAprova DEFAULT 0  GO
-        //  ALTER TABLE dbo.Usuario ADD   _EmAprova bit NOT NULL CONSTRAINT DF_Usuario__EmAprova DEFAULT 0  GO
-        //  ALTER TABLE dbo.UsuarioGrupo ADD   _EmAprova bit NOT NULL CONSTRAINT DF_UsuarioGrupo__EmAprova DEFAULT 0  GO
-        //  ALTER TABLE dbo.Log ADD   _EmAprova bit NOT NULL CONSTRAINT DF_Log__EmAprova DEFAULT 0  GO
-        //  ALTER TABLE dbo.ItemMarketing ADD   _EmAprova bit NOT NULL CONSTRAINT DF_ItemMarketing__EmAprova DEFAULT 0  GO
-        //  ALTER TABLE dbo.ValorMarketing ADD   _EmAprova bit NOT NULL CONSTRAINT DF_ValorMarketing__EmAprova DEFAULT 0  GO
-        //  ALTER TABLE dbo.ValorCronograma ADD   _EmAprova bit NOT NULL CONSTRAINT DF_ValorCronograma__EmAprova DEFAULT 0  GO
-        //  ALTER TABLE dbo.Empreendimento ADD   _EmAprova bit NOT NULL CONSTRAINT DF_Empreendimento__EmAprova DEFAULT 0  GO
-        //  ALTER TABLE dbo.TipoEmpreendimento ADD   _EmAprova bit NOT NULL CONSTRAINT DF_TipoEmpreendimento__EmAprova DEFAULT 0  GO
-        //  ALTER TABLE dbo.MarketingEmpreendimento ADD   _EmAprova bit NOT NULL CONSTRAINT DF_MarketingEmpreendimento__EmAprova DEFAULT 0  GO
-        //  ALTER TABLE dbo.Imagem ADD   _EmAprova bit NOT NULL CONSTRAINT DF_Imagem__EmAprova DEFAULT 0  GO
-        //  ALTER TABLE dbo.ItemCronograma ADD   _EmAprova bit NOT NULL CONSTRAINT DF_ItemCronograma__EmAprova DEFAULT 0  GO
-        //  ALTER TABLE dbo.Disponibilidade ADD   _EmAprova bit NOT NULL CONSTRAINT DF_Disponibilidade__EmAprova DEFAULT 0  GO
-        //COMMIT
-
-
-        //select '
-        //ALTER TABLE dbo.' + name + ' ADD
-        //	_EmAprova bit NOT NULL CONSTRAINT DF_' + name + '__EmAprova DEFAULT 0
-        //GO
-        //        ' from SYSOBJECTS WHERE xtype='U'
         #endregion
 
         #region " Operators "
+
+
         public override bool Equals(object obj)
         {
             BLLBase x = this;
