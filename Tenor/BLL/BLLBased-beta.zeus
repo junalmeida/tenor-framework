@@ -18,7 +18,7 @@ public class GeneratedGui : DotNetScriptGui
 	{
 		ui.Title = "Tenor Framework - Mapping";
 		ui.Width = 500;
-		ui.Height = 600;
+		ui.Height = 650;
 		
 		List<List<DictionaryEntry>> list = null;
 		
@@ -45,11 +45,13 @@ public class GeneratedGui : DotNetScriptGui
 		int i = 0;
 		foreach(List<DictionaryEntry> item in list)
 		{
-			cmbLanguages.Items.Add(i.ToString(), item[0].Value.ToString());
+			string value = item[0].Value.ToString();
+			cmbLanguages.Items.Add(i.ToString(), value);
+			if (value == (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Language", "C#"))
+				cmbLanguages.SelectAtIndex(i);
+			i++;
 		}
-		
-		cmbLanguages.SelectAtIndex(0);
-		
+	
 		input["languages"] = list;
 		
 		GuiLabel lblTbl = ui.AddLabel("lblTables", "Desired tables:", "Choose the tables from which you want to generate classes.");
@@ -61,8 +63,14 @@ public class GeneratedGui : DotNetScriptGui
 		GuiLabel lblNamespace = ui.AddLabel("lblNamespace", "Namespace:", "Default namespace.");
 		GuiTextBox txtNamespace = ui.AddTextBox("txtNamespace", (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Namespace", "Tenor"), "");
 
+		GuiLabel lblPluralLanguage = ui.AddLabel("lblPluralLanguage", "Choose the language used for plurals:", "Choose the language used for plurals.");
+		GuiComboBox cmbPluralLanguage = ui.AddComboBox("cmbPluralLanguage", "");
+		cmbPluralLanguage.Items.Add("en-US", "English (en-US)");
+		cmbPluralLanguage.Items.Add("pt-BR", "Português (pt-BR)");
+		cmbPluralLanguage.SelectedValue = (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.PluralLanguage", "en-US");
+
 		GuiLabel lblOutput = ui.AddLabel("lblOutput", "Target folder:", "Where do you want to save your files?");
-		GuiTextBox txtOutput = ui.AddTextBox("txtOutput", (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Folder",@"C:\Documents and Settings\Produção\Meus documentos\templates"), "");
+		GuiTextBox txtOutput = ui.AddTextBox("txtOutput", (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Folder", @"C:\Documents and Settings\Produção\Meus documentos\templates"), "");
 		GuiFilePicker btnOutputPath = ui.AddFilePicker("btnOutputPath", "Select the target folder.", "Select the target folder.", "txtOutput", true);
 
 		setupDatabaseDropdown(cmbDatabases);
@@ -79,15 +87,24 @@ public class GeneratedGui : DotNetScriptGui
 			if (MyMeta.IsConnected) 
 			{
 				cmbDatabases.BindData(MyMeta.Databases);
+				
+				string defaultDatabase = string.Empty;
+
 				if (MyMeta.DefaultDatabase != null) 
+					defaultDatabase = MyMeta.DefaultDatabase.Name;
+				
+				try
 				{
-					cmbDatabases.SelectedValue = MyMeta.DefaultDatabase.Name;
-					try {
-						cmbDatabases.SelectedValue = (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Database",MyMeta.DefaultDatabase.Name);
-					} catch (Exception e) { }
+					defaultDatabase = (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Database", defaultDatabase);
+				}
+				catch (Exception e) { }
+				
+				if(!string.IsNullOrEmpty(defaultDatabase) && cmbDatabases.Contains(defaultDatabase))
+				{
+					cmbDatabases.SelectedValue = defaultDatabase;
 					bindTables(cmbDatabases.SelectedValue);
 				}
-	
+				
 				//lblError.Text = "";
 			}
 			else
@@ -172,11 +189,14 @@ public class TemplateSnippets
 {
 	public string language;
 	public string fileExtension;
+	public string boolRepresentationTrue;
 	public string classHeader;
 	public string tableDescription;
 	public string propertyLazyItem;
 	public string propertyItem;
 	public string fieldDescription;
+	public string fieldAttributes;
+	public string fieldAttributeParameter;
 	public string propertiesEnum;
 	public string propertyEnumItem;
 	public string foreignKeysHeader;
@@ -199,23 +219,6 @@ public class TemplateSnippets
 	public TemplateSnippets()
 	{
 	}
-
-	public string GetFieldAttributes(NameValueCollection items)
-	{
-		string returnValue = "[Field(";
-		string attributes = string.Empty;
-
-		foreach (string item in items.AllKeys)
-		{
-			string value = items[item];
-			if (item == "FieldName")
-				value = "\"" + value + "\"";
-			attributes += ", " + item + "=" + value;
-		}
-		if (items.Count > 0)
-			attributes = attributes.Substring(2);
-		return returnValue + attributes + ")]";
-	}
 }
 
 public class GeneratedTemplate : DotNetScriptTemplate
@@ -224,8 +227,13 @@ public class GeneratedTemplate : DotNetScriptTemplate
 	private string database;
 	private string outputPath;
 	private string defaultNamespace;
+	private string pluralLanguage;
 	private ArrayList tables;
 	private TemplateSnippets snippets;
+
+	// 128 is the value of System.Data.OleDb.OleDbType.Binary enum
+	private const int OleDbTypeBinary = 128;
+	
 	public void Initialize()
 	{
 		database = input["cmbDatabase"].ToString();
@@ -236,15 +244,13 @@ public class GeneratedTemplate : DotNetScriptTemplate
 		
 		this.defaultNamespace = input["txtNamespace"].ToString();
 		
+		this.pluralLanguage = input["cmbPluralLanguage"].ToString();
+		
 		string parsedTables = string.Empty;
 		foreach(object item in tables) 
 		{
 			parsedTables += ";" + item.ToString();
 		}
-		Registry.CurrentUser.SetValue("BLLBase.Namespace", this.defaultNamespace);
-		Registry.CurrentUser.SetValue("BLLBase.Folder", this.outputPath);
-		Registry.CurrentUser.SetValue("BLLBase.Database", database);
-		Registry.CurrentUser.SetValue("BLLBase.Tables", parsedTables);
 		
 		List<List<DictionaryEntry>> items = (List<List<DictionaryEntry>>)input["languages"];
 		int selected = Convert.ToInt32(input["cmbLanguage"]);
@@ -258,12 +264,15 @@ public class GeneratedTemplate : DotNetScriptTemplate
 			
 			if (key.Equals("language", StringComparison.InvariantCultureIgnoreCase)) snippets.language = value;
 			else if (key.Equals("fileExtension", StringComparison.InvariantCultureIgnoreCase)) snippets.fileExtension = value;
+			else if (key.Equals("boolRepresentationTrue", StringComparison.InvariantCultureIgnoreCase)) snippets.boolRepresentationTrue = value;
 			else if (key.Equals("classHeader", StringComparison.InvariantCultureIgnoreCase)) snippets.classHeader = value;
 			else if (key.Equals("tableDescription", StringComparison.InvariantCultureIgnoreCase)) snippets.tableDescription = value;
 			else if (key.Equals("propertyLazyItem", StringComparison.InvariantCultureIgnoreCase)) snippets.propertyLazyItem = value;
 			else if (key.Equals("propertyItem", StringComparison.InvariantCultureIgnoreCase)) snippets.propertyItem = value;
 			else if (key.Equals("propertiesEnum", StringComparison.InvariantCultureIgnoreCase)) snippets.propertiesEnum = value;
 			else if (key.Equals("fieldDescription", StringComparison.InvariantCultureIgnoreCase)) snippets.fieldDescription = value;
+			else if (key.Equals("fieldAttributes", StringComparison.InvariantCultureIgnoreCase)) snippets.fieldAttributes = value;
+			else if (key.Equals("fieldAttributeParameter", StringComparison.InvariantCultureIgnoreCase)) snippets.fieldAttributeParameter = value;
 			else if (key.Equals("propertyEnumItem", StringComparison.InvariantCultureIgnoreCase)) snippets.propertyEnumItem = value;
 			else if (key.Equals("foreignKeysHeader", StringComparison.InvariantCultureIgnoreCase)) snippets.foreignKeysHeader = value;
 			else if (key.Equals("metadataHeader", StringComparison.InvariantCultureIgnoreCase)) snippets.metadataHeader = value;
@@ -282,6 +291,13 @@ public class GeneratedTemplate : DotNetScriptTemplate
 			else if (key.Equals("searchBlocks", StringComparison.InvariantCultureIgnoreCase)) snippets.searchBlocks = value;
 			else if (key.Equals("classFooter", StringComparison.InvariantCultureIgnoreCase)) snippets.classFooter = value;
 		}
+		
+		Registry.CurrentUser.SetValue("BLLBase.PluralLanguage", this.pluralLanguage);
+		Registry.CurrentUser.SetValue("BLLBase.Language", snippets.language);
+		Registry.CurrentUser.SetValue("BLLBase.Namespace", this.defaultNamespace);
+		Registry.CurrentUser.SetValue("BLLBase.Folder", this.outputPath);
+		Registry.CurrentUser.SetValue("BLLBase.Database", database);
+		Registry.CurrentUser.SetValue("BLLBase.Tables", parsedTables);
 	}
 
 	public override void Render()
@@ -299,12 +315,6 @@ public class GeneratedTemplate : DotNetScriptTemplate
 			{
 				string currentNamespace = this.defaultNamespace;
 				string folderName = string.Empty;
-				if (!string.IsNullOrEmpty(table.Schema) && table.Schema != "dbo") //For Microsoft SQL Server 
-				{
-					folderName = table.Schema;
-					currentNamespace += "." + folderName;
-				}
-				
 				fileName = table.Name + snippets.fileExtension;
 
 				CreateClass(folderName, fileName, currentNamespace, table);
@@ -314,32 +324,52 @@ public class GeneratedTemplate : DotNetScriptTemplate
 		try 
 		{
 			System.Diagnostics.Process.Start(Environment.ExpandEnvironmentVariables("%SystemRoot%") + "\\explorer.exe", "\"" + this.outputPath + "\"");
-		} catch { }
+		}
+		catch { }
 	}
 	
 	
-	public string ToPlural(string texto) {
-		List<string> l = new List<string>();
-		foreach (char i in texto) {
-			if (char.IsUpper(i)) {
-				l.Add(i.ToString());
-			} else {
-				if (l.Count == 0)
-					l.Add(i.ToString());
+	public string ToPlural(string text)
+	{
+		List<string> words = new List<string>();
+		foreach (char i in text)
+		{
+			if (char.IsUpper(i))
+			{
+				words.Add(i.ToString());
+			}
+			else
+			{
+				if (words.Count == 0)
+					words.Add(i.ToString());
 				else
-					l[l.Count-1] += i.ToString();
+					words[words.Count - 1] += i.ToString();
 			}
 		}
-		for(int i=0;i<l.Count;i++) {
-			if (l[i].Substring(l[i].Length-1) == "m") {
-				l[i] = l[i].Substring(0,l[i].Length-1) + "ns";
-			} else if (l[i].Substring(l[i].Length-1) == "r") {
-				l[i] = l[i] + "es";
-			} else {
-				l[i] = l[i] + "s";
+		
+		for(int i = 0; i < words.Count; i++)
+		{
+			if (this.pluralLanguage.Equals("pt-BR", StringComparison.InvariantCultureIgnoreCase))
+			{
+				if (words[i].Substring(words[i].Length - 1) == "m")
+					words[i] = words[i].Substring(0, words[i].Length - 1) + "ns";
+				else if (words[i].Substring(words[i].Length - 1) == "r")
+					words[i] = words[i] + "es";
+				else
+					words[i] = words[i] + "s";
+			}
+			else if(this.pluralLanguage.Equals("en-US", StringComparison.InvariantCultureIgnoreCase))
+			{
+				// TODO: Make it like rails'
+				words[i] = words[i] + "s";
+			}
+			else
+			{
+				words[i] = words[i] + "s";
 			}
 		}
-		return string.Join("", l.ToArray());
+		
+		return string.Join("", words.ToArray());
 	}
 
 
@@ -360,7 +390,6 @@ public class GeneratedTemplate : DotNetScriptTemplate
 		classHeader = classHeader.Replace("{description}", description);
 
 		output.writeln(classHeader);
-
 
 		StringBuilder defaults = new StringBuilder();
 		StringBuilder constCampos = new StringBuilder();
@@ -390,18 +419,18 @@ public class GeneratedTemplate : DotNetScriptTemplate
 				fieldName = "Field" + fieldName;
 				attributes.Add("FieldName", fieldName);
 			}
-			string tipoCampo = col.LanguageType;
-			if (col.IsNullable && !col.LanguageType.ToLower().Equals("string") && !col.LanguageType.ToLower().Contains("[]"))
+			string fieldType = col.LanguageType;
+			if (col.IsNullable && !col.LanguageType.ToLower().Equals("string") && col.DataType != OleDbTypeBinary)
 			{
-				tipoCampo = snippets.nullableType.Replace("{typeName}", tipoCampo);
+				fieldType = snippets.nullableType.Replace("{typeName}", fieldType);
 			}
 			if (col.IsInPrimaryKey)
 			{
-				attributes.Add("PrimaryKey", "true");
+				attributes.Add("PrimaryKey", snippets.boolRepresentationTrue);
 			}
 			if (col.IsAutoKey)
 			{
-				attributes.Add("AutoNumber", "true");
+				attributes.Add("AutoNumber", snippets.boolRepresentationTrue);
 			}
 
 			string constField = snippets.propertyEnumItem;
@@ -409,52 +438,13 @@ public class GeneratedTemplate : DotNetScriptTemplate
 			constCampos.AppendLine(constField);
 
 			bool dolazyload = false;
-			if (col.LanguageType.ToLower() == "byte[]")
+			if (col.DataType == OleDbTypeBinary)
 			{
-				attributes.Add("LazyLoading", "true");
+				attributes.Add("LazyLoading", snippets.boolRepresentationTrue);
 				dolazyload = true;
 			}
 
-			string fieldAttributes = snippets.GetFieldAttributes(attributes);
-			/*
-			// ----- Valor Padrão do Banco -----
-			
-				
-			if (!string.IsNullOrEmpty(col.Default)) {
-				string valor = col.Default;
-				switch (col.LanguageType) {
-					case "DateTime":
-						if (valor.ToLower().Contains("getdate()")) {
-							valor = nomeCampo + " = DateTime.Now();";
-						} else {
-							valor = nomeCampo + " = DateTime.Parse(" + valor + ");";
-						}
-					break;
-					case "string":
-						if (valor.StartsWith("N'")) {
-							valor = nomeCampo + " = \"" + valor.Substring(2, valor.Length - 5).Replace("''", "'") +  "\";";
-						} else if (valor.StartsWith("(N'")) {
-							valor = nomeCampo + " = \"" + valor.Substring(3, valor.Length - 6).Replace("''", "'") +  "\";";
-						} else if (valor.StartsWith("'")) {
-							valor = nomeCampo + " = \"" + valor.Substring(1, valor.Length - 4).Replace("''", "'") +  "\";";
-						} else {
-							valor = nomeCampo + " = " + valor.Replace("'","\"").Replace("\"\"", "'") + ";";
-						}
-						
-			
-								
-					break;
-					default:
-						valor = nomeCampo + " = " + valor + ";";
-					break;
-				}
-			
-				
-				defaults.AppendLine("			" + valor);
-			}
-			*/
-
-			// ---------------------------------
+			string fieldAttributes = GetFieldAttributes(attributes);
 
 			string propertyItem = snippets.propertyItem;
 			if (dolazyload)
@@ -469,7 +459,7 @@ public class GeneratedTemplate : DotNetScriptTemplate
 
 			propertyItem = propertyItem.Replace("{description}", description);
 			
-			propertyItem = propertyItem.Replace("{returnType}", tipoCampo);
+			propertyItem = propertyItem.Replace("{returnType}", fieldType);
 			propertyItem = propertyItem.Replace("{propertyName}", fieldName);
 			string validationCode = string.Empty;//To be implemented, insert correct tabs after validation code
 			propertyItem = propertyItem.Replace("{validationCode}", validationCode);
@@ -507,7 +497,6 @@ public class GeneratedTemplate : DotNetScriptTemplate
 					fkNamespace = "";
 				returnType = fkNamespace + fk.PrimaryTable.Name;
 
-				// FIX ME: The items below must be property names.
 				for (int i = 0; i < fk.ForeignColumns.Count; i++)
 				{
 					string item = snippets.foreignKeyAttribute;
@@ -530,7 +519,6 @@ public class GeneratedTemplate : DotNetScriptTemplate
 					fkNamespace = "";
 				returnType = fkNamespace + fk.ForeignTable.Name;
 
-				// FIX ME: The items below must be property names.
 				for (int i = 0; i < fk.ForeignColumns.Count; i++)
 				{
 					string item = snippets.foreignKeyAttribute;
@@ -555,7 +543,6 @@ public class GeneratedTemplate : DotNetScriptTemplate
 				returnType = snippets.collectionType;
 				returnType = returnType.Replace("{typeName}", collectionType);
 
-				// FIX ME: The items below must be property names.
 				for (int i = 0; i < fk.ForeignColumns.Count; i++)
 				{
 					string item = snippets.foreignKeyAttribute;
@@ -578,7 +565,9 @@ public class GeneratedTemplate : DotNetScriptTemplate
 
 			output.writeln(fkProperty);
 		}
+		
 		output.writeln(snippets.metadataHeader);
+		
 		string ctor = snippets.emptyConstructor;
 		ctor = ctor.Replace("{className}", table.Name);
 		output.writeln(ctor);
@@ -610,7 +599,23 @@ public class GeneratedTemplate : DotNetScriptTemplate
 		output.writeln(snippets.classFooter);
 
 		this.Save(folderName, fileName);
+	}
+	
+	public string GetFieldAttributes(NameValueCollection items)
+	{
+		string returnValue = snippets.fieldAttributes;
+		string attributes = string.Empty;
 
+		foreach (string item in items.AllKeys)
+		{
+			string value = items[item];
+			if (item == "FieldName")
+				value = "\"" + value + "\"";
+			attributes += ", " + snippets.fieldAttributeParameter.Replace("{name}", item).Replace("{value}", value);
+		}
+		if (items.Count > 0)
+			attributes = attributes.Substring(2);
+		return returnValue.Replace("{params}", attributes);
 	}
 
 	public void Save(string folderName, string fileName)
