@@ -15,40 +15,37 @@ namespace Tenor.Drawing
     public class Image : IO.BinaryFile, ICloneable, IImage
     {
 
-
-
-
         #region " Contrutores "
 
         /// <summary>
-        /// Instancia a classe imagem
+        /// Creates and instance of the current image.
         /// </summary>
-        /// <param name="Bitmap">Imagem original</param>
+        /// <param name="bitmap">An array of bytes of an JPEG image.</param>
         /// <remarks></remarks>
-        public Image(byte[] Bitmap)
-            : base(Bitmap, "image/jpeg")
+        public Image(byte[] bitmap)
+            : base(bitmap, "image/jpeg")
         {
 
-            _Bitmap = new System.Drawing.Bitmap(new MemoryStream(Bitmap));
+            _Bitmap = new System.Drawing.Bitmap(new MemoryStream(bitmap));
             RawFormat = _Bitmap.RawFormat;
 
         }
 
 
         /// <summary>
-        /// Instancia a classe imagem
+        /// Creates and instance of the current image.
         /// </summary>
-        /// <param name="Bitmap">Imagem original</param>
+        /// <param name="bitmap">A bitmap image.</param>
         /// <remarks></remarks>
-        public Image(System.Drawing.Bitmap Bitmap)
+        public Image(System.Drawing.Bitmap bitmap)
             : base(null, "image/jpeg")
         {
             MemoryStream mem = new MemoryStream();
-            Bitmap.Save(mem, Bitmap.RawFormat);
+            bitmap.Save(mem, bitmap.RawFormat);
             _buffer = StreamToBytes(mem);
 
-            _Bitmap = Bitmap;
-            RawFormat = Bitmap.RawFormat;
+            _Bitmap = bitmap;
+            RawFormat = bitmap.RawFormat;
         }
 
         /// <summary>
@@ -856,17 +853,15 @@ namespace Tenor.Drawing
         #endregion
 
         /// <summary>
-        /// Retorna uma nova Stream com a imagem no seu estado atual.
+        /// Gets the stream that relies on the current image.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public override System.IO.Stream GetStream()
         {
             return WriteContent();
         }
 
         /// <summary>
-        /// Faz uma cÃ³pia da instancia atual da imagem.
+        /// Creates a clone of the current image.
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
@@ -895,35 +890,35 @@ namespace Tenor.Drawing
 
     #region " Enums "
 
-    /// <summary>
-    /// ContÃ©m posiÃ§Ãµes de posicionamento de itens em geral
+    /// <summary> 
+    /// Sets the alignment.
     /// </summary>
     /// <remarks></remarks>
     [Flags()]
     public enum Position
     {
         /// <summary>
-        /// Sem alinhamento ou centralizado
+        /// No alignment or center.
         /// </summary>
         /// <remarks></remarks>
         None,
         /// <summary>
-        /// Alinha à esquerda
+        /// Left aligned.
         /// </summary>
         /// <remarks></remarks>
         Left,
         /// <summary>
-        /// Alinha à direita
+        /// Right aligned.
         /// </summary>
         /// <remarks></remarks>
         Right,
         /// <summary>
-        /// Alinha ao topo
+        /// Top aligned.
         /// </summary>
         /// <remarks></remarks>
         Top,
         /// <summary>
-        /// Alinha ao fundo
+        /// Bottom aligned.
         /// </summary>
         /// <remarks></remarks>
         Bottom

@@ -13,7 +13,7 @@ using Tenor.Data.Dialects;
 namespace Tenor.Data
 {
     /// <summary>
-    /// Autor: Rachel dos Santos Carvalho
+    /// Represents a set of methods that implements persistence code.
     /// </summary>
     /// <remarks></remarks>
     public sealed class Helper

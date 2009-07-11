@@ -14,19 +14,17 @@ using System.Text;
 
 namespace Tenor.Diagnostics
 {
-    public class Debug
+    /// <summary>
+    /// Represents a set of common methods with debugging code.
+    /// </summary>
+    public static class Debug
     {
 
-
-        private Debug()
-        {
-        }
-
         /// <summary>
-        /// Imprime na saída da depuração os tempos de inicio e final da execução da página. Útil para calcular performance.
+        /// Prints on page output execution timings. This is useful on performance calculations.
+        /// Time values will be printed on the output between html comments. These time values will also be printed on debug output if debug mode is activated.
         /// </summary>
-        /// <param name="page"></param>
-        /// <remarks></remarks>
+        /// <param name="page">A Page.</param>
         public static void PrintTimings(Page page)
         {
             page.PreInit += new EventHandler(PrintTimings_PreInit);
@@ -41,7 +39,7 @@ namespace Tenor.Diagnostics
                 DateTime d = DateTime.Now;
                 string res = p.AppRelativeVirtualPath + (" - StartTime:  " + d.ToString() + ":" + d.Millisecond.ToString());
                 System.Diagnostics.Debug.WriteLine(res);
-                p.Response.Write(res);
+                p.Response.Write(string.Format("<!-- {0} -->", res));
             }
         }
 
@@ -53,13 +51,14 @@ namespace Tenor.Diagnostics
                 DateTime d = DateTime.Now;
                 string res = p.AppRelativeVirtualPath + (" - FinishTime: " + d.ToString() + ":" + d.Millisecond.ToString());
                 System.Diagnostics.Debug.WriteLine(res);
-                p.Response.Write("<br />" + res);
+                p.Response.Write(string.Format("<!-- {0} -->", res));
             }
         }
 
 
         /// <summary>
-        /// Imprime na saída como comentário a data e hora atual junto com o texto passado.
+        /// Prints on page output the current system time. 
+        /// Time values and descritive text will be printed between html comments, if we are on a web context, otherwise, it will be printed on debug output.
         /// </summary>
         /// <param name="Text"></param>
         /// <remarks></remarks>
@@ -85,10 +84,9 @@ namespace Tenor.Diagnostics
         }
 
         /// <summary>
-        /// Envia a Exceção para os emails do ambiente de teste.
+        /// Tries to send an exception to defined emails.
         /// </summary>
-        /// <param name="exception"></param>
-        /// <remarks></remarks>
+        /// <param name="exception">A System.Exception.</param>
         public static void HandleError(Exception exception)
         {
             if (HttpContext.Current == null)
@@ -115,11 +113,6 @@ namespace Tenor.Diagnostics
                 }
 
 
-                //Dim Page As System.Web.UI.Page = Nothing
-
-                //If app.Context.CurrentHandler IsNot Nothing AndAlso TypeOf (app.Context.CurrentHandler) Is System.Web.UI.Page Then
-                //    Page = TryCast(app.Context.CurrentHandler, UI.Page)
-                //End If
 
                 Mail.MailMessage errmail = new Mail.MailMessage();
                 //errmail.From = Mail.MailMessage.FromPadrao("Exception")
@@ -129,45 +122,6 @@ namespace Tenor.Diagnostics
                     errmail.To.Add(new System.Net.Mail.MailAddress(email.Email, email.Name));
                 }
 
-                //string webconfigemails = System.Configuration.ConfigurationManager.AppSettings[Tenor.Configuration.Diagnostics.WebConfigKey];
-                //if (!string.IsNullOrEmpty(webconfigemails))
-                //{
-                //    if (webconfigemails.ToLower() == "false")
-                //    {
-                //        return;
-                //    }
-                //    else
-                //    {
-                //        string[] emails = webconfigemails.Split(',');
-
-
-                //        foreach (string email in emails)
-                //        {
-                //            try
-                //            {
-                //                errmail.To.Add(new System.Net.Mail.MailAddress(email));
-                //            }
-                //            catch
-                //            {
-
-                //            }
-                //        }
-                //        if (errmail.To.Count == 0)
-                //        {
-                //            foreach (string email in Tenor.Configuration.Diagnostics.DebugEmails)
-                //            {
-                //                errmail.To.Add(new System.Net.Mail.MailAddress(email));
-                //            }
-                //        }
-                //    }
-                //}
-                //else
-                //{
-                //    foreach (string email in Tenor.Configuration.Diagnostics.DebugEmails)
-                //    {
-                //        errmail.To.Add(new System.Net.Mail.MailAddress(email));
-                //    }
-                //}
                 if (errmail.To.Count == 0)
                 {
                     errmail.Dispose();
@@ -207,7 +161,7 @@ namespace Tenor.Diagnostics
                         }
                     }
 
-                    //TODO: No futuro passar esse modelo para um arquivo externo de template.
+                    //TODO: Move this email template to an external xml file on an assembly resource.
 
                     System.Text.StringBuilder except = new System.Text.StringBuilder();
 
@@ -250,19 +204,19 @@ namespace Tenor.Diagnostics
                     except.AppendLine("</table>");
 
                     string st = Environment.StackTrace;
-                    string fimDaondeNaoImporta = "HandleError(Exception exception)" + Environment.NewLine;
-                    int i = st.IndexOf(fimDaondeNaoImporta);
+                    string endOfDoesNotMatter = "HandleError(Exception exception)" + Environment.NewLine;
+                    int i = st.IndexOf(endOfDoesNotMatter);
                     if (i > 0)
                     {
-                        st = st.Substring(i + fimDaondeNaoImporta.Length);
+                        st = st.Substring(i + endOfDoesNotMatter.Length);
                     }
                     else
                     {
-                        fimDaondeNaoImporta = "get_StackTrace()" + Environment.NewLine;
-                        i = st.IndexOf(fimDaondeNaoImporta);
+                        endOfDoesNotMatter = "get_StackTrace()" + Environment.NewLine;
+                        i = st.IndexOf(endOfDoesNotMatter);
                         if (i > 0)
                         {
-                            st = st.Substring(i + fimDaondeNaoImporta.Length);
+                            st = st.Substring(i + endOfDoesNotMatter.Length);
                         }
                     }
 
@@ -291,7 +245,7 @@ namespace Tenor.Diagnostics
                     if (ex.Data.Count > 0)
                     {
 
-                        extraInfo += "<br /><br /><b>Informações Adicionais: </b>";
+                        extraInfo += "<br /><br /><b>Additional Information: </b>";
                         if (ex != exception && (exception.GetType() != typeof(HttpUnhandledException)))
                         {
                             extraInfo += ex.GetType().FullName + ": " + ex.Message;
@@ -345,10 +299,10 @@ namespace Tenor.Diagnostics
 
             try
             {
-                extraInfo += "<br /><hr  width=\"100%\" size=\"1\" color=\"silver\" /><h2>Informa&ccedil;&otilde;es do Usu&aacute;rio</h2><br />";
+                extraInfo += "<br /><hr  width=\"100%\" size=\"1\" color=\"silver\" /><h2>User Information</h2><br />";
                 if ((app.User != null) && (app.User.Identity != null))
                 {
-                    extraInfo += "<b>Autenticado: </b>" + app.User.Identity.IsAuthenticated.ToString() + "<br />";
+                    extraInfo += "<b>Authenticated: </b>" + app.User.Identity.IsAuthenticated.ToString() + "<br />";
                     if (app.User.Identity.IsAuthenticated)
                     {
                         extraInfo += "<b>User: </b>" + app.User.Identity.Name.ToString() + "<br />";
@@ -361,7 +315,7 @@ namespace Tenor.Diagnostics
             }
             try
             {
-                extraInfo += "<b>Endere&ccedil;o: </b>" + app.Request.UserHostName + " (" + app.Request.UserHostAddress + ")" + "<br />";
+                extraInfo += "<b>Address: </b>" + app.Request.UserHostName + " (" + app.Request.UserHostAddress + ")" + "<br />";
             }
             catch (Exception)
             {
@@ -370,7 +324,7 @@ namespace Tenor.Diagnostics
             {
                 if (app.Request.UrlReferrer != null)
                 {
-                    extraInfo += "<b>Url Anterior: </b>" + app.Request.UrlReferrer.ToString() + "<br />";
+                    extraInfo += "<b>Url Referrer: </b>" + app.Request.UrlReferrer.ToString() + "<br />";
                 }
             }
             catch (Exception)
@@ -378,7 +332,7 @@ namespace Tenor.Diagnostics
             }
             try
             {
-                extraInfo += "<b>Tipo de Chamada: </b>" + app.Request.RequestType + "<br />";
+                extraInfo += "<b>Request Type: </b>" + app.Request.RequestType + "<br />";
             }
             catch (Exception)
             {
@@ -402,7 +356,7 @@ namespace Tenor.Diagnostics
                     tamanho = tamanho / 1024 / 1024;
                     tamanhoS = tamanho.ToString() + " mb";
                 }
-                extraInfo += "<b>Tamanho: </b>" + tamanhoS + "<br />";
+                extraInfo += "<b>Size: </b>" + tamanhoS + "<br />";
             }
             catch (Exception)
             {
@@ -411,7 +365,7 @@ namespace Tenor.Diagnostics
 
             try
             {
-                extraInfo += "<br /><hr width=\"100%\" size=\"1\" color=\"silver\" /><h2>Valores de Formul&aacute;rio</h2><br />";
+                extraInfo += "<br /><hr width=\"100%\" size=\"1\" color=\"silver\" /><h2>Form Values</h2><br />";
                 foreach (string item in app.Request.Form.AllKeys)
                 {
                     extraInfo += "<b>" + item + ": </b>" + HttpUtility.HtmlEncode(app.Request.Form[item]) + "<br />";
@@ -422,7 +376,7 @@ namespace Tenor.Diagnostics
             }
             try
             {
-                extraInfo += "<br /><hr  width=\"100%\" size=\"1\" color=\"silver\" /><h2>Valores de Url</h2><br />";
+                extraInfo += "<br /><hr  width=\"100%\" size=\"1\" color=\"silver\" /><h2>Url Values</h2><br />";
                 foreach (string item in app.Request.QueryString.AllKeys)
                 {
                     extraInfo += "<b>" + item + ": </b>" + HttpUtility.HtmlEncode(app.Request.QueryString[item]) + "<br />";
@@ -433,7 +387,7 @@ namespace Tenor.Diagnostics
             }
             try
             {
-                extraInfo += "<br /><hr  width=\"100%\" size=\"1\" color=\"silver\" /><h2>Valores de Cookies</h2><br />";
+                extraInfo += "<br /><hr  width=\"100%\" size=\"1\" color=\"silver\" /><h2>Cookie Values</h2><br />";
                 foreach (string item in app.Request.Cookies.AllKeys)
                 {
                     if (!app.Request.Cookies[item].HasKeys)
@@ -455,7 +409,7 @@ namespace Tenor.Diagnostics
             }
             try
             {
-                extraInfo += "<br /><hr  width=\"100%\" size=\"1\" color=\"silver\" /><h2>Vari&aacute;veis de Servidor</h2><br />";
+                extraInfo += "<br /><hr  width=\"100%\" size=\"1\" color=\"silver\" /><h2>Server Variables</h2><br />";
                 foreach (string item in app.Request.ServerVariables.AllKeys)
                 {
                     extraInfo += "<b>" + item + ": </b>" + HttpUtility.HtmlEncode(app.Request.ServerVariables[item]) + "<br />";
@@ -495,7 +449,7 @@ namespace Tenor.Diagnostics
             }
             try
             {
-                extraInfo += "<br /><hr  width=\"100%\" size=\"1\" color=\"silver\" /><h2>Valores de Sess&atilde;o</h2><br />";
+                extraInfo += "<br /><hr  width=\"100%\" size=\"1\" color=\"silver\" /><h2>Session Values</h2><br />";
                 foreach (string item in app.Session.Keys)
                 {
                     if (app.Session[item] != null)
@@ -509,7 +463,7 @@ namespace Tenor.Diagnostics
             }
             try
             {
-                extraInfo += "<br /><hr  width=\"100%\" size=\"1\" color=\"silver\" /><h2>Valores de Aplicativo</h2><br />";
+                extraInfo += "<br /><hr  width=\"100%\" size=\"1\" color=\"silver\" /><h2>Application Values</h2><br />";
                 foreach (string item in app.Application.Keys)
                 {
                     if (app.Application[item] != null)
@@ -528,10 +482,10 @@ namespace Tenor.Diagnostics
         {
             string extrainfo = string.Empty;
 
-            extrainfo += "<br /><hr  width=\"100%\" size=\"1\" color=\"silver\" /><h2>Informa&ccedil;&otilde;es do servidor</h2><br />";
+            extrainfo += "<br /><hr  width=\"100%\" size=\"1\" color=\"silver\" /><h2>Server Information</h2><br />";
             try
             {
-                extrainfo += "<b>Vers&atilde;o do IIS instalado: </b>" + Microsoft.Win32.Registry.LocalMachine.OpenSubKey("Software\\Microsoft\\InetStp", false).GetValue("MajorVersion").ToString() + "." + Microsoft.Win32.Registry.LocalMachine.OpenSubKey("Software\\Microsoft\\InetStp", false).GetValue("MinorVersion").ToString() + "<br />";
+                extrainfo += "<b>Current IIS Version: </b>" + Microsoft.Win32.Registry.LocalMachine.OpenSubKey("Software\\Microsoft\\InetStp", false).GetValue("MajorVersion").ToString() + "." + Microsoft.Win32.Registry.LocalMachine.OpenSubKey("Software\\Microsoft\\InetStp", false).GetValue("MinorVersion").ToString() + "<br />";
             }
             catch (Exception)
             {
@@ -543,7 +497,7 @@ namespace Tenor.Diagnostics
 
                 string info = string.Format("{0}.{1}.{2}.{3}", new object[] { versionInfo.FileMajorPart, versionInfo.FileMinorPart, versionInfo.FileBuildPart, versionInfo.FilePrivatePart });
 
-                extrainfo += "<b>Vers&atilde;o do ASP.NET: </b>" + info + "<br />";
+                extrainfo += "<b>ASP.NET Version: </b>" + info + "<br />";
             }
             catch (Exception)
             {
@@ -555,7 +509,7 @@ namespace Tenor.Diagnostics
 
                 string info = string.Format("{0}.{1}.{2}.{3}", new object[] { versionInfo.FileMajorPart, versionInfo.FileMinorPart, versionInfo.FileBuildPart, versionInfo.FilePrivatePart });
 
-                extrainfo += "<b>Vers&atilde;o do .NET Framework: </b>" + info + "<br />";
+                extrainfo += "<b>.NET Framework Runtime Version: </b>" + info + "<br />";
             }
             catch (Exception)
             {
@@ -563,7 +517,7 @@ namespace Tenor.Diagnostics
 
             try
             {
-                extrainfo += "<b>Informa&ccedil;&otilde;es do processo: </b>" + (System.Diagnostics.Process.GetCurrentProcess().MainModule.FileVersionInfo.ProductName + ", vers&atilde;o " + System.Diagnostics.Process.GetCurrentProcess().MainModule.FileVersionInfo.ProductVersion) + "<br />";
+                extrainfo += "<b>Process Information: </b>" + (System.Diagnostics.Process.GetCurrentProcess().MainModule.FileVersionInfo.ProductName + ", version " + System.Diagnostics.Process.GetCurrentProcess().MainModule.FileVersionInfo.ProductVersion) + "<br />";
             }
             catch (Exception)
             {
@@ -580,22 +534,34 @@ namespace Tenor.Diagnostics
                 {
                     enderecos = enderecos.Substring(2);
                 }
-                extrainfo += "<b>Nome do servidor: </b>" + hostname + " (" + enderecos + ")" + "<br />";
+                extrainfo += "<b>Host Name: </b>" + hostname + " (" + enderecos + ")" + "<br />";
             }
             catch (Exception)
             {
             }
             try
             {
-                extrainfo += "<b>Sistema Operacional: </b>" + Environment.OSVersion.VersionString + "<br />";
-                extrainfo += "<b>Processadores: </b>" + System.Environment.ProcessorCount.ToString() + "<br />";
-                /*
-                extrainfo += "<b>Memória física: </b>" + (My.Computer.Info.TotalPhysicalMemory / 1024 / 1024).ToString("N2") + " mb (" + (My.Computer.Info.AvailablePhysicalMemory / 1024 / 1024).ToString("N2") + " mb livres)" + "<br />";
-                extrainfo += "<b>Memória virtual: </b>" + (My.Computer.Info.TotalVirtualMemory / 1024 / 1024).ToString("N2") + " mb (" + (My.Computer.Info.AvailableVirtualMemory / 1024 / 1024).ToString("N2") + " mb livres)" + "<br />";
-                 */
+                extrainfo += "<b>Operating System: </b>" + Environment.OSVersion.VersionString + "<br />";
+                extrainfo += "<b>Processors: </b>" + System.Environment.ProcessorCount.ToString() + "<br />";
+
                 try
                 {
-                    extrainfo += "<b>Unidades de Disco: </b><br />";
+                    MemoryStatus stat = new MemoryStatus();
+                    GlobalMemoryStatus(out stat);
+                    long totalPhysical = (long)stat.TotalPhysical;
+                    long availablePhysical = (long)stat.AvailablePhysical;
+                    long totalVirtual = (long)stat.TotalVirtual;
+                    long availableVirtual = (long)stat.AvailableVirtual;
+
+                    extrainfo += "<b>Physical Memory: </b>" + (totalPhysical / 1024 / 1024).ToString("N2") + " mb (" + (availablePhysical / 1024 / 1024).ToString("N2") + " mb livres)" + "<br />";
+                    extrainfo += "<b>Virtual Memory: </b>" + (totalVirtual / 1024 / 1024).ToString("N2") + " mb (" + (availableVirtual / 1024 / 1024).ToString("N2") + " mb livres)" + "<br />";
+                }
+                catch { }
+
+
+                try
+                {
+                    extrainfo += "<b>Disk Usage: </b><br />";
                     foreach (System.IO.DriveInfo d in System.IO.DriveInfo.GetDrives())
                     {
                         if (d.DriveType == DriveType.Fixed)
@@ -616,7 +582,7 @@ namespace Tenor.Diagnostics
                                 }
                                 else
                                 {
-                                    driveInfo += ", Livre: " + dlivre.ToString("N2") + " mb";
+                                    driveInfo += ", Free: " + dlivre.ToString("N2") + " mb";
                                 }
                                 driveInfo += ")";
                             }
@@ -648,7 +614,7 @@ namespace Tenor.Diagnostics
 
             try
             {
-                extrainfo += "<br /><hr  width=\"100%\" size=\"1\" color=\"silver\" /><h2>Assemblies Carregadas</h2><br />";
+                extrainfo += "<br /><hr  width=\"100%\" size=\"1\" color=\"silver\" /><h2>Loaded Assemblies</h2><br />";
                 System.Reflection.Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
                 Array.Sort<System.Reflection.Assembly>(assemblies, new SortAssembly());
                 foreach (System.Reflection.Assembly Assembly in assemblies)
@@ -693,7 +659,7 @@ namespace Tenor.Diagnostics
                     if (parameters != null)
                         foreach (TenorParameter p in parameters)
                         {
-                            //TODO: Consider recieving the Dialect from a parameter.
+                            //TODO: Consider recieving the Dialect from a parameter or create one to generate specific code.
                             traceInfo.AppendLine("DECLARE " + p.ParameterName + " " + Helper.GetDbTypeName(p.Value.GetType(), factory).ToLower());
                             if (p.Value == null)
                             {
@@ -744,5 +710,22 @@ namespace Tenor.Diagnostics
             {
             }
         }
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+        private static extern void GlobalMemoryStatus(out MemoryStatus stat);
+
     }
+
+    public struct MemoryStatus
+    {
+        public uint Length;
+        public uint MemoryLoad;
+        public uint TotalPhysical;
+        public uint AvailablePhysical;
+        public uint TotalPageFile;
+        public uint AvailablePageFile;
+        public uint TotalVirtual;
+        public uint AvailableVirtual;
+    }
+
 }

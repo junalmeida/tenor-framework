@@ -95,7 +95,7 @@ namespace Tenor.Data
                 ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings[attribute.ConnectionName];
                 if (conn == null)
                 {
-                    throw new InvalidOperationException(string.Format("Cannot find a connection with the name '{0}'", attribute.ConnectionName));
+                    throw new TenorException(string.Format("Cannot find a connection with the name '{0}'", attribute.ConnectionName));
                 }
                 return conn;
             }
@@ -151,7 +151,7 @@ namespace Tenor.Data
             }
             catch (Exception ex)
             {
-                throw (new InvalidOperationException("Cannot get \'" + RelatedProperty.Name + "\' value. See inner exception for details.", ex));
+                throw (new TenorException("Cannot get \'" + RelatedProperty.Name + "\' value. See inner exception for details.", ex));
             }
 
         }
@@ -200,7 +200,7 @@ namespace Tenor.Data
             }
             catch (Exception ex)
             {
-                throw (new InvalidOperationException("Cannot set \'" + this.RelatedProperty.Name + "\' value. See inner exception for details.", ex));
+                throw (new TenorException("Cannot set \'" + this.RelatedProperty.Name + "\' value. See inner exception for details.", ex));
             }
 
         }
@@ -283,7 +283,7 @@ namespace Tenor.Data
                     }
                     if (ftype == typeof(object))
                     {
-                        throw (new InvalidOperationException("Could not find the collection element type"));
+                        throw (new TenorException("Could not find the collection element type"));
                     }
                     else
                     {

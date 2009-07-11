@@ -11,97 +11,61 @@ namespace Tenor
 	namespace Drawing
 	{
 		/// <summary>
-		/// Contem uma lista de modos de redimensionamento.
+        /// Defines how the image should be resized.
 		/// </summary>
 		/// <remarks></remarks>
 		public enum ResizeMode
 		{
 			/// <summary>
-			/// Redimensiona sem considerar proporções
+            /// Streches the image to the given width and height values.
 			/// </summary>
 			/// <remarks></remarks>
 			Stretch,
 			/// <summary>
-			/// Redimensiona proporcionalmente
+            /// Resizes the image proportionally using the given width and height values.
 			/// </summary>
 			/// <remarks></remarks>
 			Proportional,
 			/// <summary>
-			/// Redimensiona de forma centralizada cortando as sobras
+            /// Resizes the image cropping and centering it. The image should fill entire width and height values.
 			/// </summary>
 			/// <remarks></remarks>
 			Crop
 		}
 		
+
+        /// <summary>
+        /// Represents a class that will have image methods.
+        /// </summary>
 		public interface IImage
-		{
-			
-			
-			
-			///' <summary>
-			///' Redimensiona a imagem proporcionalmente por largura
-			///' </summary>
-			///' <param name="Width">Nova largura em pixels</param>
-			///' <remarks></remarks>
-			//Sub ResizeByWidth(ByVal Width As Integer)
-			
-			///' <summary>
-			///' Redimensiona a imagem proporcionalmente por altura
-			///' </summary>
-			///' <param name="Height">Nova altura em pixels</param>
-			///' <remarks></remarks>
-			//Sub ResizeByHeight(ByVal Height As Integer)
+		{			
+			/// <summary>
+            /// Resizes the current image by a porcentage value.
+            /// </summary>
+			/// <param name="percent">How much the image will be resized. You can use positive and negative values.</param>
+			/// <remarks></remarks>
+			void ResizeByPercent(int percent);
 			
 			/// <summary>
-			/// Redimensiona a imagem proporcionalmente
+			/// Resizes the current image.
 			/// </summary>
-			/// <param name="Percent">Porcentagem para redimensionamento</param>
-			/// <remarks></remarks>
-			void ResizeByPercent(int Percent);
-			
-			
-			///' <summary>
-			///' Redimensiona a imagem
-			///' </summary>
-			///' <param name="Size">Estrutura com largura e altura definidas</param>
-			///' <remarks></remarks>
-			//Sub Resize(ByVal Size As System.Drawing.Size)
+			/// <param name="width">The new image width in pixels.</param>
+			/// <param name="height">The new image height in pixels.</param>
+			/// <param name="mode">One of the ResizeMode values.</param>
+			void Resize(int width, int height, ResizeMode mode);
 			
 			/// <summary>
-			/// Redimensiona a imagem
+            /// Draws another image on the current image.
 			/// </summary>
-			/// <param name="Width">Nova largura em pixels</param>
-			/// <param name="Height">Nova altura em pixels</param>
-			/// <param name="Mode">Um dos modos de redimensionamento</param>
-			/// <remarks></remarks>
-			void Resize(int Width, int Height, ResizeMode Mode);
-			
-			///' <summary>
-			///' Redimensiona a imagem respeitando as proporções e corta as sobras de forma a centralizar a imagem.
-			///' </summary>
-			///' <param name="width">Nova largura em pixels</param>
-			///' <param name="height">Nova altura em pixels</param>
-			///' <remarks></remarks>
-			//Sub ResizeAndCrop(ByVal width As Integer, ByVal height As Integer)
+			/// <param name="FileName">A file name of the image that will be drawed.</param>
+			/// <param name="Position">One of the Position values.</param>
+			/// <param name="Margin">The margin in pixels.</param>
+			void AddPicture(string fileName, Position position, int margin);
 			
 			
 			/// <summary>
-			/// Adiciona uma imagem sobre a imagem atual.
-			/// Use preferencialmente imagens PNG.
+            /// Gets or sets a boolean to determine if this is a low qualit image.
 			/// </summary>
-			/// <param name="FileName">Imagem a ser adicionada.</param>
-			/// <param name="Position">Posição desejada.</param>
-			/// <param name="Margin">Margem desejada</param>
-			/// <remarks></remarks>
-			void AddPicture(string FileName, Position Position, int Margin);
-			
-			
-			/// <summary>
-			/// Define se a imagem produzida será de baixa qualidade.
-			/// </summary>
-			/// <value></value>
-			/// <returns></returns>
-			/// <remarks></remarks>
 			bool LowQuality{
 				get;
 				set;

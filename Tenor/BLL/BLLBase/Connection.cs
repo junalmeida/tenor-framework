@@ -17,6 +17,7 @@ namespace Tenor.BLL
         {
             get
             {
+                //TODO: Consider moving this to another layer??
                 if (_SystemConnection == null)
                 {
                     _SystemConnection = GetDefaultConnection();
