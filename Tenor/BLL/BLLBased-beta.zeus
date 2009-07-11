@@ -1,14 +1,14 @@
 ﻿##|TYPE Template
 ##|UNIQUEID e2e7a5f3-b244-47d3-ba9b-310b58048069
-##|TITLE TenorBLL C# Version
+##|TITLE TenorBLL Based
 ##|NAMESPACE 
 ##|SOURCE_TYPE Source
 ##|OUTPUT_LANGUAGE C#
 ##|GUI_ENGINE .Net Script
 ##|GUI_LANGUAGE C#
 ##|GUI_BEGIN
-<%#REFERENCE System.Xml.dll %>
-<%#NAMESPACE System.Xml.Serialization, System.IO, System.Collections.Generic, System.Collections.Specialized %>
+<%#REFERENCE System.Windows.Forms.dll, System.Xml.dll %>
+<%#NAMESPACE System.Xml.Serialization, System.IO, System.Collections.Generic, System.Collections.Specialized, System.Windows.Forms %>
 
 public class GeneratedGui : DotNetScriptGui
 {
@@ -43,15 +43,21 @@ public class GeneratedGui : DotNetScriptGui
 		GuiComboBox cmbLanguages = ui.AddComboBox("cmbLanguage", "");
 		
 		int i = 0;
+		
+		string languageHistory = (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Language", MyMeta.Language);
+		
+		if(!MyMeta.Language.Equals(languageHistory, StringComparison.InvariantCultureIgnoreCase))
+			MyMeta.Language = languageHistory;
+
 		foreach(List<DictionaryEntry> item in list)
 		{
 			string value = item[0].Value.ToString();
 			cmbLanguages.Items.Add(i.ToString(), value);
-			if (value == (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Language", "C#"))
+			if (value == languageHistory)
 				cmbLanguages.SelectAtIndex(i);
 			i++;
 		}
-	
+
 		input["languages"] = list;
 		
 		GuiLabel lblTbl = ui.AddLabel("lblTables", "Desired tables:", "Choose the tables from which you want to generate classes.");
@@ -75,8 +81,8 @@ public class GeneratedGui : DotNetScriptGui
 
 		setupDatabaseDropdown(cmbDatabases);
 		cmbDatabases.AttachEvent("onchange", "cmbDatabases_onchange");
-		//cmbTables.AttachEvent("onchange", "cmbTables_onchange");
-		
+		cmbLanguages.AttachEvent("onchange", "cmbLanguages_onchange");
+
 		ui.ShowGui = true;
 	}
 
@@ -104,25 +110,15 @@ public class GeneratedGui : DotNetScriptGui
 					cmbDatabases.SelectedValue = defaultDatabase;
 					bindTables(cmbDatabases.SelectedValue);
 				}
-				
-				//lblError.Text = "";
-			}
-			else
-			{
-				//lblError.Text = "Please set up your database connection in the Default Settings dialog.";
 			}
 		}
-		catch (Exception ex)
-		{
-			//lblError.Text = ex.Message;
-		}
+		catch (Exception) { }
 	}
 	
 	public void bindTables(string sDatabase)
 	{
 		string[] tabelas = ((string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Tables","")).Split(';');
 	
-		//GuiLabel lblError = ui["lblError"] as GuiLabel;
 		int count = 0;
 	
 		GuiCheckBoxList cmbTable = ui["cmbTable"] as GuiCheckBoxList;
@@ -137,39 +133,29 @@ public class GeneratedGui : DotNetScriptGui
 				try 
 				{
 					cmbTable.Select(item);
-				} catch {}
+				}
+				catch {}
 			}
-			//int index = cmbTable.Add("0", "(Todas)");
-			//lblError.Text = "";
 		}
-		catch (Exception ex)
-		{
-			//lblError.Text = ex.Message;
-		}
+		catch (Exception) { }
 	}
 	
-	public void cmbDatabases_onchange(GuiComboBox control)
+	public void cmbDatabases_onchange(GuiComboBox cmbDatabases)
 	{
-		GuiComboBox cmbDatabases = ui["cmbDatabase"] as GuiComboBox;
-	
 		bindTables(cmbDatabases.SelectedText);
 	}
+	
 	public void btn_onclick(GuiButton control)
 	{
 		GuiCheckBoxList cmbTable = ui["cmbTable"] as GuiCheckBoxList;
 		cmbTable.SelectAll();
-		
 	}
-	/*
-	public void cmbTables_onchange(GuiComboBox control)
+	
+	public void cmbLanguages_onchange(GuiComboBox cmbLanguages)
 	{
-		GuiComboBox cmbDb = ui["cmbDatabase"] as GuiComboBox;
-		GuiComboBox cmbTables = ui["cmbTable"] as GuiComboBox;
-		//GuiTextBox txtNomeClasse = ui["txtNomeClasse"] as GuiTextBox;
-		
-		ITable tbl = MyMeta.Databases[cmbDb.SelectedText].Tables[cmbTables.SelectedText];
-		//txtNomeClasse.Text = cmbTables.SelectedText;
-	}*/
+		if(!MyMeta.Language.Equals(cmbLanguages.SelectedText, StringComparison.InvariantCultureIgnoreCase))
+			MyMeta.Language = cmbLanguages.SelectedText;
+	}
 }
 ##|GUI_END
 ##|BODY_MODE Markup
@@ -253,11 +239,24 @@ public class GeneratedTemplate : DotNetScriptTemplate
 		}
 		
 		List<List<DictionaryEntry>> items = (List<List<DictionaryEntry>>)input["languages"];
+		
 		int selected = Convert.ToInt32(input["cmbLanguage"]);
 		
 		snippets = new TemplateSnippets();
 		
-		foreach(DictionaryEntry item in items[selected])
+		ReadSnippets(items[selected]);
+		
+		Registry.CurrentUser.SetValue("BLLBase.PluralLanguage", this.pluralLanguage);
+		Registry.CurrentUser.SetValue("BLLBase.Language", snippets.language);
+		Registry.CurrentUser.SetValue("BLLBase.Namespace", this.defaultNamespace);
+		Registry.CurrentUser.SetValue("BLLBase.Folder", this.outputPath);
+		Registry.CurrentUser.SetValue("BLLBase.Database", database);
+		Registry.CurrentUser.SetValue("BLLBase.Tables", parsedTables);
+	}
+	
+	private void ReadSnippets(List<DictionaryEntry> items)
+	{
+		foreach(DictionaryEntry item in items)
 		{
 			string key = item.Key.ToString();
 			string value = item.Value.ToString().Replace("\n", Environment.NewLine);
@@ -291,13 +290,6 @@ public class GeneratedTemplate : DotNetScriptTemplate
 			else if (key.Equals("searchBlocks", StringComparison.InvariantCultureIgnoreCase)) snippets.searchBlocks = value;
 			else if (key.Equals("classFooter", StringComparison.InvariantCultureIgnoreCase)) snippets.classFooter = value;
 		}
-		
-		Registry.CurrentUser.SetValue("BLLBase.PluralLanguage", this.pluralLanguage);
-		Registry.CurrentUser.SetValue("BLLBase.Language", snippets.language);
-		Registry.CurrentUser.SetValue("BLLBase.Namespace", this.defaultNamespace);
-		Registry.CurrentUser.SetValue("BLLBase.Folder", this.outputPath);
-		Registry.CurrentUser.SetValue("BLLBase.Database", database);
-		Registry.CurrentUser.SetValue("BLLBase.Tables", parsedTables);
 	}
 
 	public override void Render()
@@ -332,22 +324,23 @@ public class GeneratedTemplate : DotNetScriptTemplate
 	public string ToPlural(string text)
 	{
 		List<string> words = new List<string>();
-		foreach (char i in text)
+		foreach (char letter in text)
 		{
-			if (char.IsUpper(i))
+			if (char.IsUpper(letter))
 			{
-				words.Add(i.ToString());
+				words.Add(letter.ToString());
 			}
 			else
 			{
 				if (words.Count == 0)
-					words.Add(i.ToString());
+					words.Add(letter.ToString());
 				else
-					words[words.Count - 1] += i.ToString();
+					words[words.Count - 1] += letter.ToString();
 			}
 		}
 		
-		for(int i = 0; i < words.Count; i++)
+		int i = words.Count - 1;
+		if(i >= 0)
 		{
 			if (this.pluralLanguage.Equals("pt-BR", StringComparison.InvariantCultureIgnoreCase))
 			{
