@@ -286,7 +286,7 @@ namespace Tenor.BLL
         }
 
 
-        protected bool _IsLazyDisabled = false;
+        private bool _IsLazyDisabled = false;
         /// <summary>
         /// Returns a value indicating whether or not this class is serializing.
         /// </summary>

@@ -12,6 +12,9 @@ using System.Drawing.Imaging;
 
 namespace Tenor.Drawing
 {
+    /// <summary>
+    /// Represents an Image.
+    /// </summary>
     public class Image : IO.BinaryFile, ICloneable, IImage
     {
 
@@ -38,95 +41,87 @@ namespace Tenor.Drawing
         /// <param name="bitmap">A bitmap image.</param>
         /// <remarks></remarks>
         public Image(System.Drawing.Bitmap bitmap)
-            : base(null, "image/jpeg")
+            : base(AttachBitmap(bitmap), "image/jpeg")
         {
-            MemoryStream mem = new MemoryStream();
-            bitmap.Save(mem, bitmap.RawFormat);
-            _buffer = StreamToBytes(mem);
-
             _Bitmap = bitmap;
             RawFormat = bitmap.RawFormat;
         }
 
-        /// <summary>
-        /// Instancia a classe imagem
-        /// </summary>
-        /// <param name="Bitmap">Imagem original</param>
-        /// <param name="Width">Largura nova em pixels</param>
-        /// <param name="Height">Altura nova em pixels</param>
-        /// <remarks>Especifique 0 (zero) para largura ou altura para fazer um redimensionamento proporcional</remarks>
-        public Image(byte[] Bitmap, int Width, int Height)
-            : this(Bitmap)
+        private static byte[] AttachBitmap(System.Drawing.Bitmap bitmap)
         {
-            if (Width <= 0 && Height > 0)
+            MemoryStream mem = new MemoryStream();
+            bitmap.Save(mem, bitmap.RawFormat);
+            byte[] data = StreamToBytes(mem);
+            return data;
+        }
+
+        /// <param name="bitmap">The original bitmap.</param>
+        /// <param name="width">New width in pixels.</param>
+        /// <param name="height">new height in pixels.</param>
+        /// <remarks>Set zero to width or height values to resize proportionally.</remarks>
+        public Image(byte[] bitmap, int width, int height)
+            : this(bitmap)
+        {
+            if (width <= 0 && height > 0)
             {
-                ResizeByHeight(Height);
+                ResizeByHeight(height);
             }
-            else if (Width > 0 && Height <= 0)
+            else if (width > 0 && height <= 0)
             {
-                ResizeByWidth(Width);
+                ResizeByWidth(width);
             }
             else
             {
-                Resize(Width, Height);
+                Resize(width, height);
             }
         }
 
-        /// <summary>
-        /// Instancia a classe imagem
-        /// </summary>
-        /// <param name="Bitmap">Imagem original</param>
-        /// <remarks></remarks>
-        public Image(Stream Bitmap)
-            : this(StreamToBytes(Bitmap))
+
+        /// <param name="bitmap">The original bitmap.</param>
+        public Image(Stream bitmap)
+            : this(StreamToBytes(bitmap))
         {
         }
 
-        /// <summary>
-        /// Instancia a classe imagem
-        /// </summary>
-        /// <param name="Bitmap">Imagem original</param>
-        /// <param name="Width">Largura nova em pixels</param>
-        /// <param name="Height">Altura nova em pixels</param>
-        /// <remarks>Especifique 0 (zero) para largura ou altura para fazer um redimensionamento proporcional</remarks>
-        public Image(Stream Bitmap, int Width, int Height)
-            : this(Bitmap)
+        /// <param name="bitmap">The original bitmap.</param>
+        /// <param name="width">New width in pixels.</param>
+        /// <param name="height">new height in pixels.</param>
+        /// <remarks>Set zero to width or height values to resize proportionally.</remarks>
+        public Image(Stream bitmap, int width, int height)
+            : this(bitmap)
         {
-            if (Width <= 0 && Height > 0)
+            if (width <= 0 && height > 0)
             {
-                ResizeByHeight(Height);
+                ResizeByHeight(height);
             }
-            else if (Width > 0 && Height <= 0)
+            else if (width > 0 && height <= 0)
             {
-                ResizeByWidth(Width);
+                ResizeByWidth(width);
             }
             else
             {
-                Resize(Width, Height);
+                Resize(width, height);
             }
         }
 
-        /// <summary>
-        /// Instancia a classe imagem
-        /// </summary>
-        /// <param name="Bitmap">Imagem original</param>
-        /// <param name="Width">Largura nova em pixels</param>
-        /// <param name="Height">Altura nova em pixels</param>
-        /// <remarks>Especifique 0 (zero) para largura ou altura para fazer um redimensionamento proporcional</remarks>
-        public Image(System.Drawing.Bitmap Bitmap, int Width, int Height)
-            : this(Bitmap)
+        /// <param name="bitmap">The original bitmap.</param>
+        /// <param name="width">New width in pixels.</param>
+        /// <param name="height">new height in pixels.</param>
+        /// <remarks>Set zero to width or height values to resize proportionally.</remarks>
+        public Image(System.Drawing.Bitmap bitmap, int width, int height)
+            : this(bitmap)
         {
-            if (Width <= 0 && Height > 0)
+            if (width <= 0 && height > 0)
             {
-                ResizeByHeight(Height);
+                ResizeByHeight(height);
             }
-            else if (Width > 0 && Height <= 0)
+            else if (width > 0 && height <= 0)
             {
-                ResizeByWidth(Width);
+                ResizeByWidth(width);
             }
             else
             {
-                Resize(Width, Height);
+                Resize(width, height);
             }
         }
 
@@ -139,7 +134,7 @@ namespace Tenor.Drawing
         private System.Drawing.Imaging.ImageFormat RawFormat;
 
         /// <summary>
-        /// Retorna a imagem representada por este objeto
+        /// Gets the underlying bitmap of this instance.
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
@@ -151,6 +146,9 @@ namespace Tenor.Drawing
             }
         }
 
+        /// <summary>
+        /// The image width in pixels.
+        /// </summary>
         public int Width
         {
             get
@@ -159,6 +157,9 @@ namespace Tenor.Drawing
             }
         }
 
+        /// <summary>
+        /// The image height in pixels.
+        /// </summary>
         public int Height
         {
             get
@@ -451,8 +452,7 @@ namespace Tenor.Drawing
 
         } //GetEncoderInfo
 
-
-        override public System.IO.Stream WriteContent()
+        public override System.IO.Stream GetStream()
         {
 
             if (RawFormat.Equals(System.Drawing.Imaging.ImageFormat.Jpeg))
@@ -538,68 +538,71 @@ namespace Tenor.Drawing
 
         #region " Thumbs "
 
+        ///// <summary>
+        ///// Cria uma miniatura da imagem atual
+        ///// </summary>
+        ///// <param name="Page">PÃ¡gina onde serÃ¡ exibida</param>
+        ///// <param name="Width">Largura da miniatura desejada</param>
+        ///// <param name="Height">Altura da miniatura desejada</param>
+        ///// <returns></returns>
+        ///// <remarks>Defina a largura ou altura em zero para fazer o redimensinamento proporcional. Definir ambos em zero cria uma imagem com 110 pixels de largura</remarks>
+        //[Obsolete("Usa o outro overload")]
+        //public string GetThumbImageUrl(System.Web.UI.Page Page, int Width, int Height)
+        //{
+        //    Image img = new Image((System.Drawing.Bitmap)(this.Bitmap.Clone()));
+
+        //    if (Width > 0 && Height > 0)
+        //    {
+        //        img.Resize(Width, Height);
+        //    }
+        //    else if (Width > 0)
+        //    {
+        //        img.ResizeByWidth(Width);
+        //    }
+        //    else if (Height > 0)
+        //    {
+        //        img.ResizeByHeight(Height);
+        //    }
+        //    else
+        //    {
+        //        img.ResizeByWidth(110);
+        //    }
+        //    return img.GetFileUrl();
+
+        //}
+
         /// <summary>
+        /// Creates a thumbnail of the current image.
         /// Cria uma miniatura da imagem atual
         /// </summary>
-        /// <param name="Page">PÃ¡gina onde serÃ¡ exibida</param>
-        /// <param name="Width">Largura da miniatura desejada</param>
-        /// <param name="Height">Altura da miniatura desejada</param>
+        /// <param name="width">The desired thumbnail width.</param>
+        /// <param name="height">The desired thumbnail height.</param>
         /// <returns></returns>
-        /// <remarks>Defina a largura ou altura em zero para fazer o redimensinamento proporcional. Definir ambos em zero cria uma imagem com 110 pixels de largura</remarks>
-        [Obsolete("Usa o outro overload")]
-        public string GetThumbImageUrl(System.Web.UI.Page Page, int Width, int Height)
+        /// <remarks>
+        /// You can set width or height values to zero to make a proportional thumbnail.
+        /// If you set both values to zero or less than zero, an image with 110 pixels will be created.
+        ///</remarks>
+        public string GetThumbImageUrl(int width, int height)
         {
             Image img = new Image((System.Drawing.Bitmap)(this.Bitmap.Clone()));
 
-            if (Width > 0 && Height > 0)
+            if (width > 0 && height > 0)
             {
-                img.Resize(Width, Height);
+                img.Resize(width, height);
             }
-            else if (Width > 0)
+            else if (width > 0)
             {
-                img.ResizeByWidth(Width);
+                img.ResizeByWidth(width);
             }
-            else if (Height > 0)
+            else if (height > 0)
             {
-                img.ResizeByHeight(Height);
+                img.ResizeByHeight(height);
             }
             else
             {
                 img.ResizeByWidth(110);
             }
-            return img.GetFileUrl(Page);
-
-        }
-
-        /// <summary>
-        /// Cria uma miniatura da imagem atual
-        /// </summary>
-        /// <param name="Context">Contexto</param>
-        /// <param name="Width">Largura da miniatura desejada</param>
-        /// <param name="Height">Altura da miniatura desejada</param>
-        /// <returns></returns>
-        /// <remarks>Defina a largura ou altura em zero para fazer o redimensinamento proporcional. Definir ambos em zero cria uma imagem com 110 pixels de largura</remarks>
-        public string GetThumbImageUrl(System.Web.HttpContext Context, int Width, int Height)
-        {
-            Image img = new Image((System.Drawing.Bitmap)(this.Bitmap.Clone()));
-
-            if (Width > 0 && Height > 0)
-            {
-                img.Resize(Width, Height);
-            }
-            else if (Width > 0)
-            {
-                img.ResizeByWidth(Width);
-            }
-            else if (Height > 0)
-            {
-                img.ResizeByHeight(Height);
-            }
-            else
-            {
-                img.ResizeByWidth(110);
-            }
-            return img.GetFileUrl(Context);
+            return img.GetFileUrl();
         }
 
         #endregion
@@ -852,13 +855,6 @@ namespace Tenor.Drawing
 
         #endregion
 
-        /// <summary>
-        /// Gets the stream that relies on the current image.
-        /// </summary>
-        public override System.IO.Stream GetStream()
-        {
-            return WriteContent();
-        }
 
         /// <summary>
         /// Creates a clone of the current image.

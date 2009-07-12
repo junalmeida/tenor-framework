@@ -116,12 +116,13 @@ namespace Tenor.Web
 
 
 
-        public void Dispose()
+        void IHttpModule.Dispose()
         {
+
         }
 
 
-        public void Init(System.Web.HttpApplication app)
+        void IHttpModule.Init(System.Web.HttpApplication app)
         {
             //' SessÃ£o.
             //app.PostAcquireRequestState += new System.EventHandler(Application_PostAcquireRequestState);

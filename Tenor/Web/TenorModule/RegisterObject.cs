@@ -16,47 +16,48 @@ namespace Tenor.Web
 {
     public partial class TenorModule
     {
-
-
-
-
-        /// <summary>Registra um controle para posterior chamada</summary>
-        /// <param name="Control">Controle para registrar</param>
-        /// <param name="Expires">Tempo em segundos que a informação irá expirar após ser acessada pela primeira vez. O padrão é 1 hora.</param>
-        /// <returns>An Uri to complete this request</returns>
-        /// <remarks>O Controle precisa implementar a interface IResponseObject</remarks>
-        public static string RegisterControlForRequest(System.Web.UI.Control Control, int Expires)
+        /// <summary>
+        /// Register a control to be called later by this module.
+        /// </summary>
+        /// <param name="control">The desired control.</param>
+        /// <param name="expires">Time in seconds that the url will expire.</param>
+        /// <returns>A string with the uri to complete this request.</returns>
+        /// <remarks>The control must implement the <see cref="Tenor.Web.IResponseObject">IResponseObject</see> interface.</remarks>
+        public static string RegisterControlForRequest(System.Web.UI.Control control, int expires)
         {
-            return RegisterObjectForRequest(Control, Expires);
-        }
-
-        /// <summary>Registra um controle para posterior chamada</summary>
-        /// <param name="Control">Controle para registrar</param>
-        /// <returns>An Uri to complete this request</returns>
-        /// <remarks>O Controle precisa implementar a interface IResponseObject</remarks>
-        public static string RegisterControlForRequest(System.Web.UI.Control Control)
-        {
-            return RegisterObjectForRequest(Control);
+            return RegisterObjectForRequest(control, expires);
         }
 
         /// <summary>
-        /// Registra um objeto para posterior chamada
+        /// Register a control to be called later by this module.
         /// </summary>
-        /// <param name="Object">Objeto para registrar</param>
-        /// <param name="Context">HttpContext atual</param>
-        /// <param name="Expires">Tempo em segundos que a informação irá expirar após ser acessada pela primeira vez. O padrão é 1 hora.</param>
-        /// <param name="ForceDownload">Determina se esta requisição deverá ou não forçar com que o arquivo seja 'baixado' pelo navegador do cliente. O padrão é falso</param>
-        /// <param name="FileName">Determina o nome do arquivo que será exibido pelo navegador. O padrão é nulo</param>
-        /// <returns>An Uri to complete this request</returns>
-        /// <remarks>O Objeto precisa implementar a interface IResponseObject</remarks>
-        public static string RegisterObjectForRequest(object @object, System.Web.HttpContext Context, int Expires, bool ForceDownload, string FileName)
+        /// <param name="control">The desired control.</param>
+        /// <returns>A string with the uri to complete this request.</returns>
+        /// <remarks>The control must implement the <see cref="Tenor.Web.IResponseObject">IResponseObject</see> interface.</remarks>
+        public static string RegisterControlForRequest(System.Web.UI.Control control)
+        {
+            return RegisterObjectForRequest(control);
+        }
+
+        /// <summary>
+        /// Register an object to be called later by this module.
+        /// </summary>
+        /// <param name="object">The desired object.</param>
+        /// <param name="expires">Time in seconds that the url will expire.</param>
+        /// <param name="forceDownload">If true, the client browser will download the file instead of trying to show up.</param>
+        /// <param name="fileName">Sets the file name shown by client browser.</param>
+        /// <returns>A string with the uri to complete this request.</returns>
+        /// <remarks>The object must implement the <see cref="Tenor.Web.IResponseObject">IResponseObject</see> interface.</remarks>
+        public static string RegisterObjectForRequest(object @object, int expires, bool forceDownload, string fileName)
         {
             CheckHttpModule();
-
+            HttpContext context = HttpContext.Current;
+            if (context == null)
+                throw new InvalidContextException();
 
             if (@object as IResponseObject == null)
             {
-                throw (new InvalidCastException("This instance must implement \'" + typeof(IResponseObject).FullName + "\' interface"));
+                throw (new InvalidCastException("This instance must implement \'" + typeof(IResponseObject).FullName + "\' interface."));
             }
 
             object messagesLock = new object();
@@ -68,21 +69,21 @@ namespace Tenor.Web
                 //Page.Application(HttpModule.IdPrefix & sControlName) = [Object]
                 Dados dados = new Dados();
                 dados.Object = @object;
-                dados.Expires = Expires;
-                dados.FileName = FileName;
-                dados.ForceDownload = ForceDownload;
+                dados.Expires = expires;
+                dados.FileName = fileName;
+                dados.ForceDownload = forceDownload;
 
-                Context.Cache.Insert(Tenor.Configuration.TenorModule.IdPrefix + sControlName, dados, null, DateTime.UtcNow.AddMinutes(2), System.Web.Caching.Cache.NoSlidingExpiration);
+                context.Cache.Insert(Tenor.Configuration.TenorModule.IdPrefix + sControlName, dados, null, DateTime.UtcNow.AddMinutes(2), System.Web.Caching.Cache.NoSlidingExpiration);
 
                 string uri = Tenor.Configuration.TenorModule.HandlerFileName + "?id=" + sControlName;
 
-                if (Context.Request.ApplicationPath.EndsWith("/"))
+                if (context.Request.ApplicationPath.EndsWith("/"))
                 {
-                    uri = Context.Request.ApplicationPath + uri;
+                    uri = context.Request.ApplicationPath + uri;
                 }
                 else
                 {
-                    uri = Context.Request.ApplicationPath + "/" + uri;
+                    uri = context.Request.ApplicationPath + "/" + uri;
                 }
                 return uri;
 
@@ -91,26 +92,26 @@ namespace Tenor.Web
         }
 
         /// <summary>
-        /// Registra um objeto para posterior chamada
+        /// Register an object to be called later by this module.
         /// </summary>
-        /// <param name="Object">Objeto para registrar</param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="object">The desired object.</param>
+        /// <returns>A string with the uri to complete this request.</returns>
+        /// <remarks>The object must implement the <see cref="Tenor.Web.IResponseObject">IResponseObject</see> interface.</remarks>
         public static string RegisterObjectForRequest(object @object)
         {
-            return RegisterObjectForRequest(@object, System.Web.HttpContext.Current, Tenor.Configuration.TenorModule.DefaultExpiresTime, false, null);
+            return RegisterObjectForRequest(@object, Tenor.Configuration.TenorModule.DefaultExpiresTime, false, null);
         }
 
         /// <summary>
-        /// Registra um objeto para posterior chamada
+        /// Register an object to be called later by this module.
         /// </summary>
-        /// <param name="Object">Objeto para registrar</param>
-        /// <param name="Expires">Tempo em segundos que a informação irá expirar após ser acessada pela primeira vez. O padrão é 1 hora.</param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public static string RegisterObjectForRequest(object @object, int Expires)
+        /// <param name="object">The desired object.</param>
+        /// <param name="expires">Time in seconds that the url will expire.</param>
+        /// <returns>A string with the uri to complete this request.</returns>
+        /// <remarks>The object must implement the <see cref="Tenor.Web.IResponseObject">IResponseObject</see> interface.</remarks>
+        public static string RegisterObjectForRequest(object @object, int expires)
         {
-            return RegisterObjectForRequest(@object, System.Web.HttpContext.Current, Expires, false, null);
+            return RegisterObjectForRequest(@object, expires, false, null);
         }
     }
 }

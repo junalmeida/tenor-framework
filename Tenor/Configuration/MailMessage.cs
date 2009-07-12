@@ -3,9 +3,8 @@ namespace Tenor.Configuration
     /// <summary>
     /// Encapsulates default settings for MailMessage logic.
     /// </summary>
-    public sealed class MailMessage
+    public static class MailMessage
     {
-        private MailMessage() { }
 
         /// <summary>
         /// Defines the max length of a template key.

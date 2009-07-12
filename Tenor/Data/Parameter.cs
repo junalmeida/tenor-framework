@@ -25,8 +25,8 @@ namespace Tenor.Data
         /// <summary>
         /// Creates an instance of a parameter.
         /// </summary>
-        /// <param name="Name">The parameter name.</param>
-        /// <param name="Value">Some value.</param>
+        /// <param name="name">The parameter name.</param>
+        /// <param name="value">Some value.</param>
         /// <remarks></remarks>
         public TenorParameter(string name, object value)
         {

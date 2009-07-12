@@ -23,7 +23,7 @@ namespace Tenor.Data
         /// <summary>
         /// Creates an instance of SearchOptions based on a base class.
         /// </summary>
-        /// <param name="BaseClass">Type of class whether the search will be performed.</param>
+        /// <param name="baseClass">Type of class whether the search will be performed.</param>
         /// <remarks></remarks>
         public SearchOptions(Type baseClass)
         {

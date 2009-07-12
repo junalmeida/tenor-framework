@@ -24,7 +24,7 @@ namespace Tenor.BLL
         /// <summary>
         /// Binds this entity instance to database data using primary keys current data.
         /// </summary>
-        /// <param name="LazyLoading">Defines weather lazy loading is enabled.</param>
+        /// <param name="lazyLoading">Defines weather lazy loading is enabled.</param>
         /// <exception cref="MissingFieldsException">Ocurrs when no property with a FieldAttribute is defined.</exception>
         /// <exception cref="MissingPrimaryKeyException">Occurs when no FieldAttribute with primary key is defined.</exception>
         protected void Bind(bool lazyLoading)
@@ -49,7 +49,7 @@ namespace Tenor.BLL
         /// <summary>
         /// Binds this entity instance to database data using current data of <paramref name="filterMembers">Filter Members</paramref>.
         /// </summary>
-        /// <param name="LazyLoading">Defines weather lazy loading is enabled.</param>
+        /// <param name="lazyLoading">Defines weather lazy loading is enabled.</param>
         /// <param name="FilterMembers">Property members used to filter data.</param>
         /// <remarks></remarks>
         protected void Bind(bool lazyLoading, string[] filterMembers)
@@ -62,10 +62,10 @@ namespace Tenor.BLL
         /// <summary>
         /// Binds this entity instance to database data using current data of <paramref name="filterMembers">Filter Members</paramref>.
         /// </summary>
-        /// <param name="LazyLoading">Defines weather lazy loading is enabled.</param>
-        /// <param name="FilterMembers">Property members used to filter data.</param>
-        /// <param name="DataRow">A System.Data.DataRow to bind this instance. When this parameter is not set, Tenor return data from the database.</param>
-        protected virtual void Bind(bool LazyLoading, string[] FilterMembers, System.Data.DataRow dataRow)
+        /// <param name="lazyLoading">Defines weather lazy loading is enabled.</param>
+        /// <param name="filterMembers">Property members used to filter data.</param>
+        /// <param name="dataRow">A System.Data.DataRow to bind this instance. When this parameter is not set, Tenor return data from the database.</param>
+        protected virtual void Bind(bool lazyLoading, string[] filterMembers, System.Data.DataRow dataRow)
         {
             bool fromSearch = (dataRow != null);
             //dataRow is null when Bind is called from LoadForeing or directly from user code.
@@ -93,7 +93,7 @@ namespace Tenor.BLL
                 // SELECT and FILTERS
 
                 List<FieldInfo> filters = new List<FieldInfo>();
-                foreach (string s in FilterMembers)
+                foreach (string s in filterMembers)
                 {
                     FieldInfo field = FieldInfo.Create(this.GetType().GetProperty(s));
                     if (field == null)
@@ -151,7 +151,7 @@ namespace Tenor.BLL
             dataRow = null;
 
 
-            if (!LazyLoading)
+            if (!lazyLoading)
             {
                 foreach (ForeignKeyInfo f in foreignkeys)
                 {

@@ -12,18 +12,18 @@ using System.Text;
 namespace Tenor.Text
 {
 
-    public partial class Strings
+    public static partial class Strings
     {
 
         /// <summary>
-        /// Retorna o valor passado por extenso usando o idioma atual.
+        /// Converts the desired value into a string representation of the current culture.
         /// </summary>
-        /// <param name="Value"></param>
+        /// <param name="value">The desired value.</param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public static string DoubleToWords(double Value)
+        public static string DoubleToWords(double value)
         {
-            return DoubleToWords(Value, System.Globalization.CultureInfo.CurrentCulture);
+            return DoubleToWords(value, System.Globalization.CultureInfo.CurrentCulture);
         }
 
 
@@ -31,37 +31,35 @@ namespace Tenor.Text
 
 
         /// <summary>
-        /// Retorna o valor passado por extenso usando o idioma especificado.
+        /// Converts the desired value into a string representation.
         /// </summary>
-        /// <param name="Value"></param>
-        /// <param name="Culture"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public static string DoubleToWords(double Value, System.Globalization.CultureInfo Culture)
+        /// <param name="value">The desired value.</param>
+        /// <param name="culture">The desired culture.</param>
+        public static string DoubleToWords(double value, System.Globalization.CultureInfo culture)
         {
-            if (Culture == null)
+            if (culture == null)
             {
                 throw (new ArgumentNullException("Culture"));
             }
-            switch (Culture.IetfLanguageTag.ToLower())
+            switch (culture.IetfLanguageTag.ToLower())
             {
                 case "pt-br":
-                    return DoubleToWordsPTBR(Value);
+                    return DoubleToWordsPTBR(value);
                 case "en-us":
                 case "en-gb":
-                    return DoubleToWordsENUS(Value);
+                    return DoubleToWordsENUS(value);
                 default:
-                    throw (new NotImplementedException("This culture is not yet supported"));
+                    throw (new NotImplementedException("This culture is not yet implemented. Please make a feature request."));
             }
         }
 
         /// <summary>
-        /// Baseado o algoritmo de Sérgio Eduardo Rodrigues (versão 1.0 de 10 de janeiro de 2001).
-        /// Fonte: Koders.org: classe Extenso.java
+        /// Converts the double value to an string representation of it in portuguese.
+        /// Based on Sérgio Eduardo Rodrigues algorithm (version 1.0 of jan-10-2001).
+        /// Koders.org: Extenso.java
         /// </summary>
-        /// <param name="Value"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="value">The original value.</param>
+        /// <returns>An string.</returns>
         private static string DoubleToWordsPTBR(double value)
         {
             if (value < 0 || value > 1.0E+18)
@@ -75,6 +73,11 @@ namespace Tenor.Text
             }
         }
 
+        /// <summary>
+        /// Converts the double value to an string representation of it in american english.
+        /// </summary>
+        /// <param name="value">The original value.</param>
+        /// <returns>An string.</returns>
         private static string DoubleToWordsENUS(double value)
         {
             return new NumberToWordsENUS().changeCurrencyToWords(value);

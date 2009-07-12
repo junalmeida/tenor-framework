@@ -12,19 +12,15 @@ using System.ComponentModel;
 namespace Tenor.Text
 {
     /// <summary>
-    /// Contém funções auxiliares para manipulação de Strings
+    /// Represents a set of string manipulation methods.
     /// </summary>
-    /// <remarks></remarks>
-    public partial class Strings
+    public static partial class Strings
     {
 
-        private Strings() { }
-
-
         /// <summary>
-        /// Removes HTML from text, converting BR, P and DIV tags to Environment.NewLine.
+        /// Removes HTML from text, converting BR, P and DIV tags to <see cref="System.Environment.NewLine" />.
         /// </summary>
-        /// <param name="HtmlText"></param>
+        /// <param name="htmlText">The html text to be stripped.</param>
         /// <returns></returns>
         /// <remarks></remarks>
         public static string RemoveHTML(string htmlText)
@@ -61,8 +57,7 @@ namespace Tenor.Text
         /// <summary>
         /// Creates a text preview with no formatting.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="text">The original text string.</param>
         public static string Preview(string text)
         {
             return Preview(text, 50, true);
@@ -71,8 +66,9 @@ namespace Tenor.Text
         /// <summary>
         /// Creates a text preview with no formatting.
         /// </summary>
-        /// <param name="CharCount">Character limit.</param>
-        /// <param name="StopOnSpace">Avoid to cut words.</param>
+        /// <param name="text">The original text string.</param>
+        /// <param name="charCount">Character limit.</param>
+        /// <param name="stopOnSpace">Avoid to cut words.</param>
         /// <returns></returns>
         /// <remarks></remarks>
         public static string Preview(string text, int charCount, bool stopOnSpace)
@@ -117,16 +113,16 @@ namespace Tenor.Text
         /// <summary>
         /// Capitalizes each word, keeping 'and', 'dos', 'das', 'los', 'las', and words with 2 characters in lower case. 
         /// </summary>
-        /// <param name="Text"></param>
+        /// <param name="text">The original text string.</param>
         /// <returns></returns>
         /// <remarks></remarks>
         public static string ToMiddleCase(string text)
         {
-            string[] palavras = (" " + text.ToLower() + " ").Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] words = (" " + text.ToLower() + " ").Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-            for (int i = 0; i <= palavras.Length - 1; i++)
+            for (int i = 0; i <= words.Length - 1; i++)
             {
-                switch (palavras[i])
+                switch (words[i])
                 {
                     case "and":
                     case "dos":
@@ -135,18 +131,18 @@ namespace Tenor.Text
                     case "las":
                         break;
                     default:
-                        if (palavras[i].Length > 2)
+                        if (words[i].Length > 2)
                         {
-                            palavras[i] = palavras[i].Substring(0, 1).ToUpper() + palavras[i].Substring(1);
+                            words[i] = words[i].Substring(0, 1).ToUpper() + words[i].Substring(1);
                         }
-                        else if (palavras[i].EndsWith("."))
+                        else if (words[i].EndsWith("."))
                         {
-                            palavras[i] = palavras[i].ToUpper();
+                            words[i] = words[i].ToUpper();
                         }
                         break;
                 }
             }
-            return string.Join(" ", palavras);
+            return string.Join(" ", words);
         }
 
 
@@ -163,7 +159,7 @@ namespace Tenor.Text
         /// <summary>
         /// Creates a ramdom password.
         /// </summary>
-        /// <param name="PasswordStyle">Tipo de senha</param>
+        /// <param name="passwordStyle">One of PasswordStyle values.</param>
         /// <returns></returns>
         /// <remarks></remarks>
         public static string GenerateRandomPassword(PasswordStyle passwordStyle)
@@ -175,8 +171,7 @@ namespace Tenor.Text
 
 
 
-
-            string senha = string.Empty;
+            string password = string.Empty;
             Random randomchar = new Random();
 
             switch (passwordStyle)
@@ -187,11 +182,11 @@ namespace Tenor.Text
                         int tipo = (int)(Math.Round(randomchar.NextDouble() * 100));
                         if (tipo < 50)
                         {
-                            senha += (char)(randomchar.Next(AscA, AscZ));
+                            password += (char)(randomchar.Next(AscA, AscZ));
                         }
                         else
                         {
-                            senha += (char)(randomchar.Next(Asc0, Asc9));
+                            password += (char)(randomchar.Next(Asc0, Asc9));
                         }
                         System.Threading.Thread.Sleep(1);
                     }
@@ -200,7 +195,7 @@ namespace Tenor.Text
                     throw (new NotSupportedException("Invalid PasswordStyle value"));
             }
 
-            return senha;
+            return password;
         }
 
 
@@ -208,7 +203,7 @@ namespace Tenor.Text
         /// <summary>
         /// Converts the text to an Hexadecimal representation.
         /// </summary>
-        /// <param name="Text"></param>
+        /// <param name="text">The original text string.</param>
         /// <returns></returns>
         /// <remarks></remarks>
         public static string ToAscHex(string text)
@@ -309,9 +304,9 @@ namespace Tenor.Text
 
 
         /// <summary>
-        /// Remove the accentuation
+        /// Remove the accentuation of each word in a text.
         /// </summary>
-        /// <param name="Text"></param>
+        /// <param name="text">The original text string.</param>
         /// <returns></returns>
         /// <remarks></remarks>
         public static string RemoveAccentuation(string text)
@@ -391,9 +386,9 @@ namespace Tenor.Text
 
 
         /// <summary>
-        /// Encodes accentuation
+        /// Encodes accentuation with HtmlEncoding.
         /// </summary>
-        /// <param name="Text"></param>
+        /// <param name="text">The original text string.</param>
         /// <returns></returns>
         /// <remarks></remarks>
         public static string EncodeAccentuation(string text)

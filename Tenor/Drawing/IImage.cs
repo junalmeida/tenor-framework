@@ -57,9 +57,9 @@ namespace Tenor
 			/// <summary>
             /// Draws another image on the current image.
 			/// </summary>
-			/// <param name="FileName">A file name of the image that will be drawed.</param>
-			/// <param name="Position">One of the Position values.</param>
-			/// <param name="Margin">The margin in pixels.</param>
+			/// <param name="fileName">A file name of the image that will be drawed.</param>
+			/// <param name="position">One of the Position values.</param>
+			/// <param name="margin">The margin in pixels.</param>
 			void AddPicture(string fileName, Position position, int margin);
 			
 			

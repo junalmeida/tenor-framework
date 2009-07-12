@@ -28,7 +28,7 @@ namespace Tenor.BLL
     /// <remarks>
     /// You can use the MyGeneration Template on file BLLBased.zeus to create your classes.
     /// </remarks>
-    /// <seealso cref="../zeus.htm"/> 
+    /// <seealso cref="zeus.htm"/> 
     [Serializable()]
     public abstract partial class BLLBase : object
     {
@@ -36,14 +36,22 @@ namespace Tenor.BLL
 
         #region "Ctors"
         private readonly string cacheKey;
+
+        /// <summary>
+        /// Initializes a new instance of the BLLBase class.
+        /// </summary>
         public BLLBase()
         {
             cacheKey = Tenor.Configuration.TenorModule.IdPrefix + this.GetType().FullName;
         }
 
-        public BLLBase(bool LazyLoadingDisabled) : this()
+        /// <summary>
+        /// Initializes a new instance of the BLLBase class. 
+        /// </summary>
+        /// <param name="lazyLoadingDisabled">On binding, if true, tries to load all the collections.</param>
+        public BLLBase(bool lazyLoadingDisabled) : this()
         {
-            _IsLazyDisabled = LazyLoadingDisabled;
+            _IsLazyDisabled = lazyLoadingDisabled;
         }
         #endregion
 

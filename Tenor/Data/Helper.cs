@@ -224,35 +224,32 @@ namespace Tenor.Data
         /// <summary>
         /// Executes a query on the database.
         /// </summary>
-        /// <param name="sqlSelect">A SQL query to execute.</param>
+        /// <param name="query">A SQL query to execute.</param>
         /// <param name="parameters">Parameters collection.</param>
-        public static object UpdateData(string sql, TenorParameter[] parameters)
+        public static object UpdateData(string query, TenorParameter[] parameters)
         {
-            return UpdateData(sql, parameters, null);
+            return UpdateData(query, parameters, null);
         }
 
         /// <summary>
         /// Executes a query on the database.
         /// </summary>
-        /// <param name="sql">SQL query</param>
-        /// <param name="parameters">Parameters</param>
-        /// <param name="connection">Connection</param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public static object UpdateData(string sql, TenorParameter[] parameters, ConnectionStringSettings connection)
+        /// <param name="query">A SQL query to execute.</param>
+        /// <param name="parameters">Parameters collection.</param>
+        /// <param name="connection">The connection.</param>
+        public static object UpdateData(string query, TenorParameter[] parameters, ConnectionStringSettings connection)
         {
-            return UpdateData(sql, parameters, connection, (string)null);
+            return UpdateData(query, parameters, connection, (string)null);
         }
 
         /// <summary>
         /// Executes a query on the database.
         /// </summary>
-        /// <param name="sql">SQL query</param>
-        /// <param name="parameters">Parameters</param>
-        /// <param name="connection">Connection</param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public static object UpdateData(string sql, TenorParameter[] parameters, ConnectionStringSettings connection, string secondSql)
+        /// <param name="query">A SQL query to execute.</param>
+        /// <param name="parameters">Parameters collection.</param>
+        /// <param name="connection">The connection.</param>
+        /// <param name="secondSql">The second sql query to be executed.</param>
+        public static object UpdateData(string query, TenorParameter[] parameters, ConnectionStringSettings connection, string secondSql)
         {
             if (connection == null)
                 connection = BLL.BLLBase.SystemConnection;
@@ -266,7 +263,7 @@ namespace Tenor.Data
             {
                 conn.Open();
                 transaction = conn.BeginTransaction();
-                object retVal = ExecuteQuery(sql, parameters, transaction, dialect);
+                object retVal = ExecuteQuery(query, parameters, transaction, dialect);
                 if (!string.IsNullOrEmpty(secondSql))
                 {
                     retVal = ExecuteQuery(secondSql, null, transaction, dialect);

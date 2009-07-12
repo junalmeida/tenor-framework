@@ -140,7 +140,7 @@ namespace Tenor.Data
         /// <summary>
         /// Adds a Search Condition.
         /// </summary>
-        /// <param name="SearchCondition"></param>
+        /// <param name="searchCondition">A SearchCondition with comparison.</param>
         /// <remarks></remarks>
         public ConditionCollection Add(SearchCondition searchCondition)
         {
@@ -161,7 +161,7 @@ namespace Tenor.Data
         /// <summary>
         /// Adds a condition group.
         /// </summary>
-        /// <param name="SearchConditions"></param>
+        /// <param name="searchConditions">A ConditionCollection with a set of SearchCondition.</param>
         /// <remarks></remarks>
         public ConditionCollection Add(ConditionCollection searchConditions)
         {

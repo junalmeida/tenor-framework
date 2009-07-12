@@ -285,3 +285,20 @@ namespace Tenor.Data
     }
 
 }
+
+namespace Tenor.Web
+{
+    /// <summary>
+    /// Occurs when user-code tries to make an operation that requires a web context.
+    /// </summary>
+    public class InvalidContextException : TenorException
+    {
+        public override string Message
+        {
+            get
+            {
+                return "You must be in a web context to use this methods.";
+            }
+        }
+    }
+}

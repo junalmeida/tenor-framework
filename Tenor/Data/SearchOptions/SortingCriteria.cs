@@ -10,52 +10,31 @@ using System.Configuration;
 
 namespace Tenor.Data
 {
+    /// <summary>
+    /// Represents definitions on sorting results of a search.
+    /// </summary>
     public class SortingCriteria
     {
 
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="Table"></param>
-        /// <param name="Property"></param>
-        /// <remarks></remarks>
         public SortingCriteria(string joinAlias, string propertyName, Type castType) :
             this(joinAlias, propertyName, SortOrder.Ascending, castType)
         {
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="Table"></param>
-        /// <param name="Property"></param>
-        /// <remarks></remarks>
+
+
         public SortingCriteria(string joinAlias, string propertyName) :
             this(joinAlias, propertyName, SortOrder.Ascending)
         {
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="Table"></param>
-        /// <param name="Property"></param>
-        /// <param name="SortOrder"></param>
-        /// <remarks></remarks>
+
         public SortingCriteria(string joinAlias, string propertyName, SortOrder sortOrder) :
             this(joinAlias, propertyName, sortOrder, null)
         {
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="Table"></param>
-        /// <param name="Property"></param>
-        /// <param name="SortOrder"></param>
-        /// <param name="castType"></param>
-        /// <remarks></remarks>
+
         public SortingCriteria(string joinAlias, string propertyName, SortOrder sortOrder, Type castType)
         {
             _joinAlias = joinAlias;
