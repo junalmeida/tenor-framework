@@ -18,7 +18,7 @@ namespace Tenor.Drawing
     public class Image : IO.BinaryFile, ICloneable, IImage
     {
 
-        #region " Contrutores "
+        #region " Constructors "
 
         /// <summary>
         /// Creates and instance of the current image.
@@ -128,7 +128,7 @@ namespace Tenor.Drawing
 
         #endregion
 
-        #region " Propriedades "
+        #region " Properties "
 
         private System.Drawing.Bitmap _Bitmap;
         private System.Drawing.Imaging.ImageFormat RawFormat;
@@ -174,107 +174,105 @@ namespace Tenor.Drawing
         #region " Resizing and Crop "
 
         /// <summary>
-        /// Redimensiona a imagem proporcionalmente por largura
+        /// Resizes the image proportionally by width.
         /// </summary>
-        /// <param name="Width">Nova largura em pixels</param>
+        /// <param name="width">The new width in pixels.</param>
         /// <remarks></remarks>
-        public void ResizeByWidth(int Width)
+        public void ResizeByWidth(int width)
         {
-            Resize(Width, 0, ResizeMode.Proportional);
+            Resize(width, 0, ResizeMode.Proportional);
 
         }
 
         /// <summary>
-        /// Redimensiona a imagem proporcionalmente por altura
+        /// Resizes the image proportionally by width.
         /// </summary>
-        /// <param name="Height">Nova altura em pixels</param>
+        /// <param name="height">The new height in pixels.</param>
         /// <remarks></remarks>
-        public void ResizeByHeight(int Height)
+        public void ResizeByHeight(int height)
         {
-            Resize(0, Height, ResizeMode.Proportional);
+            Resize(0, height, ResizeMode.Proportional);
         }
 
         /// <summary>
-        /// Redimensiona a imagem proporcionalmente
+        /// Resizes the image proportionally.
         /// </summary>
-        /// <param name="Percent">Porcentagem para redimensionamento</param>
+        /// <param name="percent">The percentage to resize the image.</param>
         /// <remarks></remarks>
-        public void ResizeByPercent(int Percent)
+        public void ResizeByPercent(int percent)
         {
-            int width = Percent * this.Width / 100;
-            int height = Percent * this.Height / 100;
+            int width = percent * this.Width / 100;
+            int height = percent * this.Height / 100;
             Resize(width, height, ResizeMode.Stretch);
         }
 
 
         /// <summary>
-        /// Redimensiona a imagem
+        /// Resizes the image to a new size.
         /// </summary>
-        /// <param name="Size">Estrutura com largura e altura definidas</param>
-        /// <remarks></remarks>
-        public void Resize(System.Drawing.Size Size)
+        /// <param name="size">The new size in pixels.</param>
+        public void Resize(System.Drawing.Size size)
         {
-            Resize(Size.Width, Size.Height, ResizeMode.Stretch);
+            Resize(size.Width, size.Height, ResizeMode.Stretch);
         }
 
         /// <summary>
-        /// Redimensiona a imagem
+        /// Resizes the image to a new size.
         /// </summary>
-        /// <param name="Width">Nova largura em pixels</param>
-        /// <param name="Height">Nova altura em pixels</param>
-        /// <param name="Mode">Um dos modos de redimensionamento</param>
+        /// <param name="width">The new width in pixels.</param>
+        /// <param name="height">The new height in pixels.</param>
+        /// <param name="mode">One of the ResizeMode values.</param>
         /// <remarks></remarks>
-        public void Resize(int Width, int Height, ResizeMode Mode)
+        public void Resize(int width, int height, ResizeMode mode)
         {
             Rectangle rect = new Rectangle();
             Size imagemSize = new Size();
-            if (Width <= 0 && Height <= 0)
+            if (width <= 0 && height <= 0)
             {
-                throw (new ArgumentException("Invalid resizing parameters. Check width and height values"));
+                throw (new ArgumentException("Invalid resizing parameters. Check width and height values."));
             }
 
-            switch (Mode)
+            switch (mode)
             {
                 case Drawing.ResizeMode.Stretch:
                 case Drawing.ResizeMode.Crop:
-                    if (Width <= 0 || Height <= 0)
+                    if (width <= 0 || height <= 0)
                     {
-                        throw (new ArgumentException("Invalid image parameters. Check width and height values"));
+                        throw (new ArgumentException("Invalid image parameters. Check width and height values."));
                     }
                     break;
                 case Drawing.ResizeMode.Proportional:
-                    if (Width <= 0 && Height <= 0)
+                    if (width <= 0 && height <= 0)
                     {
-                        throw (new ArgumentException("Invalid image parameters. Check width and height values"));
+                        throw (new ArgumentException("Invalid image parameters. Check width and height values."));
                     }
                     break;
             }
 
 
 
-            switch (Mode)
+            switch (mode)
             {
                 case ResizeMode.Stretch:
-                    rect = new Rectangle(0, 0, Width, Height);
-                    //tamanho da imagem final
-                    imagemSize = new Size(Width, Height);
+                    rect = new Rectangle(0, 0, width, height);
+                    //this will be the new size
+                    imagemSize = new Size(width, height);
                     break;
                 case ResizeMode.Crop:
-                    //Novo tamanho baseado na largura especificada
-
+                    //New size based on defined width:
                     Size sizeL = new Size();
-                    sizeL.Width = Width;
-                    sizeL.Height = Convert.ToInt32((double)Width / (double)this.Bitmap.Width * (double)this.Bitmap.Height);
+                    sizeL.Width = width;
+                    sizeL.Height = Convert.ToInt32((double)width / (double)this.Bitmap.Width * (double)this.Bitmap.Height);
 
-                    //Novo tamanho baseado na altura especificada
+                    //New size based on defined height:
                     Size sizeH = new Size();
-                    sizeH.Height = Height;
-                    sizeH.Width = Convert.ToInt32((double)Height / (double)this.Bitmap.Height * (double)this.Bitmap.Width);
+                    sizeH.Height = height;
+                    sizeH.Width = Convert.ToInt32((double)height / (double)this.Bitmap.Height * (double)this.Bitmap.Width);
 
 
                     rect = new Rectangle();
-                    //Selecionar por largura ou por altura para nÃ£o haver sobras (espaÃ§os em branco) na nova imagem
-                    if (sizeL.Width >= Width && sizeL.Height >= Height)
+                    //Choose if it will be based on width or height. This is necessary to avoid blank rectangles on the new image.
+                    if (sizeL.Width >= width && sizeL.Height >= height)
                     {
                         rect.Size = sizeL;
                     }
@@ -283,38 +281,38 @@ namespace Tenor.Drawing
                         rect.Size = sizeH;
                     }
 
-                    //Definir ponto de origem para que a imagem reduzida fique centralizada
-                    rect.Location = new Point(System.Convert.ToInt32(-(rect.Size.Width - Width) / 2), System.Convert.ToInt32(-(rect.Size.Height - Height) / 2));
+                    //Sets the origin point to center the new image.
+                    rect.Location = new Point(System.Convert.ToInt32(-(rect.Size.Width - width) / 2), System.Convert.ToInt32(-(rect.Size.Height - height) / 2));
 
-                    //tamanho da imagem final
-                    imagemSize = new Size(Width, Height);
+                    //the new size
+                    imagemSize = new Size(width, height);
                     break;
 
                 case ResizeMode.Proportional:
-                    if (Width > 0)
+                    if (width > 0)
                     {
 
 
-                        int percent = 100 * Width / this.Width;
-                        rect = new Rectangle(0, 0, Width, percent * this.Height / 100);
+                        int percent = 100 * width / this.Width;
+                        rect = new Rectangle(0, 0, width, percent * this.Height / 100);
 
-                        if (Height > 0 && rect.Height > Height)
+                        if (height > 0 && rect.Height > height)
                         {
-                            percent = 100 * Height / this.Height;
-                            rect = new Rectangle(0, 0, percent * this.Width / 100, Height);
+                            percent = 100 * height / this.Height;
+                            rect = new Rectangle(0, 0, percent * this.Width / 100, height);
                         }
 
 
                     }
-                    else if (Height > 0)
+                    else if (height > 0)
                     {
-                        int percent = 100 * Height / this.Height;
-                        rect = new Rectangle(0, 0, percent * this.Width / 100, Height);
+                        int percent = 100 * height / this.Height;
+                        rect = new Rectangle(0, 0, percent * this.Width / 100, height);
 
-                        if (Width > 0 && rect.Width > Width)
+                        if (width > 0 && rect.Width > width)
                         {
-                            percent = 100 * Width / this.Width;
-                            rect = new Rectangle(0, 0, Width, percent * this.Height / 100);
+                            percent = 100 * width / this.Width;
+                            rect = new Rectangle(0, 0, width, percent * this.Height / 100);
                         }
                     }
                     else
@@ -348,86 +346,85 @@ namespace Tenor.Drawing
 
 
         /// <summary>
-        /// Redimensiona a imagem
+        /// Resizes the image to a new size. 
         /// </summary>
-        /// <param name="Width">Nova largura em pixels</param>
-        /// <param name="Height">Nova altura em pixels</param>
-        /// <remarks></remarks>
-        public void Resize(int Width, int Height)
-        {
-            Resize(Width, Height, ResizeMode.Stretch);
-        }
-
-
-        /// <summary>
-        /// Redimensiona a imagem respeitando as proporÃ§Ãµes e corta as sobras de forma a centralizar a imagem.
-        /// </summary>
-        /// <param name="Size">Uma estrutura <see cref="Size">Size</see> que define o novo tamanho da imagem.</param>
-        /// <remarks></remarks>
-        [Obsolete("Use Resize instead", false)]
-        public void ResizeAndCrop(Size Size)
-        {
-            Resize(Size.Width, Size.Height, ResizeMode.Stretch);
-        }
-
-
-
-        /// <summary>
-        /// Redimensiona a imagem respeitando as proporÃ§Ãµes e corta as sobras de forma a centralizar a imagem.
-        /// </summary>
-        /// <param name="width">Nova largura em pixels</param>
-        /// <param name="height">Nova altura em pixels</param>
-        /// <remarks></remarks>
-        [Obsolete("Use Resize instead", false)]
-        public void ResizeAndCrop(int width, int height)
+        /// <param name="width">The new width in pixels.</param>
+        /// <param name="height">The new height in pixels.</param>
+        public void Resize(int width, int height)
         {
             Resize(width, height, ResizeMode.Stretch);
-
-
-            //Dim bmp As New Bitmap(width, height)
-
-            //'Novo tamanho baseado na largura especificada
-            //Dim sizeL As New Size
-            //sizeL.Width = width
-            //sizeL.Height = CInt(width / Me.Bitmap.Width * Me.Bitmap.Height)
-
-            //'Novo tamanho baseado na altura especificada
-            //Dim sizeH As New Size
-            //sizeH.Height = height
-            //sizeH.Width = CInt(height / Me.Bitmap.Height * Me.Bitmap.Width)
-
-
-            //Dim rect As New Rectangle
-            //'Selecionar por largura ou por altura para nÃ£o haver sobras (espaÃ§os em branco) na nova imagem
-            //If sizeL.Width >= width And sizeL.Height >= height Then
-            //    rect.Size = sizeL
-            //Else
-            //    rect.Size = sizeH
-            //End If
-
-            //'Definir ponto de origem para que a imagem reduzida fique centralizada
-            //rect.Location = New Point(CInt(-(rect.Size.Width - width) / 2), CInt(-(rect.Size.Height - height) / 2))
-
-
-            //'ConfiguraÃ§Ãµes de renderizaÃ§Ã£o
-            //Dim gr As Graphics = Graphics.FromImage(bmp)
-            //gr.InterpolationMode = Drawing2D.InterpolationMode.HighQualityBicubic
-            //gr.SmoothingMode = Drawing2D.SmoothingMode.HighQuality
-            //gr.PixelOffsetMode = Drawing2D.PixelOffsetMode.HighQuality
-            //gr.CompositingQuality = Drawing2D.CompositingQuality.HighQuality
-
-            //'Desenhar a nova imagem
-            //gr.DrawImage(Me.Bitmap, rect)
-
-
-
-            //gr.Dispose()
-
-            //Me._Bitmap.Dispose()
-            //Me._Bitmap = bmp
-
-
         }
+
+
+        ///// <summary>
+        ///// Redimensiona a imagem respeitando as proporÃ§Ãµes e corta as sobras de forma a centralizar a imagem.
+        ///// </summary>
+        ///// <param name="Size">Uma estrutura <see cref="Size">Size</see> que define o novo tamanho da imagem.</param>
+        ///// <remarks></remarks>
+        //[Obsolete("Use Resize instead", false)]
+        //public void ResizeAndCrop(Size Size)
+        //{
+        //    Resize(Size.Width, Size.Height, ResizeMode.Stretch);
+        //}
+
+
+
+        ///// <summary>
+        ///// Redimensiona a imagem respeitando as proporÃ§Ãµes e corta as sobras de forma a centralizar a imagem.
+        ///// </summary>
+        ///// <param name="width">Nova largura em pixels</param>
+        ///// <param name="height">Nova altura em pixels</param>
+        ///// <remarks></remarks>
+        //[Obsolete("Use Resize instead", false)]
+        //public void ResizeAndCrop(int width, int height)
+        //{
+        //    Resize(width, height, ResizeMode.Stretch);
+
+
+        //    //Dim bmp As New Bitmap(width, height)
+
+        //    //'Novo tamanho baseado na largura especificada
+        //    //Dim sizeL As New Size
+        //    //sizeL.Width = width
+        //    //sizeL.Height = CInt(width / Me.Bitmap.Width * Me.Bitmap.Height)
+
+        //    //'Novo tamanho baseado na altura especificada
+        //    //Dim sizeH As New Size
+        //    //sizeH.Height = height
+        //    //sizeH.Width = CInt(height / Me.Bitmap.Height * Me.Bitmap.Width)
+
+
+        //    //Dim rect As New Rectangle
+        //    //'Selecionar por largura ou por altura para nÃ£o haver sobras (espaÃ§os em branco) na nova imagem
+        //    //If sizeL.Width >= width And sizeL.Height >= height Then
+        //    //    rect.Size = sizeL
+        //    //Else
+        //    //    rect.Size = sizeH
+        //    //End If
+
+        //    //'Definir ponto de origem para que a imagem reduzida fique centralizada
+        //    //rect.Location = New Point(CInt(-(rect.Size.Width - width) / 2), CInt(-(rect.Size.Height - height) / 2))
+
+
+        //    //'ConfiguraÃ§Ãµes de renderizaÃ§Ã£o
+        //    //Dim gr As Graphics = Graphics.FromImage(bmp)
+        //    //gr.InterpolationMode = Drawing2D.InterpolationMode.HighQualityBicubic
+        //    //gr.SmoothingMode = Drawing2D.SmoothingMode.HighQuality
+        //    //gr.PixelOffsetMode = Drawing2D.PixelOffsetMode.HighQuality
+        //    //gr.CompositingQuality = Drawing2D.CompositingQuality.HighQuality
+
+        //    //'Desenhar a nova imagem
+        //    //gr.DrawImage(Me.Bitmap, rect)
+
+
+
+        //    //gr.Dispose()
+
+        //    //Me._Bitmap.Dispose()
+        //    //Me._Bitmap = bmp
+
+
+        //}
 
 
         #endregion
@@ -611,108 +608,100 @@ namespace Tenor.Drawing
 
 
         /// <summary>
-        /// Adiciona um texto à imagem atual
+        /// Draws an string with a text on the current image.
         /// </summary>
-        /// <param name="Text">Texto a ser adicionado</param>
-        /// <param name="FontFamily">Nome da fonte usada no texto</param>
-        /// <param name="Size">Tamanho em Pontos (pt)</param>
-        /// <param name="FontStyle">Um dos valores de System.Drawing.FontStyle</param>
-        /// <param name="Align">Um dos valores de System.Drawing.ContentAlignment</param>
-        /// <param name="Color">A Cor usada para renderizar o texto</param>
-        /// <remarks></remarks>
-        public void AddText(string Text, string FontFamily, float Size, System.Drawing.FontStyle FontStyle, System.Drawing.Color Color, System.Drawing.ContentAlignment Align)
+        /// <param name="text">A string with a text to be drawed.</param>
+        /// <param name="fontFamily">The font family used.</param>
+        /// <param name="size">Font size in points (pt).</param>
+        /// <param name="fontStyle">One of the System.Drawing.FontStyle values.</param>
+        /// <param name="align">One of the System.Drawing.ContentAlignment values.</param>
+        /// <param name="color">A System.Drawing.Color to be used.</param>
+        public void AddText(string text, string fontFamily, float size, System.Drawing.FontStyle fontStyle, System.Drawing.Color color, System.Drawing.ContentAlignment align)
         {
-            System.Drawing.Font font = new System.Drawing.Font(FontFamily, Size, FontStyle, System.Drawing.GraphicsUnit.Point);
-            AddText(Text, font, Color, Align);
+            System.Drawing.Font font = new System.Drawing.Font(fontFamily, size, fontStyle, System.Drawing.GraphicsUnit.Point);
+            AddText(text, font, color, align);
         }
 
         /// <summary>
-        /// Adiciona um texto à imagem atual
+        /// Draws an string with a text on the current image.
         /// </summary>
-        /// <param name="Text">Texto a ser adicionado</param>
-        /// <param name="Align">Um dos valores de System.Drawing.ContentAlignment</param>
-        /// <param name="Color">A Cor usada para o texto</param>
-        /// <param name="Font">A fonte usada no texto</param>
-        /// <param name="OffsetX">Pixels para deslocar o texto horizontalmente. Valores negativos deslocam para esquerda.</param>
-        /// <param name="OffsetY">Pixels para deslocar o texto verticalmente. Valores negativos deslocam para cima.</param>
-        /// <remarks></remarks>
-        public void AddText(string Text, System.Drawing.Font Font, System.Drawing.Color Color, System.Drawing.ContentAlignment Align, int OffsetX, int OffsetY)
+        /// <param name="text">A string with a text to be drawed.</param>
+        /// <param name="font">The font to be used.</param>
+        /// <param name="align">One of the System.Drawing.ContentAlignment values.</param>
+        /// <param name="color">A System.Drawing.Color to be used.</param>
+        /// <param name="offsetX">Defines how much the text will be offset horizontally. Negative values sets the text to its left side.</param>
+        /// <param name="offsetY">Defines how much the text will be offset vertically. Negative values sets the text to its top side.</param>
+        public void AddText(string text, System.Drawing.Font font, System.Drawing.Color color, System.Drawing.ContentAlignment align, int offsetX, int offsetY)
         {
             Graphics gr = System.Drawing.Graphics.FromImage(Bitmap);
-            SizeF size = gr.MeasureString(Text, Font, Bitmap.Width);
+            SizeF size = gr.MeasureString(text, font, Bitmap.Width);
             PointF lic = new PointF();
-            switch (Align)
+            //positioning:
+            switch (align)
             {
                 case System.Drawing.ContentAlignment.TopLeft:
-                    //alinhar acima e à esquerda
                     lic = new System.Drawing.PointF(0, 0);
                     break;
                 case System.Drawing.ContentAlignment.TopCenter:
-                    //alinhar acima e ao centro
                     lic = new System.Drawing.PointF(System.Convert.ToSingle((Bitmap.Width / 2) - (size.Width / 2)), 0);
                     break;
                 case System.Drawing.ContentAlignment.TopRight:
-                    //alinhar acima e à direita
                     lic = new System.Drawing.PointF(Bitmap.Width - size.Width, 0);
                     break;
                 case System.Drawing.ContentAlignment.MiddleLeft:
-                    //alinhar ao meio e à esquerda
                     lic = new System.Drawing.PointF(0, System.Convert.ToSingle((Bitmap.Height / 2) - (size.Height / 2)));
                     break;
                 case System.Drawing.ContentAlignment.MiddleCenter:
-                    //alinhar ao meio e ao centro
                     lic = new System.Drawing.PointF(System.Convert.ToSingle((Bitmap.Width / 2) - (size.Width / 2)), System.Convert.ToSingle((Bitmap.Height / 2) - (size.Height / 2)));
                     break;
                 case System.Drawing.ContentAlignment.MiddleRight:
-                    //alinhar ao meio e à direita
                     lic = new System.Drawing.PointF(Bitmap.Width - size.Width, System.Convert.ToSingle((Bitmap.Height / 2) - (size.Height / 2)));
                     break;
                 case System.Drawing.ContentAlignment.BottomLeft:
-                    //alinhar abaixo e à esquerda
                     lic = new System.Drawing.PointF(0, Bitmap.Height - size.Height);
                     break;
                 case System.Drawing.ContentAlignment.BottomCenter:
-                    //alinhar abaixo e ao centro
                     lic = new System.Drawing.PointF(System.Convert.ToSingle((Bitmap.Width / 2) - (size.Width / 2)), Bitmap.Height - size.Height);
                     break;
                 case System.Drawing.ContentAlignment.BottomRight:
-                    //alinhar abaixo e à direita
                     lic = new System.Drawing.PointF(Bitmap.Width - size.Width, Bitmap.Height - size.Height);
                     break;
             }
-            //renderiza o texto na tela
-            lic.X += OffsetX;
-            lic.Y += OffsetY;
-            gr.DrawString(Text, Font, new System.Drawing.SolidBrush(Color), lic);
+            //calculate offset
+            lic.X += offsetX;
+            lic.Y += offsetY;
+            //draws the text
+            gr.DrawString(text, font, new System.Drawing.SolidBrush(color), lic);
             gr.Dispose();
         }
 
         /// <summary>
-        /// Adiciona um texto à imagem atual
+        /// Draws an string with a text on the current image.
         /// </summary>
-        /// <param name="Text">Texto a ser adicionado</param>
-        /// <param name="Align">Um dos valores de System.Drawing.ContentAlignment</param>
-        /// <param name="Color">A Cor usada para o texto</param>
-        /// <param name="Font">A fonte usada no texto</param>
+        /// <param name="text">A string with a text to be drawed.</param>
+        /// <param name="font">The font to be used.</param>
+        /// <param name="align">One of the System.Drawing.ContentAlignment values.</param>
+        /// <param name="color">A System.Drawing.Color to be used.</param>
         /// <remarks></remarks>
-        public void AddText(string Text, System.Drawing.Font Font, System.Drawing.Color Color, System.Drawing.ContentAlignment Align)
+        public void AddText(string text, System.Drawing.Font font, System.Drawing.Color color, System.Drawing.ContentAlignment align)
         {
-            AddText(Text, Font, Color, Align, 0, 0);
+            AddText(text, font, color, align, 0, 0);
         }
 
         /// <summary>
-        /// Adiciona um texto com sombra à imagem atual
+        /// Draws an string with a single shadow on the current image. 
         /// </summary>
-        /// <param name="Text">Texto a ser adicionado</param>
-        /// <param name="Align">Um dos valores de System.Drawing.ContentAlignment</param>
-        /// <param name="Font">A fonte usada no texto</param>
-        /// <param name="Color">A Cor usada para o texto</param>
-        /// <param name="ShadowColor">A Cor usada para a sombra</param>
+        /// <param name="text">A string with a text to be drawed.</param>
+        /// <param name="font">The font to be used.</param>
+        /// <param name="align">One of the System.Drawing.ContentAlignment values.</param>
+        /// <param name="color">A System.Drawing.Color to be used on text color.</param>
+        /// <param name="shadowColor">A System.Drawing.Color to be used on shadow color.</param>
+        /// <param name="shadowOffset">How much the shadow will be offset of the text. Any value in pixels.</param>
         /// <remarks></remarks>
-        public void AddTextWithShadow(string Text, System.Drawing.Font Font, System.Drawing.Color Color, System.Drawing.ContentAlignment Align, System.Drawing.Color ShadowColor, int ShadowOffset)
+        public void AddTextWithShadow(string text, System.Drawing.Font font, System.Drawing.Color color, System.Drawing.ContentAlignment align, System.Drawing.Color shadowColor, int shadowOffset)
         {
-            AddText(Text, Font, ShadowColor, Align, 0, 0);
-            AddText(Text, Font, Color, Align, -ShadowOffset, -ShadowOffset);
+            AddText(text, font, shadowColor, align, 0, 0);
+            AddText(text, font, color, align, -shadowOffset, -shadowOffset);
         }
 
 
@@ -722,47 +711,43 @@ namespace Tenor.Drawing
 
 
         /// <summary>
-        /// Adiciona uma borda com degradÃª de transparente atÃ© a cor escolhida
+        /// Draws a gradiend border.
         /// </summary>
-        /// <param name="Position">Um ou mais itens de Position. Utilize combinaÃ§Ã£o Ã  bits para escolher suas opÃ§Ãµes. (Or no VB, | no C#)</param>
-        /// <param name="Color">A cor de destino do degradÃª</param>
-        /// <param name="Size">Tamanho em pixels da borda</param>
+        /// <param name="position">A bitwise combination of Position values.</param>
+        /// <param name="color">The final color of the gradient.</param>
+        /// <param name="size">Size in pixels of the border.</param>
         /// <remarks></remarks>
-        public void AddGradientBorder(Position Position, System.Drawing.Color Color, int Size)
+        public void AddGradientBorder(Position position, System.Drawing.Color color, int size)
         {
             Rectangle rect = new Rectangle();
-            if (Position == Position.None)
+            if (position == Position.None)
             {
                 throw (new ArgumentException("Please provide one or more positions to add a gradient."));
             }
 
-            if ((Position | Position.Left) == Position)
+            if ((position | Position.Left) == position)
             {
-                //Se esquerda foi selecionada:
-                rect = new System.Drawing.Rectangle(0, 0, Size, Bitmap.Height);
-                AddGradientBorder(rect, Color, System.Drawing.Color.Transparent, System.Drawing.Drawing2D.LinearGradientMode.Horizontal, 0, 0);
+                rect = new System.Drawing.Rectangle(0, 0, size, Bitmap.Height);
+                AddGradientBorder(rect, color, System.Drawing.Color.Transparent, System.Drawing.Drawing2D.LinearGradientMode.Horizontal, 0, 0);
             }
-            if ((Position | Position.Right) == Position)
+            if ((position | Position.Right) == position)
             {
-                //Se direita foi selecionada:
-                rect = new System.Drawing.Rectangle(Bitmap.Width - Size, 0, Size, Bitmap.Height);
-                AddGradientBorder(rect, System.Drawing.Color.Transparent, Color, System.Drawing.Drawing2D.LinearGradientMode.Horizontal, -2, 0);
+                rect = new System.Drawing.Rectangle(Bitmap.Width - size, 0, size, Bitmap.Height);
+                AddGradientBorder(rect, System.Drawing.Color.Transparent, color, System.Drawing.Drawing2D.LinearGradientMode.Horizontal, -2, 0);
             }
-            if ((Position | Position.Top) == Position)
+            if ((position | Position.Top) == position)
             {
-                //Se topo foi selectionado:
-                rect = new System.Drawing.Rectangle(0, 0, Bitmap.Width, Size);
-                AddGradientBorder(rect, Color, System.Drawing.Color.Transparent, System.Drawing.Drawing2D.LinearGradientMode.Vertical, 0, 0);
+                rect = new System.Drawing.Rectangle(0, 0, Bitmap.Width, size);
+                AddGradientBorder(rect, color, System.Drawing.Color.Transparent, System.Drawing.Drawing2D.LinearGradientMode.Vertical, 0, 0);
             }
-            if ((Position | Position.Bottom) == Position)
+            if ((position | Position.Bottom) == position)
             {
-                //Se fundo foi selecionado:
-                rect = new System.Drawing.Rectangle(0, Bitmap.Height - Size, Bitmap.Width, Size);
-                AddGradientBorder(rect, System.Drawing.Color.Transparent, Color, System.Drawing.Drawing2D.LinearGradientMode.Vertical, 0, -2);
+                rect = new System.Drawing.Rectangle(0, Bitmap.Height - size, Bitmap.Width, size);
+                AddGradientBorder(rect, System.Drawing.Color.Transparent, color, System.Drawing.Drawing2D.LinearGradientMode.Vertical, 0, -2);
             }
-
 
         }
+
         private void AddGradientBorder(System.Drawing.Rectangle rect, System.Drawing.Color Color1, System.Drawing.Color Color2, System.Drawing.Drawing2D.LinearGradientMode Mode, int XOffset, int YOffset)
         {
             System.Drawing.Rectangle brect = new System.Drawing.Rectangle(rect.X, rect.Y, rect.Width, rect.Height);
@@ -783,73 +768,68 @@ namespace Tenor.Drawing
 
         #region " WaterMark "
         /// <summary>
-        /// Adiciona uma imagem sobre a imagem atual.
-        /// Use preferencialmente imagens PNG.
+        /// Draws a picture on the current image.
         /// </summary>
-        /// <param name="Bitmap">Imagem a ser adicionada.</param>
-        /// <param name="Position">PosiÃ§Ã£o desejada.</param>
+        /// <param name="bitmap">A bitmap.</param>
+        /// <param name="position">A bitwise combination of Position values.</param>
         /// <remarks></remarks>
-        public void AddPicture(Bitmap Bitmap, Position Position)
+        public void AddPicture(Bitmap bitmap, Position position)
         {
-            AddPicture(Bitmap, Position, 0);
+            AddPicture(bitmap, position, 0);
         }
 
 
         /// <summary>
-        /// Adiciona uma imagem sobre a imagem atual.
-        /// Use preferencialmente imagens PNG.
+        /// Draws a picture on the current image.
         /// </summary>
-        /// <param name="FileName">Imagem a ser adicionada.</param>
-        /// <param name="Position">PosiÃ§Ã£o desejada.</param>
-        /// <param name="Margin">Margem desejada</param>
-        /// <remarks></remarks>
-        public void AddPicture(string FileName, Position Position, int Margin)
+        /// <param name="fileName">A filename of a file.</param>
+        /// <param name="position">A bitwise combination of Position values.</param>
+        /// <param name="margin">Some margin in pixels.</param>
+        public void AddPicture(string fileName, Position position, int margin)
         {
-            System.Drawing.Image bitmap = System.Drawing.Image.FromFile(FileName);
-            AddPicture(((Bitmap)bitmap), Position, Margin);
+            System.Drawing.Image bitmap = System.Drawing.Image.FromFile(fileName);
+            AddPicture(((Bitmap)bitmap), position, margin);
         }
 
         /// <summary>
-        /// Adiciona uma imagem sobre a imagem atual.
-        /// Use preferencialmente imagens PNG.
+        /// Draws a picture on the current image.
         /// </summary>
-        /// <param name="Bitmap">Imagem a ser adicionada.</param>
-        /// <param name="Position">PosiÃ§Ã£o desejada.</param>
-        /// <param name="Margin">Margem desejada</param>
-        /// <remarks></remarks>
-        public void AddPicture(Bitmap Bitmap, Position Position, int Margin)
+        /// <param name="bitmap">A bitmap.</param>
+        /// <param name="position">A bitwise combination of Position values.</param>
+        /// <param name="margin">Some margin in pixels.</param>
+        public void AddPicture(Bitmap bitmap, Position position, int margin)
         {
-            Size size = Bitmap.Size;
+            Size size = bitmap.Size;
             Point pos = new Point();
 
-            if ((Position | Drawing.Position.Left) == Position)
+            if ((position | Drawing.Position.Left) == position)
             {
-                pos.X = 0 + Margin;
+                pos.X = 0 + margin;
             }
-            else if ((Position | Drawing.Position.Right) == Position)
+            else if ((position | Drawing.Position.Right) == position)
             {
-                pos.X = this.Bitmap.Size.Width - size.Width + Margin;
+                pos.X = this.Bitmap.Size.Width - size.Width + margin;
             }
             else
             {
-                pos.X = (System.Convert.ToInt32((this.Bitmap.Size.Width / 2) - (size.Width / 2))) + Margin;
+                pos.X = (System.Convert.ToInt32((this.Bitmap.Size.Width / 2) - (size.Width / 2))) + margin;
             }
 
-            if ((Position | Drawing.Position.Top) == Position)
+            if ((position | Drawing.Position.Top) == position)
             {
-                pos.Y = 0 + Margin;
+                pos.Y = 0 + margin;
             }
-            else if ((Position | Drawing.Position.Bottom) == Position)
+            else if ((position | Drawing.Position.Bottom) == position)
             {
-                pos.Y = this.Bitmap.Size.Height - size.Height + Margin;
+                pos.Y = this.Bitmap.Size.Height - size.Height + margin;
             }
             else
             {
-                pos.Y = (System.Convert.ToInt32((this.Bitmap.Size.Height / 2) - (size.Height / 2))) + Margin;
+                pos.Y = (System.Convert.ToInt32((this.Bitmap.Size.Height / 2) - (size.Height / 2))) + margin;
             }
 
             Graphics gr = Graphics.FromImage(this.Bitmap);
-            gr.DrawImage(Bitmap, pos);
+            gr.DrawImage(bitmap, pos);
             gr.Dispose();
         }
 
@@ -870,6 +850,9 @@ namespace Tenor.Drawing
 
 
         private bool _LowQuality = false;
+        /// <summary>
+        /// Gets or sets a boolean indicating that this image will be rendered in a low quality mode.
+        /// </summary>
         public bool LowQuality
         {
             get

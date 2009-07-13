@@ -67,7 +67,7 @@ namespace Tenor.Web
 
                 string sControlName = System.Guid.NewGuid().ToString();
                 //Page.Application(HttpModule.IdPrefix & sControlName) = [Object]
-                Dados dados = new Dados();
+                CacheData dados = new CacheData();
                 dados.Object = @object;
                 dados.Expires = expires;
                 dados.FileName = fileName;

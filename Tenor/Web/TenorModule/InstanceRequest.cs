@@ -18,8 +18,6 @@ namespace Tenor.Web
     public partial class TenorModule
     {
 
-
-
         private string _class;
         private bool FindAssembly(Assembly obj)
         {
@@ -42,32 +40,32 @@ namespace Tenor.Web
         private void InstanceRequest(HttpApplication app)
         {
             System.Web.Caching.Cache Cache = app.Context.Cache;
-            Dados item = null;
+            CacheData item = null;
 
             object messagesLock = new object();
             if (app.Request[Tenor.Configuration.TenorModule.NoCache] == string.Empty)
             {
                 lock (messagesLock)
                 {
-                    item = Cache.Get("instance:" + app.Request.QueryString.ToString()) as Dados;
+                    item = Cache.Get("instance:" + app.Request.QueryString.ToString()) as CacheData;
                 }
             }
 
             if (item != null)
             {
-                //os dados já estão no cache para a querystring atual
+                //data is already in cache for the current url
                 WriteHeaders(app, item);
                 WriteStream(((Stream)item.Object), app);
 
             }
             else
             {
-                //os dados ainda não estão no cache
+                //data is not yet on cache.
 
 
                 _class = QueryString("cl");
 
-                //Metodo novo - Hexadecimal
+                //Hexadecimal hash - the new method
                 try
                 {
                     _class = Tenor.Text.Strings.FromAscHex(_class);
@@ -76,12 +74,14 @@ namespace Tenor.Web
                 {
                     try
                     {
-                        //Metodo antigo
+                        //Old method, for backward compatibility. 
+                        //TODO: do we really need this?
                         _class = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(_class));
                     }
                     catch (Exception)
                     {
-                        throw (new ArgumentException("Invalid \'cl\' parameter. Value: " + _class));
+
+                        throw (new TenorException("Invalid \'cl\' parameter. Value: " + _class));
                     }
                 }
 
@@ -107,7 +107,7 @@ namespace Tenor.Web
 
                 if (classeT == null)
                 {
-                    //Não encontrou a classe
+                    //We cannot find the type, try on other assemblies.
                     foreach (string file in System.IO.Directory.GetFiles(AppDomain.CurrentDomain.RelativeSearchPath, "*.dll"))
                     {
                         try
@@ -118,7 +118,7 @@ namespace Tenor.Web
                                 classeT = ass2.GetType(_class, false, true);
                                 if (classeT != null)
                                 {
-                                    goto endOfForLoop;
+                                    break;
                                 }
                             }
                         }
@@ -126,44 +126,40 @@ namespace Tenor.Web
                         {
                         }
                     }
-                endOfForLoop:
+
                     if (classeT == null)
                     {
-                        throw (new Exception("Cannot find class \'" + _class + "\'."));
+                        throw (new TenorException("Cannot find class \'" + _class + "\'."));
                         //return; //404
                     }
                     //Else
                     //    classeT = ass.GetType(_class, False, True)
                 }
 
-                //procura um construtor que receba um inteiro e um booleano pra desligar o lazy loading(!!!)
-
+                //Search for a constructor that have an integer parameter.
+                //TODO: Make this mor flexible, with more than one parameter and type.
                 ConstructorInfo classeC = classeT.GetConstructor(new Type[] { typeof(int) });
 
                 if (classeC == null)
                 {
-                    //nenhum construtor
-                    //é necessário um contrutor que receba inteiro
-                    throw (new Exception("Cannot find any suitable constructor to call for class \'" + _class + "\'."));
+                    //no constructor found.
+                    throw (new TenorException("Cannot find any suitable constructor to call for class \'" + _class + "\'."));
                     //return; //404
                 }
-                //no momento somente 1 parametro string é aceito
+                //parse parameters.
                 string valorO = QueryString("p1");
                 int valorI = 0;
                 if (!int.TryParse(valorO, out valorI))
                 {
-                    //parametro invalido
-                    throw (new Exception("Invalid parameter value."));
+                    //invalid parameter
+                    throw (new TenorException("Invalid parameter value."));
                     //return; //404
                 }
                 else
                 {
                     try
                     {
-
-
-
-                        object instancia = classeC.Invoke(new object[] { valorI });
+                        object instance = classeC.Invoke(new object[] { valorI });
                         IResponseObject responseObject = null;
 
                         if (classeT.GetInterface(typeof(IResponseObject).FullName) == null)
@@ -171,51 +167,50 @@ namespace Tenor.Web
                             PropertyInfo prop = Array.Find<PropertyInfo>(classeT.GetProperties(), new Predicate<PropertyInfo>(FindProperty));
                             if (prop != null)
                             {
-                                responseObject = (IResponseObject)(prop.GetValue(instancia, null));
+                                responseObject = (IResponseObject)(prop.GetValue(instance, null));
                             }
                         }
                         else
                         {
-                            responseObject = (IResponseObject)instancia;
+                            responseObject = (IResponseObject)instance;
                         }
                         if (responseObject == null)
                         {
-                            //A classe não implementa IResponseObject
-                            //nem nenhuma propriedade que a retorne.
-                            throw (new Exception("Invalid response stream."));
+                            //This class does not have IResponseObject nor a property that returns one. 
+                            throw (new TenorException("Invalid response stream."));
                             //return; //404
                         }
 
-                        if (!string.IsNullOrEmpty(QueryString("w")) || !string.IsNullOrEmpty(QueryString("h")) || !string.IsNullOrEmpty(QueryString("l")))
+                        IImage img = responseObject as IImage;
+                        if (img != null)
                         {
-                            //tratamento de imagem
-                            int l = 0;
-                            int.TryParse(QueryString("l"), out l);
-
-
-
-                            int w = 0;
-                            int.TryParse(QueryString("w"), out w);
-                            int h = 0;
-                            int.TryParse(QueryString("h"), out h);
-
-                            ResizeMode mode = ResizeMode.Proportional;
-
-                            if (!string.IsNullOrEmpty(QueryString("m")))
+                            if (!string.IsNullOrEmpty(QueryString("w")) || !string.IsNullOrEmpty(QueryString("h")) || !string.IsNullOrEmpty(QueryString("l")))
                             {
-                                try
-                                {
-                                    mode = (ResizeMode)(int.Parse(QueryString("m")));
-                                }
-                                catch (Exception)
-                                {
-                                    throw (new HttpException("Invalid image parameters", 500));
-                                }
-                            }
+                                //image manipulation.
+                                int l = 0;
+                                int.TryParse(QueryString("l"), out l);
 
-                            if (((object)responseObject).GetType().GetInterface(typeof(IImage).FullName) != null)
-                            {
-                                IImage img = (IImage)responseObject;
+
+
+                                int w = 0;
+                                int.TryParse(QueryString("w"), out w);
+                                int h = 0;
+                                int.TryParse(QueryString("h"), out h);
+
+                                ResizeMode mode = ResizeMode.Proportional;
+
+                                if (!string.IsNullOrEmpty(QueryString("m")))
+                                {
+                                    try
+                                    {
+                                        mode = (ResizeMode)(int.Parse(QueryString("m")));
+                                    }
+                                    catch (Exception)
+                                    {
+                                        throw (new HttpException("Invalid image parameters", 500));
+                                    }
+                                }
+
                                 if (w > 0 || h > 0)
                                 {
                                     img.Resize(w, h, mode);
@@ -235,6 +230,7 @@ namespace Tenor.Web
                                 //        img.Resize(w, h, Drawing.ResizeMode.Stretch)
                                 //    End If
                                 //End If
+                                img = null;
                             }
                         }
 
@@ -242,23 +238,23 @@ namespace Tenor.Web
                         Stream File = null;
                         File = responseObject.WriteContent();
 
-                        Dados dados = new Dados();
-                        dados.Expires = Tenor.Configuration.TenorModule.DefaultExpiresTime;
-                        dados.ContentType = responseObject.ContentType;
-                        dados.ContentLength = File.Length;
+                        CacheData cacheData = new CacheData();
+                        cacheData.Expires = Tenor.Configuration.TenorModule.DefaultExpiresTime;
+                        cacheData.ContentType = responseObject.ContentType;
+                        cacheData.ContentLength = File.Length;
 
 
                         if (!string.IsNullOrEmpty(QueryString("fn")))
                         {
-                            dados.FileName = QueryString("fn");
-                            if (!dados.FileName.Contains("."))
+                            cacheData.FileName = QueryString("fn");
+                            if (!cacheData.FileName.Contains("."))
                             {
-                                dados.FileName += "." + IO.BinaryFile.GetExtension(dados.ContentType);
+                                cacheData.FileName += "." + IO.BinaryFile.GetExtension(cacheData.ContentType);
                             }
                         }
                         else
                         {
-                            dados.FileName = valorI.ToString() + "." + IO.BinaryFile.GetExtension(dados.ContentType);
+                            cacheData.FileName = valorI.ToString() + "." + IO.BinaryFile.GetExtension(cacheData.ContentType);
                         }
 
 
@@ -266,29 +262,29 @@ namespace Tenor.Web
                         {
                             try
                             {
-                                dados.ForceDownload = Convert.ToBoolean(int.Parse(QueryString("dl")));
+                                cacheData.ForceDownload = Convert.ToBoolean(int.Parse(QueryString("dl")));
                             }
                             catch (Exception)
                             {
                             }
                         }
 
-                        if (string.IsNullOrEmpty(dados.ContentType))
+                        if (string.IsNullOrEmpty(cacheData.ContentType))
                         {
-                            dados.ContentType = GetMimeType(File);
+                            cacheData.ContentType = GetMimeType(File);
                         }
 
-                        WriteHeaders(app, dados);
+                        WriteHeaders(app, cacheData);
                         WriteStream(File, app);
 
 
-                        dados.Object = File;
+                        cacheData.Object = File;
                         if (app.Request[Tenor.Configuration.TenorModule.NoCache] == string.Empty)
                         {
                             lock (messagesLock)
                             {
                                 object obj;
-                                obj = Cache.Add("instance:" + app.Request.QueryString.ToString(), dados, null, System.Web.Caching.Cache.NoAbsoluteExpiration, new TimeSpan(0, 20, 0), System.Web.Caching.CacheItemPriority.Default, new System.Web.Caching.CacheItemRemovedCallback(Cache_onItemRemoved));
+                                obj = Cache.Add("instance:" + app.Request.QueryString.ToString(), cacheData, null, System.Web.Caching.Cache.NoAbsoluteExpiration, new TimeSpan(0, 20, 0), System.Web.Caching.CacheItemPriority.Default, new System.Web.Caching.CacheItemRemovedCallback(Cache_onItemRemoved));
                             }
                         }
 

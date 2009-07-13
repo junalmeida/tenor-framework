@@ -22,21 +22,21 @@ namespace Tenor.Web
             {
                 HttpApplication app = (HttpApplication)sender;
                 Exception exception = app.Server.GetLastError();
-
-                Diagnostics.Debug.HandleError(app, exception, false);
+                if (exception != null)
+                    Diagnostics.Debug.HandleError(app, exception, false);
 
             }
             catch (Exception)
             {
+                //For god's sake, we cant have an exception on the exception handler!
+                //Do nothing!
             }
         }
 
 
         /// <summary>
-        /// Verifica os HttpModules atuais na webconfig do projeto.
+        /// Check if TenorModule is enabled on user-code webconfig.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
         private static bool CheckHttpModules()
         {
             Type httpModule = typeof(TenorModule);
@@ -48,7 +48,7 @@ namespace Tenor.Web
 
             foreach (HttpModuleAction m in sec.Modules)
             {
-                if (m.Type.StartsWith(httpModule.FullName + ", " + httpModule.Assembly.GetName().Name))
+                if (m.Type.StartsWith(httpModule.AssemblyQualifiedName))
                 {
                     return true;
                 }
@@ -58,13 +58,13 @@ namespace Tenor.Web
         }
 
         /// <summary>
-        /// Verifica se o módulo está definido na Web.Config.
+        /// Check if TenorModule is enabled on user-code webconfig.
         /// </summary>
         /// <remarks></remarks>
         public static void CheckHttpModule()
         {
-            System.Web.HttpContext Context = System.Web.HttpContext.Current;
-            if (Context != null)
+            System.Web.HttpContext context = System.Web.HttpContext.Current;
+            if (context != null)
             {
                 if (!CheckHttpModules())
                 {
@@ -77,18 +77,16 @@ namespace Tenor.Web
 
 
     /// <summary>
-    /// Exceção gerada quando o módulo não está devidamente configurado.
+    /// Occurs when the TenorModule is not defined on user-code webconfig.
     /// </summary>
-    /// <remarks></remarks>
-    public class ModuleNotFoundException : Exception
+    public class ModuleNotFoundException : TenorException
     {
-
-
         public override string Message
         {
             get
             {
-                return "You must have Web.TenorModule running to use this resource. Add a reference to httpModules section on your web.config file. <httpModules><add name=\"Tenor\" type=\"Tenor.Web.TenorModule, Tenor\"/></httpModules>";
+                Type httpModule = typeof(TenorModule);
+                return string.Format("You must have Web.TenorModule running to use this resource. Add a reference to httpModules section on your web.config file. <httpModules><add name=\"{0}\" type=\"{1}\"/></httpModules>", httpModule.Assembly.GetName().Name, httpModule.AssemblyQualifiedName);
             }
         }
     }

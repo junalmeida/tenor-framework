@@ -23,29 +23,23 @@ namespace Tenor.Web
             //IResponseObject
 
             object messagesLock = new object();
-            Dados obj;
+            CacheData obj;
             lock (messagesLock)
             {
-                obj = (Dados)(app.Context.Cache.Get(Tenor.Configuration.TenorModule.IdPrefix + QueryString("id")));
+                obj = (CacheData)(app.Context.Cache.Get(Tenor.Configuration.TenorModule.IdPrefix + QueryString("id")));
             }
 
             if (obj == null)
             {
                 //404 - File Not Found
 
-                //O cache do asp.net não contém o objeto esperado.
-                //Atenção: Isso acontece quando compilamos diversas vezes
-                //o projeto. Em alguns minutos o cache do asp.net se restabelece.
-                //Pode ser necessário dar um restart ou recycle no application pool.
-                throw (new Exception("Objeto não encontrado no cache."));
+                throw (new TenorException("Object not found"));
 
                 //return;
 
             }
-            else if ((obj.Object as Stream) == null)
+            else if ((obj.Object as Stream) != null)
             {
-                //O campo Object contém uma Stream.
-                //Isso é verdadeiro nas chamadas de cache.
                 Stream memres = (Stream)obj.Object;
                 //Envia os headers e a stream para o cliente
                 WriteHeaders(app, obj);
@@ -54,7 +48,7 @@ namespace Tenor.Web
                 return;
 
             }
-            else if ((obj.Object as IResponseObject) == null)
+            else if ((obj.Object as IResponseObject) != null)
             {
                 //O conteúdo de obj.Object não era o esperado.
                 //Uma programação correta não deve gerar este erro
@@ -72,10 +66,8 @@ namespace Tenor.Web
             }
             else
             {
-                //Existe IResponseObject no cache.
+                //We found a IResponseObject on cache, lets get a Stream
 
-
-                //retirar o objeto do cache para processamento.
 
                 lock (messagesLock)
                 {
@@ -85,28 +77,28 @@ namespace Tenor.Web
                     Web.IResponseObject rObj = (IResponseObject)obj.Object;
                     app.Response.Clear();
                     Stream memres;
-                    //Chama o WriteContent implementado no objeto
+                    //Calls WriteContent to get a stream
                     memres = rObj.WriteContent();
 
                     if (memres == null || memres.Length <= 0)
                     {
-                        //o objeto gerou uma resposta inválida
+                        //We got an invalid stream
                         app.Context.AddError(new HttpException(404, "file not found"));
                         return; //404
                     }
-                    //descobrir o tipo mime pelo conteudo do arquivo
+                    //check mime type bases on file content.
                     obj.ContentType = GetMimeType(memres);
                     if (string.IsNullOrEmpty(obj.ContentType))
                     {
-                        //usar o tipo mime definido pelo objeto
+                        //get mime type from the object
                         obj.ContentType = rObj.ContentType;
                     }
 
-                    //enviar para o cliente os headers e o stream
+                    //write headers and stream
                     WriteHeaders(app, obj);
                     WriteStream(memres, app);
 
-                    //salvar no cache o stream gerado para posterior visualização
+                    //keeps the data on cache.
                     obj.Object = memres;
                     app.Context.Cache.Insert(Tenor.Configuration.TenorModule.IdPrefix + QueryString("id"), obj, null, System.Web.Caching.Cache.NoAbsoluteExpiration, new TimeSpan(0, 0, obj.Expires));
                     //              app.Context.Cache.Insert(IdPrefix & app.Request.QueryString("id"), obj, Nothing, Caching.Cache.NoAbsoluteExpiration, New TimeSpan(0, 0, obj.Expires), Caching.CacheItemPriority.Normal, AddressOf Cache_onItemRemoved)

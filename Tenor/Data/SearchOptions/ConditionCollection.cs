@@ -104,6 +104,7 @@ namespace Tenor.Data
         /// <param name="propertyName">The property name of the base class.</param>
         /// <param name="value">Some value.</param>
         /// <param name="compareOperator">The <see cref="CompareOperator"/>.</param>
+        /// <param name="castType">A valued-type to cast before comparing.</param>
         /// <returns>This instance.</returns>
         public ConditionCollection Add(string propertyName, object value, CompareOperator compareOperator, Type castType)
         {

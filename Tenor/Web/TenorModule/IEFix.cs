@@ -18,42 +18,41 @@ namespace Tenor.Web
         private void IEFixRequest(HttpApplication app)
         {
             //IEFix
-            //Este trecho verifica se a requisição é específica ao ie fix
 
-            //Carrega a assembly do ie fix
+            //Load iefix assembly:
             Assembly webUI = @Assembly.Load(new System.Reflection.AssemblyName(Configuration.Resources.AssemblyWebUI));
             if (webUI == null)
             {
                 return;
             }
 
-            //pega o content type apartir da extensão do arquivo
-            string contenttype = IO.BinaryFile.GetContentType(app.Request.Path);
+            //get the mimetype from file extension
+            string contentType = IO.BinaryFile.GetContentType(app.Request.Path);
 
-            string pasta = "/iefix/";
+            string basePath = "/iefix/";
 
-            string filepath = app.Request.Path.Substring(app.Request.Path.ToLower().IndexOf(pasta) + pasta.Length);
+            string filePath = app.Request.Path.Substring(app.Request.Path.ToLower().IndexOf(basePath) + basePath.Length);
 
-            UnmanagedMemoryStream file = (UnmanagedMemoryStream)(webUI.GetManifestResourceStream(Configuration.Resources.AssemblyRoot + "." + filepath));
+            UnmanagedMemoryStream file = (UnmanagedMemoryStream)(webUI.GetManifestResourceStream(Configuration.Resources.AssemblyRoot + "." + filePath));
             if (file == null || file.Length == 0)
             {
                 return; //404
             }
-            Dados dados = new Dados();
+            CacheData data = new CacheData();
 
-            if (string.IsNullOrEmpty(contenttype))
+            if (string.IsNullOrEmpty(contentType))
             {
-                dados.ContentType = GetMimeType(file);
+                data.ContentType = GetMimeType(file);
                 if (string.IsNullOrEmpty(app.Response.ContentType))
                 {
-                    dados.ContentType = "text/plain";
+                    data.ContentType = "text/plain";
                 }
             }
             else
             {
-                dados.ContentType = contenttype;
+                data.ContentType = contentType;
             }
-            WriteHeaders(app, dados);
+            WriteHeaders(app, data);
 
             WriteStream(file, app);
             file.Close();

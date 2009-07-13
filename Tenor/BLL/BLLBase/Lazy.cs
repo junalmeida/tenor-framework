@@ -35,19 +35,21 @@ namespace Tenor.BLL
         /// </summary>
         /// <param name="propertyName">Property name whose set will be called to set data.</param>
         /// <param name="lazyLoading">Defines weather to enable the lazy loading.</param>
+        /// <param name="connection">The connection.</param>
+        /// <param name="returnType">The return type of the property.</param>
         /// <remarks></remarks>
-        internal object LoadForeign(string property, bool LazyLoading, Type returnType, ConnectionStringSettings connection) 
+        internal object LoadForeign(string propertyName, bool lazyLoading, Type returnType, ConnectionStringSettings connection) 
         {
-            if (!propertyData.ContainsKey(property))
+            if (!propertyData.ContainsKey(propertyName))
             {
                 System.Reflection.PropertyInfo fieldP = null;
                 if (returnType != null)
                 {
-                    fieldP = this.GetType().GetProperty(property, returnType);
+                    fieldP = this.GetType().GetProperty(propertyName, returnType);
                 }
                 else
                 {
-                    fieldP = this.GetType().GetProperty(property);
+                    fieldP = this.GetType().GetProperty(propertyName);
                 }
                 ForeignKeyInfo field = ForeignKeyInfo.Create(fieldP);
                 if (field == null)
@@ -71,7 +73,7 @@ namespace Tenor.BLL
                         {
                             field.ForeignFields[i].SetPropertyValue(instance, field.LocalFields[i].PropertyValue(this));
                         }
-                        instance.Bind(LazyLoading);
+                        instance.Bind(lazyLoading);
                         field.SetPropertyValue(this, instance);
                         return instance;
                     }
@@ -79,7 +81,7 @@ namespace Tenor.BLL
 
 
                 SearchOptions sc = new SearchOptions(field.ElementType);
-                sc.LazyLoading = LazyLoading;
+                sc.LazyLoading = lazyLoading;
 
 
 
@@ -113,27 +115,27 @@ namespace Tenor.BLL
                 {
                     if (field.RelatedProperty.PropertyType.IsArray)
                     {
-                        propertyData.Add(property, instances);
+                        propertyData.Add(propertyName, instances);
                     }
                     else
                     {
                         //It must have another way to create it, string is not cool.
                         Type listof = Type.GetType("Tenor.BLL.BLLCollection`1[[" + field.ElementType.AssemblyQualifiedName + "]]");
                         System.Reflection.ConstructorInfo ctor = listof.GetConstructor(System.Reflection.BindingFlags.CreateInstance | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic, null, new Type[] { typeof(BLLBase), typeof(string) }, null);
-                        IList obj = (IList)ctor.Invoke(new object[] { (BLLBase)this, property });
+                        IList obj = (IList)ctor.Invoke(new object[] { (BLLBase)this, propertyName });
                         obj.Clear();
                         foreach (BLLBase i in instances)
                         {
                             obj.Add(i);
                         }
-                        propertyData.Add(property, obj);
+                        propertyData.Add(propertyName, obj);
                     }
                 }
                 else
                 {
                     if (instances.Length == 0)
                     {
-                        propertyData.Add(property, null);
+                        propertyData.Add(propertyName, null);
                     }
                     else
                     {
@@ -141,11 +143,11 @@ namespace Tenor.BLL
                         {
                             throw new ManyRecordsFoundException();//"LoadingForeignKey-ManyToOne: More than one instance was returned");
                         }
-                        propertyData.Add(property, instances[0]);
+                        propertyData.Add(propertyName, instances[0]);
                     }
                 }
             }
-            return propertyData[property];
+            return propertyData[propertyName];
         }
 
         private string GetCallingProperty()
@@ -176,7 +178,6 @@ namespace Tenor.BLL
         /// Gets the object of a lazy loaded property.
         /// This call can do a database access.
         /// </summary>
-        /// <param name="propertyName"></param>
         /// <returns>An object with the loaded value.</returns>
         protected object GetPropertyValue()
         {

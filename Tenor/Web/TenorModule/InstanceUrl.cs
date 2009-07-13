@@ -225,10 +225,5 @@ namespace Tenor.Web
             return uri;
         }
 
-
-
-
     }
-
-
 }

@@ -17,11 +17,11 @@ namespace Tenor.Web
     {
 
 
-        private string[] Fonts = new string[] { "Brush Script MT", "Comic Sans MS", "Times New Roman" };
-        private int[] FontSize = new int[] { 14, 10, 10 };
-        private const string vTestes = "Versão de Testes";
+        private string[] defaultFonts = new string[] { "Brush Script MT", "Comic Sans MS", "Times New Roman" };
+        private int[] fontSizes = new int[] { 14, 10, 10 };
+        private const string placeHolderStamp = "PlaceHolder";
 
-        private void CorAleatoria(ref Color ForeColor, ref Color BackColor)
+        private void GenerateRamdomColors(out Color foreColor, out Color backColor)
         {
 
 
@@ -52,11 +52,11 @@ namespace Tenor.Web
             int b = rnd.Next(0, 255);
 
 
-            ForeColor = Color.FromArgb(255, r, g, b);
-            BackColor = Color.FromArgb(127, 255 - r, 255 - g, 255 - b);
+            foreColor = Color.FromArgb(255, r, g, b);
+            backColor = Color.FromArgb(127, 255 - r, 255 - g, 255 - b);
         }
 
-        private void DynamicImageRequest(HttpApplication App, string ButtonText)
+        private void DynamicImageRequest(HttpApplication App, string buttonText)
         {
 
             if (App == null)
@@ -81,12 +81,12 @@ namespace Tenor.Web
 
 
             Font font = null;
-            for (int i = 0; i <= Fonts.Length - 1; i++)
+            for (int i = 0; i <= defaultFonts.Length - 1; i++)
             {
                 try
                 {
-                    FontFamily ff = new FontFamily(Fonts[i]);
-                    font = new Font(ff, FontSize[i], FontStyle.Italic, GraphicsUnit.Point);
+                    FontFamily ff = new FontFamily(defaultFonts[i]);
+                    font = new Font(ff, fontSizes[i], FontStyle.Italic, GraphicsUnit.Point);
 
                     goto endOfForLoop;
                 }
@@ -106,7 +106,7 @@ namespace Tenor.Web
             Graphics gr;
             img = new Bitmap(115, 30);
             gr = Graphics.FromImage(img);
-            SizeF textSize = gr.MeasureString(ButtonText, font);
+            SizeF textSize = gr.MeasureString(buttonText, font);
             gr.Dispose();
             img.Dispose();
 
@@ -164,10 +164,10 @@ namespace Tenor.Web
             point.X = System.Convert.ToSingle((width / 2) - (textSize.Width / 2));
             point.Y = System.Convert.ToSingle(((height - 5) / 2) - (textSize.Height / 2));
 
-            VersaoTestes(gr, height);
+            DrawPlaceHolderStamp(gr, height);
 
-            gr.DrawString(ButtonText, font, Brushes.White, point);
-            gr.DrawString(ButtonText, font, Brushes.Black, point.X - 1, point.Y - 1);
+            gr.DrawString(buttonText, font, Brushes.White, point);
+            gr.DrawString(buttonText, font, Brushes.Black, point.X - 1, point.Y - 1);
 
             gr.DrawRectangle(new Pen(System.Drawing.Color.Cyan, 3), new Rectangle(0, 0, width - 1, height - 1));
 
@@ -180,29 +180,29 @@ namespace Tenor.Web
 
 
 
-            Dados dados = new Dados();
+            CacheData dados = new CacheData();
             dados.ContentType = "image/png";
             dados.ContentLength = mem.Length;
             WriteHeaders(App, dados);
             WriteStream(mem, App);
         }
 
-        private void VersaoTestes(Graphics gr, int height)
+        private void DrawPlaceHolderStamp(Graphics gr, int height)
         {
 
             Font font = new Font(new FontFamily("Arial"), 9, FontStyle.Bold, GraphicsUnit.Point);
 
-            SizeF tam = gr.MeasureString(vTestes, font);
+            SizeF tam = gr.MeasureString(placeHolderStamp, font);
 
             PointF point = new PointF(0, height - tam.Height);
 
             Color backColor = System.Drawing.Color.White;
             Color foreColor = System.Drawing.Color.Black;
-            CorAleatoria(ref foreColor, ref backColor);
+            GenerateRamdomColors(out foreColor, out backColor);
 
             gr.FillRectangle(new SolidBrush(backColor), new RectangleF(point, tam));
 
-            gr.DrawString("Versão de Testes", font, new SolidBrush(foreColor), point);
+            gr.DrawString(placeHolderStamp, font, new SolidBrush(foreColor), point);
 
         }
 

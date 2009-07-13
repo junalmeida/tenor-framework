@@ -21,19 +21,19 @@ namespace Tenor.Web
     /// <summary>
     /// The TenorModule is an HttpModule to handle database, graphical and other http requests.
     /// </summary>
-    public partial class TenorModule : IHttpModule //, System.Web.SessionState.IReadOnlySessionState
+    public sealed partial class TenorModule : IHttpModule, System.Web.SessionState.IReadOnlySessionState
     {
-        /*
-        #region " Gambiarra - Session State "
+        
+        #region " Hack - Session State "
 
-        private class MyHttpHandler : IHttpHandler, IRequiresSessionState
+        private class MyHttpHandler : IHttpHandler, System.Web.SessionState.IRequiresSessionState
         {
 
 
-            internal readonly IHttpHandler OriginalHandler;
+            internal readonly IHttpHandler originalHandler;
             public MyHttpHandler(IHttpHandler originalHandler)
             {
-                originalHandler = originalHandler;
+                this.originalHandler = originalHandler;
             }
 
             public bool IsReusable
@@ -50,15 +50,12 @@ namespace Tenor.Web
 
             }
         }
-        //Public Const PublicadorExtensao As String = ".axd/"
-
-
 
         private void Application_PostAcquireRequestState(object sender, EventArgs e)
         {
 
             HttpApplication app = (HttpApplication)sender;
-            if (app.Context.Request.RawUrl.ToLower().Contains(Configuration.HttpModule.HandlerFileName.ToLower()))
+            if (app.Context.Request.RawUrl.ToLower().Contains(Configuration.TenorModule.HandlerFileName.ToLower()))
             {
 
                 MyHttpHandler resourceHttpHandler = HttpContext.Current.Handler as MyHttpHandler;
@@ -67,19 +64,20 @@ namespace Tenor.Web
 
                 if (resourceHttpHandler != null)
                 {
-                    HttpContext.Current.Handler = resourceHttpHandler.OriginalHandler;
+                    HttpContext.Current.Handler = resourceHttpHandler.originalHandler;
                 }
-                //System.Diagnostics.Debug.Assert(app.Session Is Nothing, "it did not work :(")
+                //System.Diagnostics.Debug.Assert(app.Session == null, "oops, it did not work :(");
+
             }
         }
 
         private void Application_PostMapRequestHandler(object sender, EventArgs e)
         {
             HttpApplication app = (HttpApplication)sender;
-            if (app.Context.Request.RawUrl.ToLower().Contains(Configuration.HttpModule.HandlerFileName.ToLower()))
+            if (app.Context.Request.RawUrl.ToLower().Contains(Configuration.TenorModule.HandlerFileName.ToLower()))
             {
 
-                if (app.Context.Handler is IReadOnlySessionState || app.Context.Handler is IRequiresSessionState)
+                if (app.Context.Handler is System.Web.SessionState.IReadOnlySessionState || app.Context.Handler is System.Web.SessionState.IRequiresSessionState)
                 {
                     return;
                 }
@@ -87,7 +85,7 @@ namespace Tenor.Web
             }
         }
         #endregion
-        */
+        
 
 
 
@@ -124,93 +122,91 @@ namespace Tenor.Web
 
         void IHttpModule.Init(System.Web.HttpApplication app)
         {
-            //' SessÃ£o.
-            //app.PostAcquireRequestState += new System.EventHandler(Application_PostAcquireRequestState);
-            //app.PostMapRequestHandler += new System.EventHandler(Application_PostMapRequestHandler);
-            //'---
+            //-- Session Hack.
+            //will be called before AcquireRequestState
+            app.PostMapRequestHandler += new System.EventHandler(Application_PostMapRequestHandler);
+            //will be called after AcquireRequestState
+            app.PostAcquireRequestState += new System.EventHandler(Application_PostAcquireRequestState);
+            //---
 
             app.AcquireRequestState += new System.EventHandler(AcquireRequestState);
             app.Error += new System.EventHandler(Application_Error);
         }
 
         /// <summary>
-        /// FunÃ§Ã£o chamada a cada requisiÃ§Ã£o ao servidor.
-        /// Este Ã© o mÃ©todo responsÃ¡vel pela maior parte do trabalho deste HttpModule.
-        /// EstÃ¡ dividido em trÃªs partes:
+        /// This method is called on each server request. Everything starts here.
+        /// This module have three sections:
         /// 1: TinyMCE, IEFix
-        ///   Nesta seÃ§Ã£o ele irÃ¡ retornar o arquivo requisitado pelo componente javascript TinyMCE, presente na dll TinyMCE.
-        ///   Esta dll Ã© requerida pelo controle TextBox da Web.UI quando utilizado como um RichText control.
-        /// 2: Controle do tipo IResponseObject
-        ///   Nesta seÃ§Ã£o ele irÃ¡ preparar para manipular a requisiÃ§Ã£o. Ã‰ neste momento que a imagem ou arquivo estÃ¡ sendo requisitado pelo navegador.
-        ///   Se for a primeira chamada deste objeto, o mesmo estarÃ¡ no cache (Dados.Object) e serÃ¡ chamado o metodo WriteContent.
-        ///   O resultado serÃ¡ armazenado no cache no mesmo campo Dados.Object para posteriores chamadas de cache.
-        /// 3: RequisiÃ§Ã£o direta de dados, chamado aqui de InstanceRequest
-        ///   Nesta seÃ§Ã£o ele irÃ¡ procurar uma classe fornecida pela querystring (class), passando um parÃ¢metro (Integer) para um construtor da classe fazendo assim
-        ///   a conexÃ£o com o banco para pegar o id selecionado. A classe fornecida precisa implementar IResponseObject ou possuir uma propriedade que retorne uma instancia
-        ///   de iResponseObject. Para este segundo caso, a propriedade precisa ter o atributo ResponseProperty.
+        ///   The requested file of the javascript component will be processed by this section.
+        /// 2: IResponseObject 
+        ///   The file or image is being requested by the client. If this is the first call to this object, it will not be on the cache and WriteContent will be called. Otherwised, the cache instance will be provided.
+        /// 3: InstanceRequest
+        ///   Here, an instance of the desired class will be created using the provided parameter. 
+        ///   The class must implement IResponseObject or declare a Property with a ResponsePropertyAttribute defined.
         /// </summary>
-        /// <param name="sender">HttpApplication</param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        protected void AcquireRequestState(object sender, EventArgs e)
+        void AcquireRequestState(object sender, EventArgs e)
         {
 
             HttpApplication app = (HttpApplication)sender;
             string path = app.Request.Path.ToLower();
             if (path.Contains(Tenor.Configuration.TenorModule.HandlerFileName.ToLower() + "/tiny_mce/"))
             {
-                //RequisiÃ§Ã£o do TinyMCE
-                //Ver arquivo TinyMCE.vb
+                //TinyMCE
+                //See TinyMCE.cs
                 TinyMCERequest(app);
             }
             else if (path.Contains(Tenor.Configuration.TenorModule.HandlerFileName.ToLower() + "/iefix/"))
             {
-                //RequisiÃ§Ã£o do IEFix
-                //Ver arquivo IEFix.vb
+                //IEFix
+                //See IEFix.cs
                 IEFixRequest(app);
             }
             else if (path.Contains(Tenor.Configuration.TenorModule.HandlerFileName.ToLower()))
             {
                 if (!string.IsNullOrEmpty(QueryString("id")))
                 {
-                    //Caso contenha um ID que seja uma GUID, requisiÃ§Ã£o de Cache.
-                    //ver ObjectRequest.vb
+                    //If we have a GUID, tries ResponseObjectRequest:
+                    //See ObjectRequest.cs
                     ResponseObjectRequest(app);
                 }
                 else if (!string.IsNullOrEmpty(QueryString("c")))
                 {
-                    //Caso contenha dados em C, RequisiÃ§Ã£o de Chart
-                    //ver Chart.vb
+                    //TODO: Check if we really need this component.
+                    //If we have a 'c' (class) tries ChartRequest
+                    //See Chart.cs
                     //ChartRequest(app);
-
                 }
                 else if (!string.IsNullOrEmpty(QueryString("cl")))
                 {
-                    //Caso contenha um nome de classe em CL.
-                    //ver InstanceRequest.vb
+                    //If we have a CL, tries IntanceRequest.
+                    //See InstanceRequest.cs
                     InstanceRequest(app);
                 }
                 else if (!string.IsNullOrEmpty(QueryString("captcha")))
                 {
-                    //RequisiÃ§Ãµes de Capcha. Ainda nÃ£o implementado 100%.
+                    //If we have captcha, tries CaptchaRequest.
                     if (string.IsNullOrEmpty(QueryString("audio")))
                     {
+                        //Image captcha request
                         CaptchaRequest(QueryString("captcha"));
                     }
                     else
                     {
+                        //Audio captcha request
                         CaptchaAudioRequest(QueryString("captcha"));
                     }
+                    //See Captcha.cs
                 }
                 else if (!string.IsNullOrEmpty(QueryString("clear")))
                 {
                     //clear cache
-                    //ver Cache.vb
+                    //see Cache.cs
                     ClearCache(app, QueryString("clear"), QueryString("p1"), true);
                 }
                 else if (!string.IsNullOrEmpty(QueryString("bt")))
                 {
-
+                    //Placeholder Image
+                    //See DynamicImageButton.cs
                     this.DynamicImageRequest(app, QueryString("bt"));
 
                 }
@@ -220,12 +216,10 @@ namespace Tenor.Web
 
 
         /// <summary>
-        /// Envia para o cliente os headers do documento
+        /// Write document headers to the client.
         /// </summary>
-        /// <param name="app">Aplicativo atual</param>
-        /// <param name="dados">Uma instancia de Dados</param>
         /// <remarks></remarks>
-        private void WriteHeaders(HttpApplication app, Dados dados)
+        private void WriteHeaders(HttpApplication app, CacheData dados)
         {
             app.Response.ContentType = dados.ContentType;
             app.Response.AddHeader("Content-Length", dados.ContentLength.ToString());
@@ -304,68 +298,61 @@ namespace Tenor.Web
 
 
         /// <summary>
-        /// Armazena os dados necessÃ¡rio para o ciclo de vida do HttpModule.
+        /// This is an internal DTO to keep cache data of this module.
         /// </summary>
-        /// <remarks></remarks>
-        private class Dados
+        private class CacheData
         {
 
-            public Dados()
+            public CacheData()
             {
                 LastModified = DateTime.Now;
             }
 
             /// <summary>
-            /// ContÃ©m o objeto Ã  ser reproduzido na primeira chamada.
-            /// ApÃ³s a primeira chamada, este campo guarda o stream gerado pelo objeto para ser utilizado durante a vida do cache.
+            /// Stores an instance of IResponsObject that will be called to generate the stream on first call.
             /// </summary>
-            /// <remarks></remarks>
             public object @Object;
 
             /// <summary>
-            /// Tempo de vida do cache em segundos.
+            /// The time in seconds that this object will expires.
             /// </summary>
-            /// <remarks></remarks>
             public int Expires;
 
             /// <summary>
-            /// Indica se o cliente irÃ¡ sempre baixar o arquivo ou exibi-lo na janela do navegador quando possÃ­vel
+            /// If true, tries to force the web browser to download data intead of showing it.
             /// </summary>
-            /// <remarks></remarks>
             public bool ForceDownload;
 
             /// <summary>
-            /// Indica o nome do arquivo para enviar ao navegador do cliente.
+            /// Defines the file name to send to the web browser.
             /// </summary>
-            /// <remarks></remarks>
             public string FileName;
 
             /// <summary>
-            /// Indica o tipo mime que serÃ¡ reconhecido pelo navegador do cliente.
+            /// Defines the mime type of this file.
             /// </summary>
-            /// <remarks></remarks>
             public string ContentType;
 
             /// <summary>
-            /// Indica o tamanho em bytes do arquivo
+            /// Defines the content lenth in bytes.
             /// </summary>
-            /// <remarks></remarks>
             public long ContentLength;
 
             /// <summary>
-            /// Data de modificaÃ§Ã£o do arquivo.
+            /// Defines the file modificated date.
             /// </summary>
-            /// <remarks></remarks>
             public DateTime LastModified;
 
             /// <summary>
-            /// ETag
+            /// The ETag. An ETag (entity tag) is an HTTP response header returned by an HTTP/1.1 compliant web server used to determine change in content at a given URL.
+            /// When a new HTTP response contains the same ETag as an older HTTP response, the contents are considered to be the same without further downloading.
             /// </summary>
-            /// <remarks></remarks>
             public string ETag
             {
                 get
                 {
+                    //TODO: Check if this code is ok.
+
                     StringBuilder builder = new StringBuilder();
                     long num = DateTime.Now.ToFileTime();
                     long num2 = LastModified.ToFileTime();

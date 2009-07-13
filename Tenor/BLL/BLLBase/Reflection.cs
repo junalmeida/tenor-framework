@@ -16,6 +16,7 @@ namespace Tenor.BLL
         }
         /// <summary>
         /// </summary>
+        /// <param name="instanceType">The type of the instance.</param>
         /// <param name="isPrimaryKey">True to get only primary keys, false to get only non-primary key fields, and null to get everything.</param>
         internal static FieldInfo[] GetFields(Type instanceType, bool? isPrimaryKey)
         {
@@ -25,11 +26,13 @@ namespace Tenor.BLL
 
         /// <summary>
         /// </summary>
+        /// <param name="instanceType">The type of the instance.</param>
+        /// <param name="filter"></param>
         /// <param name="isPrimaryKey">True to get only primary keys, false to get only non-primary key fields, and null to get everything.</param>
-        internal static FieldInfo[] GetFields(Type InstanceType, bool? isPrimaryKey, string[] filter)
+        internal static FieldInfo[] GetFields(Type instanceType, bool? isPrimaryKey, string[] filter)
         {
             List<FieldInfo> returnValue = new List<FieldInfo>();
-            foreach (System.Reflection.PropertyInfo i in InstanceType.GetProperties())
+            foreach (System.Reflection.PropertyInfo i in instanceType.GetProperties())
             {
 
                 FieldInfo field = FieldInfo.Create(i); 

@@ -50,7 +50,7 @@ namespace Tenor.BLL
         /// Binds this entity instance to database data using current data of <paramref name="filterMembers">Filter Members</paramref>.
         /// </summary>
         /// <param name="lazyLoading">Defines weather lazy loading is enabled.</param>
-        /// <param name="FilterMembers">Property members used to filter data.</param>
+        /// <param name="filterMembers">Property members used to filter data.</param>
         /// <remarks></remarks>
         protected void Bind(bool lazyLoading, string[] filterMembers)
         {
@@ -178,6 +178,7 @@ namespace Tenor.BLL
         /// <param name="autoKeyField">Outputs the autonumber FieldInfo.</param>
         /// <param name="specialValues">The special values can contains sql sentences/sequences/etc</param>
         /// <param name="connection">The Connection.</param>
+        /// <param name="dialect"></param>
         /// <returns>Return a SQL query string.</returns>
         internal string GetSaveSql(bool isUpdate, ConnectionStringSettings connection, System.Collections.Specialized.NameValueCollection specialValues, out FieldInfo autoKeyField, out TenorParameter[] parameters, out GeneralDialect dialect)
         {

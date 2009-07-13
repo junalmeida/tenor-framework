@@ -15,10 +15,8 @@ namespace Tenor.Web
 {
     public partial class TenorModule
     {
-
-
         /// <summary>
-        /// Limpa o cache desta aplicação
+        /// Clears all the TenorModule cache.
         /// </summary>
         /// <remarks></remarks>
         public static void ClearCache()
@@ -27,17 +25,14 @@ namespace Tenor.Web
         }
 
         /// <summary>
-        /// Limpa o cache de uma instancia específica.
+        /// Removes an instance from the cache.
         /// </summary>
-        /// <param name="Type"></param>
-        /// <param name="p1"></param>
-        /// <remarks></remarks>
-        public static void ClearCache(Type Type, int p1)
+        public static void ClearCache(Type type, int p1)
         {
             HttpContext context = HttpContext.Current;
-            if (Type != null)
+            if (type != null)
             {
-                string anamespace = Tenor.Text.Strings.ToAscHex(Type.FullName);
+                string anamespace = Tenor.Text.Strings.ToAscHex(type.FullName);
                 ClearCache(context.ApplicationInstance, anamespace, Convert.ToString(p1), false);
             }
             else
@@ -48,20 +43,19 @@ namespace Tenor.Web
 
 
         /// <summary>
-        /// Função genérica para limpar o cache.
-        ///
+        /// Method that holds all cache logic.
         /// </summary>
-        /// <param name="app"></param>
-        /// <param name="ClassName">Nome da classe em string ou 'all' para limpeza geral.</param>
-        /// <param name="p1">Parâmetro de limpeza.</param>
-        /// <param name="OutputStatus">Se verdadeiro exibe na tela o estado da limpeza.</param>
+        /// <param name="app">The application instance.</param>
+        /// <param name="className">A string with a class name or 'all' to clear all the cache.</param>
+        /// <param name="p1">The first parameter..</param>
+        /// <param name="outputStatus">If true, shows up on response the resume of this operation.</param>
         /// <remarks></remarks>
-        private static void ClearCache(HttpApplication app, string ClassName, string p1, bool OutputStatus)
+        private static void ClearCache(HttpApplication app, string className, string p1, bool outputStatus)
         {
             System.Text.StringBuilder lista = new System.Text.StringBuilder();
 
             System.Web.Caching.Cache Cache = app.Context.Cache;
-            if (ClassName == "none")
+            if (className == "none")
             {
                 foreach (System.Collections.DictionaryEntry item in Cache)
                 {
@@ -74,7 +68,7 @@ namespace Tenor.Web
                     }
                 }
             }
-            else if (ClassName == "all")
+            else if (className == "all")
             {
                 foreach (System.Collections.DictionaryEntry item in Cache)
                 {
@@ -86,14 +80,14 @@ namespace Tenor.Web
                 foreach (System.Collections.DictionaryEntry item in Cache)
                 {
                     string key = item.Key.ToString();
-                    if (key.Contains("cl=" + ClassName) && key.Contains("p1=" + p1))
+                    if (key.Contains("cl=" + className) && key.Contains("p1=" + p1))
                     {
                         Cache.Remove(key);
                     }
                 }
             }
 
-            if (OutputStatus)
+            if (outputStatus)
             {
                 try
                 {

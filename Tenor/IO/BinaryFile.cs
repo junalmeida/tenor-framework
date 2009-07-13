@@ -21,7 +21,7 @@ namespace Tenor.IO
         /// <param name="path">Full, partial path or just the extension (with dot) of the desired file.</param>
         /// <returns>A string with the mime type.</returns>
         /// <remarks>
-        /// Uses the internal mime.xml to define the mime type.
+        /// Uses an internal mime type mapping to define the mime type.
         /// </remarks>
         public static string GetContentType(string path)
         {

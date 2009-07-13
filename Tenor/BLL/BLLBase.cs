@@ -28,7 +28,7 @@ namespace Tenor.BLL
     /// <remarks>
     /// You can use the MyGeneration Template on file BLLBased.zeus to create your classes.
     /// </remarks>
-    /// <seealso cref="zeus.htm"/> 
+    ///// <seealso cref="zeus.htm"/> 
     [Serializable()]
     public abstract partial class BLLBase : object
     {
@@ -209,6 +209,7 @@ namespace Tenor.BLL
         /// Saves this entity data on the persistence layer.
         /// </summary>
         /// <param name="isUpdate">Force an Update instead of an Insert statement.</param>
+        /// <param name="connection">The connection.</param>
         /// <remarks>This method calls the Validate method and only continue if True is returned. You can override the Validate method to create entity validation logic.</remarks>
         public virtual void Save(bool isUpdate, ConnectionStringSettings connection)
         {
@@ -273,7 +274,7 @@ namespace Tenor.BLL
         /// Saves this entity data on the persistence layer only if the entity does not exists when canUpdate is false. Otherwise, creates a new record or updates an existing one.
         /// </summary>
         /// <param name="conditionalProperty">The property name to check using its value.</param>
-        /// <param name="isUpdate">If true, specifies that if a record existis, it will be updated. Otherwise, if a record exists, nothing will be done.</param>
+        /// <param name="canUpdate">If true, specifies that if a record existis, it will be updated. Otherwise, if a record exists, nothing will be done.</param>
         public virtual bool SaveConditional(string conditionalProperty, bool canUpdate)
         {
             return SaveConditional(new string[] { conditionalProperty }, canUpdate);
@@ -283,7 +284,7 @@ namespace Tenor.BLL
         /// Saves this entity data on the persistence layer only if the entity does not exists when canUpdate is false. Otherwise, creates a new record or updates an existing one.
         /// </summary>
         /// <param name="conditionalProperties">An array of properties to check using its values.</param>
-        /// <param name="isUpdate">If true, specifies that if a record existis, it will be updated. Otherwise, if a record exists, nothing will be done.</param>
+        /// <param name="canUpdate">If true, specifies that if a record existis, it will be updated. Otherwise, if a record exists, nothing will be done.</param>
         public virtual bool SaveConditional(string[] conditionalProperties, bool canUpdate)
         {
             return SaveConditional(conditionalProperties, canUpdate, null);
@@ -552,9 +553,9 @@ namespace Tenor.BLL
         /// Search for objects on the collection.
         /// </summary>
         /// <param name="items">An array of entities.</param>
-        /// <param name="propertyExpression">The property name used to match entities. You can use dot (.) separated properties to go down on the class.</param>
-        /// <param name="value">The value desired.</param>
-        /// <param name="compareOperator">An array of compare operators used against the properties.</param>
+        /// <param name="propertyExpressions">An array of property names used to match entities. You can use dot (.) separated properties to go down on the class.</param>
+        /// <param name="values">A list of values.</param>
+        /// <param name="compareOperators">An array of compare operators used against the properties.</param>
         /// <param name="logicalOperators">An array of logical operators used to join the comparisons. Notice that this array must have one item less than the other arrays.</param>
         /// <returns>An array of objects.</returns>
         public static T[] FindAll<T>(T[] items, string[] propertyExpressions, object[] values, Tenor.Data.CompareOperator[] compareOperators, Tenor.Data.LogicalOperator[] logicalOperators) where T : BLLBase

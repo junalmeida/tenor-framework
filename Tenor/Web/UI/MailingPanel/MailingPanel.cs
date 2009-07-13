@@ -24,9 +24,11 @@ namespace Tenor.Web.UI.WebControls.Core
     {
 
 
-
+        /// <summary>
+        /// Determines if the Text property of checkboxes will be used as template keys.
+        /// </summary>
         [DefaultValue(true)]
-        [Description("Indica se deve usar o Text das checkboxes como identificador de campo."), Category("Behavior")]
+        [Description("Determines if the Text property of checkboxes will be used as template keys."), Category("Behavior")]
         public bool UseTextForCheckbox
         {
             get
@@ -47,15 +49,12 @@ namespace Tenor.Web.UI.WebControls.Core
         }
 
         /// <summary>
-        /// Contém a URL de um modelo para utilizar. Caso não seja especificado, um modelo padrão será adotado.
+        /// Gets or sets a url with a template to use. If not set, a default template will be loaded.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [
         UrlProperty("*.htm;*.html;*.txt"),
         Editor("System.Web.UI.Design.UrlEditor", "System.Drawing.Design.UITypeEditor"),
-        Description("Contém a URL de um modelo para utilizar. Caso não seja especificado, um modelo padrão será adotado."),
+        Description("Gets or sets a url with a template to use. If not set, a default template will be loaded."),
         Category("Layout")
         ]
         public string TemplateUrl
@@ -77,6 +76,11 @@ namespace Tenor.Web.UI.WebControls.Core
             }
         }
 
+        /// <summary>
+        /// Gets or sets a list of emails that the message will be sent to.
+        /// </summary>
+        [Description("Gets or sets a list of emails that the message will be sent to."),
+        Category("Behavior")]
         public string EmailTos
         {
             get
@@ -96,6 +100,12 @@ namespace Tenor.Web.UI.WebControls.Core
             }
         }
 
+
+        /// <summary>
+        /// Gets or sets the subject of the message.
+        /// </summary>
+        [Description("Gets or sets the subject of the message."),
+        Category("Behavior")]
         public string EmailSubject
         {
             get
@@ -115,6 +125,11 @@ namespace Tenor.Web.UI.WebControls.Core
             }
         }
 
+        /// <summary>
+        /// Gets or sets the from of the message.
+        /// </summary>
+        [Description("Gets or sets the from of the message."),
+        Category("Behavior")]
         public string EmailFrom
         {
             get
@@ -134,21 +149,19 @@ namespace Tenor.Web.UI.WebControls.Core
             }
         }
 
+        private const string defaultErrorMessage = "Your message could not be sent. Please, try again later.";
         /// <summary>
-        /// Mensagem de erro a ser exibida quando o processo não tiver sucesso.
+        /// Gets or sets the error message to be shown when the message is not sent.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        [DefaultValue("Não foi possível enviar a mensagem. Por favor tente novamente mais tarde.")]
-        [Description("Mensagem de erro a ser exibida quando o processo não tiver sucesso."), Category("Behavior")]
+        [DefaultValue(defaultErrorMessage)]
+        [Description("Gets or sets the error message to be shown when the message is not sent."), Category("Behavior")]
         public string ErrorMessage
         {
             get
             {
                 if (ViewState["ErrorMessage"] == null)
                 {
-                    return "Não foi possível enviar a mensagem. Por favor tente novamente mais tarde.";
+                    return defaultErrorMessage;
                 }
                 else
                 {
@@ -163,12 +176,9 @@ namespace Tenor.Web.UI.WebControls.Core
 
 
         /// <summary>
-        /// Prefixo dos campos que serão utilizados no envio da mensagem. Caso esta propriedade não seja preenchida, todos os campos serão usados.
+        /// Gets or sets the id prefix of all controls that will be used to build the message. If not set, all controls defined inside will be used.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        [Description("Prefixo dos campos que serão utilizados no envio da mensagem. Caso esta propriedade não seja preenchida, todos os campos serão usados."), Category("Behavior")]
+        [Description("Gets or sets the id prefix of all controls that will be used to build the message. If not set, all controls defined inside will be used."), Category("Behavior")]
         public string FieldPrefix
         {
             get
@@ -189,13 +199,10 @@ namespace Tenor.Web.UI.WebControls.Core
         }
 
         /// <summary>
-        /// Nome de um IButtonControl para ativar a ação de envio.
+        /// Gets or sets the id of a <see cref="IButtonControl"/> that will activate this control to send the message.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [TypeConverter(typeof(AssociatedControlConverter)), IDReferenceProperty()]
-        [Description("Nome de um IButtonControl para ativar a ação de envio."), Category("Behavior")]
+        [Description("Gets or sets the id of a IButtonControl that will activate this control to send the message."), Category("Behavior")]
         public string SendButton
         {
             get
@@ -217,7 +224,7 @@ namespace Tenor.Web.UI.WebControls.Core
 
         [Browsable(false),
         EditorBrowsable(EditorBrowsableState.Never),
-        Obsolete("Propriedade não disponível.", true)]
+        Obsolete("This property is not available.", true)]
         private new int ActiveViewIndex
         {
             get
@@ -230,11 +237,15 @@ namespace Tenor.Web.UI.WebControls.Core
             }
         }
 
+
         protected override System.Web.UI.ControlCollection CreateControlCollection()
         {
             return new MailingViewCollection(this);
         }
 
+        /// <summary>
+        /// Gets a the views collection.
+        /// </summary>
         public new MailingViewCollection Views
         {
             get
@@ -244,7 +255,7 @@ namespace Tenor.Web.UI.WebControls.Core
         }
 
         /// <summary>
-        /// Referência à View do formulário.
+        /// Gets the FormView of this MailingPanel.
         /// </summary>
         /// <value></value>
         /// <returns></returns>
@@ -261,14 +272,14 @@ namespace Tenor.Web.UI.WebControls.Core
                 }
                 else
                 {
-                    throw (new InvalidOperationException("Cannot find FormView"));
+                    throw (new InvalidOperationException("Cannot find the FormView."));
                 }
                 return vw;
             }
         }
 
         /// <summary>
-        /// Referência à View de resultado.
+        /// Gets the ResultView of this MailingPanel.
         /// </summary>
         /// <value></value>
         /// <returns></returns>
@@ -285,7 +296,7 @@ namespace Tenor.Web.UI.WebControls.Core
                 }
                 else
                 {
-                    throw (new InvalidOperationException("Cannot find ResultView"));
+                    throw (new InvalidOperationException("Cannot find the ResultView."));
                 }
                 return vw;
             }
@@ -293,7 +304,7 @@ namespace Tenor.Web.UI.WebControls.Core
 
         protected override void OnPreRender(System.EventArgs e)
         {
-            Page.ClientScript.RegisterClientScriptResource(typeof(System.Web.UI.WebControls.Image), "WebForms.js");
+            Page.ClientScript.RegisterClientScriptResource(typeof(System.Web.UI.WebControls.MultiView), "WebForms.js");
             base.OnPreRender(e);
         }
 

@@ -15,9 +15,15 @@ using System.Security.Permissions;
 
 namespace Tenor.Web.UI.WebControls.Core
 {
+    /// <summary>
+    /// Represents the form on a <see cref="MailingPanel"/> control.
+    /// </summary>
     public class FormView : View
     { }
 
+    /// <summary>
+    /// Represents the results on sending a message on a <see cref="MailingPanel"/> control.
+    /// </summary>
     public class ResultView : View
     { }
 }

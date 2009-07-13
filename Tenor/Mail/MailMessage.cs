@@ -12,122 +12,95 @@ namespace Tenor.Mail
 {
 
     /// <summary>
-    /// Envia emails utilizando modelos em texto ou html.
+    /// The MailMessage class can be used to send emails using either text and html templates.
     /// </summary>
-    /// <remarks></remarks>
     public class MailMessage : System.Net.Mail.MailMessage
     {
 
+        #region " Contructors "
 
-
-
-        //public static MailAddress FromPadrao(string DisplayName)
-        //{
-        //    return new MailAddress(Configuration.MailMessage._FromPadrao, DisplayName);
-        //}
-
-        #region " Construtores "
-
-        /// <summary>
-        /// Inicializa uma nova instância da classe MailMessage
-        /// </summary>
-        /// <remarks></remarks>
         public MailMessage()
         {
         }
 
-        /// <summary>
-        /// Inicializa uma nova instância da classe MailMessage
-        /// </summary>
-        /// <param name="Template">Um Stream com o modelo desejado</param>
-        /// <remarks><seealso cref="Template">Propriedade Template</seealso></remarks>
-        public MailMessage(Stream Template)
+        /// <param name="template">A Stream with the desired template.</param>
+        /// <seealso cref="Template" />
+        public MailMessage(Stream template)
         {
-            byte[] buffer = new byte[System.Convert.ToInt32(Template.Length) + 1];
-            Template.Read(buffer, 0, (int)Template.Length);
+            byte[] buffer = new byte[System.Convert.ToInt32(template.Length) + 1];
+            template.Read(buffer, 0, (int)template.Length);
             _Template = System.Text.Encoding.UTF8.GetString(buffer);
         }
 
-        /// <summary>
-        /// Inicializa uma nova instância da classe MailMessage
-        /// </summary>
-        /// <param name="Template">Um String com o modelo desejado</param>
-        /// <remarks><seealso cref="Template">Propriedade Template</seealso></remarks>
-        public MailMessage(string Template)
+        /// <param name="template">A plain string with the template.</param>
+        /// <seealso cref="Template" />
+        public MailMessage(string template)
         {
-            _Template = Template;
+            _Template = template;
         }
 
-        /// <summary>
-        /// Inicializa uma nova instância da classe MailMessage
-        /// </summary>
-        /// <param name="FileName">Especifíca o caminho completo do arquivo de modelo.</param>
-        /// <param name="DetectEncoding">Indica se  deve tentar detectar o econding pela análise do arquivo.</param>
-        /// <remarks><seealso cref="Template">Propriedade Template</seealso></remarks>
-        public MailMessage(string FileName, bool DetectEncoding)
+        /// <param name="fileName">A full path of a file that contains a template.</param>
+        /// <param name="detectEncoding">If true, tries to detect encoding automatically.</param>
+        /// <seealso cref="Template" />
+        public MailMessage(string fileName, bool detectEncoding)
         {
-            System.IO.StreamReader stream = new System.IO.StreamReader(FileName, DetectEncoding);
+            System.IO.StreamReader stream = new System.IO.StreamReader(fileName, detectEncoding);
 
             this.BodyEncoding = stream.CurrentEncoding;
             _Template = stream.ReadToEnd();
             stream.Close();
         }
 
-        /// <summary>
-        /// Inicializa uma nova instância da classe MailMessage
-        /// </summary>
-        /// <param name="FileName">Especifíca o caminho completo do arquivo de modelo.</param>
-        /// <param name="Encoding">Especifica o Encoding usado</param>
-        /// <remarks><seealso cref="Template">Propriedade Template</seealso></remarks>
-        public MailMessage(string FileName, System.Text.Encoding Encoding)
+        /// <param name="fileName">A full path of a file that contains a template.</param>
+        /// <param name="encoding">Defines the encoding used to open the template.</param>
+        /// <seealso cref="Template" />
+        public MailMessage(string fileName, System.Text.Encoding encoding)
         {
-            System.IO.StreamReader stream = new System.IO.StreamReader(FileName, Encoding);
+            System.IO.StreamReader stream = new System.IO.StreamReader(fileName, encoding);
 
             this.BodyEncoding = stream.CurrentEncoding;
             _Template = stream.ReadToEnd();
             stream.Close();
         }
 
-        /// <summary>
-        /// Inicializa uma nova instância da classe MailMessage
-        /// </summary>
-        /// <param name="Template">Um Stream com o modelo desejado</param>
-        /// <param name="Values">Coleção de chaves e valores para substituição no modelo.</param>
-        /// <remarks><seealso cref="Template">Propriedade Template</seealso></remarks>
-        public MailMessage(Stream Template, System.Collections.Generic.Dictionary<string, string> Values)
-            : this(Template)
+        /// <param name="template">A Stream with the desired template.</param>
+        /// <param name="values">A dictionary with keys and values to be replaced on the template.</param>
+        /// <seealso cref="Template" />
+        public MailMessage(Stream template, System.Collections.Generic.Dictionary<string, string> values)
+            : this(template)
         {
-            _TemplateValues = Values;
+            _TemplateValues = values;
         }
 
-        /// <summary>
-        /// Inicializa uma nova instância da classe MailMessage
-        /// </summary>
-        /// <param name="Template">Um String com o modelo desejado</param>
-        /// <param name="Values">Coleção de chaves e valores para substituição no modelo.</param>
-        /// <remarks></remarks>
-        public MailMessage(string Template, System.Collections.Generic.Dictionary<string, string> Values)
-            : this(Template)
+        /// <param name="template">A plain string with the template.</param>
+        /// <param name="values">A dictionary with keys and values to be replaced on the template.</param>
+        /// <seealso cref="Template" />
+        public MailMessage(string template, System.Collections.Generic.Dictionary<string, string> values)
+            : this(template)
         {
-            _TemplateValues = Values;
+            _TemplateValues = values;
         }
 
-        /// <summary>
-        /// Inicializa uma nova instância da classe MailMessage
-        /// </summary>
-        /// <param name="Template">Um String com o modelo desejado</param>
-        /// <param name="Values">Coleção de chaves e valores para substituição no modelo.</param>
-        /// <remarks></remarks>
-        public MailMessage(string Template, System.Collections.Generic.Dictionary<string, string> Values, MailAddress From, MailAddress[] @To, MailAddress ReplyTo)
-            : this(Template, Values)
+
+        /// <param name="template">A plain string with the template.</param>
+        /// <param name="values">A dictionary with keys and values to be replaced on the template.</param>
+        /// <param name="from">A MailAddress that identifies from.</param>
+        /// <param name="replyTo">A MailAddress that this message could be replied.</param>
+        /// <param name="to">A MailAddress with destination.</param>
+        /// <seealso cref="Template" />
+        public MailMessage(
+            string template,
+            System.Collections.Generic.Dictionary<string, string> values, 
+            MailAddress from, MailAddress[] to, MailAddress replyTo)
+            : this(template, values)
         {
             this.To.Clear();
-            foreach (MailAddress i in @To)
+            foreach (MailAddress i in to)
             {
                 this.To.Add(i);
             }
-            this.From = From;
-            this.ReplyTo = ReplyTo;
+            this.From = from;
+            this.ReplyTo = replyTo;
         }
 
         #endregion
@@ -137,18 +110,17 @@ namespace Tenor.Mail
         private string _Template;
 
         /// <summary>
-        /// Contém o modelo desejado para esta mensagem.
+        /// Gets or sets the plain or html text template.
         /// </summary>
-        /// <value>Um String</value>
-        /// <returns>Um String</returns>
         /// <remarks>
-        /// Deve conter um texto modelo para a mensagem desejada. Este texo pode ser do tipo html, xhtml ou texto plano.
-        /// Você deve também fornecer os valores para os campos deste modelo na propriedade <see cref="TemplateValues">TemplateValues</see>. Defina os campos nesse modelo usando a seguinte notação: <code>[[[chave]]]</code>.
-        /// Utilize campos com letras minúsculas.
-        /// Veja o exemplo a seguir:
+        /// Must contains a template text with the desired message. This text can be and html, xhtml, or plain text.
+        /// You can provide keys and values of this template on <see cref="TemplateValues"/>. 
+        /// Set these keys on this template using the following notation: 
+        /// <code>[[[keyname]]]</code>
+        /// All key names must be in lower case.
         /// <example>
-        /// Olá [[[nome]]].
-        /// Esta é uma mensagem de teste enviada em [[[data]]].
+        /// Hello [[[name]]].
+        /// This is a test message sent on [[[date]]];
         /// </example>
         /// </remarks>
         public string Template
@@ -165,16 +137,14 @@ namespace Tenor.Mail
 
         private System.Collections.Generic.Dictionary<string, string> _TemplateValues;
         /// <summary>
-        /// Contém uma lista de chaves e valores para o modelo desejado
+        /// Gets a list of keys and values of the current template.
         /// </summary>
-        /// <value></value>
-        /// <returns>
-        /// </returns>
         /// <remarks>
-        /// Esta propriedade só é usada quando um modelo foi definido na propriedade <see cref="Template">Template</see>.
-        /// Você deve especificar as chaves sem os colchetes delimitadores do modelo.
+        /// This property is useful when you have a <see cref="Template"/> set using keys on it.
+        /// Provide key names without brackets.
         /// <example>
-        /// obj.TemplateValues.Add("nome", "fulano")
+        /// obj.TemplateValues.Add("name", "John");
+        /// obj.TemplateValues.Add("date", DateTime.Today.ToString());
         /// </example>
         /// </remarks>
         public System.Collections.Generic.Dictionary<string, string> TemplateValues
@@ -191,9 +161,8 @@ namespace Tenor.Mail
         }
 
         /// <summary>
-        /// Prepara a propriedade Body para conter o modelo mesclado com os valores.
+        /// Prepare the message body using the current template merged with provided values.
         /// </summary>
-        /// <remarks></remarks>
         protected virtual void PrepareTemplate()
         {
             if (!string.IsNullOrEmpty(Template))
@@ -213,15 +182,20 @@ namespace Tenor.Mail
             this.IsBodyHtml = IsHtml(Body);
         }
 
-        protected bool IsHtml(string Content)
+        /// <summary>
+        /// Gets a boolean indicating if a content have html code.
+        /// </summary>
+        /// <param name="content">The original content.</param>
+        /// <returns>True if content is html.</returns>
+        protected bool IsHtml(string content)
         {
-            return Content.StartsWith("<html", StringComparison.OrdinalIgnoreCase) || Content.ToLower().Contains("\r\n" + "<html") || Content.ToLower().Contains("<body") || Text.Strings.RemoveHTML(Content.ToLower()).Length < Content.Length;
+            //TODO: Use regular expressions to detect any html tags.
+            return content.StartsWith("<html", StringComparison.OrdinalIgnoreCase) || content.ToLower().Contains("\r\n" + "<html") || content.ToLower().Contains("<body") || Text.Strings.RemoveHTML(content.ToLower()).Length < content.Length;
         }
 
         /// <summary>
-        /// Envia a mensagem usando a configuração SMTP padrão.
+        /// Sends this message using the default smtp.
         /// </summary>
-        /// <remarks></remarks>
         public void Send()
         {
             Send(null, 0);
@@ -229,57 +203,58 @@ namespace Tenor.Mail
 
 
         /// <summary>
-        /// Envia a mensagem usando a configuração SMTP especificada.
+        /// Sends this message using provided smtp server.
         /// </summary>
-        /// <param name="SmtpServer">Endereço do servidor SMTP</param>
-        /// <param name="SmtpPort">Porta usada para a comunicação com o servidor.</param>
+        /// <param name="smtpServer">A smtp server.</param>
+        /// <param name="smtpPort">The port to be used. 25 is the default port of unsecured smtp servers.</param>
         /// <remarks>
         /// </remarks>
-        public virtual void Send(string SmtpServer, int SmtpPort)
+        public virtual void Send(string smtpServer, int smtpPort)
         {
-            Send(SmtpServer, SmtpPort, null, null);
+            Send(smtpServer, smtpPort, null, null);
         }
 
         /// <summary>
-        /// Envia a mensagem usando a configuração SMTP especificada.
+        /// Sends this message using provided smtp server.
         /// </summary>
-        /// <param name="SmtpServer">Endereço do servidor SMTP</param>
-        /// <param name="SmtpPort">Porta usada para a comunicação com o servidor.</param>
-        /// <remarks>
-        /// </remarks>
-        public virtual void Send(string SmtpServer, int SmtpPort, string UserName, string Password)
+        /// <param name="smtpServer">A smtp server.</param>
+        /// <param name="smtpPort">The port to be used. 25 is the default port of unsecured smtp servers.</param>
+        /// <param name="userName">The username used to authenticate on smtp server.</param>
+        /// <param name="password">The password used to authenticate on smtp server.</param>
+        public virtual void Send(string smtpServer, int smtpPort, string userName, string password)
         {
-            Send(SmtpServer, SmtpPort, UserName, Password, false);
+            Send(smtpServer, smtpPort, userName, password, false);
         }
 
         /// <summary>
-        /// Envia a mensagem usando a configuração SMTP especificada.
+        /// Sends this message using provided smtp server.
         /// </summary>
-        /// <param name="SmtpServer">Endereço do servidor SMTP</param>
-        /// <param name="SmtpPort">Porta usada para a comunicação com o servidor.</param>
-        /// <remarks>
-        /// </remarks>
-        public virtual void Send(string SmtpServer, int SmtpPort, string UserName, string Password, bool UseSSL)
+        /// <param name="smtpServer">A smtp server.</param>
+        /// <param name="smtpPort">The port to be used. 25 is the default port of unsecured smtp servers.</param>
+        /// <param name="userName">The username used to authenticate on smtp server.</param>
+        /// <param name="password">The password used to authenticate on smtp server.</param>
+        /// <param name="useSSL">Determines if an ssl attemp will be made.</param>
+        public virtual void Send(string smtpServer, int smtpPort, string userName, string password, bool useSSL)
         {
 
             System.Net.Mail.SmtpClient smtp = new System.Net.Mail.SmtpClient();
             //smtp.UseDefaultCredentials = False
 
-            if (!string.IsNullOrEmpty(SmtpServer))
+            if (!string.IsNullOrEmpty(smtpServer))
             {
-                smtp.Host = SmtpServer;
+                smtp.Host = smtpServer;
             }
 
-            if (SmtpPort > 0)
+            if (smtpPort > 0)
             {
-                smtp.Port = SmtpPort;
+                smtp.Port = smtpPort;
             }
 
-            if ((UserName != null) && (Password != null))
+            if ((userName != null) && (password != null))
             {
-                smtp.Credentials = new System.Net.NetworkCredential(UserName, Password);
+                smtp.Credentials = new System.Net.NetworkCredential(userName, password);
             }
-            smtp.EnableSsl = UseSSL;
+            smtp.EnableSsl = useSSL;
             /*
             this is not useful
             if (string.IsNullOrEmpty(smtp.Host) || smtp.Host.Equals("127.0.0.1"))
@@ -294,7 +269,9 @@ namespace Tenor.Mail
             try
             {
                 PrepareTemplate();
+                //To avoid this message to be moved to spam.
                 this.Headers.Add("Precedence", "bulk");
+
                 smtp.Send(this);
             }
             catch
@@ -310,11 +287,10 @@ namespace Tenor.Mail
 
 
         /// <summary>
-        /// Converte uma lista de emails separados por ponto e virgula para um array de MailAddress
+        /// Converts a list of semi-colon separated emails into an array of MailAddress.
         /// </summary>
-        /// <param name="source">Endereços de email separados por ponto e vírgula</param>
-        /// <returns></returns>
-        /// <remarks></remarks><exception cref="FormatException">Ocorre quando há um ou mais emails inválidos.</exception>
+        /// <param name="source">Semi-colon separated emails.</param>
+        /// <exception cref="FormatException" />
         public static System.Net.Mail.MailAddress[] ParseMailAddresses(string source)
         {
             List<MailAddress> res = new List<MailAddress>();

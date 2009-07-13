@@ -16,12 +16,10 @@ namespace Tenor.Web
     public partial class TenorModule
     {
 
-        //Funções para definição de tipo mime do arquivo
-
 
 
         /// <summary>
-        /// Função que retorna o tipo mime baseado no conteúdo de um arquivo.
+        /// Returns the mime type based on file first bytes.
         /// </summary>
         /// <param name="pBC">Pointer to the IBindCtx interface. This can be set to NULL.</param>
         /// <param name="pwzUrl">Pointer to a string value that contains the URL of the data. This can be set to NULL if pBuffer contains the data to be sniffed.</param>
@@ -50,14 +48,10 @@ namespace Tenor.Web
         private static extern int FindMimeFromData(IntPtr pBC, [MarshalAs(UnmanagedType.LPWStr)]string pwzUrl, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.I1, SizeParamIndex = 3)]byte[] pBuffer, int cbSize, [MarshalAs(UnmanagedType.LPWStr)]string pwzMimeProposed, int dwMimeFlags, ref IntPtr ppwzMimeOut, int dwReserved);
 
         /// <summary>
-        /// Utiliza a função do sistema FindMimeFromData para avaliar o mime type apropriado ao conteúdo do buffer
-        ///
+        /// Returns the mime type based on file bytes.
         /// </summary>
-        /// <param name="buffer">Buffer em array de byte com o arquivo.</param>
-        /// <returns>Uma String com o tipo mime proposto.</returns>
-        /// <remarks>
-        /// Caso o conteúdo do buffer não seja reconhecido, é retornado uma string vazia (String.Empty)
-        /// </remarks>
+        /// <param name="buffer">Array of bytes with file content.</param>
+        /// <returns>A system string with file mime type, or a String.Empty value when buffer is unknown.</returns>
         public static string GetMimeType(byte[] buffer)
         {
             //Dim mime As String = "application/octect-stream"
@@ -80,49 +74,43 @@ namespace Tenor.Web
                 {
                     mime = string.Empty;
                 }
-                return mime;
             }
             catch (Exception)
             {
-                return mime;
             }
+            return mime;
         }
 
         /// <summary>
-        /// Utiliza a função do sistema FindMimeFromData para avaliar o mime type apropriado ao conteúdo do buffer
-        ///
+        /// Returns the mime type based on file stream.
         /// </summary>
-        /// <param name="stream">Buffer em stream com o arquivo.</param>
-        /// <returns>Uma String com o tipo mime proposto.</returns>
-        /// <remarks>
-        /// Caso o conteúdo do buffer não seja reconhecido, é retornado uma string vazia (String.Empty)
-        /// </remarks>
+        /// <param name="stream">A Stream with the file contents.</param>
+        /// <returns>A system string with file mime type, or a String.Empty value when buffer is unknown.</returns>
         public static string GetMimeType(Stream stream)
         {
             return GetMimeType(IO.BinaryFile.StreamToBytes(stream));
         }
 
         /// <summary>
-        /// Determina o Mime Type através da extensão do arquivo
+        /// Gets a mime type based on file extension.
         /// </summary>
-        /// <param name="filePath">Nome do arquivo para determinar o tipo.</param>
-        /// <returns>Uma String com o mime type sugerido</returns>
+        /// <param name="filePath">Full, partial path or just the extension (with dot) of the desired file.</param>
+        /// <returns>A string with the mime type.</returns>
         /// <remarks>
-        /// Utiliza o arquivo mime.xml para determinar o mimetype através da extensão do arquivo.
+        /// Uses an internal mime type mapping to define the mime type.
         /// </remarks>
         public static string GetMimeType(string filePath)
         {
             return IO.BinaryFile.GetContentType(filePath);
         }
         /// <summary>
-        /// Retorna a extensão associada ao mime type.
+        /// Gets the default extension of the desired mime type.
         /// </summary>
-        /// <param name="MimeType">Mime Type desejado</param>
-        /// <returns>Extensão sem o ponto.</returns>
-        /// <remarks></remarks>
-        public static string GetExtension(string MimeType)
+        /// <param name="mimeType">The desired mime type.</param>
+        /// <returns>A string with file extension without dot.</returns>
+        public static string GetExtension(string mimeType)
         {
-            return IO.BinaryFile.GetExtension(MimeType);
+            return IO.BinaryFile.GetExtension(mimeType);
         }
     }
 }
