@@ -67,6 +67,10 @@ namespace Tenor.Data
             DbParameter dbparam = factory.CreateParameter();
 
             dbparam.ParameterName = ParameterName;
+            
+            if (Value is Enum)
+                Value = Convert.ToInt64(Value);
+
             dbparam.Value = Value;
 
             return dbparam;

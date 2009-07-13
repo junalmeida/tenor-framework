@@ -15,13 +15,14 @@ namespace SampleApp.Business.Entities
 
         #region Properties
         // FOR ORACLE: InsertSQL = "PersonsSequence"
+        // FOR POSTGRESQL: InsertSQL = "Persons_PersonId_seq"
 
         private long _PersonId;
         /// <summary>
         /// Represents the field PersonId.
         /// 
         /// </summary>
-        [Field(PrimaryKey = true, AutoNumber = true, InsertSQL = "PersonsSequence")]
+        [Field(PrimaryKey = true, AutoNumber = true, InsertSQL = "Persons_PersonId_seq")]
         public long PersonId
         {
             get

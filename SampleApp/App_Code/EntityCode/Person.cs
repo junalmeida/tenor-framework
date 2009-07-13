@@ -126,9 +126,12 @@ namespace SampleApp.Business.Entities
 
         // Oracle
         //[SpecialField("nvl(dbms_lob.getlength(\"Photo\"), 0)")]
+        
+        // Oracle
+        //[SpecialField("COALESCE(length(\"Photo\"), 0)")]
 
         long photoLength;
-        [SpecialField("nvl(dbms_lob.getlength(\"Photo\"), 0)")]
+        [SpecialField("COALESCE(length(\"Photo\"), 0)")]
         public long PhotoLength
         {
             get { return photoLength; }

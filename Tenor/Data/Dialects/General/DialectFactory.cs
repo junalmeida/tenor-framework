@@ -56,7 +56,7 @@ namespace Tenor.Data.Dialects
                     throw new System.Configuration.ConfigurationErrorsException("Could not load the dialect type.", ex);
                 }
             }
-    
+
 
             if (!dialects.ContainsKey("System.Data.SqlClient"))
                 dialects.Add("System.Data.SqlClient", typeof(TSql.TSql));
@@ -70,7 +70,9 @@ namespace Tenor.Data.Dialects
             if (!dialects.ContainsKey("System.Data.OracleClient"))
                 dialects.Add("System.Data.OracleClient", typeof(Oracle.Oracle));
 
-            
+            if (!dialects.ContainsKey("Npgsql"))
+                dialects.Add("Npgsql", typeof(PostgreSQL.PostgreSQL));
+  
 
             return dialects;
         }

@@ -17,13 +17,14 @@ namespace SampleApp.Business.Entities
     {
         #region Properties
         // FOR ORACLE: InsertSQL = "ItemsSequence"
-
+        // FOR POSTGRESQL: InsertSQL = "Items_ItemId_seq"
+        
         private long _ItemId;
         /// <summary>
         /// Represents the field ItemId.
         /// 
         /// </summary>
-        [Field(PrimaryKey = true, AutoNumber = true, InsertSQL = "ItemsSequence")]
+        [Field(PrimaryKey = true, AutoNumber = true, InsertSQL = "Items_ItemId_seq")]
         public long ItemId
         {
             get
