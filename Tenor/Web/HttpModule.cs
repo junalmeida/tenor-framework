@@ -274,19 +274,19 @@ namespace Tenor.Web
         {
             app.Context.ClearError();
             app.Response.Clear();
-            //nÃ£o usar buffers de saÃ­da.
+            //disabling output buffer.
             app.Response.BufferOutput = false;
 
 
             MemoryStream mem = stream as MemoryStream;
             if (mem != null)
             {
-                //usar o mÃ©todo WriteTo da memorystream
+                //using writeTo of the memory stream.
                 mem.WriteTo(app.Response.OutputStream);
             }
             else if (stream.CanRead && stream.Length > 0)
             {
-                //converter a stream em bytes e enviar para o cliente
+                //TODO: improve reading and writing code.
                 byte[] data = IO.BinaryFile.StreamToBytes(stream);
                 app.Response.OutputStream.Write(data, 0, data.Length);
             }

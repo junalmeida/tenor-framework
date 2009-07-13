@@ -104,7 +104,8 @@ namespace Tenor.Diagnostics
         {
             try
             {
-
+                if (exception == null)
+                    throw new ArgumentNullException("exception");
 
                 string requestUrl = "";
                 if (app != null)
