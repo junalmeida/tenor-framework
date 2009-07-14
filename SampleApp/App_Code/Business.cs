@@ -10,6 +10,7 @@ using System.Web.UI.WebControls.WebParts;
 using SampleApp.Business.Entities;
 using System.Collections.Generic;
 using Tenor.Data;
+using Tenor;
 
 /// <summary>
 /// Summary description for Business
@@ -19,6 +20,8 @@ public class Business
     public Business()
     {
     }
+
+
 
     public Person LoadPerson(int personId)
     {

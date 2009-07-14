@@ -223,108 +223,103 @@ namespace Tenor.Security
         /// <remarks></remarks>
         public byte[] GenerateAudio()
         {
-            //TODO: Create a wave file without COM access to speech, or at least without referencing it.
-            //throw new NotImplementedException();
-            Random rnd = new Random();
-            string toSpeak = string.Empty;
-            foreach (char c in AccessCode.ToCharArray()) 
-                toSpeak += c.ToString() + ".\r\n";
-
-            string tempPath = Path.GetTempPath();
-
-            if (!tempPath.EndsWith("\\")) tempPath += "\\";
-            string tempFile = tempPath + "sound" + Guid.NewGuid().ToString() + ".wav";
-
-
-            //usando o SpFileStream porque o memory stream nao da certo
-            SpFileStream sound = null;
+#if MONO
+            throw new NotImplementedException();
+#else
             try
             {
-                sound = (SpFileStream)new SpFileStreamClass();
-                sound.Open(tempFile, SpeechStreamFileMode.SSFMCreateForWrite);
+                Random rnd = new Random();
+                string toSpeak = string.Empty;
+                foreach (char c in AccessCode.ToCharArray())
+                    toSpeak += c.ToString() + ".   ";
+
+                string tempPath = Path.GetTempPath();
+
+                if (!tempPath.EndsWith("\\")) tempPath += "\\";
+                string tempFile = tempPath + "sound" + Guid.NewGuid().ToString() + ".wav";
+
+                //we don't know why memorystream does not work.
+                SpFileStream stream = null;
+
+                try
+                {
+
+                    stream = new SpFileStream();
+                    stream.Open(tempFile, SpeechStreamFileMode.SSFMCreateForWrite, false);
 
 
-                SpVoice speech = (SpVoice)new SpVoiceClass();
-                ISpeechObjectTokens voices = speech.GetVoices();
-                speech.Voice = voices.Item(rnd.Next(0, (int)voices.Count));
-                //Dim format As New SpAudioFormat
-                //format.Type = SpeechAudioFormatType.SAFTGSM610_11kHzMono
-                //sound.Format = format
+                    SpVoice speech = new SpVoice();
+                    ISpeechObjectTokens voices = speech.GetVoices(string.Empty, string.Empty);
+                    if (voices == null)
+                        throw new TenorException("No available voices.");
+                    speech.Voice = voices.Item(rnd.Next(0, (int)voices.Count));
+                    //Dim format As New SpAudioFormat
+                    //format.Type = SpeechAudioFormatType.SAFTGSM610_11kHzMono
+                    //sound.Format = format
 
-                speech.AudioOutputStream = sound;
-                speech.Rate = -5;
-                //de -10 a +10
+                    speech.AudioOutputStream = (ISpeechBaseStream)stream;
+                    speech.Rate = -2;
+                    //from -10 to +10
 
-                //speaks to the file
-                speech.Speak(toSpeak, SpeechVoiceSpeakFlags.SVSFlagsAsync);
-                speech.WaitUntilDone(-1);
+                    //speaks to the stream
+                    speech.Speak(toSpeak, SpeechVoiceSpeakFlags.SVSFlagsAsync);
+                    speech.WaitUntilDone(-1);
 
-                speech = null;
-                voices = null;
-            }
-            catch (Exception ex)
-            {
+                    speech = null;
+                    voices = null;
+
+                }
+                catch (Exception ex)
+                {
+                    try
+                    {
+                        if (System.IO.File.Exists(tempFile))
+                        {
+                            System.IO.File.Delete(tempFile);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                    }
+                    throw ex;
+                }
+                finally
+                {
+                    try
+                    {
+
+                        if (stream != null)
+                            stream.Close();
+
+                        stream = null;
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+
+                byte[] bytes = null;
                 try
                 {
                     if (System.IO.File.Exists(tempFile))
                     {
+
+                        System.IO.FileStream file = new System.IO.FileStream(tempFile, System.IO.FileMode.Open);
+                        bytes = Tenor.IO.BinaryFile.StreamToBytes(file);
+
+                        file.Close();
                         System.IO.File.Delete(tempFile);
                     }
                 }
-                catch (Exception ex2)
-                {
-                }
-                throw ex;
-            }
-            finally
-            {
-                try
-                {
-                    if (sound != null)
-                        sound.Close();
-
-                    sound = null;
-                }
-                catch (Exception ex)
-                {
-                }
-            }
-
-            if (System.IO.File.Exists(tempFile))
-            {
-
-
-                System.IO.FileStream mem = new System.IO.FileStream(tempFile, System.IO.FileMode.Open);
-
-                byte[] bytes = new byte[(int)mem.Length + 1];
-                int offset = 0;
-                int remaining = (int)mem.Length;
-
-                while (remaining > 0)
-                {
-                    int read = mem.Read(bytes, offset, remaining);
-                    if (read <= 0) break; // TODO: might not be correct. Was : Exit Do
-
-                    remaining -= read;
-                    offset += read;
-                }
-                mem.Close();
-                mem.Dispose();
-
-                try
-                {
-                    System.IO.File.Delete(tempFile);
-                }
-                catch (Exception ex)
-                {
-                }
+                catch
+                { }
                 return bytes;
             }
-            else
+            catch (Exception ex)
             {
-                return null;
+                throw new TenorException("Cannot generate the audio tag. This server may not have the Ms Speech API.", ex);
             }
-
+#endif
         }
 
 
@@ -338,41 +333,6 @@ namespace Tenor.Security
         {
             return string.Equals(this.AccessCode, challenge);
         }
-
-
-
-
-
-
-
-        //Public Function TextToWav() As Byte()
-        //    Dim rnd As New Random
-        //    Dim b As Byte() = Nothing
-
-        //    Try
-        //        Dim spFlags As SpeechVoiceSpeakFlags = SpeechVoiceSpeakFlags.SVSFlagsAsync
-
-
-        //        Dim speech As New SpVoice
-        //        Dim voices As ISpeechObjectTokens = speech.GetVoices()
-        //        speech.Voice = voices.Item(rnd.Next(voices.Count))
-
-        //        Dim spMemoryStream As New SpMemoryStream
-        //        spMemoryStream.Format.Type = SpeechAudioFormatType.SAFT11kHz8BitMono
-        //        speech.AudioOutputStream = spMemoryStream
-
-        //        Dim r As Integer = speech.Speak(AccessCode, spFlags)
-        //        speech.WaitUntilDone(-1)
-
-
-        //        spMemoryStream.Seek(0, SpeechStreamSeekPositionType.SSSPTRelativeToStart)
-        //        b = CType(spMemoryStream.GetData(), Byte())
-        //        Return b
-        //    Catch ex As Exception
-        //        Throw ex
-        //    End Try
-
-        //End Function
 
     }
 }
