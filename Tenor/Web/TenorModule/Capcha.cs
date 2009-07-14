@@ -53,7 +53,7 @@ namespace Tenor.Web
         /// </summary>
         private void CaptchaAudioRequest(string captchaSessionState)
         {
-            if (HttpContext.Current != null)
+            if (HttpContext.Current == null)
                 throw new InvalidContextException();
             HttpSessionState session = HttpContext.Current.Session;
             if (session == null)
