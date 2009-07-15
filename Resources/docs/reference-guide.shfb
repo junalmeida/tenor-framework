@@ -8,11 +8,12 @@
             <topic id="945cec26-341a-4a2c-a4b3-2635f34f0baf" file=".\concepts.xml" tocTitle="Introduction" revision="1" visible="True" />
             <topic id="b5b9670c-d720-4f2d-bab6-b389f68d1bc2" file=".\Walkthrough.xml" tocTitle="Walkthroughs" revision="1" visible="True" />
             <topic id="4cf2a0ce-4c88-427d-b033-cb27f95687b7" file=".\glossary.xml" tocTitle="Glossary" revision="1" visible="True" />
+            <topic id="44042da0-1b87-405c-8c6f-41f73e1a94e6" title="Reference" tocTitle="Reference" revision="1" visible="True" />
         </topics>
     </conceptualContent>
     <ProjectSummary />
-    <MissingTags>Summary, Parameter, Returns, AutoDocumentCtors, Namespace, TypeParameter</MissingTags>
-    <VisibleItems>InheritedMembers, InheritedFrameworkMembers, Protected, SealedProtected</VisibleItems>
+    <MissingTags>AutoDocumentCtors</MissingTags>
+    <VisibleItems>InheritedMembers, Protected, SealedProtected</VisibleItems>
     <HtmlHelp1xCompilerPath path="" />
     <HtmlHelp2xCompilerPath path="" />
     <OutputPath>.\Help\</OutputPath>
@@ -25,7 +26,7 @@
     <CppCommentsFixup>False</CppCommentsFixup>
     <FrameworkVersion>2.0.50727</FrameworkVersion>
     <IndentHtml>False</IndentHtml>
-    <Preliminary>False</Preliminary>
+    <Preliminary>True</Preliminary>
     <RootNamespaceContainer>False</RootNamespaceContainer>
     <RootNamespaceTitle />
     <HelpTitle>Tenor Framework</HelpTitle>
