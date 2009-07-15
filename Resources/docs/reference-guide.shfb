@@ -1,0 +1,54 @@
+﻿<project schemaVersion="1.6.0.7">
+    <assemblies>
+        <assembly assemblyPath="..\..\Release\Tenor.dll" xmlCommentsPath="..\..\Release\Tenor.XML" commentsOnly="False" />
+        <assembly assemblyPath="..\..\Release\Tenor.Web.UI.dll" xmlCommentsPath="..\..\Release\Tenor.Web.UI.XML" commentsOnly="False" />
+    </assemblies>
+    <conceptualContent snippetFile="">
+        <topics defaultTopic="945cec26-341a-4a2c-a4b3-2635f34f0baf">
+            <topic id="945cec26-341a-4a2c-a4b3-2635f34f0baf" file=".\concepts.xml" tocTitle="Introduction" revision="1" visible="True" />
+            <topic id="b5b9670c-d720-4f2d-bab6-b389f68d1bc2" file=".\Walkthrough.xml" tocTitle="Walkthroughs" revision="1" visible="True" />
+            <topic id="4cf2a0ce-4c88-427d-b033-cb27f95687b7" file=".\glossary.xml" tocTitle="Glossary" revision="1" visible="True" />
+        </topics>
+    </conceptualContent>
+    <ProjectSummary />
+    <MissingTags>Summary, Parameter, Returns, AutoDocumentCtors, Namespace, TypeParameter</MissingTags>
+    <VisibleItems>InheritedMembers, InheritedFrameworkMembers, Protected, SealedProtected</VisibleItems>
+    <HtmlHelp1xCompilerPath path="" />
+    <HtmlHelp2xCompilerPath path="" />
+    <OutputPath>.\Help\</OutputPath>
+    <SandcastlePath path="" />
+    <WorkingPath path="" />
+    <CleanIntermediates>True</CleanIntermediates>
+    <KeepLogFile>True</KeepLogFile>
+    <BuildLogFile path="" />
+    <HelpFileFormat>Website</HelpFileFormat>
+    <CppCommentsFixup>False</CppCommentsFixup>
+    <FrameworkVersion>2.0.50727</FrameworkVersion>
+    <IndentHtml>False</IndentHtml>
+    <Preliminary>False</Preliminary>
+    <RootNamespaceContainer>False</RootNamespaceContainer>
+    <RootNamespaceTitle />
+    <HelpTitle>Tenor Framework</HelpTitle>
+    <HtmlHelpName>tenor</HtmlHelpName>
+    <Language>en-US</Language>
+    <CopyrightHref>http://tenor.sourceforge.net</CopyrightHref>
+    <CopyrightText>This project is licensed under the MIT License.</CopyrightText>
+    <FeedbackEMailAddress />
+    <FeedbackEMailLinkText />
+    <HeaderText />
+    <FooterText />
+    <ProjectLinkType>Local</ProjectLinkType>
+    <SdkLinkType>Msdn</SdkLinkType>
+    <SdkLinkTarget>Blank</SdkLinkTarget>
+    <PresentationStyle>Prototype</PresentationStyle>
+    <NamingMethod>Guid</NamingMethod>
+    <SyntaxFilters>Standard</SyntaxFilters>
+    <ShowFeedbackControl>False</ShowFeedbackControl>
+    <BinaryTOC>True</BinaryTOC>
+    <IncludeFavorites>False</IncludeFavorites>
+    <CollectionTocStyle>Hierarchical</CollectionTocStyle>
+    <IncludeStopWordList>True</IncludeStopWordList>
+    <PlugInNamespaces>ms.vsipcc+, ms.vsexpresscc+</PlugInNamespaces>
+    <HelpFileVersion>1.0.0.0</HelpFileVersion>
+    <ContentPlacement>AboveNamespaces</ContentPlacement>
+</project>

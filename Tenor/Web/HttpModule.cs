@@ -227,17 +227,17 @@ namespace Tenor.Web
             string header = "";
             if (dados.ForceDownload)
             {
-                //o cliente irÃ¡ obrigatÃ³riamente baixar o arquivo
+                //defines a header to force download
                 header += "attachment; ";
             }
             if (!string.IsNullOrEmpty(dados.FileName))
             {
-                //o nome do arquivo foi definido
+                //defines a header to set a filename.
                 header += " filename=\"" + dados.FileName + "\"";
             }
             else
             {
-                //especificar um nome padrÃ£o
+                //defines a header to set a default filename.
                 header += " filename=\"file." + GetExtension(dados.ContentType) + "\"";
 
             }
@@ -246,7 +246,8 @@ namespace Tenor.Web
             {
                 app.Response.AddHeader("content-disposition", header);
             }
-            //define o cache do navegador do cliente
+
+            //sets cache parameters.
             if (app.Request[Tenor.Configuration.TenorModule.NoCache] != string.Empty)
             {
                 app.Response.Cache.SetCacheability(HttpCacheability.NoCache);
@@ -265,10 +266,10 @@ namespace Tenor.Web
 
 
         /// <summary>
-        /// Envia para o cliente a stream.
+        /// Writes the data to the Output Stream.
         /// </summary>
-        /// <param name="stream">Stream para enviar</param>
-        /// <param name="app">Application</param>
+        /// <param name="stream">The stream with data.</param>
+        /// <param name="app">The HttpApplication.</param>
         /// <remarks></remarks>
         private void WriteStream(Stream stream, HttpApplication app)
         {

@@ -19,6 +19,8 @@ namespace Tenor.Mail
 
         #region " Contructors "
 
+        /// <summary>
+        /// </summary>
         public MailMessage()
         {
         }

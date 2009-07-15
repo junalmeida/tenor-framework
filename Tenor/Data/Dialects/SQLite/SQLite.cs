@@ -5,6 +5,9 @@ using System.Data.Common;
 
 namespace Tenor.Data.Dialects.SQLite
 {
+    /// <summary>
+    /// Represents the SQLite language.
+    /// </summary>
     public class SQLite : GeneralDialect
     {
         private DbProviderFactory factory;
