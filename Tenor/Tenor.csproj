@@ -124,16 +124,10 @@
     <Compile Include="Web\UI\MailingPanel\MailingViews.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="BLL\BLLBased-beta.zeus" />
-    <None Include="BLL\BLLBased-CS.zeus" />
-    <None Include="BLL\BLLBased.zeus" />
     <None Include="tenor.snk" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Web\mime.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="BLL\TemplateSnippets.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!--<ItemGroup>
