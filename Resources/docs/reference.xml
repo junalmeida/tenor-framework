@@ -7,11 +7,13 @@
        produced by the reference build.  You should probably just use that
        instead of this. -->
   <assembly>
-    <assemblyName>Assembly name</assemblyName>
+    <assemblyName>Tenor</assemblyName>
   </assembly>
+  <!--
   <codeEntities>
     <codeEntity>
       <codeEntityReference>API member ID</codeEntityReference>
     </codeEntity>
-  </codeEntities>
+ </codeEntities>
+ -->
 </codeEntityDocument>

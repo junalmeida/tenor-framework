@@ -3,17 +3,48 @@
         <assembly assemblyPath="..\..\Release\Tenor.dll" xmlCommentsPath="..\..\Release\Tenor.XML" commentsOnly="False" />
         <assembly assemblyPath="..\..\Release\Tenor.Web.UI.dll" xmlCommentsPath="..\..\Release\Tenor.Web.UI.XML" commentsOnly="False" />
     </assemblies>
+    <namespaceSummaries>
+        <namespaceSummaryItem name="" isDocumented="False" />
+        <namespaceSummaryItem name="Tenor" isDocumented="True" />
+        <namespaceSummaryItem name="Tenor.BLL" isDocumented="True" />
+        <namespaceSummaryItem name="Tenor.Configuration" isDocumented="True" />
+        <namespaceSummaryItem name="Tenor.Data" isDocumented="True" />
+        <namespaceSummaryItem name="Tenor.Data.Dialects" isDocumented="True" />
+        <namespaceSummaryItem name="Tenor.Data.Dialects.MySql" isDocumented="True" />
+        <namespaceSummaryItem name="Tenor.Data.Dialects.Oracle" isDocumented="True" />
+        <namespaceSummaryItem name="Tenor.Data.Dialects.PostgreSQL" isDocumented="True" />
+        <namespaceSummaryItem name="Tenor.Data.Dialects.SQLite" isDocumented="True" />
+        <namespaceSummaryItem name="Tenor.Data.Dialects.TSql" isDocumented="True" />
+        <namespaceSummaryItem name="Tenor.Diagnostics" isDocumented="True" />
+        <namespaceSummaryItem name="Tenor.Drawing" isDocumented="True" />
+        <namespaceSummaryItem name="Tenor.IO" isDocumented="True" />
+        <namespaceSummaryItem name="Tenor.Mail" isDocumented="True" />
+        <namespaceSummaryItem name="Tenor.Security" isDocumented="True" />
+        <namespaceSummaryItem name="Tenor.Text" isDocumented="True" />
+        <namespaceSummaryItem name="Tenor.Web" isDocumented="True" />
+        <namespaceSummaryItem name="Tenor.Web.UI.WebControls" isDocumented="True" />
+        <namespaceSummaryItem name="Tenor.Web.UI.WebControls.Core" isDocumented="True" />
+        <namespaceSummaryItem name="Tenor.Web.UI.WebControls.Design" isDocumented="True" />
+    </namespaceSummaries>
     <conceptualContent snippetFile="">
         <topics defaultTopic="945cec26-341a-4a2c-a4b3-2635f34f0baf">
-            <topic id="945cec26-341a-4a2c-a4b3-2635f34f0baf" file=".\concepts.xml" tocTitle="Introduction" revision="1" visible="True" />
-            <topic id="b5b9670c-d720-4f2d-bab6-b389f68d1bc2" file=".\Walkthrough.xml" tocTitle="Walkthroughs" revision="1" visible="True" />
+            <topic id="945cec26-341a-4a2c-a4b3-2635f34f0baf" file=".\concepts.xml" tocTitle="Summary" revision="1" visible="True" />
+            <topic id="8fa1d48b-4d17-4cc3-a9cb-47568108c17b" title="Getting Started" revision="1" visible="True">
+                <topic id="090ee928-1320-43b7-b5e3-8c5ac2dfe93a" file=".\settingwebconfig.xml" revision="1" visible="True" />
+                <topic id="7edb8dcd-a21d-4ec9-8f7b-1fac57374a31" file=".\generatingtemplates.xml" revision="1" visible="True" />
+                <topic id="b05e35d7-bad4-42fd-af54-8d499e97e9e2" file=".\usinglayers.xml" revision="1" visible="True" />
+                <topic id="0b04e4c5-8a43-42e7-9cd6-d7832b640221" file=".\transactions.xml" revision="1" visible="True" />
+                <topic id="aef165b3-e862-4d0c-80df-25cbd7b9ab6c" file=".\thetenormodule.xml" revision="1" visible="True" />
+            </topic>
+            <topic id="f1a157f3-f4ce-478f-959b-c99c87f12d0e" title="Complete Samples" revision="1" visible="True">
+                <topic id="c5f98b00-718f-4594-8de4-4bcc8c553aeb" file=".\sampleapp.xml" revision="1" visible="True" />
+            </topic>
             <topic id="4cf2a0ce-4c88-427d-b033-cb27f95687b7" file=".\glossary.xml" tocTitle="Glossary" revision="1" visible="True" />
-            <topic id="44042da0-1b87-405c-8c6f-41f73e1a94e6" title="Reference" tocTitle="Reference" revision="1" visible="True" />
         </topics>
     </conceptualContent>
     <ProjectSummary />
     <MissingTags>AutoDocumentCtors</MissingTags>
-    <VisibleItems>InheritedMembers, Protected, SealedProtected</VisibleItems>
+    <VisibleItems>Attributes, InheritedMembers, Protected, SealedProtected</VisibleItems>
     <HtmlHelp1xCompilerPath path="" />
     <HtmlHelp2xCompilerPath path="" />
     <OutputPath>.\Help\</OutputPath>
@@ -27,8 +58,8 @@
     <FrameworkVersion>2.0.50727</FrameworkVersion>
     <IndentHtml>False</IndentHtml>
     <Preliminary>True</Preliminary>
-    <RootNamespaceContainer>False</RootNamespaceContainer>
-    <RootNamespaceTitle />
+    <RootNamespaceContainer>True</RootNamespaceContainer>
+    <RootNamespaceTitle>Reference</RootNamespaceTitle>
     <HelpTitle>Tenor Framework</HelpTitle>
     <HtmlHelpName>tenor</HtmlHelpName>
     <Language>en-US</Language>
@@ -37,13 +68,13 @@
     <FeedbackEMailAddress />
     <FeedbackEMailLinkText />
     <HeaderText />
-    <FooterText />
+    <FooterText>Visit sourceforge project for updates.</FooterText>
     <ProjectLinkType>Local</ProjectLinkType>
     <SdkLinkType>Msdn</SdkLinkType>
     <SdkLinkTarget>Blank</SdkLinkTarget>
-    <PresentationStyle>Prototype</PresentationStyle>
-    <NamingMethod>Guid</NamingMethod>
-    <SyntaxFilters>Standard</SyntaxFilters>
+    <PresentationStyle>hana</PresentationStyle>
+    <NamingMethod>MemberName</NamingMethod>
+    <SyntaxFilters>CSharp, VisualBasic</SyntaxFilters>
     <ShowFeedbackControl>False</ShowFeedbackControl>
     <BinaryTOC>True</BinaryTOC>
     <IncludeFavorites>False</IncludeFavorites>
