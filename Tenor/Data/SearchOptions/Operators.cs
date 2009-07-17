@@ -11,7 +11,6 @@ namespace Tenor.Data
     /// <summary>
     /// Specifies the comparison mode on search.
     /// </summary>
-    /// <remarks></remarks>
     public enum CompareOperator
     {
         /// <summary>
@@ -71,7 +70,6 @@ namespace Tenor.Data
     /// <summary>
     /// Specifies the sort direction.
     /// </summary>
-    /// <remarks></remarks>
     public enum SortOrder
     {
         /// <summary>

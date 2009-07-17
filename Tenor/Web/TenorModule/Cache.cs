@@ -49,7 +49,6 @@ namespace Tenor.Web
         /// <param name="className">A string with a class name or 'all' to clear all the cache.</param>
         /// <param name="p1">The first parameter..</param>
         /// <param name="outputStatus">If true, shows up on response the resume of this operation.</param>
-        /// <remarks></remarks>
         private static void ClearCache(HttpApplication app, string className, string p1, bool outputStatus)
         {
             System.Text.StringBuilder lista = new System.Text.StringBuilder();

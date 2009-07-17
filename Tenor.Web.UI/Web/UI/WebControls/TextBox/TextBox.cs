@@ -27,133 +27,110 @@ namespace Tenor.Web.UI.WebControls
         /// <summary>
         /// No button is shown
         /// </summary>
-        /// <remarks></remarks>
         None,
         /// <summary>
         /// A XP-like button is shown
         /// </summary>
-        /// <remarks></remarks>
         XPStyle
-        //    ''' <summary>
-        //    ''' A Win2000-like button is shown
-        //    ''' </summary>
-        //    ''' <remarks></remarks>
-        //    W2KStyle
+        /*
+            /// <summary>
+            /// A Win2000-like button is shown
+            /// </summary>
+            W2KStyle
+         */
     }
 
 
     /// <summary>
     /// Contains a list of possible behaviors of a TextBox
     /// </summary>
-    /// <remarks></remarks>
     public enum TextBoxMode
     {
         /// <summary>
         /// Displays a SingleLine textbox for text input
         /// </summary>
-        /// <remarks></remarks>
         SingleLine,
         /// <summary>
         /// Displays a password field
         /// </summary>
-        /// <remarks></remarks>
         Password,
         /// <summary>
         /// Displays a textbox with a "CPF" mask
         /// </summary>
-        /// <remarks></remarks>
         CPF,
         /// <summary>
         /// Displays a textbox with a "CNPJ" mask
         /// </summary>
-        /// <remarks></remarks>
         CNPJ,
         /// <summary>
         /// Displays a textbox with a "CEP" mask
         /// </summary>
-        /// <remarks></remarks>
         CEP,
         /// <summary>
         /// Displays a textbox with PhoneNumber input
         /// </summary>
-        /// <remarks></remarks>
         PhoneNumber,
         /// <summary>
         /// Displays a textbox with PhoneNumber and AreaCode input
         /// </summary>
-        /// <remarks></remarks>
         PhoneNumberDDD,
         /// <summary>
         /// Displays a textbox with a "PABX" mask
         /// </summary>
-        /// <remarks></remarks>
         PABX,
         /// <summary>
         /// Displays a textbox with email input
         /// </summary>
-        /// <remarks></remarks>
         Email,
         /// <summary>
         /// Displays a textbox with Date (DD/MM/YYYY) input
         /// </summary>
-        /// <remarks></remarks>
         @DateDMY,
         /// <summary>
         /// Displays a textbox with Time (HH:mm) input
         /// </summary>
-        /// <remarks></remarks>
         TimeHM,
         /// <summary>
         /// Displays a textbox with Time (HH:mm:ss) input
         /// </summary>
-        /// <remarks></remarks>
         TimeHMS,
         /// <summary>
         /// Displays a textbox with an integer input
         /// </summary>
-        /// <remarks></remarks>
         @Integer,
         /// <summary>
         /// Displays a textbox with an integer input between 0 and 100
         /// </summary>
-        /// <remarks></remarks>
         Percent,
         /// <summary>
         /// Displays a textbox with a float input
         /// </summary>
-        /// <remarks></remarks>
         @Float,
         /// <summary>
         /// Displays a textbox with a currency input (2 decimal places, right aligned)
         /// </summary>
-        /// <remarks></remarks>
         @Currency,
         /// <summary>
         /// Displays a multiline textbox
         /// </summary>
-        /// <remarks></remarks>
         MultiLine,
         /// <summary>
         /// Displays a multiline richtext textbox
         /// </summary>
-        /// <remarks></remarks>
         RichText,
         /// <summary>
         /// Displays a textbox with a CustomMask
         /// </summary>
-        /// <remarks></remarks>
         CustomMask
     }
     #endregion
 
-    //Designer(GetType(Design.ControlDesigner)), _
+    /*
+    Designer(GetType(Design.ControlDesigner)), _
+     */
     /// <summary>
-    /// Exibe uma caixa de texto para entrada de dados. Esta caixa possui diversas funções de manipulação da entrada. <seealso cref="TextBoxMode">Veja TextBoxMode</seealso>
+    /// This control is a customized textbox with a set of features described at <see cref="TextBox.TextBoxMode"/> property.
     /// </summary>
-    /// <remarks>
-    /// O controle TextBox é um controle de entrada de dados.
-    /// Por padrão, a propriedade TextBoxMode do controle é definida para SingleLine, exibindo uma caixa de entrada de uma linha de texto. Entretando, você pode definir o controle TextBox como entrada de texto com várias linhas, uma caixa de texto formatado ou uma entrada com máscara.
-    /// </remarks>
     [ToolboxItem(typeof(System.Web.UI.Design.WebControlToolboxItem)), ToolboxData("<{0}:TextBox runat=\"server\" />"), ToolboxBitmapAttribute(typeof(System.Web.UI.WebControls.TextBox), "TextBox.bmp")]
     public class TextBox : System.Web.UI.WebControls.TextBox
     {
@@ -161,7 +138,7 @@ namespace Tenor.Web.UI.WebControls
 
 
         #region "Properties "
-        //Desativa a propriedade TextMode da classe base
+        //Disabled the base TextMode.
         [EditorBrowsable(EditorBrowsableState.Never), Browsable(false)]
         public override System.Web.UI.WebControls.TextBoxMode TextMode
         {
@@ -171,18 +148,15 @@ namespace Tenor.Web.UI.WebControls
             }
             set
             {
-                base.TextMode = value;
                 throw new NotSupportedException("Use TextBoxMode instead.");
             }
         }
 
 
         /// <summary>
-        /// The behavior mode of the TextBox
+        /// Gets or sets a value that determines the behavior mode of the TextBox.
         /// </summary>
-        /// <value>One of TextBoxMode values</value>
-        /// <returns></returns>
-        /// <remarks><see cref="TextBoxMode">TextBoxMode Enum</see></remarks>
+        /// <value>One of <see cref="Tenor.Web.UI.WebControls.TextBoxMode"/> values.</value>
         [Description("The behavior mode of the TextBox"), Category("Behavior"), DefaultValue(typeof(TextBoxMode), "SingleLine")]
         public TextBoxMode TextBoxMode
         {
@@ -208,10 +182,12 @@ namespace Tenor.Web.UI.WebControls
                     case WebControls.TextBoxMode.RichText:
                         base.TextMode = System.Web.UI.WebControls.TextBoxMode.MultiLine;
                         break;
-                    //If DesignMode AndAlso Site IsNot Nothing Then
-                    //    Dim webApp As System.Web.UI.Design.IWebApplication = CType(Site.GetService(GetType(System.Web.UI.Design.IWebApplication)), System.Web.UI.Design.IWebApplication)
-                    //    Util.CheckWebConfig(webApp)
-                    //End If
+                    /*
+                If DesignMode AndAlso Site IsNot Nothing Then
+                    Dim webApp As System.Web.UI.Design.IWebApplication = CType(Site.GetService(GetType(System.Web.UI.Design.IWebApplication)), System.Web.UI.Design.IWebApplication)
+                    Util.CheckWebConfig(webApp)
+                End If
+                     */
                     default:
                         base.TextMode = System.Web.UI.WebControls.TextBoxMode.SingleLine;
                         break;
@@ -232,7 +208,7 @@ namespace Tenor.Web.UI.WebControls
         /// <item># - digit from 0 to 9</item>
         /// </list>
         /// </remarks>
-        [DefaultValue(""), Description("Gets or sets the mask to apply when Mask is set to Custom."), Category("Behavior")]
+        [DefaultValue(""), Description("Defines the mask to apply when Mask is set to Custom."), Category("Behavior")]
         public string CustomMask
         {
             get
@@ -251,7 +227,7 @@ namespace Tenor.Web.UI.WebControls
         /// <value></value>
         /// <returns></returns>
         /// <remarks></remarks>
-        [DefaultValue(""), Description("Gets or sets the regular expression validation rule to apply when Mask is set to Custom."), Category("Behavior")]
+        [DefaultValue(""), Description("Defines the regular expression validation rule to apply when Mask is set to Custom."), Category("Behavior")]
         public string CustomValidation
         {
             get
@@ -265,12 +241,9 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        ///
+        /// Gets or sets the error message to display in case of unsuccesful validation.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        [DefaultValue("Gets or sets the error message to display in case of unsuccesful validation."), Description("Gets or sets the error message to display in case of unsuccesful validation."), Category("Behavior")]
+        [DefaultValue("Defines the error message to display in case of unsuccesful validation."), Description("Gets or sets the error message to display in case of unsuccesful validation."), Category("Behavior")]
         public string ErrorMessage
         {
             get
@@ -285,10 +258,9 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Indica se deve ou não mostrar o calendário quando TextBox for DateTime
+        /// Gets or sets a value that determines how the calendar is shown when this control behaves like a DateTime box.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
+        /// <value>One of the <see cref="TextBoxCalendarButton"/> values.</value>
         [Themeable(true), DefaultValue(typeof(TextBoxCalendarButton), "None"), Description("Indicates whether to show a glyph with a calendar pane. This property is valid only if TextBoxMode is set to any Date format."), Category("Appearance")]
         public TextBoxCalendarButton ShowCalendar
         {
@@ -318,7 +290,7 @@ namespace Tenor.Web.UI.WebControls
             if (!DesignMode)
             {
                 ScriptMasks mask = new ScriptMasks();
-                //Insere javascript principal de máscaras na página
+                //Registers the main js mask code.
                 mask.Initialize(this.Page);
 
 
@@ -326,15 +298,15 @@ namespace Tenor.Web.UI.WebControls
             base.OnLoad(e);
         }
 
-        #region "Nova Mascara "
+        #region "Masks "
 
 
-        private void MaskScriptVersion1()
+        private void RegisterMaskScriptVersion1()
         {
             Page.ClientScript.RegisterClientScriptResource(this.GetType(), Configuration.Resources.JsMasks);
         }
 
-        private void MaskScriptVersion2()
+        private void RegisterMaskScriptVersion2()
         {
             Page.ClientScript.RegisterClientScriptResource(this.GetType(), Configuration.Resources.JsJQuery);
             Page.ClientScript.RegisterClientScriptResource(this.GetType(), Configuration.Resources.JsMasks2);
@@ -345,42 +317,44 @@ namespace Tenor.Web.UI.WebControls
         protected override void OnPreRender(System.EventArgs e)
         {
 
-            //Verifica se a referencia à TinyMCE existe no website
+            //Checks if we fave TinyMce only when TextBoxMode is set to RichText
             switch (TextBoxMode)
             {
-                //Case WebControls.TextBoxMode.SingleLine, WebControls.TextBoxMode.MultiLine, WebControls.TextBoxMode.Password
-                //    'Nada a fazer
-
                 case WebControls.TextBoxMode.RichText:
                     System.Reflection.Assembly tinymce = System.Reflection.Assembly.Load(new System.Reflection.AssemblyName(Configuration.Resources.AssemblyTinyMCE));
                     Configuration.HttpModule.CheckHttpModule();
                     break;
+                /*
+                 MaskScriptVersion1()
+                 SetMaskVersion1()
+             Case WebControls.TextBoxMode.Integer, _
+                  WebControls.TextBoxMode.Float, _
+                  WebControls.TextBoxMode.Currency, _
+                  WebControls.TextBoxMode.Percent, _
+                  WebControls.TextBoxMode.Email
 
-                //    MaskScriptVersion1()
-                //    SetMaskVersion1()
-                //Case WebControls.TextBoxMode.Integer, _
-                //     WebControls.TextBoxMode.Float, _
-                //     WebControls.TextBoxMode.Currency, _
-                //     WebControls.TextBoxMode.Percent, _
-                //     WebControls.TextBoxMode.Email
-
-                //    MaskScriptVersion1()
-                //    SetMaskVersion1()
-
+                 MaskScriptVersion1()
+                 SetMaskVersion1()
+                 */
                 case WebControls.TextBoxMode.DateDMY:
-                    //Page.ClientScript.RegisterClientScriptResource(GetType(System.Web.UI.WebControls.Image), "WebForms.js")
+                    /*
+                    Page.ClientScript.RegisterClientScriptResource(GetType(System.Web.UI.WebControls.Image), "WebForms.js")
+                     */
                     if (this.ShowCalendar != TextBoxCalendarButton.None)
                     {
                         RegisterCalendarScripts();
                     }
                     break;
-                //        MaskScriptVersion2()
-                //        SetMaskVersion2()
+                /*
+                    MaskScriptVersion2()
+                    SetMaskVersion2()
 
-                //    Case Else
-                //        MaskScriptVersion2()
-                //        SetMaskVersion2()
+                Case Else
+                    MaskScriptVersion2()
+                    SetMaskVersion2()
+                     */
             }
+            //Executes a refresh to fix up MyBase.TextMode.
             TextBoxMode = TextBoxMode;
             SetMaskVersion1();
 
@@ -390,14 +364,12 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Define a máscara de acordo com o tipo da textbox
+        /// Sets the mask based on textboxmode.
         /// </summary>
-        /// <remarks></remarks>
         private void SetMaskVersion2()
         {
+            //Executes a refresh to fix up MyBase.TextMode.
             TextBoxMode = TextBoxMode;
-            //Executa o SET da propriedade TextBoxMode
-            //Necessário para acertar a MyBase.TextMode para o valor correto
 
             string mask = string.Empty;
             string validation = "";
@@ -465,18 +437,13 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Define a máscara de acordo com o tipo da textbox
+        /// Sets the mask based on textboxmode.
         /// </summary>
-        /// <remarks></remarks>
         private void SetMaskVersion1()
         {
-            //Executa o SET da propriedade TextBoxMode
-            //Necessário para acertar a MyBase.TextMode para o valor correto
-
-
             if (TextBoxMode != TextBoxMode.SingleLine && TextBoxMode != TextBoxMode.MultiLine && TextBoxMode != TextBoxMode.Password && TextBoxMode != TextBoxMode.RichText)
             {
-                // Acerta os atributos de evento para que nao sobrescrevam possivel codigo do usuario
+                // fix up event attributes to avoid overriding user code.
                 if (!string.IsNullOrEmpty(Attributes["onkeypress"]) && !Attributes["onkeypress"].EndsWith(";"))
                 {
                     Attributes["onkeypress"] += ";";
@@ -489,7 +456,9 @@ namespace Tenor.Web.UI.WebControls
                 {
                     Attributes["onclick"] += ";";
                 }
-                //'If (Not String.IsNullOrEmpty(Attributes("onload")) AndAlso Not Attributes("onload").EndsWith(";")) Then Attributes("onload") += ";"
+                /*
+                 'If (Not String.IsNullOrEmpty(Attributes("onload")) AndAlso Not Attributes("onload").EndsWith(";")) Then Attributes("onload") += ";"
+                 */
                 if (!string.IsNullOrEmpty(Attributes["onblur"]) && !Attributes["onblur"].EndsWith(";"))
                 {
                     Attributes["onblur"] += ";";
@@ -527,7 +496,9 @@ namespace Tenor.Web.UI.WebControls
             {
                 onkeydown = "return Masks_Currency(event, this);";
                 onclick = onkeydown;
-                //'Attributes("onload") += Attributes("onkeydown")
+                /*
+                 * Attributes("onload") += Attributes("onkeydown")
+                 */
                 Style[HtmlTextWriterStyle.TextAlign] = "right";
             }
             else if ((TextBoxMode) == TextBoxMode.DateDMY)
@@ -538,7 +509,9 @@ namespace Tenor.Web.UI.WebControls
             else if ((TextBoxMode) == TextBoxMode.TimeHM)
             {
                 onkeypress = "return Masks_Format(event, this,\'##:##\');";
-                //Attributes("onblur") += "Masks_checkValue(this, '^((0-1)(0-9)|(2)(0-3)):((0-5)(0-9))$', '" + ErrorMessage + "');"
+                /*
+                 * Attributes("onblur") += "Masks_checkValue(this, '^((0-1)(0-9)|(2)(0-3)):((0-5)(0-9))$', '" + ErrorMessage + "');"
+                 */
                 onblur = "Masks_checkValue(this, \'^(([1-9]{1})|([0-1][0-9])|([1-2][0-3])):([0-5][0-9])$\', \'" + ErrorMessage + "\');";
             }
             else if ((TextBoxMode) == TextBoxMode.TimeHMS)
@@ -579,22 +552,24 @@ namespace Tenor.Web.UI.WebControls
             }
             else if ((TextBoxMode) == TextBoxMode.RichText)
             {
-                //aplicar TinyMCE
+                //Registering TinyMCE startup code.
                 string script = "" + "\r\n" + "   TextBox_ID = \"" + ClientID + "\";" + "\r\n" + "	tinyMCE.init({" + "\r\n" + "		theme : \"advanced\"," + "\r\n" + "		language : \"pt_br\"," + "\r\n" + "       //editor_selector : \"TextArea\"," + "\r\n" + "		mode : \"exact\"," + "\r\n" + "       elements: \"" + this.ClientID + "\", " + "\r\n" + "		theme_advanced_toolbar_location : \"top\"," + "\r\n" + "		theme_advanced_toolbar_align : \"left\"," + "\r\n" + "		theme_advanced_disable : \"code\", " + "\r\n" + "       force_br_newlines : true, " + "\r\n" + "       force_p_newlines : false, " + "\r\n" + "		plugins : \"contextmenu,paste,preview,fullscreen,inlinepopups\"," + "\r\n" + "		theme_advanced_buttons1: \"fontsizeselect,fontselect,separator,bold,italic,underline,forecolor,separator,bullist,numlist\"," + "\r\n" + "		theme_advanced_buttons2: \"outdent,indent,separator,undo,redo,separator,link,unlink,separator,hr,separator,justifyleft,justifycenter,justifyright,justifyfull,separator\"," + "\r\n" + "		theme_advanced_buttons1_add : \"separator,pastetext,pasteword,separator,fullscreen,separator,cleanup,removeformat\", "
                 + "\r\n" + "		theme_advanced_buttons3: \"\"," + "\r\n" + "       onchange_callback : \"TextBox_HandleChange\"," + "\r\n" + "		debug : false" + "\r\n" + "	});" + "\r\n" + "";
 
-                //"		//theme_advanced_styles : ""Parágrafo=parag;"", " + vbCrLf + _
-                //"		//content_css : ""arquivo.css""," + vbCrLf + _
-                //"		//theme_advanced_buttons3_add : ""separator, pastetext, pasteword, separator, tablecontrols"", " + vbCrLf + _
+                /*
+                 * "		//theme_advanced_styles : ""Parágrafo=parag;"", " + vbCrLf + _
+                 * "		//content_css : ""arquivo.css""," + vbCrLf + _
+                 * "		//theme_advanced_buttons3_add : ""separator, pastetext, pasteword, separator, tablecontrols"", " + vbCrLf + _
+                 */
 
-                //Insere javascript base do tinymce na pagina
+                //Registers the main tinymce code include
                 Page.ClientScript.RegisterClientScriptInclude("TextArea_Include", ResolveUrl("~/" + Configuration.HttpModule.HandlerFileName) + "/tiny_mce/tiny_mce.js");
-                //Insete javascript de inicializacao do tinymce
+                //Registers the main tinymce startup code 
                 Page.ClientScript.RegisterClientScriptBlock(this.GetType(), "TextArea_Startup" + this.ClientID, script, true);
             }
             else if ((((TextBoxMode) == TextBoxMode.SingleLine) || ((TextBoxMode) == TextBoxMode.MultiLine)) || ((TextBoxMode) == WebControls.TextBoxMode.Password))
             {
-                //nada a fazer para esses tipos
+                //nothing todo here
             }
 
 
@@ -693,9 +668,8 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Registra scripts e estilos para o calendario
+        /// Register calendar scripts and css styles.
         /// </summary>
-        /// <remarks></remarks>
         private void RegisterCalendarScripts()
         {
             if (Page.Header == null)
@@ -731,10 +705,8 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Escreve o HTML necessário ao botão do calendário
+        /// Renders the HTML of calendar button.
         /// </summary>
-        /// <param name="writer"></param>
-        /// <remarks></remarks>
         private void RenderCalendarButton(HtmlTextWriter writer)
         {
 

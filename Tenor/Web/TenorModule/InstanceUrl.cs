@@ -33,35 +33,30 @@ namespace Tenor.Web
             return GetInstanceUrl(type, parameter, fileName, forceDownload, Drawing.ResizeMode.Stretch, 0, 0);
         }
 
+        /*
+        [Obsolete]
+        public static string GetInstanceUrl(HttpContext Context, Type Type, int Parameter)
+        {
+            return GetInstanceUrl(, Type, Parameter, string.Empty, false, Drawing.ResizeMode.Stretch, 0, 0);
+        }
 
-        ///// <summary>
-        ///// Creates a string with an url that will serve an instance base on a single integer parameter. 
-        ///// </summary>
-        //[Obsolete]
-        //public static string GetInstanceUrl(HttpContext Context, Type Type, int Parameter)
-        //{
-        //    return GetInstanceUrl(, Type, Parameter, string.Empty, false, Drawing.ResizeMode.Stretch, 0, 0);
-        //}
+        [Obsolete]
+        public static string GetInstanceUrl(HttpContext Context, Type Type, int Parameter, string FileName, bool Download)
+        {
+            return GetInstanceUrl(Context, Type, Parameter, FileName, Download, Drawing.ResizeMode.Stretch, 0, 0);
+        }
 
-        ///// <summary>
-        ///// Creates a string with an url that will serve an instance base on a single integer parameter. 
-        ///// </summary>
-        //[Obsolete]
-        //public static string GetInstanceUrl(HttpContext Context, Type Type, int Parameter, string FileName, bool Download)
-        //{
-        //    return GetInstanceUrl(Context, Type, Parameter, FileName, Download, Drawing.ResizeMode.Stretch, 0, 0);
-        //}
-
-        //[Obsolete("Use GetInstanceUrl with resize mode.")]
-        //public static string GetInstanceUrl(HttpContext Context, Type Type, int Parameter, bool Crop, int Width, int Height)
-        //{
-        //    ResizeMode mode = ResizeMode.Proportional;
-        //    if (Crop)
-        //    {
-        //        mode = ResizeMode.Crop;
-        //    }
-        //    return GetInstanceUrl(Context, Type, Parameter, string.Empty, false, mode, Width, Height);
-        //}
+        [Obsolete("Use GetInstanceUrl with resize mode.")]
+        public static string GetInstanceUrl(HttpContext Context, Type Type, int Parameter, bool Crop, int Width, int Height)
+        {
+            ResizeMode mode = ResizeMode.Proportional;
+            if (Crop)
+            {
+                mode = ResizeMode.Crop;
+            }
+            return GetInstanceUrl(Context, Type, Parameter, string.Empty, false, mode, Width, Height);
+        }
+        */
 
         /// <summary>
         /// Creates a string with an url that will serve an instance base on a single integer parameter. 
@@ -71,29 +66,26 @@ namespace Tenor.Web
             return GetInstanceUrl(type, parameter, string.Empty, false, resizeMode, width, height);
         }
 
-        ///// <summary>
-        ///// Creates a string with an url that will serve an instance base on a single integer parameter. 
-        ///// </summary>
-        //[Obsolete]
-        //public static string GetInstanceUrl(HttpContext Context, Type Type, int Parameter, ResizeMode ResizeMode, int Width, int Height)
-        //{
-        //    return GetInstanceUrl(Context, Type, Parameter, string.Empty, false, ResizeMode, Width, Height);
-        //}
+        /*
+        [Obsolete]
+        public static string GetInstanceUrl(HttpContext Context, Type Type, int Parameter, ResizeMode ResizeMode, int Width, int Height)
+        {
+            return GetInstanceUrl(Context, Type, Parameter, string.Empty, false, ResizeMode, Width, Height);
+        }
 
 
-        ///// <summary>
-        ///// Creates a string with an url that will serve an instance base on a single integer parameter. 
-        ///// </summary>
-        //[Obsolete("Use GetInstanceUrl with resize mode.")]
-        //public static string GetInstanceUrl(HttpContext Context, Type Type, int Parameter, string FileName, bool Download, bool Crop, int Width, int Height)
-        //{
-        //    ResizeMode mode = ResizeMode.Proportional;
-        //    if (Crop)
-        //    {
-        //        mode = ResizeMode.Crop;
-        //    }
-        //    return GetInstanceUrl(Context, Type, Parameter, FileName, Download, mode, Width, Height);
-        //}
+
+        [Obsolete("Use GetInstanceUrl with resize mode.")]
+        public static string GetInstanceUrl(HttpContext Context, Type Type, int Parameter, string FileName, bool Download, bool Crop, int Width, int Height)
+        {
+            ResizeMode mode = ResizeMode.Proportional;
+            if (Crop)
+            {
+                mode = ResizeMode.Crop;
+            }
+            return GetInstanceUrl(Context, Type, Parameter, FileName, Download, mode, Width, Height);
+        }
+         */
 
         /// <summary>
         /// Creates a string with an url that will serve an instance base on a single integer parameter. 

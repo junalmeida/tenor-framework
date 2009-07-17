@@ -14,19 +14,20 @@ using System.Drawing;
 
 namespace Tenor.Web.UI.WebControls
 {
+    //TODO: Implement a way to multiple select with the keyboard.
 
 
     //Designer("System.Web.UI.Design.WebControls.ListControlDesigner", "System.ComponentModel.Design.IDesigner") _
     /// <summary>
-    /// Implementa uma CheckBoxList com ações especiais.
-    /// Você pode usar este controle para fazer uma lista com funções de selecionar tudo.
-    /// todo: Implementar seleções com shift do teclado.
+    /// This control is a checkbox list with custom actions.
     /// </summary>
-    /// <remarks></remarks>
     [ToolboxItem(typeof(System.Web.UI.Design.WebControlToolboxItem)), ToolboxBitmapAttribute(typeof(System.Web.UI.WebControls.CheckBoxList), "CheckBoxList.bmp"), ToolboxData("<{0}:CheckBoxList runat=server></{0}:CheckBoxList>"), ParseChildren(true, "Items"), PersistChildren(false, false)]
     public class CheckBoxList : System.Web.UI.WebControls.CheckBoxList
     {
 
+        /// <summary>
+        /// Gets or sets a value that defines the behavior of the special items.
+        /// </summary>
         [Category("Behavior"), Description("Determines the action that special itens will perform"), DefaultValue(typeof(CheckBoxSpecialItemAction), "SelectAndUnSelectAll")]
         public CheckBoxSpecialItemAction SpecialItemAction
         {
@@ -47,6 +48,9 @@ namespace Tenor.Web.UI.WebControls
             }
         }
 
+        /// <summary>
+        /// Gets or sets a value that defines where the item will be rendered.
+        /// </summary>
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never), Category("Behavior"), Description("Determines whether to display the special item on the list"), DefaultValue(typeof(CheckBoxSpecialItemPosition), "Bottom")]
         public CheckBoxSpecialItemPosition SpecialItemPosition
         {
@@ -69,7 +73,10 @@ namespace Tenor.Web.UI.WebControls
             }
         }
 
-        [Category("Appearance"), Description("Gets or sets the text to show on special items"), DefaultValue(typeof(CheckBoxSpecialItemPosition), "(Un)Select All")]
+        /// <summary>
+        /// Gets or sets the label of the special item.
+        /// </summary>
+        [Category("Appearance"), Description("Defines the text to show on special items"), DefaultValue(typeof(CheckBoxSpecialItemPosition), "(Un)Select All")]
         public string SpecialItemText
         {
             get
@@ -161,16 +168,38 @@ namespace Tenor.Web.UI.WebControls
 
     }
 
+    /// <summary>
+    /// Defines the position of the special item.
+    /// </summary>
     public enum CheckBoxSpecialItemPosition
     {
+        /// <summary>
+        /// The special item will not be rendered.
+        /// </summary>
         None,
+
+        /// <summary>
+        /// The special item will be rendered on the top of the list.
+        /// </summary>
         Top,
+        /// <summary>
+        /// The special item will be rendered on the bottom of the list.
+        /// </summary>
         Bottom,
+        /// <summary>
+        /// The special item will be rendered on both top and bottom of the list.
+        /// </summary>
         TopAndBottom
     }
 
+    /// <summary>
+    /// Defines the action of the special items.
+    /// </summary>
     public enum CheckBoxSpecialItemAction
     {
+        /// <summary>
+        /// The special item rendered will check or unchecks all other items.
+        /// </summary>
         SelectAndUnSelectAll
     }
 

@@ -114,8 +114,6 @@ namespace Tenor.Text
         /// Capitalizes each word, keeping 'and', 'dos', 'das', 'los', 'las', and words with 2 characters in lower case. 
         /// </summary>
         /// <param name="text">The original text string.</param>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public static string ToMiddleCase(string text)
         {
             string[] words = (" " + text.ToLower() + " ").Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -149,8 +147,6 @@ namespace Tenor.Text
         /// <summary>
         /// Creates a ramdom password with five alphanumeric characters.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public static string GenerateRandomPassword()
         {
             return GenerateRandomPassword(PasswordStyle.FiveCharsOrNumbers);
@@ -160,8 +156,6 @@ namespace Tenor.Text
         /// Creates a ramdom password.
         /// </summary>
         /// <param name="passwordStyle">One of PasswordStyle values.</param>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public static string GenerateRandomPassword(PasswordStyle passwordStyle)
         {
             int AscA = (int)('a');
@@ -204,8 +198,6 @@ namespace Tenor.Text
         /// Converts the text to an Hexadecimal representation.
         /// </summary>
         /// <param name="text">The original text string.</param>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public static string ToAscHex(string text)
         {
             if (text == null)
@@ -222,9 +214,8 @@ namespace Tenor.Text
         }
         /// <summary>
         /// Converts the text from an Hexadecimal representation.
-        ///
         /// </summary>
-        /// <exception cref="FormatException"></exception>
+        /// <exception cref="FormatException" />
         public static string FromAscHex(string hexText)
         {
             if (hexText == null)
@@ -280,10 +271,9 @@ namespace Tenor.Text
 
         /// <summary>
         /// Gets the System.ComponentModel.DescriptionAttribute of the enum value. 
-        /// 
         /// </summary>
         /// <param name="value">An enum value</param>
-        /// <returns>string</returns>
+        /// <returns>A string with the enum item description defined or the item's name when DescriptionAttribute is not found.</returns>
         public static string GetEnumItemDescription(Enum value)
         {
             string res = value.ToString();
@@ -304,11 +294,9 @@ namespace Tenor.Text
 
 
         /// <summary>
-        /// Remove the accentuation of each word in a text.
+        /// Removes the accentuation of each word in a text.
         /// </summary>
         /// <param name="text">The original text string.</param>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public static string RemoveAccentuation(string text)
         {
             if (string.IsNullOrEmpty(text))
@@ -319,7 +307,7 @@ namespace Tenor.Text
             {
 
                 string res = text;
-                //' acento agudo
+                //' accent
                 res = res.Replace("á", "a");
                 res = res.Replace("é", "e");
                 res = res.Replace("í", "i");
@@ -333,7 +321,7 @@ namespace Tenor.Text
                 res = res.Replace("Ý", "Y");
                 res = res.Replace("ý", "y");
 
-                //' acento circunflexo
+                //' circunflex
                 res = res.Replace("â", "a");
                 res = res.Replace("ê", "e");
                 res = res.Replace("î", "i");
@@ -345,7 +333,7 @@ namespace Tenor.Text
                 res = res.Replace("Ô", "O");
                 res = res.Replace("Û", "U");
 
-                //' til
+                //' tilde
                 res = res.Replace("ã", "a");
                 res = res.Replace("õ", "o");
                 res = res.Replace("Ã", "A");
@@ -353,7 +341,7 @@ namespace Tenor.Text
                 res = res.Replace("Ñ", "N");
                 res = res.Replace("ñ", "n");
 
-                //' cedilha
+                //' cedilla
                 res = res.Replace("ç", "c");
                 res = res.Replace("Ç", "C");
 
@@ -389,8 +377,6 @@ namespace Tenor.Text
         /// Encodes accentuation with HtmlEncoding.
         /// </summary>
         /// <param name="text">The original text string.</param>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public static string EncodeAccentuation(string text)
         {
             if (string.IsNullOrEmpty(text))
@@ -458,8 +444,6 @@ namespace Tenor.Text
                 res = res.Replace("Ò", "&Ograve;");
                 res = res.Replace("Ù", "&Ugrave;");
 
-
-
                 return res;
             }
         }
@@ -467,35 +451,30 @@ namespace Tenor.Text
     }
 
     /// <summary>
-    /// Contém uma lista de tipos de senhas disponíveis
+    /// Defines how the password will be generated.
     /// </summary>
     /// <remarks></remarks>
     public enum PasswordStyle
     {
         /// <summary>
-        /// Cinco caracteres entre letras e números
+        /// Generates a password with five western characters or numbers.
         /// </summary>
-        /// <remarks></remarks>
         FiveCharsOrNumbers,
         /// <summary>
-        /// Cinco caracteres alphanuméricos incluindo símbolos.
+        /// Generates a password with five alphanumeric characters including symbols.
         /// </summary>
-        /// <remarks></remarks>
         FiveAlpha,
         /// <summary>
-        /// Cinco letras
+        /// Generates a password with five western alphabetic characters.
         /// </summary>
-        /// <remarks></remarks>
         FiveChars,
         /// <summary>
-        /// Duas letras e dois números
+        /// Generates a password with two letters and two numbers.
         /// </summary>
-        /// <remarks></remarks>
         TwoCharsTwoNumbers,
         /// <summary>
-        /// Dois números e duas letras
+        /// Generates a password with two numbers and two letters.
         /// </summary>
-        /// <remarks></remarks>
         TwoNumbersTwoChars
     }
 }

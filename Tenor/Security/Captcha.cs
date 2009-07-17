@@ -19,7 +19,6 @@ namespace Tenor.Security
         /// <summary>
         /// Initializes a new instance of the <see cref="Captcha"/> class, creating a new access code. 
         /// </summary>
-        /// <remarks></remarks>
         public Captcha()
         {
             DefineRamdomColorsAndFonts();
@@ -30,7 +29,6 @@ namespace Tenor.Security
         /// Initializes a new instance of the <see cref="Captcha"/> class, using a user-defined access code. 
         /// </summary>
         /// <param name="accessCode">A string with user-defined access code.</param>
-        /// <remarks></remarks>
         public Captcha(string accessCode) 
         {
             DefineRamdomColorsAndFonts();
@@ -99,7 +97,6 @@ namespace Tenor.Security
         /// <summary>
         /// Chooses a ramdom font to draw an image.
         /// </summary>
-        /// <returns></returns>
         private Font GenerateRandomFont()
         {
             Random rnd = new Random();
@@ -131,7 +128,6 @@ namespace Tenor.Security
         /// Creates an image representation of the current access code.
         /// </summary>
         /// <returns>An JPEG image with the current representation of the access code.</returns>
-        /// <remarks></remarks>
         public Image GenerateImage()
         {
             Random rnd = new Random();
@@ -220,7 +216,6 @@ namespace Tenor.Security
         /// Creates an audio representation of the current access code.
         /// </summary>
         /// <returns>A byte array of an PCM Wave audio form.</returns>
-        /// <remarks></remarks>
         public byte[] GenerateAudio()
         {
 #if MONO

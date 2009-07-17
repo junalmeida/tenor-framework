@@ -45,7 +45,6 @@ namespace Tenor.Web.UI.WebControls
     public class SlidingPanelCommandEventArgs : CommandEventArgs
     {
 
-        // Methods
         public SlidingPanelCommandEventArgs(SlidingPanelItem item, object commandSource, CommandEventArgs originalArgs)
             : base(originalArgs)
         {
@@ -54,7 +53,6 @@ namespace Tenor.Web.UI.WebControls
         }
 
 
-        // Properties
         public object CommandSource
         {
             get
@@ -72,7 +70,6 @@ namespace Tenor.Web.UI.WebControls
         }
 
 
-        // Fields
         private object _commandSource;
         private SlidingPanelItem _item;
 
@@ -80,18 +77,11 @@ namespace Tenor.Web.UI.WebControls
     #endregion
 
     /// <summary>
-    /// Controle que exibe um painel com setas de rolagem.
+    /// This control shows a panel with scroll arrows.
     /// </summary>
-    /// <remarks></remarks>
     [ToolboxItem(typeof(System.Web.UI.Design.WebControlToolboxItem)), ToolboxData("<{0}:SlidingPanel runat=\"server\" />"), ToolboxBitmapAttribute(typeof(System.Web.UI.WebControls.Panel), "Panel.bmp")]
     public class SlidingPanel : System.Web.UI.WebControls.CompositeDataBoundControl, IPostBackDataHandler
     {
-
-
-
-
-
-
 
         private ArrayList itemsArray = null;
         private SlidingPanelItemCollection itemsCollection = null;
@@ -175,9 +165,11 @@ namespace Tenor.Web.UI.WebControls
                 if (_AlternatingItemStyle == null)
                 {
                     _AlternatingItemStyle = new Style();
-                    //If (IsTrackingViewState) Then
-                    //    _AlternatingItemStyle.TrackViewState()
-                    //End If
+                    /*
+                    If (IsTrackingViewState) Then
+                        _AlternatingItemStyle.TrackViewState()
+                    End If
+                     */
                 }
                 return _AlternatingItemStyle;
 
@@ -209,9 +201,11 @@ namespace Tenor.Web.UI.WebControls
                 if (_ItemStyle == null)
                 {
                     _ItemStyle = new Style();
-                    //If (IsTrackingViewState) Then
-                    //    _ItemStyle.TrackViewState()
-                    //End If
+                    /*
+                    If (IsTrackingViewState) Then
+                        _ItemStyle.TrackViewState()
+                    End If
+                     */
                 }
                 return _ItemStyle;
 
@@ -245,9 +239,11 @@ namespace Tenor.Web.UI.WebControls
                 if (_LeftSlidingStyle == null)
                 {
                     _LeftSlidingStyle = new Style();
-                    //If (IsTrackingViewState) Then
-                    //    _LeftSlidingStyle.TrackViewState()
-                    //End If
+                    /*
+                    If (IsTrackingViewState) Then
+                        _LeftSlidingStyle.TrackViewState()
+                    End If
+                     */
                 }
                 return _LeftSlidingStyle;
 
@@ -278,9 +274,11 @@ namespace Tenor.Web.UI.WebControls
                 if (_RightSlidingStyle == null)
                 {
                     _RightSlidingStyle = new Style();
-                    //If (IsTrackingViewState) Then
-                    //    _RightSlidingStyle.TrackViewState()
-                    //End If
+                    /*
+                    If (IsTrackingViewState) Then
+                        _RightSlidingStyle.TrackViewState()
+                    End If
+                     */
                 }
                 return _RightSlidingStyle;
 
@@ -303,10 +301,10 @@ namespace Tenor.Web.UI.WebControls
         }
         #endregion
 
-        #region " Propriedades "
+        #region " Properties "
         /// <summary>
-        /// Controla a orientação deste controle.
-        /// Atualmente somente o valor Horizontal é suportado.
+        /// Gets or sets the rendering orientation. 
+        /// Actually, only Horizontal is supported.
         /// </summary>
         /// <value></value>
         /// <returns></returns>
@@ -327,18 +325,17 @@ namespace Tenor.Web.UI.WebControls
             }
             set
             {
+                //TODO: Implement vertical support.
+                if (value != Orientation.Horizontal)
+                    throw new NotImplementedException();
                 ViewState["Orientation"] = null;
-                //somente horizontal até o momento
             }
         }
 
 
         /// <summary>
-        /// Ativa ou desativa o efeito de navegação ao usar as setas de rolagem.
+        /// Gets or sets a value to enable or disable navigation animation.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [Description("Determines if Slidinging animation is on"), Category("Behavior"), DefaultValue(true)]
         public bool Animation
         {
@@ -368,11 +365,8 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Determina quantos pixels deverá rolar ao usar as setas de rolagem. O valor 0 (zero) assume a largura de cada item.
+        /// Gets or sets an integer with how many pixels will be scrolled on arrow actions. When 0 (zero), scrolls the item's width.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [Description("Defines the pixel offset to Sliding when animation is false. Zeros assumes items width."), Category("Behavior"), DefaultValue(0)]
         public int MovingOffset
         {
@@ -680,13 +674,13 @@ namespace Tenor.Web.UI.WebControls
 
 
 
-            //adicionar os itens no centerpanel agora
+            //adding items to the centerpanel.
             int indice = 0;
 
 
-
-            //Dim itens As New List(Of SlidingPanelItem)
-
+            /*
+            Dim itens As New List(Of SlidingPanelItem)
+            */
 
             foreach (object obj in dataSource)
             {

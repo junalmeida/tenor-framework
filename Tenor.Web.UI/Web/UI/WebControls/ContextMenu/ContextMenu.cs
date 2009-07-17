@@ -16,9 +16,8 @@ namespace Tenor.Web.UI.WebControls
 
 
     /// <summary>
-    /// Manté um menu de contexto.
+    /// This control renders a context menu.
     /// </summary>
-    /// <remarks></remarks>
     [ToolboxData("<{0}:ContextMenu runat=server></{0}:ContextMenu>")]
     public class ContextMenu : ListControl, IPostBackEventHandler
     {
@@ -27,6 +26,7 @@ namespace Tenor.Web.UI.WebControls
 
         public ContextMenu()
         {
+            //TODO: WTF?
             throw (new NotImplementedException());
         }
 
@@ -103,9 +103,11 @@ namespace Tenor.Web.UI.WebControls
             else
             {
                 writer.AddAttribute(HtmlTextWriterAttribute.Href, base.ResolveClientUrl(item.Value));
-                //If Not String.IsNullOrEmpty(Me.Target) Then
-                //    writer.AddAttribute(HtmlTextWriterAttribute.Target, Me.Target)
-                //End If
+                /*
+                If Not String.IsNullOrEmpty(Me.Target) Then
+                    writer.AddAttribute(HtmlTextWriterAttribute.Target, Me.Target)
+                End If
+                 */
             }
 
             this.RenderAccessKey(writer, this.AccessKey);
@@ -143,7 +145,9 @@ namespace Tenor.Web.UI.WebControls
         }
         #endregion
 
-        #region " Associacao "
+        /// <summary>
+        /// Gets or sets the control id associated with this context menu.
+        /// </summary>
         [Themeable(false), TypeConverter(typeof(AssociatedControlConverter)), Category("Behavior"), IDReferenceProperty(), DefaultValue(""), Description("The control that will handle this context menu.")]
         public virtual string AssociatedControlID
         {
@@ -161,9 +165,9 @@ namespace Tenor.Web.UI.WebControls
                 this.ViewState["AssociatedControlID"] = value;
             }
         }
-        #endregion
 
-        #region " Desativados "
+
+        #region " Disabled properties "
         [Bindable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public override int SelectedIndex
         {
@@ -225,7 +229,7 @@ namespace Tenor.Web.UI.WebControls
 
         #endregion
 
-        #region " Configuracoes"
+        #region " Configurations "
 
         protected override HtmlTextWriterTag TagKey
         {
@@ -271,9 +275,11 @@ namespace Tenor.Web.UI.WebControls
         #region " Postback "
         private string GetPostBackEventReference(string eventArgument)
         {
-            //If (Me.CausesValidation AndAlso (Me.Page.GetValidators(Me.ValidationGroup).Count > 0)) Then
-            //    Return ("javascript:" & Util.GetClientValidatedPostback(Me, Me.ValidationGroup, eventArgument))
-            //End If
+            /*
+            If (Me.CausesValidation AndAlso (Me.Page.GetValidators(Me.ValidationGroup).Count > 0)) Then
+                Return ("javascript:" & Util.GetClientValidatedPostback(Me, Me.ValidationGroup, eventArgument))
+            End If
+             */
             return this.Page.ClientScript.GetPostBackClientHyperlink(this, eventArgument, true);
         }
 
@@ -281,9 +287,8 @@ namespace Tenor.Web.UI.WebControls
 
         #region " Script "
         /// <summary>
-        /// Registra os scripts.
+        /// Registers required javascripts
         /// </summary>
-        /// <remarks></remarks>
         private void RegisterScript()
         {
             StringBuilder script = new StringBuilder();

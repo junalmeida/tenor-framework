@@ -1,8 +1,5 @@
 // FloatingPanel Web Control
-// Modificações no JS por
-//   - Andre Raw
-//   - Rachel Carvalho
-//   - Marcos Almeida
+
 
 var floatingLayers = [];
 
@@ -23,7 +20,7 @@ function floatLayer(numLayer){
 	floatingLayers[numLayer].distance=(floatingLayers[numLayer].pageTop+floatingLayers[numLayer].defPosTop)-parseInt(floatingLayers[numLayer].Layer.style.top);
 	floatingLayers[numLayer].divTop=parseInt(floatingLayers[numLayer].Layer.style.top);
 
-	// ACAO SUBIR
+	// go up
 	if(floatingLayers[numLayer].divTop<=(floatingLayers[numLayer].pageTop+floatingLayers[numLayer].defPosTop)){
 		if(floatingLayers[numLayer].distance>150){
 			floatingLayers[numLayer].step=20;
@@ -34,12 +31,11 @@ function floatLayer(numLayer){
 
 		floatingLayers[numLayer].divTop+= floatingLayers[numLayer].step;
 		floatingLayers[numLayer].Layer.style.top =floatingLayers[numLayer].divTop+"px";
-		//alert(floatingLayers[numLayer].divTop)
+		/*alert(floatingLayers[numLayer].divTop)*/
 	}
-	//fim
 
 
-	// ACAO DESCER
+	// go down
 	if(floatingLayers[numLayer].divTop>=(floatingLayers[numLayer].pageTop+floatingLayers[numLayer].defPosTop)){
 		if(floatingLayers[numLayer].distance< -150){
 			floatingLayers[numLayer].step=20;
@@ -49,15 +45,14 @@ function floatLayer(numLayer){
 		}
 		floatingLayers[numLayer].divTop-= floatingLayers[numLayer].step;
 		floatingLayers[numLayer].Layer.style.top =floatingLayers[numLayer].divTop+"px";
-		//alert(floatingLayers[numLayer].divTop)
+		/*alert(floatingLayers[numLayer].divTop)*/
 	}
-	//fim
 
 	floatingLayers[numLayer].timer=setTimeout("floatLayer("+numLayer+")",50);
 
 }
-//fim function
 
+//TODO: use addhandler
 window.onscroll=function()
 {
 	for (i=0; i<floatingLayers.length; i++) {

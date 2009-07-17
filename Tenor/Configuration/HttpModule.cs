@@ -16,29 +16,24 @@ namespace Tenor.Configuration
         /// <summary>
         /// Defines the default expiration time in seconds.
         /// </summary>
-        /// <remarks></remarks>
         public const int DefaultExpiresTime = 1 * 60 * 60;
         /// <summary>
         /// Defines the virtual file name that calls this module.
         /// </summary>
-        /// <remarks></remarks>
         public const string HandlerFileName = "Tenor.axd";
         /// <summary>
         /// Defines a base name of all keys.
         /// </summary>
-        /// <remarks></remarks>
         internal const string IdPrefix = "__TENOR_";
 
         /// <summary>
         /// Defines the base name of the cache key.
         /// </summary>
-        /// <remarks></remarks>
         internal const string CacheKeys = IdPrefix + "KEYS";
 
         /// <summary>
         /// Defines the query string directive to clear the cache. 
         /// </summary>
-        /// <remarks></remarks>
         internal const string NoCache = "nocache";
     }
 }

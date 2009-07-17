@@ -1,3 +1,5 @@
+//Menu
+
 var __Menus = new Array();
 
 function Menu_FindTD(node) {
@@ -144,7 +146,7 @@ function Menu_Manipulate(item, isroot) {
       
       
   } else {
-    //alert("child not found");
+    /*alert("child not found");*/
   }
 
 } 
@@ -158,7 +160,7 @@ function Menu_ManipulateDynamic(item) {
     var nodeTable = WebForm_GetElementByTagName(node, "table");
     node = nodeTable.rows[0].cells[0].childNodes[0];
  
-  //var node = Menu_HoverRoot(item);
+  /*var node = Menu_HoverRoot(item);*/
   
   var child = Menu_FindSubMenu(node);
   

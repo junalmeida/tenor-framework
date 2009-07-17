@@ -1,9 +1,10 @@
-
-//using System.Web.UI;
-//[assembly:WebResource(Configuration.Resources.ChartBarExample, "image/png")]
-//[assembly:WebResource(Configuration.Resources.ChartPieExample, "image/png")]
-//[assembly:WebResource(Configuration.Resources.GaugeSimplePNG, "image/png")]
-//[assembly:WebResource(Configuration.Resources.GaugeSimpleGIF, "image/gif")]
+/*
+using System.Web.UI;
+[assembly:WebResource(Configuration.Resources.ChartBarExample, "image/png")]
+[assembly:WebResource(Configuration.Resources.ChartPieExample, "image/png")]
+[assembly:WebResource(Configuration.Resources.GaugeSimplePNG, "image/png")]
+[assembly:WebResource(Configuration.Resources.GaugeSimpleGIF, "image/gif")]
+ */
 
 namespace Tenor.Configuration
 {

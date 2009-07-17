@@ -11,7 +11,6 @@ namespace Tenor.Data
     internal sealed class DummyDataSource : System.Collections.ICollection, System.Collections.IEnumerable
     {
 
-        // Methods
         internal DummyDataSource(int dataItemCount)
         {
             this.dataItemCount = dataItemCount;
@@ -33,7 +32,6 @@ namespace Tenor.Data
         }
 
 
-        // Properties
         public int Count
         {
             get
@@ -59,14 +57,12 @@ namespace Tenor.Data
         }
 
 
-        // Fields
         private int dataItemCount;
 
         private class DummyDataSourceEnumerator : System.Collections.IEnumerator
         {
 
 
-            // Methods
             public DummyDataSourceEnumerator(int count)
             {
                 this.count = count;
@@ -85,7 +81,6 @@ namespace Tenor.Data
             }
 
 
-            // Properties
             public object Current
             {
                 get
@@ -95,7 +90,6 @@ namespace Tenor.Data
             }
 
 
-            // Fields
             private int count;
             private int index;
 

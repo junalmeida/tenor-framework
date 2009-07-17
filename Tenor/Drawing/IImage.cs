@@ -13,23 +13,19 @@ namespace Tenor
 		/// <summary>
         /// Defines how the image should be resized.
 		/// </summary>
-		/// <remarks></remarks>
 		public enum ResizeMode
 		{
 			/// <summary>
             /// Streches the image to the given width and height values.
 			/// </summary>
-			/// <remarks></remarks>
 			Stretch,
 			/// <summary>
             /// Resizes the image proportionally using the given width and height values.
 			/// </summary>
-			/// <remarks></remarks>
 			Proportional,
 			/// <summary>
             /// Resizes the image cropping and centering it. The image should fill entire width and height values.
 			/// </summary>
-			/// <remarks></remarks>
 			Crop
 		}
 		
@@ -43,7 +39,6 @@ namespace Tenor
             /// Resizes the current image by a porcentage value.
             /// </summary>
 			/// <param name="percent">How much the image will be resized. You can use positive and negative values.</param>
-			/// <remarks></remarks>
 			void ResizeByPercent(int percent);
 			
 			/// <summary>

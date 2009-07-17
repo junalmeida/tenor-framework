@@ -1,7 +1,4 @@
-//TextBox
-// Copyright (c) 2006 Marcos Almeida Jr.()
-
-
+// TextBox
 var TextBox_ID = "";
 function TextBox_HandleChange(inst) {
     var obj = document.getElementById(TextBox_ID);
@@ -26,7 +23,7 @@ function Masks_Integer(e) {
         return true; /* Backspace */
       }
   }
-  /* adaptada para cross browser - Marcos A. P. de Almeida Jr. */
+  /* cross browser adapted */
 
 }
 
@@ -64,7 +61,7 @@ function Masks_Float(e, obj) {
 		return false;  
   }
   
-  /* adaptada para cross browser - Marcos A. P. de Almeida Jr. */
+  /* cross browser adapted */
 }
 
 function Masks_FormatFloat(obj, numCasasDecimais)
@@ -80,19 +77,18 @@ function Masks_FormatFloat(obj, numCasasDecimais)
     var strres = new String(strfloat.toFixed(2));
     obj.value = strres.replace(/\./g, ",");
   }
-  /* adaptada para cross browser - Marcos A. P. de Almeida Jr. */
+  /* cross browser adapted */
  		
 }
 
 
 function Masks_Currency(e, myField) 
 {
-  /* adaptada para cross browser - Marcos A. P. de Almeida Jr. */
-  
+  /* cross browser adapted */
   
     var tecla=Masks_getKeyCode(e);
 
-	if(tecla == 9 || tecla == 13) // Se a tecla pressionada for TAB ou ENTER, Retorna TAB
+	if(tecla == 9 || tecla == 13) // If TAB or ENTER, returns TAB
 	{
 		return true;
 	}
@@ -110,7 +106,7 @@ function Masks_Currency(e, myField)
 	
 	pos_virgula = valor_temp.indexOf(',',0); 
 	
-	//apagar "BackSpace" 
+	//avoid "BackSpace" 
 	//////////////////////////////////////////////////////////
 	if (tecla == 8)
 		{
@@ -134,7 +130,7 @@ function Masks_Currency(e, myField)
 	//////////////////////////////////////////////////////////
 
 
-	//escreve numero
+	//writes numbers
 	//////////////////////////////////////////////////////////
 	if(tecla > 95 && tecla < 106) // numeros de 0 a 9
 	{
@@ -172,7 +168,7 @@ function Masks_Currency(e, myField)
 	     parte_decimal = valor_temp.substr( pos_virgula , 3 ) ;
 	     parte_inteira = valor_temp.substr( 0 , pos_virgula ) ;
 	     
-	     //Remove pontos  milhar
+	     //Remove dots 
 	     //-------------------------------------------------------------
 	     for (i= parte_inteira.length   ; i >-1  ; i--) 
 			{
@@ -181,7 +177,7 @@ function Masks_Currency(e, myField)
 	     //-------------------------------------------------------------
 
 
-	     //Coloca pontos milhar
+	     //Writes dots
 	     //-------------------------------------------------------------
           for (i= parte_inteira.length   ; i >-1  ; i--) 
 			{
@@ -201,7 +197,7 @@ function Masks_Currency(e, myField)
 	
     myField.value = valor_temp ;
     
-	//posiciona cursor o final
+	//movers the cursor to end
 	//////////////////////////////////////////////////////////
 	if (document.selection) 
 		{
@@ -249,19 +245,19 @@ function Masks_Format(e, src, mask)
   var tecla=Masks_getKey(e);
     
 if (tecla == 8 || tecla == 0) 
-	return true;/*  backspace */
+	return true;//  backspace 
 else if (i >= mask.length)
     return false;
     	
 if (tecla < 48 || tecla >=58) 
-    return false; /* numeros de 0 a 9 ou "/" */
+    return false; // numbers from 0 to 9 or "/" 
    
 if (texto.substring(0,1) != saida) 
   {
 	src.value += texto.substring(0,1);
   }
   
-  /* adaptada para cross browser - Marcos A. P. de Almeida Jr. */
+  /* cross browser adapted */
 }
 
 
@@ -342,7 +338,7 @@ function Masks_getKey(pEvent) {
         args.IsValid = Masks_validaCNPJ(cnpj);
      }
 
-/* CPF e CNPJ */
+// CPF and CNPJ - brazil only
 
 	function Masks_validaCPF(cpf) {
 	    cpf = cpf.replace(/\./ig, "");
@@ -437,7 +433,7 @@ function Asc(character){
 function __DateCheckValue(obj, msg)
 {
     var value = new String(obj.value);
-    if (!__ValidaData(value))
+    if (!__ValiDATE(value))
     {
         obj.value = "";
         if (msg)
@@ -447,12 +443,10 @@ function __DateCheckValue(obj, msg)
     }
 }
 
-
-
-
+// TODO: Translate this comment
 // função que valida datas, para substituir a regular expression que excluía 19/02 de todos os anos (o meu aniversario!)
 // adaptada do compare validator com datatype check para date do asp.net
-function __ValidaData(texto)
+function __ValiDATE(texto)
 {
     function GetFullYear(year)
     {

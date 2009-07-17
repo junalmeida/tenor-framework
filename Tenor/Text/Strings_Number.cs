@@ -19,8 +19,6 @@ namespace Tenor.Text
         /// Converts the desired value into a string representation of the current culture.
         /// </summary>
         /// <param name="value">The desired value.</param>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public static string DoubleToWords(double value)
         {
             return DoubleToWords(value, System.Globalization.CultureInfo.CurrentCulture);
@@ -59,7 +57,7 @@ namespace Tenor.Text
         /// Koders.org: Extenso.java
         /// </summary>
         /// <param name="value">The original value.</param>
-        /// <returns>An string.</returns>
+        /// <returns>An string with the description of the value.</returns>
         private static string DoubleToWordsPTBR(double value)
         {
             if (value < 0 || value > 1.0E+18)
@@ -68,7 +66,9 @@ namespace Tenor.Text
             }
             else
             {
-                //Dim valor As String = (Value).ToString("F2").Replace(".", ",")
+                /*
+                 * Dim valor As String = (Value).ToString("F2").Replace(".", ",")
+                 */
                 return new NumeroPorExtensoPTBR((decimal)value).ToString();
             }
         }
@@ -77,7 +77,7 @@ namespace Tenor.Text
         /// Converts the double value to an string representation of it in american english.
         /// </summary>
         /// <param name="value">The original value.</param>
-        /// <returns>An string.</returns>
+        /// <returns>An string with the description of the value.</returns>
         private static string DoubleToWordsENUS(double value)
         {
             return new NumberToWordsENUS().changeCurrencyToWords(value);

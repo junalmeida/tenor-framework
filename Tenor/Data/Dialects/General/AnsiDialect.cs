@@ -250,7 +250,9 @@ namespace Tenor.Data.Dialects
             }
             else
             {
-                //TenorParameter p = new Parameter(ParameterName, Value);
+                /*
+                 * TenorParameter p = new Parameter(ParameterName, Value);
+                 */
                 parameterName = null;
 
                 if (fieldInfo != null)
@@ -477,11 +479,15 @@ namespace Tenor.Data.Dialects
             foreach (FieldInfo f in fields)
             {
                 //TODO :Check if we can consider all fields from the parameter.
-                //if (f.PrimaryKey || !f.LazyLoading)
-                //{
-
+                /*
+                 * if (f.PrimaryKey || !f.LazyLoading)
+                 * {
+                 */
                 fieldsSql.Append(", " + alias + "." + CommandBuilder.QuoteIdentifier(f.DataFieldName));
-                //
+                /*
+                 * }
+                 */
+
             }
             if (fieldsSql.Length == 0)
             {
@@ -624,17 +630,20 @@ namespace Tenor.Data.Dialects
             //TODO: Implement localizable searchs
 
 
-            ////' Tradução automática com a view correspondente
-            //if (instance.Localizable && CultureInfo.CurrentCulture.IetfLanguageTag != Configuration.Localization.DefaultCulture)
-            //{
-            //    froms = GetSchemaAndView(instance);
+            ////' Automatic translation with a view. 
 
-            //    if (sqlWHERE.Length > 0)
-            //    {
-            //        sqlWHERE += " AND ";
-            //    }
-            //    sqlWHERE += "IetfLanguageTag = \'" + CultureInfo.CurrentCulture.IetfLanguageTag + "\'";
-            //}
+            /*
+            if (instance.Localizable && CultureInfo.CurrentCulture.IetfLanguageTag != Configuration.Localization.DefaultCulture)
+            {
+                froms = GetSchemaAndView(instance);
+
+                if (sqlWHERE.Length > 0)
+                {
+                    sqlWHERE += " AND ";
+                }
+                sqlWHERE += "IetfLanguageTag = \'" + CultureInfo.CurrentCulture.IetfLanguageTag + "\'";
+            }
+             */
 
             froms += " " + baseAlias;
             sql.AppendLine(" FROM " + froms);
@@ -670,7 +679,9 @@ namespace Tenor.Data.Dialects
                 sql.Append(" " + CreateLimit(limit));
             }
 
-            //sql.Append(LineEnding);
+            /*
+             * sql.Append(LineEnding);
+             */
 
             return sql.ToString();
 

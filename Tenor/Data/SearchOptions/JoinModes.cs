@@ -32,11 +32,13 @@ namespace Tenor.Data
         public Join() { }
         public Join(string joinAlias)
         {
-            //, string parentAlias, string propertyName, JoinMode joinMode
+            /*, string parentAlias, string propertyName, JoinMode joinMode*/
             this.joinAlias = joinAlias;
-            //this.parentAlias = parentAlias;
-            //this.propertyName = propertyName;
-            //this.joinMode = joinMode;
+            /*
+            this.parentAlias = parentAlias;
+            this.propertyName = propertyName;
+            this.joinMode = joinMode;
+             */
         }
 
         private string joinAlias;

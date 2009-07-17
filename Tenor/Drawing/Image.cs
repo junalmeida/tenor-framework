@@ -24,7 +24,6 @@ namespace Tenor.Drawing
         /// Creates and instance of the current image.
         /// </summary>
         /// <param name="bitmap">An array of bytes of an JPEG image.</param>
-        /// <remarks></remarks>
         public Image(byte[] bitmap)
             : base(bitmap, "image/jpeg")
         {
@@ -39,7 +38,6 @@ namespace Tenor.Drawing
         /// Creates and instance of the current image.
         /// </summary>
         /// <param name="bitmap">A bitmap image.</param>
-        /// <remarks></remarks>
         public Image(System.Drawing.Bitmap bitmap)
             : base(AttachBitmap(bitmap), "image/jpeg")
         {
@@ -136,8 +134,6 @@ namespace Tenor.Drawing
         /// <summary>
         /// Gets the underlying bitmap of this instance.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public System.Drawing.Bitmap Bitmap
         {
             get
@@ -177,7 +173,6 @@ namespace Tenor.Drawing
         /// Resizes the image proportionally by width.
         /// </summary>
         /// <param name="width">The new width in pixels.</param>
-        /// <remarks></remarks>
         public void ResizeByWidth(int width)
         {
             Resize(width, 0, ResizeMode.Proportional);
@@ -188,7 +183,6 @@ namespace Tenor.Drawing
         /// Resizes the image proportionally by width.
         /// </summary>
         /// <param name="height">The new height in pixels.</param>
-        /// <remarks></remarks>
         public void ResizeByHeight(int height)
         {
             Resize(0, height, ResizeMode.Proportional);
@@ -198,7 +192,6 @@ namespace Tenor.Drawing
         /// Resizes the image proportionally.
         /// </summary>
         /// <param name="percent">The percentage to resize the image.</param>
-        /// <remarks></remarks>
         public void ResizeByPercent(int percent)
         {
             int width = percent * this.Width / 100;
@@ -222,7 +215,6 @@ namespace Tenor.Drawing
         /// <param name="width">The new width in pixels.</param>
         /// <param name="height">The new height in pixels.</param>
         /// <param name="mode">One of the ResizeMode values.</param>
-        /// <remarks></remarks>
         public void Resize(int width, int height, ResizeMode mode)
         {
             Rectangle rect = new Rectangle();
@@ -355,77 +347,22 @@ namespace Tenor.Drawing
             Resize(width, height, ResizeMode.Stretch);
         }
 
+        /*
+         * 
 
-        ///// <summary>
-        ///// Redimensiona a imagem respeitando as proporÃ§Ãµes e corta as sobras de forma a centralizar a imagem.
-        ///// </summary>
-        ///// <param name="Size">Uma estrutura <see cref="Size">Size</see> que define o novo tamanho da imagem.</param>
-        ///// <remarks></remarks>
-        //[Obsolete("Use Resize instead", false)]
-        //public void ResizeAndCrop(Size Size)
-        //{
-        //    Resize(Size.Width, Size.Height, ResizeMode.Stretch);
-        //}
+        [Obsolete("Use Resize instead", false)]
+        public void ResizeAndCrop(Size Size)
+        {
+            Resize(Size.Width, Size.Height, ResizeMode.Stretch);
+        }
 
+        [Obsolete("Use Resize instead", false)]
+        public void ResizeAndCrop(int width, int height)
+        {
+            Resize(width, height, ResizeMode.Stretch);
+        }
 
-
-        ///// <summary>
-        ///// Redimensiona a imagem respeitando as proporÃ§Ãµes e corta as sobras de forma a centralizar a imagem.
-        ///// </summary>
-        ///// <param name="width">Nova largura em pixels</param>
-        ///// <param name="height">Nova altura em pixels</param>
-        ///// <remarks></remarks>
-        //[Obsolete("Use Resize instead", false)]
-        //public void ResizeAndCrop(int width, int height)
-        //{
-        //    Resize(width, height, ResizeMode.Stretch);
-
-
-        //    //Dim bmp As New Bitmap(width, height)
-
-        //    //'Novo tamanho baseado na largura especificada
-        //    //Dim sizeL As New Size
-        //    //sizeL.Width = width
-        //    //sizeL.Height = CInt(width / Me.Bitmap.Width * Me.Bitmap.Height)
-
-        //    //'Novo tamanho baseado na altura especificada
-        //    //Dim sizeH As New Size
-        //    //sizeH.Height = height
-        //    //sizeH.Width = CInt(height / Me.Bitmap.Height * Me.Bitmap.Width)
-
-
-        //    //Dim rect As New Rectangle
-        //    //'Selecionar por largura ou por altura para nÃ£o haver sobras (espaÃ§os em branco) na nova imagem
-        //    //If sizeL.Width >= width And sizeL.Height >= height Then
-        //    //    rect.Size = sizeL
-        //    //Else
-        //    //    rect.Size = sizeH
-        //    //End If
-
-        //    //'Definir ponto de origem para que a imagem reduzida fique centralizada
-        //    //rect.Location = New Point(CInt(-(rect.Size.Width - width) / 2), CInt(-(rect.Size.Height - height) / 2))
-
-
-        //    //'ConfiguraÃ§Ãµes de renderizaÃ§Ã£o
-        //    //Dim gr As Graphics = Graphics.FromImage(bmp)
-        //    //gr.InterpolationMode = Drawing2D.InterpolationMode.HighQualityBicubic
-        //    //gr.SmoothingMode = Drawing2D.SmoothingMode.HighQuality
-        //    //gr.PixelOffsetMode = Drawing2D.PixelOffsetMode.HighQuality
-        //    //gr.CompositingQuality = Drawing2D.CompositingQuality.HighQuality
-
-        //    //'Desenhar a nova imagem
-        //    //gr.DrawImage(Me.Bitmap, rect)
-
-
-
-        //    //gr.Dispose()
-
-        //    //Me._Bitmap.Dispose()
-        //    //Me._Bitmap = bmp
-
-
-        //}
-
+        */
 
         #endregion
 
@@ -447,7 +384,7 @@ namespace Tenor.Drawing
             }
             return null;
 
-        } //GetEncoderInfo
+        } 
 
         public override System.IO.Stream GetStream()
         {
@@ -534,39 +471,32 @@ namespace Tenor.Drawing
         #endregion
 
         #region " Thumbs "
+        /*
+        [Obsolete("Usa o outro overload")]
+        public string GetThumbImageUrl(System.Web.UI.Page Page, int Width, int Height)
+        {
+            Image img = new Image((System.Drawing.Bitmap)(this.Bitmap.Clone()));
 
-        ///// <summary>
-        ///// Cria uma miniatura da imagem atual
-        ///// </summary>
-        ///// <param name="Page">PÃ¡gina onde serÃ¡ exibida</param>
-        ///// <param name="Width">Largura da miniatura desejada</param>
-        ///// <param name="Height">Altura da miniatura desejada</param>
-        ///// <returns></returns>
-        ///// <remarks>Defina a largura ou altura em zero para fazer o redimensinamento proporcional. Definir ambos em zero cria uma imagem com 110 pixels de largura</remarks>
-        //[Obsolete("Usa o outro overload")]
-        //public string GetThumbImageUrl(System.Web.UI.Page Page, int Width, int Height)
-        //{
-        //    Image img = new Image((System.Drawing.Bitmap)(this.Bitmap.Clone()));
+            if (Width > 0 && Height > 0)
+            {
+                img.Resize(Width, Height);
+            }
+            else if (Width > 0)
+            {
+                img.ResizeByWidth(Width);
+            }
+            else if (Height > 0)
+            {
+                img.ResizeByHeight(Height);
+            }
+            else
+            {
+                img.ResizeByWidth(110);
+            }
+            return img.GetFileUrl();
 
-        //    if (Width > 0 && Height > 0)
-        //    {
-        //        img.Resize(Width, Height);
-        //    }
-        //    else if (Width > 0)
-        //    {
-        //        img.ResizeByWidth(Width);
-        //    }
-        //    else if (Height > 0)
-        //    {
-        //        img.ResizeByHeight(Height);
-        //    }
-        //    else
-        //    {
-        //        img.ResizeByWidth(110);
-        //    }
-        //    return img.GetFileUrl();
-
-        //}
+        }
+         */
 
         /// <summary>
         /// Creates a thumbnail of the current image.
@@ -872,34 +802,28 @@ namespace Tenor.Drawing
     /// <summary> 
     /// Sets the alignment.
     /// </summary>
-    /// <remarks></remarks>
     [Flags()]
     public enum Position
     {
         /// <summary>
         /// No alignment or center.
         /// </summary>
-        /// <remarks></remarks>
         None,
         /// <summary>
         /// Left aligned.
         /// </summary>
-        /// <remarks></remarks>
         Left,
         /// <summary>
         /// Right aligned.
         /// </summary>
-        /// <remarks></remarks>
         Right,
         /// <summary>
         /// Top aligned.
         /// </summary>
-        /// <remarks></remarks>
         Top,
         /// <summary>
         /// Bottom aligned.
         /// </summary>
-        /// <remarks></remarks>
         Bottom
     }
     #endregion

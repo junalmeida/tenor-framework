@@ -17,7 +17,6 @@ namespace Tenor.Web
         /// Gets the mime type of this object.
         /// </summary>
         /// <returns>A string with a mime type.</returns>
-        /// <remarks></remarks>
         string ContentType
         {
             get;
@@ -27,7 +26,6 @@ namespace Tenor.Web
         /// Return the underlying stream of this object.
         /// </summary>
         /// <returns>A System.IO.Stream with contents.</returns>
-        /// <remarks></remarks>
         Stream WriteContent();
     }
 

@@ -312,7 +312,9 @@ namespace Tenor.BLL
                 if (fields.Length != conditionalProperties.Length)
                 {
                     throw new MissingFieldsException(this.GetType(), true);
-                    //throw (new ArgumentException("Cannot find one or more ConditionalFields", "conditionalProperties"));
+                    /*
+                     * throw (new ArgumentException("Cannot find one or more ConditionalFields", "conditionalProperties"));
+                     */
                 }
 
 

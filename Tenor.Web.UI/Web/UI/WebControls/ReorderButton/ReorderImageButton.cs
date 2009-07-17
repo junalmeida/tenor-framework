@@ -16,35 +16,32 @@ namespace Tenor.Web.UI.WebControls
 
 
     /// <summary>
-    /// Contém uma lista de direções.
+    /// Defines the direction.
     /// </summary>
-    /// <remarks></remarks>
     public enum Direction
     {
         /// <summary>
-        /// Acima.
+        /// Moves the item to up.
         /// </summary>
-        /// <remarks></remarks>
         Up,
         /// <summary>
-        /// Abaixo.
+        /// Moves the item to down.
         /// </summary>
-        /// <remarks></remarks>
         Down
     }
-    //System.ComponentModel.DesignerAttribute(GetType(design.ImageButtonDesigner)), _
+    /*System.ComponentModel.DesignerAttribute(GetType(design.ImageButtonDesigner)), _*/
 
     /// <summary>
-    /// Disponibiliza a função de reordenar itens em uma gridview.
-    /// Este controle deve estar em um template field de uma gridview do ASP.NET.
-    /// A ordem final pode ser obtida através das funções <see cref="ReorderImageButton.GetIndexesForGridView">GetIndexesForGridView</see>,
-    /// <see cref="ReorderImageButton.GetDataKeysValueForGridView">GetDataKeysValueForGridView</see>, ou <see cref="ReorderImageButton.GetDataKeysValuesForGridView">GetDataKeysValuesForGridView</see>.
+    /// <para>This control can show a list that can be reordered by the user.</para>
     /// </summary>
-    /// <remarks></remarks>
+    /// <remarks>
+    /// <para>This control must be placed inside a template field of an ASP.NET GridView.</para>
+    /// <para>Use <see cref="ReorderImageButton.GetDataKeysValueForGridView"/> or <see cref="ReorderImageButton.GetDataKeysValuesForGridView"> to 
+    /// retrieve user-selected data.</para>
+    /// </remarks>
     [System.ComponentModel.DefaultPropertyAttribute("ImageUrl"), ToolboxData("<{0}:ReorderImageButton runat=server></{0}:ReorderImageButton>")]
     public class ReorderImageButton : Image
     {
-
 
         protected override void OnPreRender(System.EventArgs e)
         {
@@ -89,11 +86,8 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Controla a ação deste ReorderImageButton.
+        /// Gets or sets the behavior of this button.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [DefaultValue(typeof(Direction), "Up"), Description("Determines wich action this image button will perform"), Category("Behavior")]
         public Direction Direction
         {
@@ -121,6 +115,9 @@ namespace Tenor.Web.UI.WebControls
             }
         }
 
+        /// <summary>
+        /// Gets or sets the client-side script that executes when a ReorderImageButton control's Click event is raised.
+        /// </summary>
         [DefaultValue(""), Description("Gets or sets the client-side script that executes when a ReorderImageButton control\'s Click event is raised."), Category("Behavior")]
         public string OnClientClick
         {
@@ -189,11 +186,11 @@ namespace Tenor.Web.UI.WebControls
 
             Page.ClientScript.RegisterClientScriptResource(this.GetType(), Configuration.Resources.JsReorderButton);
 
-            Page.ClientScript.RegisterHiddenField(gridView.ClientID + "_order", arrayInicial);
+            Page.ClientScript.RegisterHiddenField(gridView.ClientID + "_order", initialArray);
             Page.ClientScript.RegisterStartupScript(this.GetType(), gridView.ClientID, "\r\n" + " var " + objVar + " = new ReorderButton(\'" + gridView.ClientID + "\');" + "\r\n", true);
-            if (!string.IsNullOrEmpty(arrayInicial))
+            if (!string.IsNullOrEmpty(initialArray))
             {
-                Page.ClientScript.RegisterStartupScript(this.GetType(), gridView.ClientID + "_array", "\r\n" + objVar + ".arrOrdem = new Array(" + arrayInicial + ");", true);
+                Page.ClientScript.RegisterStartupScript(this.GetType(), gridView.ClientID + "_array", "\r\n" + objVar + ".arrOrdem = new Array(" + initialArray + ");", true);
             }
         }
 
@@ -209,28 +206,28 @@ namespace Tenor.Web.UI.WebControls
             }
         }
 
-        private string arrayInicial
+        private string initialArray
         {
             get
             {
-                if (ViewState["arrayInicial"] == null)
+                if (ViewState["initialArray"] == null)
                 {
                     return string.Empty;
                 }
                 else
                 {
-                    return ViewState["arrayInicial"].ToString();
+                    return ViewState["initialArray"].ToString();
                 }
             }
             set
             {
                 if (string.IsNullOrEmpty(value))
                 {
-                    ViewState.Remove("arrayInicial");
+                    ViewState.Remove("initialArray");
                 }
                 else
                 {
-                    ViewState["arrayInicial"] = value;
+                    ViewState["initialArray"] = value;
                 }
             }
         }
@@ -242,11 +239,11 @@ namespace Tenor.Web.UI.WebControls
             GridView gridView = (System.Web.UI.WebControls.GridView)sender;
             for (int i = 0; i <= gridView.Rows.Count - 1; i++)
             {
-                if (arrayInicial.Length > 0)
+                if (initialArray.Length > 0)
                 {
-                    arrayInicial += ",";
+                    initialArray += ",";
                 }
-                arrayInicial += i.ToString();
+                initialArray += i.ToString();
             }
 
             gridView.DataBound -= new System.EventHandler(DataBound);
@@ -254,11 +251,8 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Retorna uma lista de indices na ordem definidos pelo usuário.
+        /// Gets a list of user reordered indices.
         /// </summary>
-        /// <param name="gridView"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public static int[] GetIndexesForGridView(GridView gridView)
         {
             string hf = gridView.ClientID + "_order";
@@ -277,12 +271,8 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Retorna uma lista de datakeys na ordem definidos pelo usuário.
-        /// Retorna somente o primeiro valor do datakey
+        /// Gets a list of user reordered datakeys. This method returns only the first value of each datakey.
         /// </summary>
-        /// <param name="gridView"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public static object[] GetDataKeysValueForGridView(GridView gridView)
         {
             string hf = gridView.ClientID + "_order";
@@ -302,11 +292,8 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Retorna uma lista de datakeys na ordem definidos pelo usuário.
+        /// Gets a list of user reordered datakeys.
         /// </summary>
-        /// <param name="gridView"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public static System.Collections.Specialized.IOrderedDictionary[] GetDataKeysValuesForGridView(GridView gridView)
         {
             string hf = gridView.ClientID + "_order";

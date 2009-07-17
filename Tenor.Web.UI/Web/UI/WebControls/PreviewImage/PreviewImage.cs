@@ -16,44 +16,33 @@ namespace Tenor.Web.UI.WebControls
 {
 
     /// <summary>
-    /// Contém uma lista de opções para exibição da animação de carga.
+    /// Defines how the behavior of the loading animation.
     /// </summary>
-    /// <remarks></remarks>
     public enum PreviewImageLoadingAnimation
     {
         /// <summary>
-        /// Não exibir a animação.
+        /// No animation.
         /// </summary>
-        /// <remarks></remarks>
         None,
         /// <summary>
-        /// Animação padrão cinza.
+        /// The default gray animation.
         /// </summary>
-        /// <remarks></remarks>
         Gray,
         /// <summary>
-        /// Animação de cor branca no fundo preto.
+        /// A white animation on black background.
         /// </summary>
-        /// <remarks></remarks>
         WhiteOnBlack,
         /// <summary>
-        /// Animação de cor preta no fundo branco.
+        /// A black animation on white background.
         /// </summary>
         /// <remarks></remarks>
-        BlackOnWhite,
-        /// <summary>
-        /// Animação Engrenagem no fundo branco.
-        /// </summary>
-        /// <remarks></remarks>
-        GearsOnWhite
+        BlackOnWhite
     }
 
 
     /// <summary>
-    /// Exibe um controle de imagem com capacidade de ampliação sem popups.
+    /// This control shows an image with zoom features without popups.
     /// </summary>
-    /// <remarks>
-    /// </remarks>
     [ToolboxItem(typeof(System.Web.UI.Design.WebControlToolboxItem)), ToolboxData("<{0}:PreviewImage runat=\"server\" />"), ToolboxBitmapAttribute(typeof(System.Web.UI.WebControls.Image), "Image.bmp")]
     public class PreviewImage : System.Web.UI.WebControls.Image
     {
@@ -63,11 +52,8 @@ namespace Tenor.Web.UI.WebControls
         #region "Properties"
 
         /// <summary>
-        /// Nível de transparencia da visualização
+        /// Gets or sets the transparency level of the viewport.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [Themeable(true), DefaultValue(70), Category("Appearance"), Description("The transparency level. From 0 to 100 (percentage)")]
         public int TransparencyLevel
         {
@@ -94,11 +80,8 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Nível de transparencia da visualização
+        /// Gets or sets the transparency color of the viewport.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [Themeable(true), DefaultValue(typeof(Color), "Black"), Category("Appearance"), Description("The transparency color.")]
         public System.Drawing.Color TransparencyColor
         {
@@ -120,11 +103,8 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Url da imagem ampliada a ser exibida na página.
+        /// Gets or sets the url of the original (full sized) image.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [Themeable(true), UrlProperty("*.bmp;*.jpg;*.png;*.tif;*.gif"), Editor(typeof(System.Web.UI.Design.UrlEditor), typeof(System.Drawing.Design.UITypeEditor)), DefaultValue(""), Category("Appearance"), Description("The URL of a Full Sized image.")]
         public string FullSizedImageUrl
         {
@@ -147,12 +127,8 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Indica qual animação de carga usar.
-        /// O padrão é cinza.
+        /// Gets or sets a value that specifies which loading animation will be shown.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [Themeable(true), DefaultValue(typeof(PreviewImageLoadingAnimation), "Gray"), Category("Appearance"), Description("Specifies one of the LoadingAnimation to show.")]
         public PreviewImageLoadingAnimation LoadingAnimation
         {
@@ -175,11 +151,8 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Indica o texto descritivo da imagem.
+        /// Gets or sets a text of the image description.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [Themeable(true), DefaultValue(""), Category("Appearance"), Description("The text to show below the image.")]
         public string Description
         {
@@ -203,11 +176,8 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Determina se deve ocultar as tags 'object' ao exibir a visualização da imagem.
+        /// Gets or sets a value that determines whether to hide windowed controls when showing an image. 
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [Themeable(true), DefaultValue(false), Category("Behavior"), Description("Determines whether to hide \'object\' tags when showing image.")]
         public bool HideObjects
         {
@@ -300,10 +270,8 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Retorna a referencia, com javascript: no inicio, da chamada da visualização da imagem.
+        /// Gets the statement (starting with javascript:) that can startup this control.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public string GetOnClickClientHyperlink()
         {
             return "javascript:" + PreviewImage.GetOnClickClientScript(Page, this.FullSizedImageUrl, this.LoadingAnimation, this.Description, this.TransparencyLevel, this.TransparencyColor, HideObjects);
@@ -311,19 +279,20 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Retorna a referencia, sem javascript: no inicio, da chamada da visualização da imagem.
+        /// Gets the statement (without javascript:) that can startup this control.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public static string GetOnClickClientScript(Page Page, string ImageUrl, PreviewImageLoadingAnimation LoadingAnimation, string Description, int TransparencyLevel, System.Drawing.Color TransparencyColor, bool HideObjects)
+        public static string GetOnClickClientScript(Page page, string imageUrl, PreviewImageLoadingAnimation loadingAnimation, string description, int transparencyLevel, System.Drawing.Color transparencyColor, bool hideObjects)
         {
-            RegisterIncludes(Page);
-            return "PreviewImage_Open(null, \'" + Page.ResolveClientUrl(ImageUrl) + "\', " + GetDesc(Description) + ", " + GetLoadImg(Page, LoadingAnimation) + ", " + GetClose(Page) + ", " + (100 - TransparencyLevel) + ", \'" + ColorTranslator.ToHtml(TransparencyColor) + "\', " + HideObjects.ToString().ToLower() + ");";
+            RegisterIncludes(page);
+            return "PreviewImage_Open(null, \'" + page.ResolveClientUrl(imageUrl) + "\', " + GetDesc(description) + ", " + GetLoadImg(page, loadingAnimation) + ", " + GetClose(page) + ", " + (100 - transparencyLevel) + ", \'" + ColorTranslator.ToHtml(transparencyColor) + "\', " + hideObjects.ToString().ToLower() + ");";
         }
 
-        public static string GetOnClickClientScript(Page Page, string ImageUrl, PreviewImageLoadingAnimation LoadingAnimation, string Description, int TransparencyLevel, System.Drawing.Color TransparencyColor)
+        /// <summary>
+        /// Gets the statement (without javascript:) that can startup this control.
+        /// </summary>
+        public static string GetOnClickClientScript(Page page, string imageUrl, PreviewImageLoadingAnimation loadingAnimation, string description, int transparencyLevel, System.Drawing.Color transparencyColor)
         {
-            return GetOnClickClientScript(Page, ImageUrl, LoadingAnimation, Description, TransparencyLevel, TransparencyColor, false);
+            return GetOnClickClientScript(page, imageUrl, loadingAnimation, description, transparencyLevel, transparencyColor, false);
         }
 
 

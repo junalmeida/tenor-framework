@@ -23,9 +23,10 @@ namespace Tenor.Web.UI.WebControls.Design
         public override void Initialize(System.ComponentModel.IComponent component)
         {
             base.Initialize(component);
-
-            //Dim webApp As IWebApplication = CType(GetService(GetType(IWebApplication)), IWebApplication)
-            //Util.CheckWebConfig(webApp)
+            /*
+            Dim webApp As IWebApplication = CType(GetService(GetType(IWebApplication)), IWebApplication)
+            Util.CheckWebConfig(webApp)
+             */
         }
 
     }

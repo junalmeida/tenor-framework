@@ -13,30 +13,23 @@ namespace Tenor.Web.UI.WebControls
 {
 
     /// <summary>
-    /// Adiciona à página scripts do MooTools
+    /// Manage MooTools scripts.
     /// </summary>
-    /// <remarks></remarks>
     public sealed class MooTools : Script
     {
 
         /// <summary>
-        /// Verifica se o MooTools está instanciado.
+        /// Check if MooTools is already registered.
         /// </summary>
-        /// <param name="Module"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public static bool CheckMooTools(MooModule @Module)
+        public static bool CheckMooTools(MooModule module)
         {
-            return CheckMooTools(MooVersion.Version_1_11, @Module);
+            return CheckMooTools(MooVersion.Version_1_11, module);
         }
 
         /// <summary>
-        /// Verifica se o MooTools está instanciado.
+        /// Check if MooTools is already registered.
         /// </summary>
-        /// <param name="Module"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public static bool CheckMooTools(MooVersion Version, MooModule @Module)
+        public static bool CheckMooTools(MooVersion version, MooModule module)
         {
             if (HttpContext.Current == null)
             {
@@ -58,12 +51,12 @@ namespace Tenor.Web.UI.WebControls
 
 
                     Literal lit = (Literal)c;
-                    if (@Module == MooModule.Core)
+                    if (module == MooModule.Core)
                     {
-                        //Serve qualquer módulo
+                        //Any module defined contains the core.
                         for (MooModule i = MooModule.Core; i <= MooModule.Full; i++)
                         {
-                            string script = GetScript(Page, Version, i);
+                            string script = GetScript(Page, version, i);
                             if (lit.Text.Contains(script))
                             {
                                 return true;
@@ -72,9 +65,9 @@ namespace Tenor.Web.UI.WebControls
                     }
                     else
                     {
-                        //Serve o próprio módulo ou o full
-                        string script = GetScript(Page, Version, @Module);
-                        string scriptFull = GetScript(Page, Version, MooModule.Full);
+                        //Only the self module or the full one.
+                        string script = GetScript(Page, version, module);
+                        string scriptFull = GetScript(Page, version, MooModule.Full);
 
                         if (lit.Text.Contains(script) || lit.Text.Contains(scriptFull))
                         {
@@ -86,10 +79,17 @@ namespace Tenor.Web.UI.WebControls
             }
             return false;
         }
+        //TODO: Implement newer mootools version.
 
         public enum MooVersion
         {
+            /// <summary>
+            /// Uses the version 1.11.
+            /// </summary>
             Version_1_11,
+            /// <summary>
+            /// Uses the version 1.2.
+            /// </summary>
             Version_1_2
         }
 
@@ -107,11 +107,8 @@ namespace Tenor.Web.UI.WebControls
 
         private MooVersion _Version;
         /// <summary>
-        /// Indica a versão do MooTools a usar.
+        /// Gets or sets a value with MooTools version.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public MooVersion Version
         {
             get
@@ -127,11 +124,8 @@ namespace Tenor.Web.UI.WebControls
 
         private MooModule _Module;
         /// <summary>
-        /// Indica os módulos desejados.
+        /// Gets or sets desired MooTools modules.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public MooModule @Module
         {
             get
@@ -150,10 +144,10 @@ namespace Tenor.Web.UI.WebControls
         {
         }
 
-        public override void Initialize(Page Page)
+        public override void Initialize(Page page)
         {
 
-            if (Page.Header == null)
+            if (page.Header == null)
             {
                 throw (new InvalidOperationException("Header tag must be a server control."));
             }
@@ -162,8 +156,8 @@ namespace Tenor.Web.UI.WebControls
 
 
             Literal script = new Literal();
-            script.Text += GetScript(Page, this.Version, this.Module);
-            Page.Header.Controls.AddAt(0, script);
+            script.Text += GetScript(page, this.Version, this.Module);
+            page.Header.Controls.AddAt(0, script);
 
             if (this.Version == MooVersion.Version_1_11)
             {
@@ -172,32 +166,32 @@ namespace Tenor.Web.UI.WebControls
                 switch (this.Module)
                 {
                     case MooModule.CoreSortables:
-                        IncludeSortables(Page, scriptText);
+                        IncludeSortables(page, scriptText);
                         break;
                     case MooModule.CoreEffectsDrag:
                         if (Slimbox)
                         {
-                            IncludeSlimbox(Page, scriptText);
+                            IncludeSlimbox(page, scriptText);
                         }
                         if (Squeezebox)
                         {
-                            IncludeSqueezebox(Page, scriptText);
+                            IncludeSqueezebox(page, scriptText);
                         }
                         break;
                     case MooModule.Full:
-                        IncludeSortables(Page, scriptText);
+                        IncludeSortables(page, scriptText);
                         if (Slimbox)
                         {
-                            IncludeSlimbox(Page, scriptText);
+                            IncludeSlimbox(page, scriptText);
                         }
                         if (Squeezebox)
                         {
-                            IncludeSqueezebox(Page, scriptText);
+                            IncludeSqueezebox(page, scriptText);
                         }
                         break;
                 }
                 script2.Text = scriptText.ToString();
-                Page.Header.Controls.AddAt(1, script2);
+                page.Header.Controls.AddAt(1, script2);
             }
         }
 
@@ -229,11 +223,8 @@ namespace Tenor.Web.UI.WebControls
 
         private bool _Slimbox;
         /// <summary>
-        /// Indica que o Slimbox será carregado.
+        /// Gets or sets whether to load Slimbox.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public bool Slimbox
         {
             get
@@ -253,11 +244,8 @@ namespace Tenor.Web.UI.WebControls
 
         private bool _Squeezebox;
         /// <summary>
-        /// Indica que o Squeezebox será carregado.
+        /// Gets or sets whether to load Squeezebox.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public bool Squeezebox
         {
             get
@@ -277,24 +265,16 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Retorna um script.
+        /// Gets a script tag that references the choosed mootools module. 
         /// </summary>
-        /// <param name="Page"></param>
-        /// <param name="Module"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public static string GetScript(Page Page, MooModule @Module)
         {
             return GetScript(Page, MooVersion.Version_1_11, @Module);
         }
 
         /// <summary>
-        /// Retorna um script.
+        /// Gets a script tag that references the choosed mootools module. 
         /// </summary>
-        /// <param name="Page"></param>
-        /// <param name="Module"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public static string GetScript(Page Page, MooVersion Version, MooModule @Module)
         {
             switch (Version)

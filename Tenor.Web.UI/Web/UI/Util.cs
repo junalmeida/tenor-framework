@@ -11,18 +11,15 @@ namespace Tenor.Web
 {
 
     /// <summary>
-    /// Exceção usada quando o módulo não estiver carregado.
+    /// Occurs when TenorModule is not defined on your configuraton file.
     /// </summary>
-    /// <remarks></remarks>
     public class ModuleNotFoundException : Exception
     {
-
-
         public override string Message
         {
             get
             {
-                return "You must have Web.HttpModule running to use this resource. Add a reference to httpModules section on your web.config file. <httpModules><add name=\"Tenor\" type=\"Tenor.Web.HttpModule, Tenor\"/></httpModules>";
+                return "You must have Web.TenorModule running to use this resource. Add a reference to httpModules section on your web.config file. <httpModules><add name=\"Tenor\" type=\"Tenor.Web.TenorModule, Tenor\"/></httpModules>";
             }
         }
     }

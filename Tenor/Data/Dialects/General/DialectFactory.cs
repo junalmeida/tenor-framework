@@ -26,7 +26,6 @@ namespace Tenor.Data.Dialects
         /// <summary>
         /// Gets a list of all available dialects.
         /// </summary>
-        /// <returns></returns>
         public static string[] GetAvailableDialects()
         {
             return new List<string>(GetAvailableDialectsAndTypes().Keys).ToArray();

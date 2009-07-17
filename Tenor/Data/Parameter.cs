@@ -13,7 +13,7 @@ using System.Data.Common;
 namespace Tenor.Data
 {
 
-    public class TenorParameter //: System.Data.Common.DbParameter
+    public class TenorParameter /*: System.Data.Common.DbParameter*/
     {
 
 
@@ -60,8 +60,6 @@ namespace Tenor.Data
         /// <summary>
         /// Converts a TenorParameter to its equivalent.
         /// </summary>
-        /// <param name="factory"></param>
-        /// <returns></returns>
         internal DbParameter ToDbParameter(DbProviderFactory factory)
         {
             DbParameter dbparam = factory.CreateParameter();

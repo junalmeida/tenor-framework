@@ -17,28 +17,23 @@ namespace Tenor.Web.UI.WebControls
 
 
     /// <summary>
-    /// Contém uma lista de modos disponíveis para a ActionDropDownList
+    /// Defines the drop down list behavior.
     /// </summary>
-    /// <remarks></remarks>
     public enum ActionDropDownListMode
     {
         /// <summary>
-        /// Adiciona um item novo à lista ao clicar no item especial.
+        /// Adds a new item to the list when a special item is activated by the user.
         /// </summary>
-        /// <remarks></remarks>
         AddNewItem
     }
 
 
     /// <summary>
-    /// Exibe uma caixa de seleção em lista que possue um item especial que executa uma determinada ação.
+    /// This control shows a combobox with a special item that performs a defined action.
     /// </summary>
-    /// <remarks></remarks>
     [ToolboxItem(typeof(System.Web.UI.Design.WebControlToolboxItem)), ToolboxData("<{0}:ActionDropDownList runat=\"server\" />"), ToolboxBitmapAttribute(typeof(System.Web.UI.WebControls.DropDownList), "DropDownList.bmp")]
     public class ActionDropDownList : System.Web.UI.WebControls.DropDownList, IPostBackEventHandler
     {
-
-
         private AddingNewEventHandler AddingNewEvent;
         public event AddingNewEventHandler AddingNew
         {
@@ -59,7 +54,7 @@ namespace Tenor.Web.UI.WebControls
         {
             get
             {
-                //Uma lista especial não suporta o postback
+                //We cant support autopostback
                 return base.AutoPostBack;
             }
             set
@@ -70,11 +65,8 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Determina a ação para esta caixa de seleção especial.
+        /// Gets or sets the action of the special item.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [Description("The behavior mode of the DropDownList"), Category("Behavior"), DefaultValue(typeof(ActionDropDownListMode), "AddNewItem")]
         public ActionDropDownListMode DropDownMode
         {
@@ -89,11 +81,8 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Define o rótulo que será exibido no item especial deste objeto.
+        /// Gets or sets the special item's label.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [Description("Defines the label of the custom item"), Category("Appearance"), DefaultValue("New Label")]
         public string ActionLabel
         {
@@ -112,11 +101,8 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Define o texto exibido na caixa de entrada de dados exibida para o usuário.
+        /// Gets or sets the text shown on the inputbox prompt. 
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [Description("Defines the text to show on the prompt"), Category("Appearance"), DefaultValue("Type below the new label")]
         public string ActionText
         {
@@ -139,7 +125,7 @@ namespace Tenor.Web.UI.WebControls
         {
             Page.ClientScript.RegisterClientScriptResource(this.GetType(), Configuration.Resources.JsDropdown);
 
-            //Para forçar o registro do _doPostBack
+            //forcing _doPostPack declarations.
             Page.RegisterRequiresPostBack(this);
 
             Page.ClientScript.GetPostBackClientHyperlink(this, string.Empty);
@@ -158,10 +144,12 @@ namespace Tenor.Web.UI.WebControls
 
                 ListItem li = new ListItem(ActionLabel, "");
                 li.Attributes["id"] = this.ClientID + this.ClientIDSeparator + "AddNewItem";
-                //adiciona o item para renderização pela classe base
+
+                //TODO: Oh god, may we have a better way to do this:
+                //adds the special item.
                 Items.Add(li);
                 base.Render(writer);
-                //remove o item do viewstate
+                //removes the item from viewstate and user-lists.
                 Items.Remove(li);
 
             }

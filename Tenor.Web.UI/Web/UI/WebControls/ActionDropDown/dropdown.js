@@ -1,5 +1,4 @@
 // DropDownList 
-// Copyright (c) 2006 Marcos Almeida Jr.()
 
 var _ActionDropDownList_Ids = new Array();
 var _ActionDropDownList_Indexes = new Array();
@@ -11,7 +10,7 @@ function ActionDropDownList_Check(obj, msg) {
             idindex=i;
     }
     if (idindex == -1) {
-        idindex = _ActionDropDownList_Ids.push(obj.id) - 1; //retorna o novo length -1
+        idindex = _ActionDropDownList_Ids.push(obj.id) - 1; //returns the new lenth less 1
         if (obj.options.length > 0)
             _ActionDropDownList_Indexes.push(0);
         else

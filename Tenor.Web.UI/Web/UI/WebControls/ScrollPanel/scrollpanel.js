@@ -1,5 +1,4 @@
-// ScrollPanel Web Control
-// Author: Marcos A. P. de Almeida Jr.
+// ScrollPanel
 
 function ScrollPanel(id) {
     this.id = id;

@@ -22,9 +22,6 @@ namespace Tenor.Web.UI.WebControls.Core
     {
 
 
-        /// <summary>
-        /// </summary>
-        /// <param name="owner"></param>
         public MailingViewCollection(Control owner)
             : base(owner)
         {
@@ -63,9 +60,7 @@ namespace Tenor.Web.UI.WebControls.Core
         }
 
 
-        /// <summary></summary>
         /// <param name="index">The index of the view.</param>
-        /// <returns></returns>
         public new View this[int index]
         {
             get

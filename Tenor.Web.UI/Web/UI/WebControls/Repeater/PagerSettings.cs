@@ -13,16 +13,34 @@ using System.Web.UI.WebControls;
 
 namespace Tenor.Web.UI.WebControls
 {
-
-
-
+    /// <summary>
+    /// Defines which pager buttons will be rendered.
+    /// </summary>
     public enum PagerButtons
     {
+        /// <summary>
+        /// Renders next and previous buttons.
+        /// </summary>
         NextPrevious,
+        /// <summary>
+        /// Renders a numeric list of pages.
+        /// </summary>
         Numeric,
+        /// <summary>
+        /// Renders next, previous, first and last buttons.
+        /// </summary>
         NextPreviousFirstLast,
+        /// <summary>
+        /// Renders a numeric list of pages, next and last buttons.
+        /// </summary>
         NumericFirstLast,
+        /// <summary>
+        /// Renders a numeric list of pages, next, previous, first and last buttons.
+        /// </summary>
         NumericNextPreviousFirstLast,
+        /// <summary>
+        /// Renders a numeric list of pages, next and previous buttons.
+        /// </summary>
         NumericNextPrevious
     }
 
@@ -403,9 +421,6 @@ namespace Tenor.Web.UI.WebControls
         /// <summary>
         /// <see cref="GridView.PageSize">PageSize</see>
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [Category("Paging"), Description("The number of rows to display per page"), DefaultValue(5)]
         public int PageSize
         {
@@ -525,65 +540,66 @@ namespace Tenor.Web.UI.WebControls
                 return ((System.Web.UI.IStateManager)ViewState).IsTrackingViewState;
             }
         }
+        /*
+        Friend Function CreatePagerControl(ByVal currentPage As Integer, ByVal pageCount As Integer) As Table
+            Dim table As Table = New Table()
+            Dim row As TableRow = New TableRow()
+            table.Rows.Add(row)
 
-        //Friend Function CreatePagerControl(ByVal currentPage As Integer, ByVal pageCount As Integer) As Table
-        //    Dim table As Table = New Table()
-        //    Dim row As TableRow = New TableRow()
-        //    table.Rows.Add(row)
+            If Mode = PagerButtons.NextPrevious Or Mode = PagerButtons.NextPreviousFirstLast Then
+                If currentPage > 0 Then
+                    If Mode = PagerButtons.NextPreviousFirstLast Then
+                        row.Cells.Add(CreateCell(FirstPageText, FirstPageImageUrl, "Page", "First"))
+                    End If
+                    row.Cells.Add(CreateCell(PreviousPageText, PreviousPageImageUrl, "Page", "Prev"))
+                End If
+                If currentPage < pageCount - 1 Then
+                    row.Cells.Add(CreateCell(NextPageText, NextPageImageUrl, "Page", "Next"))
+                    If Mode = PagerButtons.NextPreviousFirstLast Then
+                        row.Cells.Add(CreateCell(LastPageText, LastPageImageUrl, "Page", "Last"))
+                    End If
+                End If
+            ElseIf Mode = PagerButtons.Numeric Or Mode = PagerButtons.NumericFirstLast Then
+                Dim pbc As Integer = PageButtonCount
+                Dim cp As Integer = currentPage + 1
+                Dim pbp As Integer = CInt(IIf(pbc <= cp, cp / pbc, 0))
+                Dim first As Integer = CInt(IIf(cp < pbc, 0, (cp + (pbp Mod pbc) - (pbc + pbp)) + 1))
+                Dim last As Integer = first + pbc
+                If last >= pageCount Then
+                    last = pageCount
+                End If
 
-        //    If Mode = PagerButtons.NextPrevious Or Mode = PagerButtons.NextPreviousFirstLast Then
-        //        If currentPage > 0 Then
-        //            If Mode = PagerButtons.NextPreviousFirstLast Then
-        //                row.Cells.Add(CreateCell(FirstPageText, FirstPageImageUrl, "Page", "First"))
-        //            End If
-        //            row.Cells.Add(CreateCell(PreviousPageText, PreviousPageImageUrl, "Page", "Prev"))
-        //        End If
-        //        If currentPage < pageCount - 1 Then
-        //            row.Cells.Add(CreateCell(NextPageText, NextPageImageUrl, "Page", "Next"))
-        //            If Mode = PagerButtons.NextPreviousFirstLast Then
-        //                row.Cells.Add(CreateCell(LastPageText, LastPageImageUrl, "Page", "Last"))
-        //            End If
-        //        End If
-        //    ElseIf Mode = PagerButtons.Numeric Or Mode = PagerButtons.NumericFirstLast Then
-        //        Dim pbc As Integer = PageButtonCount
-        //        Dim cp As Integer = currentPage + 1
-        //        Dim pbp As Integer = CInt(IIf(pbc <= cp, cp / pbc, 0))
-        //        Dim first As Integer = CInt(IIf(cp < pbc, 0, (cp + (pbp Mod pbc) - (pbc + pbp)) + 1))
-        //        Dim last As Integer = first + pbc
-        //        If last >= pageCount Then
-        //            last = pageCount
-        //        End If
+                If first > 0 Then
+                    If Mode = PagerButtons.NumericFirstLast Then
+                        row.Cells.Add(CreateCell(FirstPageText, FirstPageImageUrl, "Page", "First"))
+                    End If
+                    row.Cells.Add(CreateCell(PreviousPageText, PreviousPageImageUrl, "Page", "Prev"))
+                End If
 
-        //        If first > 0 Then
-        //            If Mode = PagerButtons.NumericFirstLast Then
-        //                row.Cells.Add(CreateCell(FirstPageText, FirstPageImageUrl, "Page", "First"))
-        //            End If
-        //            row.Cells.Add(CreateCell(PreviousPageText, PreviousPageImageUrl, "Page", "Prev"))
-        //        End If
+                Dim n As Integer
+                For n = first To last - 1 Step n + 1
+                    row.Cells.Add(CreateCell((n + 1).ToString(), String.Empty, CStr(IIf(n <> currentPage, "Page", "")), (n + 1).ToString()))
+                Next
 
-        //        Dim n As Integer
-        //        For n = first To last - 1 Step n + 1
-        //            row.Cells.Add(CreateCell((n + 1).ToString(), String.Empty, CStr(IIf(n <> currentPage, "Page", "")), (n + 1).ToString()))
-        //        Next
+                If last < pageCount - 1 Then
+                    row.Cells.Add(CreateCell(NextPageText, NextPageImageUrl, "Page", "Next"))
+                    If Mode = PagerButtons.NumericFirstLast Then
+                        row.Cells.Add(CreateCell(LastPageText, LastPageImageUrl, "Page", "Last"))
+                    End If
+                End If
+            End If
+            Return table
+        End Function
 
-        //        If last < pageCount - 1 Then
-        //            row.Cells.Add(CreateCell(NextPageText, NextPageImageUrl, "Page", "Next"))
-        //            If Mode = PagerButtons.NumericFirstLast Then
-        //                row.Cells.Add(CreateCell(LastPageText, LastPageImageUrl, "Page", "Last"))
-        //            End If
-        //        End If
-        //    End If
-        //    Return table
-        //End Function
-
-        //Private Function CreateCell(ByVal text As String, ByVal image As String, ByVal command As String, ByVal argument As String) As TableCell
-        //    Dim cell As TableCell = New TableCell()
-        //    Dim btn As New LinkButton
-        //    btn.Text = text
-        //    btn.CommandName = command
-        //    btn.CommandArgument = argument
-        //    cell.Controls.Add(btn)
-        //    Return cell
-        //End Function
+        Private Function CreateCell(ByVal text As String, ByVal image As String, ByVal command As String, ByVal argument As String) As TableCell
+            Dim cell As TableCell = New TableCell()
+            Dim btn As New LinkButton
+            btn.Text = text
+            btn.CommandName = command
+            btn.CommandArgument = argument
+            cell.Controls.Add(btn)
+            Return cell
+        End Function
+            */
     }
 }

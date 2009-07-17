@@ -11,8 +11,12 @@ using System.Data;
 using System.Collections.Generic;
 using System.IO;
 using System.Configuration;
-//using DataRow = System.Data.DataRow;
-//using DataSet = System.Data.DataSet;
+ */
+/*
+  using DataRow = System.Data.DataRow;
+  using DataSet = System.Data.DataSet;
+ */
+/*
 using DbType = System.Data.DbType;
 using Tenor.BLL;
 using System.Data.Common;

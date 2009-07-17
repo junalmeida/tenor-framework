@@ -44,8 +44,10 @@ namespace Tenor
 							//' Chars separated by a vowel - OK to encode
 							output.Append(c);
 							
-							//case 'h':
-							//case 'w':
+							/*
+                            case 'h':
+							case 'w':
+                             */
 						}
 						else
 						{

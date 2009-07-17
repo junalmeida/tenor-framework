@@ -1,6 +1,5 @@
-// SlidingPanel Web Control
-// Author: Marcos A. P. de Almeida Jr.
-// Este script foi escrito do modo antigo. No futuro, deverá mudar para prototype.
+// SlidingPanel
+//TODO: Implement prototype here
 
 function SlidingPanel_ResetCenterPanelWidth(idobj, sep) {
     var slide = document.getElementById(idobj);
@@ -88,7 +87,7 @@ function SlidingPanel_Move(obj, offset, max, anim) {
         
         var newPosition = current + offset;
         
-        //if (offset < 0 && newPosition  < -(obj.offsetWidth-max-2)) newPosition = -(obj.offsetWidth-max-2);
+        /*if (offset < 0 && newPosition  < -(obj.offsetWidth-max-2)) newPosition = -(obj.offsetWidth-max-2);*/
         if (offset < 0) {
             if (newPosition + obj.offsetWidth < obj.parentNode.offsetWidth) {
                 newPosition = obj.parentNode.offsetWidth - obj.offsetWidth;

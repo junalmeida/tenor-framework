@@ -8,10 +8,8 @@ namespace Tenor.Web.UI.WebControls.Design
 {
 
     /// <summary>
-    /// Conversor de versões do flash.
-    /// Classe usada pelo VisualStudio Designer.
+    /// Manage flash version strings. This code is used by the designer.
     /// </summary>
-    /// <remarks></remarks>
     public class FlashVersionConverter : System.ComponentModel.StringConverter
     {
 

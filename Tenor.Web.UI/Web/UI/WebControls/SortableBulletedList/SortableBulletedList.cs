@@ -20,9 +20,8 @@ namespace Tenor.Web.UI.WebControls
 
 
     /// <summary>
-    /// Exibe uma lista ordenável de marcadores que aceita código html em seus itens.
+    /// This control renders an orderable bulleted list that can contain html on its items.
     /// </summary>
-    /// <remarks></remarks>
     [ToolboxItem(typeof(System.Web.UI.Design.WebControlToolboxItem)), ToolboxData("<{0}:SortableBulletedList runat=\"server\" />"), ToolboxBitmapAttribute(typeof(System.Web.UI.WebControls.BulletedList), "BulletedList.bmp")]
     public class SortableBulletedList : System.Web.UI.WebControls.BulletedList, IPostBackDataHandler
     {

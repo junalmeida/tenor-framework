@@ -12,13 +12,14 @@ using System.Web.UI.WebControls;
 namespace Tenor.Web.UI.WebControls
 {
 
-    //PersistChildren(False), _
+    /*
+     * PersistChildren(False), _
+     */
 
 
     /// <summary>
-    /// Janela com funções de movimentação.
+    /// This control renders an html window that can me moved by user.
     /// </summary>
-    /// <remarks></remarks>
     [Designer(typeof(Design.WindowDesigner)), ParseChildren(ChildrenAsProperties = true), ToolboxData("<{0}:Window runat=server></{0}:Window>")]
     public class Window : WebControl, IPostBackDataHandler, IPostBackEventHandler, INamingContainer
     {
@@ -62,7 +63,7 @@ namespace Tenor.Web.UI.WebControls
         {
             base.OnLoad(e);
 
-            //Isto  está no load para sempre carregar independente do Visible
+            //These scripts must be register always, even if visible is false.
             Page.ClientScript.RegisterClientScriptResource(typeof(Page), "WebForms.js");
             Page.ClientScript.RegisterClientScriptResource(this.GetType(), Configuration.Resources.JsWindow);
             Page.ClientScript.RegisterClientScriptBlock(this.GetType(), ClientID, "var Window_" + this.ClientID + " = null;", true);
@@ -525,9 +526,8 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Ocorre quando a janela é fechada pelo botão fechar.
+        /// Occurs when a window is closed by the close button.
         /// </summary>
-        /// <remarks></remarks>
         private EventHandler CloseEvent;
         public event EventHandler Close
         {
@@ -560,9 +560,6 @@ namespace Tenor.Web.UI.WebControls
 
     public class TitleStyle : Style
     {
-
-
-
         private Unit _PaddingTop;
         public Unit PaddingTop
         {

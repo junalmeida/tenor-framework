@@ -54,7 +54,6 @@
   <ItemGroup>
     <Compile Include="Configuration\HttpModule.cs" />
     <Compile Include="Configuration\Resources.cs" />
-    <Compile Include="Configuration\Tracking.cs" />
     <Compile Include="Data\DummyDataSource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Web\UI\Util.cs" />
@@ -112,7 +111,6 @@
     <Content Include="Web\UI\WebControls\FloatingPanel\floatingpanel.js" />
     <Content Include="Web\UI\WebControls\Menu\menu.js" />
     <Content Include="Web\UI\WebControls\PreviewImage\black-white.gif" />
-    <Content Include="Web\UI\WebControls\PreviewImage\gear.gif" />
     <Content Include="Web\UI\WebControls\PreviewImage\gray.gif" />
     <Content Include="Web\UI\WebControls\PreviewImage\prev-close.jpg" />
     <Content Include="Web\UI\WebControls\PreviewImage\previewimage.js" />

@@ -1,15 +1,14 @@
 // ReorderButton
-// Authors: Rachel Carvalho
-//          Marcos Almeida Jr.
+
 function ReorderButton(gridViewId) {
-	// Variáveis e funções privadas -> apenas metódos privilegiados podem ler/gravar/chamar
+	// private variables
 	this.gridViewId = gridViewId;
 	this.gridview = document.getElementById(gridViewId);
 	if (!this.gridview) throw "Invalid gridView id";
 	this.hidden = document.getElementById(gridViewId + "_order");
 	if (!this.hidden) throw "Invalid gridView hidden field id";
 	
-	// Métodos privilegiados -> são públicos porém podem acessar itens privados
+	// privileged variables
     this.animObj = null;
 }
 
@@ -49,7 +48,7 @@ ReorderButton.prototype.doAnim = function (rowFrom, rowTo, table) {
     } catch (ex) {
     }
     
-//    this.animObj.style.border = "dotted 1px black";
+/*    this.animObj.style.border = "dotted 1px black";*/
     this.animObj.style.position = "absolute";
     this.animObj.style.left = rowPos[0].toString() + "px";
     this.animObj.style.top = rowPos[1].toString() + "px";
@@ -155,14 +154,11 @@ ReorderButton.prototype.ReOrder = function(btn, id, dir) {
             
             if(modificador != 0)
             {
-                // Fazendo célula a célula por bug do IE
-                
-                
-                
+                //we have to iterate cell by cell. ie bug?
                 
                 var row = tbl.insertRow(tbl.rows.length);
                 row.style.display="none";
-                //tenta manter o estilo
+                //tries to keep classname.
                 row.className = tbl.rows[indiceRow].className;
                 for (i in tbl.rows[indiceRow].style) {
                     try {
@@ -170,11 +166,11 @@ ReorderButton.prototype.ReOrder = function(btn, id, dir) {
                     } catch (e) {}
                 }
                 
-                // Guarda os dados da 1a
+                // holds the data of the first item
                 for(var j = 0; j < tbl.rows[indiceRow].cells.length; j++)
                 {
                     var cell = row.insertCell(j);
-                    //tenta manter o estilo
+                    //tries to keep classname.
                     cell.className = tbl.rows[indiceRow].cells[j].className;
                     for (i in tbl.rows[indiceRow].cells[j].style) {
                         try {
@@ -187,12 +183,12 @@ ReorderButton.prototype.ReOrder = function(btn, id, dir) {
                     
                     cell.innerHTML = tbl.rows[indiceRow].cells[j].innerHTML;
                 }
-                // coloca os dados da 2a na 1a
+                // sets the second one data to the first one.
                 for(var j = 0; j < tbl.rows[indiceRow].cells.length; j++)
                 {
                     tbl.rows[indiceRow].cells[j].innerHTML = tbl.rows[indiceRow + modificador].cells[j].innerHTML;
                 }
-                // coloca os dados da 1a na 2a
+                // sets the first one data to the second one.
                 for(var j = 0; j < tbl.rows[indiceRow + modificador].cells.length; j++)
                 {
                     tbl.rows[indiceRow + modificador].cells[j].innerHTML = row.cells[j].innerHTML;
@@ -208,7 +204,7 @@ ReorderButton.prototype.ReOrder = function(btn, id, dir) {
                 newrow.style.display="";
                 table.appendChild(newrow);
             
-                // deleta o buffer
+                // clearing buffer row
                 tbl.deleteRow(tbl.rows.length - 1);
                 
                 
@@ -225,14 +221,14 @@ ReorderButton.prototype.ReOrder = function(btn, id, dir) {
                 }
                 
                 
-                
-//                table.className = tbl.className;
-//                for (i in tbl.style) {
-//                    try {
-//                        table.style[i] = tbl.style[i];
-//                    } catch (e) {}
-//                }
-                
+/*                
+                table.className = tbl.className;
+                for (i in tbl.style) {
+                    try {
+                        table.style[i] = tbl.style[i];
+                    } catch (e) {}
+                }
+*/                
                 this.doAnim(tbl.rows[indiceRow], tbl.rows[indiceRow + modificador], table);
             }
         }

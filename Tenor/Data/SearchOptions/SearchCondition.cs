@@ -58,7 +58,7 @@ namespace Tenor.Data
                 _value = Convert.ChangeType(value, castType);
             }
 
-            //_value = CType(value, casttype)
+            /*_value = CType(value, casttype)*/
             _compareOperator = compareOperator;
             _castType = CastType;
         }

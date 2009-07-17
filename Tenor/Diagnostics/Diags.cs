@@ -116,7 +116,6 @@ namespace Tenor.Diagnostics
 
 
                 Mail.MailMessage errmail = new Mail.MailMessage();
-                //errmail.From = Mail.MailMessage.FromPadrao("Exception")
 
                 foreach (Tenor.Configuration.EmailElement email in Tenor.Configuration.Tenor.Current.Exceptions.Emails)
                 {
@@ -693,12 +692,14 @@ namespace Tenor.Diagnostics
 
 
                     string st = Environment.StackTrace;
-                    //string fimDaondeNaoImporta = "Tenor.Disgnostics.Debug.DebugSQL(String sql, TenorParameter[] parameters)" + Environment.NewLine;
-                    //int i = st.IndexOf(fimDaondeNaoImporta);
-                    //if (i > 0)
-                    //{
-                    //    st = st.Substring(i + fimDaondeNaoImporta.Length);
-                    //}
+                    /*
+                    string fimDaondeNaoImporta = "Tenor.Diagnostics.Debug.DebugSQL(String sql, TenorParameter[] parameters)" + Environment.NewLine;
+                    int i = st.IndexOf(fimDaondeNaoImporta);
+                    if (i > 0)
+                    {
+                        st = st.Substring(i + fimDaondeNaoImporta.Length);
+                    }
+                     */
 
                     traceInfo.AppendLine("> Stack Trace:");
                     traceInfo.AppendLine(st);

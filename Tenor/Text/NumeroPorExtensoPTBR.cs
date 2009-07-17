@@ -17,11 +17,11 @@ namespace Tenor.Text
  
 		private Int32 num;
  
-		//array de 2 linhas e 14 colunas[2][14]
+        //2 lines matrix with  14 columns
 		private static readonly String[,] qualificadores = new String[,] {
-//			{"milésimo de real","milésimos de real"},//[0][0] e [0][1]
-			{"centavo", "centavos"},//[1][0] e [1][1]
-			{"", ""},//[2][0],[2][1]
+/*			{"milésimo de real","milésimos de real"}, //[0][0] and [0][1]*/
+			{"centavo", "centavos"}, //[1][0] and [1][1]
+			{"", ""}, //[2][0] and [2][1]
 			{"mil", "mil"},
 			{"milhão", "milhões"},
 			{"bilhão", "bilhões"},

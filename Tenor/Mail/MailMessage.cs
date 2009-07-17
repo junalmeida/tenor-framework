@@ -257,17 +257,6 @@ namespace Tenor.Mail
                 smtp.Credentials = new System.Net.NetworkCredential(userName, password);
             }
             smtp.EnableSsl = useSSL;
-            /*
-            this is not useful
-            if (string.IsNullOrEmpty(smtp.Host) || smtp.Host.Equals("127.0.0.1"))
-            {
-                // Seta o padrão
-                smtp.Host = Configuration.MailMessage._SmtpPadrao;
-                smtp.Port = Configuration.MailMessage._SmtpPortaPadrao;
-                smtp.EnableSsl = Configuration.MailMessage._SmtpUseSSL;
-                smtp.Credentials = new System.Net.NetworkCredential(Configuration.MailMessage._UsuarioPadrao, Configuration.MailMessage._SenhaPadrao);
-            }
-            */
             try
             {
                 PrepareTemplate();

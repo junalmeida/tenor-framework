@@ -297,19 +297,20 @@ namespace Tenor.Data
             }
         }
 
+        /*
+        Public ReadOnly Property ForeignPropertyName() As String
+            Get
+                'Return RelatedAttribute.ForeignPropertyName
+            End Get
+        End Property
 
-        //Public ReadOnly Property ForeignPropertyName() As String
-        //    Get
-        //        'Return RelatedAttribute.ForeignPropertyName
-        //    End Get
-        //End Property
 
-
-        //Public ReadOnly Property LocalPropertyName() As String
-        //    Get
-        //        'Return RelatedAttribute.LocalPropertyName
-        //    End Get
-        //End Property
+        Public ReadOnly Property LocalPropertyName() As String
+            Get
+                'Return RelatedAttribute.LocalPropertyName
+            End Get
+        End Property
+         */
 
         public FieldInfo[] ForeignFields
         {
@@ -700,9 +701,9 @@ namespace Tenor.Data
     }
 
     /// <summary>
-    /// Represents a foreign relationship.
+    /// <para>Represents a foreign relationship. This attribute can be applied to a property that returns an instance of the foreign class, or a BLLCollection of the foreign class.</para>
+    /// If you have a composite relation, you can define more than one of this attribute to the same property.
     /// </summary>
-    /// <remarks></remarks>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = true)]
     public sealed class ForeignKeyAttribute : Attribute
     {
@@ -712,16 +713,12 @@ namespace Tenor.Data
         {
         }
 
-        /// <summary>
-        /// Instancia um atributo ForeignKey.
-        /// </summary>
-        /// <param name="ForeignPropertyName">Nome da propriedade na classe extrangeira</param>
-        /// <param name="LocalPropertyName">Nome da propriedade na classe local</param>
-        /// <remarks></remarks>
-        public ForeignKeyAttribute(string ForeignPropertyName, string LocalPropertyName)
+        /// <param name="foreignPropertyName">A property declared on the foreign class. See <see cref="ForeignKeyAttribute"/> for details.</param>
+        /// <param name="localPropertyName">A property declared on this class.</param>
+        public ForeignKeyAttribute(string foreignPropertyName, string localPropertyName)
         {
-            _ForeignPropertyName = ForeignPropertyName;
-            _LocalPropertyName = LocalPropertyName;
+            _ForeignPropertyName = foreignPropertyName;
+            _LocalPropertyName = localPropertyName;
 
         }
 
@@ -757,7 +754,7 @@ namespace Tenor.Data
 
 
     /// <summary>
-    /// Represents a special field. Generally used to return values from a SQL instruction.
+    /// Represents a special field. Generally used to return values from a SQL instruction. 
     /// </summary>
     /// <remarks></remarks>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
@@ -770,14 +767,11 @@ namespace Tenor.Data
         }
 
 
-        /// <summary>
-        /// Inicializa uma instancia de campo especial
-        /// </summary>
-        /// <param name="Expression">Expressão a ser usada na construção da consulta. Utilize funções específicas da linguagem SQL (Ex. T-SQL, PL/SQL) que estiver usando.</param>
+        /// <param name="expression">A SQL expression that will be used to return a value to the applied property. This expression must be in the same language of your DBMS.</param>
         /// <remarks></remarks>
-        public SpecialFieldAttribute(string Expression)
+        public SpecialFieldAttribute(string expression)
         {
-            this.Expression = Expression;
+            this.Expression = expression;
         }
 
 

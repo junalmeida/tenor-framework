@@ -18,7 +18,6 @@ namespace Tenor.Web.UI.WebControls.Core
     /// <summary>
     /// The MailingPanel webcontrol makes easy to send forms to email without coding.
     /// </summary>
-    /// <remarks></remarks>
     [ToolboxData("<{0}:MailingPanel runat=server></{0}:MailingPanel>")]
     public class MailingPanel : MultiView
     {
@@ -257,9 +256,6 @@ namespace Tenor.Web.UI.WebControls.Core
         /// <summary>
         /// Gets the FormView of this MailingPanel.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [Browsable(false)]
         public FormView FormView
         {
@@ -281,9 +277,6 @@ namespace Tenor.Web.UI.WebControls.Core
         /// <summary>
         /// Gets the ResultView of this MailingPanel.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [Browsable(false)]
         public ResultView ResultView
         {

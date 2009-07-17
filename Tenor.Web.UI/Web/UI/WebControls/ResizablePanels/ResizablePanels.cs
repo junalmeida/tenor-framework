@@ -13,9 +13,8 @@ namespace Tenor.Web.UI.WebControls
 {
 
     /// <summary>
-    /// Controle que define dois painéis redimensionáveis pelo usuário.
+    /// This control renders two resizable panels.
     /// </summary>
-    /// <remarks></remarks>
     [Designer(typeof(ResizablePanelsDesigner)), ParseChildren(ChildrenAsProperties = true), PersistChildren(false)]
     public class ResizablePanels : CompositeControl, IPostBackDataHandler
     {
@@ -32,45 +31,39 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Define a posição do divisor dos painéis.
+        /// Gets or sets the panel splitter position.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        [Themeable(true), Category("Data"), Description("Stores the position of the divider. Leave empty for automatic positioning."), DefaultValue(typeof(Orientation), "Horizontal")]
-        public Unit DividerPosition
+        [Themeable(true), Category("Data"), Description("Stores the position of the splitter. Leave empty for automatic positioning."), DefaultValue(typeof(Orientation), "Horizontal")]
+        public Unit SplitterPosition
         {
             get
             {
-                if (ViewState["DividerPosition"] == null)
+                if (ViewState["SplitterPosition"] == null)
                 {
                     return Unit.Empty;
                 }
                 else
                 {
-                    return ((Unit)(ViewState["DividerPosition"]));
+                    return ((Unit)(ViewState["SplitterPosition"]));
                 }
             }
             set
             {
                 if (value.IsEmpty)
                 {
-                    ViewState["DividerPosition"] = null;
+                    ViewState["SplitterPosition"] = null;
                 }
                 else
                 {
-                    ViewState["DividerPosition"] = value;
+                    ViewState["SplitterPosition"] = value;
                 }
             }
         }
 
 
         /// <summary>
-        /// Define a orientação da renderização dos painéis
+        /// Gets or sets rendering orientation of the panels.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [Themeable(true), Category("Behavior"), Description("Controls how to render this control"), DefaultValue(typeof(Orientation), "Horizontal")]
         public Orientation Orientation
         {
@@ -100,11 +93,8 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Largura total do controle.
+        /// Gets or sets total width.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public override System.Web.UI.WebControls.Unit Width
         {
             get
@@ -126,11 +116,8 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Altura total do controle.
+        /// Gets or sets total height.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public override System.Web.UI.WebControls.Unit Height
         {
             get
@@ -154,11 +141,8 @@ namespace Tenor.Web.UI.WebControls
 
         private ITemplate _FirstPanel;
         /// <summary>
-        /// Conteúdo do primeiro painel.
+        /// Gets or sets the first panel template.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [Browsable(false), PersistenceMode(PersistenceMode.InnerProperty), TemplateContainer(typeof(ResizablePanel)), TemplateInstance(TemplateInstance.Single)]
         public ITemplate FirstPanel
         {
@@ -185,11 +169,8 @@ namespace Tenor.Web.UI.WebControls
 
         private ITemplate _SecondPanel;
         /// <summary>
-        /// Conteúdo do segundo painel.
+        /// Gets or sets the second panel template.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [Browsable(false), PersistenceMode(PersistenceMode.InnerProperty), TemplateContainer(typeof(ResizablePanel)), TemplateInstance(TemplateInstance.Single)]
         public ITemplate SecondPanel
         {
@@ -322,24 +303,24 @@ namespace Tenor.Web.UI.WebControls
             {
                 case Orientation.Horizontal:
                     first.Style["float"] = "left";
-                    if (DividerPosition.IsEmpty)
+                    if (SplitterPosition.IsEmpty)
                     {
                         first.Width = new Unit(RealWidth.Value / 2, RealWidth.Type);
                     }
                     else
                     {
-                        first.Width = DividerPosition;
+                        first.Width = SplitterPosition;
                     }
                     first.Height = Unit.Parse("100%");
                     break;
                 case Orientation.Vertical:
-                    if (DividerPosition.IsEmpty)
+                    if (SplitterPosition.IsEmpty)
                     {
                         first.Height = new Unit(RealHeight.Value / 2, RealHeight.Type);
                     }
                     else
                     {
-                        first.Height = DividerPosition;
+                        first.Height = SplitterPosition;
                     }
                     first.Width = Unit.Parse("100%");
                     break;
@@ -347,7 +328,9 @@ namespace Tenor.Web.UI.WebControls
 
             if (this.DesignMode)
             {
-                //first.Style("border") = "solid 1px red"
+                /*
+                first.Style("border") = "solid 1px red"
+                 */
             }
             return first;
 
@@ -501,7 +484,7 @@ namespace Tenor.Web.UI.WebControls
             lastValue = postCollection[ClientID + "_value"];
             if (lastValue != "")
             {
-                this.DividerPosition = Unit.Parse(lastValue + "px");
+                this.SplitterPosition = Unit.Parse(lastValue + "px");
             }
             return true;
         }

@@ -16,13 +16,12 @@ namespace Tenor.Configuration
 
 
         /// <summary>
-        /// Verifica os HttpModules atuais na webconfig do projeto.
+        /// Check if TenorModule is defined on configuration file.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>True if the module is defined.
+        /// </returns>
         private static bool CheckHttpModules()
         {
-            //Dim httpModule As Type = GetType(HttpModule)
             HttpModulesSection sec = (HttpModulesSection)(WebConfigurationManager.GetSection("system.web/httpModules"));
             if (sec == null)
             {
@@ -31,7 +30,7 @@ namespace Tenor.Configuration
 
             foreach (HttpModuleAction m in sec.Modules)
             {
-                if (m.Type.StartsWith("Tenor.Web.HttpModule, Tenor"))
+                if (m.Type.StartsWith("Tenor.Web.TenorModule, Tenor"))
                 {
                     return true;
                 }

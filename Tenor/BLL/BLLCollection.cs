@@ -115,14 +115,15 @@ namespace Tenor
             }
 
 
-
-            //			public int Count
-            //			{
-            //				get
-            //				{
-            //					return list.Count;
-            //				}
-            //			}
+            /*
+            			public int Count
+            			{
+            				get
+            				{
+            					return list.Count;
+            				}
+            			}
+             */
 
             public bool IsReadOnly
             {

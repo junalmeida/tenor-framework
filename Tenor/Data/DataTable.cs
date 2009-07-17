@@ -9,7 +9,9 @@ using System.Configuration;
 using ConnectionState = System.Data.ConnectionState;
 using SchemaType = System.Data.SchemaType;
 using System.Data.Common;
-//using DataRow = System.Data.DataRow;
+/*
+ * using DataRow = System.Data.DataRow;
+ */
 
 
 namespace Tenor.Data
@@ -102,39 +104,41 @@ namespace Tenor.Data
 
         }
 
-        //Private Sub AttachConnection(ByVal Connection As System.Data.Common.DbConnection)
-        //    _ActiveConnection = Connection
-        //    If _ActiveConnection.State <> ConnectionState.Open Then
-        //        _ActiveConnection.Open()
-        //    End If
+        /*
+        Private Sub AttachConnection(ByVal Connection As System.Data.Common.DbConnection)
+            _ActiveConnection = Connection
+            If _ActiveConnection.State <> ConnectionState.Open Then
+                _ActiveConnection.Open()
+            End If
 
-        //    If _Ad Is Nothing Then
-        //        If Connection.GetType().FullName.StartsWith("System.Data.SqlClient") Then
+            If _Ad Is Nothing Then
+                If Connection.GetType().FullName.StartsWith("System.Data.SqlClient") Then
 
-        //            Dim Con As SqlClient.SqlConnection = CType(Connection, SqlConnection)
-        //            Dim Cmd As SqlClient.SqlCommand = Con.CreateCommand()
-        //            Dim Ad As New SqlClient.SqlDataAdapter(Cmd)
-        //            Dim cmds As New SqlClient.SqlCommandBuilder(Ad)
+                    Dim Con As SqlClient.SqlConnection = CType(Connection, SqlConnection)
+                    Dim Cmd As SqlClient.SqlCommand = Con.CreateCommand()
+                    Dim Ad As New SqlClient.SqlDataAdapter(Cmd)
+                    Dim cmds As New SqlClient.SqlCommandBuilder(Ad)
 
-        //            _Cmd = Cmd
-        //            _Ad = Ad
-        //            _Cmds = cmds
-        //        ElseIf Connection.GetType().FullName.StartsWith("System.Data.Odbc") Then
+                    _Cmd = Cmd
+                    _Ad = Ad
+                    _Cmds = cmds
+                ElseIf Connection.GetType().FullName.StartsWith("System.Data.Odbc") Then
 
-        //            Dim Con As Odbc.OdbcConnection = CType(Connection, Odbc.OdbcConnection)
-        //            Dim Cmd As Odbc.OdbcCommand = Con.CreateCommand()
-        //            Dim Ad As New Odbc.OdbcDataAdapter(Cmd)
-        //            Dim cmds As New Odbc.OdbcCommandBuilder(Ad)
+                    Dim Con As Odbc.OdbcConnection = CType(Connection, Odbc.OdbcConnection)
+                    Dim Cmd As Odbc.OdbcCommand = Con.CreateCommand()
+                    Dim Ad As New Odbc.OdbcDataAdapter(Cmd)
+                    Dim cmds As New Odbc.OdbcCommandBuilder(Ad)
 
-        //            _Cmd = Cmd
-        //            _Ad = Ad
-        //            _Cmds = cmds
-        //        Else
-        //            Throw New Exception("This provider is not supported")
-        //        End If
-        //    End If
+                    _Cmd = Cmd
+                    _Ad = Ad
+                    _Cmds = cmds
+                Else
+                    Throw New Exception("This provider is not supported")
+                End If
+            End If
 
-        //End Sub
+        End Sub
+         */
 
         private void AttachParameters(TenorParameter[] parameters)
         {
@@ -174,7 +178,7 @@ namespace Tenor.Data
 
 
         /// <summary>
-        ///Gets or sets the wait time in seconds before terminating the attempt to execute a command and generating an error.
+        /// Gets or sets the wait time in seconds before terminating the attempt to execute a command and generating an error.
         /// </summary>
         /// <returns>The time in seconds to wait for the command to execute.
         /// </returns>
@@ -241,13 +245,14 @@ namespace Tenor.Data
         private System.Data.Common.DbDataAdapter _Ad;
         private System.Data.Common.DbCommandBuilder _Cmds;
 
-
-        //Public Sub Bind()
-        //    If _Cmd Is Nothing Or _Ad Is Nothing Then
-        //        Throw New Exception("The database connection is not set")
-        //    End If
-        //    _Ad.Fill(Me)
-        //End Sub
+        /*
+        Public Sub Bind()
+            If _Cmd Is Nothing Or _Ad Is Nothing Then
+                Throw New Exception("The database connection is not set")
+            End If
+            _Ad.Fill(Me)
+        End Sub
+         */
 
         /// <summary>
         /// Executes the query and fills this datatable.

@@ -24,11 +24,11 @@ namespace Tenor.Web.UI.WebControls.Design
 
             base.Initialize(component);
         }
-
-        //Protected Overrides Sub CreateChildControls()
-        //    MyBase.CreateChildControls()
-        //End Sub
-
+        /*
+        Protected Overrides Sub CreateChildControls()
+            MyBase.CreateChildControls()
+        End Sub
+        */
         public override string GetDesignTimeHtml()
         {
             for (int i = 0; i <= Control.Controls.Count - 1; i++)
@@ -69,8 +69,9 @@ namespace Tenor.Web.UI.WebControls.Design
             regions.Add(editableRegion);
 
             // Set the highlight for the selected region
-            //regions(myControl.CurrentView).Highlight = True
-
+            /*
+            regions(myControl.CurrentView).Highlight = True
+            */
             // Use the base class to render the markup
             return GetDesignTimeHtml();
         }

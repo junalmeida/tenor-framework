@@ -60,7 +60,6 @@ namespace Tenor.Web
         /// <summary>
         /// Check if TenorModule is enabled on user-code webconfig.
         /// </summary>
-        /// <remarks></remarks>
         public static void CheckHttpModule()
         {
             System.Web.HttpContext context = System.Web.HttpContext.Current;

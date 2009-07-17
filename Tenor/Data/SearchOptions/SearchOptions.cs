@@ -13,7 +13,6 @@ namespace Tenor.Data
     /// <summary>
     /// Represents a set of search definitions.
     /// </summary>
-    /// <remarks></remarks>
     public class SearchOptions
     {
 
@@ -24,7 +23,6 @@ namespace Tenor.Data
         /// Creates an instance of SearchOptions based on a base class.
         /// </summary>
         /// <param name="baseClass">Type of class whether the search will be performed.</param>
-        /// <remarks></remarks>
         public SearchOptions(Type baseClass)
         {
             if (baseClass == null)
@@ -60,7 +58,6 @@ namespace Tenor.Data
         /// Determines whether the Distinct Query is enabled.
         /// </summary>
         /// <value>A Boolean.</value>
-        /// <returns></returns>
         /// <remarks>The default is False.</remarks>
         public virtual bool Distinct
         {
@@ -81,7 +78,6 @@ namespace Tenor.Data
         /// Determines whether the TOP or Limit function is enabled.
         /// </summary>
         /// <value>A Integer.</value>
-        /// <returns></returns>
         /// <remarks>The default is 0 (no top).</remarks>
         public virtual int Top
         {
@@ -174,8 +170,6 @@ namespace Tenor.Data
         /// <summary>
         /// Executes the query defined on this instance and returns the number of returned rows.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public int ExecuteCount(ConnectionStringSettings Connection)
         {
             return BLL.BLLBase.Count(this, Connection);

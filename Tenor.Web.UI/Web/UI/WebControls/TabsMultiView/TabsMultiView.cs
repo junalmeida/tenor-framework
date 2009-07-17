@@ -18,9 +18,8 @@ namespace Tenor.Web.UI.WebControls
 
 
     /// <summary>
-    /// Implementa um controle de exibição de seções em Abas, usando os conceitos da MultiView.
+    /// This control renders tabbed sections with a MultiView style.
     /// </summary>
-    /// <remarks></remarks>
 #if !MONO
     [Themeable(true), ControlBuilder(typeof(MultiViewControlBuilder)), DefaultEvent("ActiveViewChanged"), Designer("System.Web.UI.Design.WebControls.MultiViewDesigner, System.Design, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"), ParseChildren(typeof(TabView)), AspNetHostingPermission(SecurityAction.LinkDemand, Level = AspNetHostingPermissionLevel.Minimal), AspNetHostingPermission(SecurityAction.InheritanceDemand, Level = AspNetHostingPermissionLevel.Minimal), ToolboxData("<{0}:TabsMultiView runat=server></{0}:TabsMultiView>")]
 #endif
@@ -120,13 +119,15 @@ namespace Tenor.Web.UI.WebControls
                 if (this._ControlStyle == null)
                 {
                     this._ControlStyle = this.CreateControlStyle();
-                    //If MyBase.IsTrackingViewState Then
-                    //    Me.ControlStyle.TrackViewState()
-                    //End If
-                    //If Me._webControlFlags.Item(1) Then
-                    //    Me._webControlFlags.Clear(1)
-                    //    Me.ControlStyle.LoadViewState(Nothing)
-                    //End If
+                    /*
+                    If MyBase.IsTrackingViewState Then
+                        Me.ControlStyle.TrackViewState()
+                    End If
+                    If Me._webControlFlags.Item(1) Then
+                        Me._webControlFlags.Clear(1)
+                        Me.ControlStyle.LoadViewState(Nothing)
+                    End If
+                     */
                 }
                 return this._ControlStyle;
             }
@@ -388,13 +389,9 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Define qual chave de query string usar para manipular a aba atual do controle.
-        /// O padrão é "TabIndex".
+        /// Gets or sets the query string key when a tab is not using postbacks.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        [Description("Define qual chave de query string usar para manipular a aba atual do controle."), DefaultValue("TabIndex"), Category("Behavior")]
+        [Description("Defines the query string key when a tab is not using postbacks."), DefaultValue("TabIndex"), Category("Behavior")]
         public virtual string QueryStringKey
         {
             get
@@ -430,12 +427,9 @@ namespace Tenor.Web.UI.WebControls
 
         #region " Behavior "
         /// <summary>
-        /// Determina se o controle irá definir automáticamente a aba atual pela QueryString da página.
+        /// Gets os sets a value that determines if the current tab will be managed automatically by this control using the <see cref="QueryStringKey"/> defined.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        [Description("Handle active index from QueryString"), Themeable(false), DefaultValue(true), Category("Behavior")]
+        [Description("Determines if the current tab will be managed automatically by this control using the QueryStringKey defined."), Themeable(false), DefaultValue(true), Category("Behavior")]
         public virtual bool AutomaticTabChange
         {
             get
@@ -454,11 +448,8 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Retorna ou define o índice da aba atual.
+        /// Gets or sets the index of the selected tab.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public override int ActiveViewIndex
         {
             get
@@ -513,72 +504,73 @@ namespace Tenor.Web.UI.WebControls
         {
             return new Style();
         }
-
-        //Protected Overridable Function CreateContainerStyle() As Style
-        //    Return New Style
-        //End Function
-
-
-
-        //Private _ContainerStyle As Style
-
-        //<Browsable(False), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), Description("WebControl_ControlStyle")> _
-        //Public ReadOnly Property ContainerStyle() As Style
-        //    Get
-        //        If (Me._ContainerStyle Is Nothing) Then
-        //            Me._ContainerStyle = Me.CreateContainerStyle
-        //        End If
-        //        Return Me._ContainerStyle
-        //    End Get
-        //End Property
-
-
-        //<TypeConverter(GetType(WebColorConverter)), DefaultValue(GetType(Drawing.Color), ""), Category("Appearance"), Description("BackColor of a Tab Item")> _
-        //Public Overridable Property ContainerBackColor() As Drawing.Color
-        //    Get
-        //        Return Me.ContainerStyle.BackColor
-        //    End Get
-        //    Set(ByVal value As Color)
-        //        Me.ContainerStyle.BackColor = value
-        //    End Set
-        //End Property
+        /*
+        Protected Overridable Function CreateContainerStyle() As Style
+            Return New Style
+        End Function
 
 
 
-        //<Category("Appearance"), Description("Container BorderColor"), DefaultValue(GetType(Color), ""), TypeConverter(GetType(WebColorConverter))> _
-        //Public Overridable Property ContainerBorderColor() As Color
-        //    Get
-        //        Return Me.ContainerStyle.BorderColor
-        //    End Get
-        //    Set(ByVal value As Color)
-        //        Me.ContainerStyle.BorderColor = value
-        //    End Set
-        //End Property
+        Private _ContainerStyle As Style
+
+        <Browsable(False), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), Description("WebControl_ControlStyle")> _
+        Public ReadOnly Property ContainerStyle() As Style
+            Get
+                If (Me._ContainerStyle Is Nothing) Then
+                    Me._ContainerStyle = Me.CreateContainerStyle
+                End If
+                Return Me._ContainerStyle
+            End Get
+        End Property
+
+
+        <TypeConverter(GetType(WebColorConverter)), DefaultValue(GetType(Drawing.Color), ""), Category("Appearance"), Description("BackColor of a Tab Item")> _
+        Public Overridable Property ContainerBackColor() As Drawing.Color
+            Get
+                Return Me.ContainerStyle.BackColor
+            End Get
+            Set(ByVal value As Color)
+                Me.ContainerStyle.BackColor = value
+            End Set
+        End Property
+
+
+
+        <Category("Appearance"), Description("Container BorderColor"), DefaultValue(GetType(Color), ""), TypeConverter(GetType(WebColorConverter))> _
+        Public Overridable Property ContainerBorderColor() As Color
+            Get
+                Return Me.ContainerStyle.BorderColor
+            End Get
+            Set(ByVal value As Color)
+                Me.ContainerStyle.BorderColor = value
+            End Set
+        End Property
 
 
 
 
-        //<DefaultValue(0), Category("Appearance"), Description("Container BorderStyle")> _
-        //Public Overridable Property ContainerBorderStyle() As BorderStyle
-        //    Get
-        //        Return Me.ContainerStyle.BorderStyle
-        //    End Get
-        //    Set(ByVal value As BorderStyle)
-        //        Me.ContainerStyle.BorderStyle = value
-        //    End Set
-        //End Property
+        <DefaultValue(0), Category("Appearance"), Description("Container BorderStyle")> _
+        Public Overridable Property ContainerBorderStyle() As BorderStyle
+            Get
+                Return Me.ContainerStyle.BorderStyle
+            End Get
+            Set(ByVal value As BorderStyle)
+                Me.ContainerStyle.BorderStyle = value
+            End Set
+        End Property
 
-        //<Description("Container BorderWidth"), Category("Appearance"), DefaultValue(GetType(Unit), "")> _
-        //Public Overridable Property ContainerBorderWidth() As Unit
-        //    Get
-        //        Return Me.ContainerStyle.BorderWidth
-        //    End Get
-        //    Set(ByVal value As Unit)
-        //        Me.ContainerStyle.BorderWidth = value
-        //    End Set
-        //End Property
+        <Description("Container BorderWidth"), Category("Appearance"), DefaultValue(GetType(Unit), "")> _
+        Public Overridable Property ContainerBorderWidth() As Unit
+            Get
+                Return Me.ContainerStyle.BorderWidth
+            End Get
+            Set(ByVal value As Unit)
+                Me.ContainerStyle.BorderWidth = value
+            End Set
+        End Property
 
 
+         */
 
 
 
@@ -788,7 +780,9 @@ namespace Tenor.Web.UI.WebControls
 
         #region " Create Tabs "
 
-        //private Tabs _Tabs;
+        /*
+         private Tabs _Tabs;
+         */
 
         protected virtual Tabs CreateTabs()
         {
@@ -942,9 +936,11 @@ namespace Tenor.Web.UI.WebControls
                 }
                 outerDiv.Controls.Add(tabs);
 
-                //Dim lClear As New Literal
-                //lClear.Text = "<div style=""clear:both""></div>"
-                //outerDiv.Controls.Add(lClear)
+                /*
+                Dim lClear As New Literal
+                lClear.Text = "<div style=""clear:both""></div>"
+                outerDiv.Controls.Add(lClear)
+                 */
 
 
                 Panel innerDiv = new Panel();
@@ -988,13 +984,15 @@ namespace Tenor.Web.UI.WebControls
                     innerDiv.Height = new Unit(outerDiv.Height.Value - tabs.RealHeight.Value, UnitType.Pixel);
                     outerDiv.Height = Unit.Empty;
                 }
-                //If outerDiv.Height.IsEmpty Then
-                //    If innerDiv.Height.IsEmpty Then
-                //        innerDiv.Height = New Unit(200 - tabs.RealHeight.Value, UnitType.Pixel)
-                //    End If
-                //Else
-                //    innerDiv.Height = New Unit(outerDiv.Height.Value - tabs.RealHeight.Value, UnitType.Pixel)
-                //End If
+                /*
+                If outerDiv.Height.IsEmpty Then
+                    If innerDiv.Height.IsEmpty Then
+                        innerDiv.Height = New Unit(200 - tabs.RealHeight.Value, UnitType.Pixel)
+                    End If
+                Else
+                    innerDiv.Height = New Unit(outerDiv.Height.Value - tabs.RealHeight.Value, UnitType.Pixel)
+                End If
+                 */
 
 
                 Literal l = new Literal();
@@ -1013,8 +1011,6 @@ namespace Tenor.Web.UI.WebControls
                 writer.WriteLine(html.Substring(0, html.IndexOf("{0}")));
                 base.RenderControl(writer);
                 writer.WriteLine(html.Substring(html.IndexOf("{0}") + 3));
-
-
 
             }
         }
@@ -1112,13 +1108,15 @@ namespace Tenor.Web.UI.WebControls
                 if (this._ControlStyle == null)
                 {
                     this._ControlStyle = this.CreateControlStyle();
-                    //If MyBase.IsTrackingViewState Then
-                    //    Me.ControlStyle.TrackViewState()
-                    //End If
-                    //If Me._webControlFlags.Item(1) Then
-                    //    Me._webControlFlags.Clear(1)
-                    //    Me.ControlStyle.LoadViewState(Nothing)
-                    //End If
+                    /*
+                    If MyBase.IsTrackingViewState Then
+                        Me.ControlStyle.TrackViewState()
+                    End If
+                    If Me._webControlFlags.Item(1) Then
+                        Me._webControlFlags.Clear(1)
+                        Me.ControlStyle.LoadViewState(Nothing)
+                    End If
+                     */
                 }
                 return this._ControlStyle;
             }

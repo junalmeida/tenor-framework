@@ -19,14 +19,11 @@ namespace Tenor.Web.UI.WebControls
 {
 
     /// <summary>
-    /// Exibe um painel lateral flutuante.
+    /// This control show a floating side-panel.
     /// </summary>
-    /// <remarks></remarks>
     [ToolboxItem(typeof(System.Web.UI.Design.WebControlToolboxItem)), ToolboxData("<{0}:FloatingPanel runat=\"server\" />"), ToolboxBitmapAttribute(typeof(System.Web.UI.WebControls.Panel), "Panel.bmp")]
     public class FloatingPanel : System.Web.UI.WebControls.Panel
     {
-
-
 
         protected override void OnPreRender(System.EventArgs e)
         {

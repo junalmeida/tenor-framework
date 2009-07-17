@@ -35,13 +35,13 @@ namespace Tenor.Web
 
                 throw (new TenorException("Object not found"));
 
-                //return;
+                /*return;*/
 
             }
             else if ((obj.Object as Stream) != null)
             {
                 Stream memres = (Stream)obj.Object;
-                //Envia os headers e a stream para o cliente
+                //Write headers and the stream to output.
                 WriteHeaders(app, obj);
                 WriteStream(memres, app);
 
@@ -50,11 +50,10 @@ namespace Tenor.Web
             }
             else if ((obj.Object as IResponseObject) != null)
             {
-                //O conteúdo de obj.Object não era o esperado.
-                //Uma programação correta não deve gerar este erro
+                //We found an invalid obj.Object 
+                //WTF? This should never happen.
 
-
-                //retirar o objeto inválido do cache
+                //lets clear the cache.
                 lock (messagesLock)
                 {
                     app.Context.Cache.Remove(Tenor.Configuration.TenorModule.IdPrefix + QueryString("id"));
@@ -101,7 +100,7 @@ namespace Tenor.Web
                     //keeps the data on cache.
                     obj.Object = memres;
                     app.Context.Cache.Insert(Tenor.Configuration.TenorModule.IdPrefix + QueryString("id"), obj, null, System.Web.Caching.Cache.NoAbsoluteExpiration, new TimeSpan(0, 0, obj.Expires));
-                    //              app.Context.Cache.Insert(IdPrefix & app.Request.QueryString("id"), obj, Nothing, Caching.Cache.NoAbsoluteExpiration, New TimeSpan(0, 0, obj.Expires), Caching.CacheItemPriority.Normal, AddressOf Cache_onItemRemoved)
+                    /*app.Context.Cache.Insert(IdPrefix & app.Request.QueryString("id"), obj, Nothing, Caching.Cache.NoAbsoluteExpiration, New TimeSpan(0, 0, obj.Expires), Caching.CacheItemPriority.Normal, AddressOf Cache_onItemRemoved)*/
                     return;
                 }
             }

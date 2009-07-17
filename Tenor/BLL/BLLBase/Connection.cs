@@ -32,7 +32,7 @@ namespace Tenor.BLL
 
       
         /// <summary>
-        /// Retonar a conexão padrão para ser usada com a BLLBase.
+        /// Gets the default connection to be used.
         /// </summary>
         private static ConnectionStringSettings GetDefaultConnection()
         {

@@ -291,9 +291,11 @@ namespace Tenor.Web
                     }
                     catch (Exception)
                     {
-                        //app.Context.ClearError()
-                        //app.Context.AddError(New HttpException(500, "server error", ex.InnerException))
-                        //app.Context.Response.StatusCode = 500
+                        /*
+                        app.Context.ClearError()
+                        app.Context.AddError(New HttpException(500, "server error", ex.InnerException))
+                        app.Context.Response.StatusCode = 500
+                         */
                         throw;
                     }
                 }

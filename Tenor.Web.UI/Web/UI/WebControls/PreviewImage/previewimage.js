@@ -1,4 +1,4 @@
-//Marcos A. P. de Almeida Jr.
+//Preview Image
 
 
 function getPageScroll() {
@@ -15,12 +15,9 @@ function getPageScroll() {
 }
 
 
-//
-// getPageSize()
 // Returns array with page width, height and window width, height
 // Core code from - quirksmode.org
 // Edit for Firefox by pHaez
-//
 function getPageSize(){
     var arrayPageSize;
 	var xScroll, yScroll;
@@ -130,7 +127,7 @@ function PreviewImage_Open(Obj, Url, Desc, Loading, CloseImg, TValue, TColor, Hi
 
     if (HideObjects) PreviewImage_Flash(false);
        
-    //var pos = WebForm_GetElementPosition(Obj);
+    /*var pos = WebForm_GetElementPosition(Obj);*/
     
     var centerdiv = document.createElement("div")
     centerdiv.style.position="absolute";
@@ -138,7 +135,7 @@ function PreviewImage_Open(Obj, Url, Desc, Loading, CloseImg, TValue, TColor, Hi
     
     centerdiv.style.width="100%";
     centerdiv.style.textAlign="center";
-    //centerdiv.style.zIndex="100000";
+    /*centerdiv.style.zIndex="100000";*/
     
     
     if (Loading) {
@@ -254,12 +251,12 @@ function PreviewImage_Close() {
     PreviewImage_Flash(true);
 }
 
-
-//var PreviewImage_Objs = new Array();
-//var PreviewImage_Embeds = new Array();
-//var PreviewImage_ObjsOld = new Array();
-//var PreviewImage_EmbedsOld = new Array();
-
+/*
+var PreviewImage_Objs = new Array();
+var PreviewImage_Embeds = new Array();
+var PreviewImage_ObjsOld = new Array();
+var PreviewImage_EmbedsOld = new Array();
+*/
 
 var PreviewImage_Selects = new Array();
 

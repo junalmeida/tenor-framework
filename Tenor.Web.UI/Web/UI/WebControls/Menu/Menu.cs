@@ -16,9 +16,8 @@ namespace Tenor.Web.UI.WebControls
 
 
     /// <summary>
-    /// Controle de menu do ASP.NET.
+    /// This control encapsulates the ASP.NET menu control solving the IE 6 windowed controls issue.
     /// </summary>
-    /// <remarks></remarks>
     [ToolboxData("<{0}:Menu runat=server></{0}:Menu>")]
     public class Menu : System.Web.UI.WebControls.Menu
     {
@@ -349,9 +348,11 @@ namespace Tenor.Web.UI.WebControls
 
 
             CustomStyle statmenu = new CustomStyle(this.StaticMenuItemStyle);
-            //If statmenu.Width.IsEmpty Then
-            //    statmenu.Width = Me.DefaultWidth
-            //End If
+            /*
+            If statmenu.Width.IsEmpty Then
+                statmenu.Width = Me.DefaultWidth
+            End If
+             */
             if (statmenu.Height.IsEmpty)
             {
                 statmenu.Height = this.DefaultHeight;
@@ -490,23 +491,24 @@ namespace Tenor.Web.UI.WebControls
             foreach (MenuItem item in Menus)
             {
 
+                /*
+                If (item.Depth = 0) Then
 
-                //If (item.Depth = 0) Then
+                    writer.WriteBeginTag("div")
+                    writer.WriteAttribute("class", "StaticMenuItemStyle")
 
-                //    writer.WriteBeginTag("div")
-                //    writer.WriteAttribute("class", "StaticMenuItemStyle")
+                    writer.Write(HtmlTextWriter.SpaceChar & "style" & HtmlTextWriter.EqualsChar & HtmlTextWriter.DoubleQuoteChar)
+                    If Not StaticMenuItemStyle.Width.IsEmpty Then
+                        writer.WriteStyleAttribute("width", DefaultWidth.ToString())
+                    End If
+                    writer.Write(HtmlTextWriter.DoubleQuoteChar)
 
-                //    writer.Write(HtmlTextWriter.SpaceChar & "style" & HtmlTextWriter.EqualsChar & HtmlTextWriter.DoubleQuoteChar)
-                //    If Not StaticMenuItemStyle.Width.IsEmpty Then
-                //        writer.WriteStyleAttribute("width", DefaultWidth.ToString())
-                //    End If
-                //    writer.Write(HtmlTextWriter.DoubleQuoteChar)
+                    writer.Write(HtmlTextWriter.TagRightChar)
+                    writer.Indent += 1
+                    writer.WriteLine()
 
-                //    writer.Write(HtmlTextWriter.TagRightChar)
-                //    writer.Indent += 1
-                //    writer.WriteLine()
-
-                //Else
+                Else
+                 */
 
                 writer.WriteBeginTag("li");
                 if (item.Depth == 0)
@@ -607,13 +609,13 @@ namespace Tenor.Web.UI.WebControls
                     }
 
 
-                    //Dim fatorAmpliacao As Integer = item.Depth
+                    /*Dim fatorAmpliacao As Integer = item.Depth*/
                     if (Orientation == System.Web.UI.WebControls.Orientation.Horizontal && item.Depth == 0)
                     {
                         tamanhoW = new Unit(0, tamanhoW.Type);
 
                     }
-                    //fatorAmpliacao += 1
+                    /*fatorAmpliacao += 1*/
 
 
                     writer.WriteAttribute("style", "left:" + tamanhoW.ToString() + topstyle);
@@ -625,11 +627,13 @@ namespace Tenor.Web.UI.WebControls
 
 
                 writer.Indent--;
-                //If (item.Depth = 0) Then
-                //    writer.WriteEndTag("div")
-                //Else
+                /*
+                If (item.Depth = 0) Then
+                    writer.WriteEndTag("div")
+                Else
+                 */
                 writer.WriteEndTag("li");
-                //End If
+                /*End If*/
                 writer.WriteLine();
 
 
@@ -654,7 +658,7 @@ namespace Tenor.Web.UI.WebControls
                 }
 
 
-                //writer.WriteAttribute("class", GetItemClass(Menu, Item))
+                /*writer.WriteAttribute("class", GetItemClass(Menu, Item))*/
                 if (!string.IsNullOrEmpty(Item.Target))
                 {
                     writer.WriteAttribute("target", Item.Target);
@@ -678,7 +682,7 @@ namespace Tenor.Web.UI.WebControls
             {
                 writer.WriteBeginTag("span");
                 writer.WriteAttribute("style", "display: block");
-                //writer.WriteAttribute("class", GetItemClass(Menu, Item))
+                /*writer.WriteAttribute("class", GetItemClass(Menu, Item))*/
                 writer.Write(HtmlTextWriter.TagRightChar);
                 writer.Indent++;
                 writer.WriteLine();

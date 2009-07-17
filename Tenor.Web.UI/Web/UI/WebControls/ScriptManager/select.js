@@ -61,19 +61,21 @@ if (!document.all && !window.sidebar) {
 //* Visit Dynamic Drive at http://www.dynamicdrive.com/ for full source code
 //***********************************************/
 
-//function disableSelection(target){
-//    if (target) {
-//        if (target.onselectstart) {
-//            // IE
-//            target.onselectstart=function(){return false;};
-//        } else if (target.style.MozUserSelect) {
-//            // Firefox
-//            target.style.MozUserSelect="none";
-//        } else {
-//            // outros
-//	        target.onmousedown=function(){return false;};
-//            target.style.cursor = "default";
-//        }
-//    }
-//}
-//disableSelection(document.body);
+/*
+function disableSelection(target){
+    if (target) {
+        if (target.onselectstart) {
+            // IE
+            target.onselectstart=function(){return false;};
+        } else if (target.style.MozUserSelect) {
+            // Firefox
+            target.style.MozUserSelect="none";
+        } else {
+            // outros
+	        target.onmousedown=function(){return false;};
+            target.style.cursor = "default";
+        }
+    }
+}
+disableSelection(document.body);
+*/

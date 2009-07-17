@@ -14,9 +14,8 @@ namespace Tenor.Web.UI.WebControls
 {
 
     /// <summary>
-    /// Usado no evento de Paginação do Repeater
+    /// Contains event arguments used on repeater pagination event.
     /// </summary>
-    /// <remarks></remarks>
     public class RepeaterPageEventArgs : GridViewPageEventArgs
     {
 
@@ -28,13 +27,10 @@ namespace Tenor.Web.UI.WebControls
         }
     }
     /// <summary>
-    /// Usada no evento de Sort do Repeater.
+    /// Contains event arguments used on repeater sorting event.
     /// </summary>
-    /// <remarks></remarks>
     public class RepeaterSortEventArgs : GridViewSortEventArgs
     {
-
-
         public RepeaterSortEventArgs(string sortExpression, SortDirection sortDirection)
             : base(sortExpression, sortDirection)
         {
@@ -47,9 +43,8 @@ namespace Tenor.Web.UI.WebControls
 
 
     /// <summary>
-    /// Implementa um Repeater com funções de paginação.
+    /// This control implements an ASP.NET Repeater with pagination feature.
     /// </summary>
-    /// <remarks></remarks>
     [
     PersistChildrenAttribute(false), 
     DefaultPropertyAttribute("DataSource"),
@@ -88,8 +83,6 @@ namespace Tenor.Web.UI.WebControls
         /// <summary>
         /// <see cref="GridView.PageIndexChanging">PageIndexChanging</see>
         /// </summary>
-        /// <remarks></remarks>
-        /// 						
         public event RepeaterPageEventHandler PageIndexChanging
         {
             add
@@ -108,9 +101,6 @@ namespace Tenor.Web.UI.WebControls
         /// <summary>
         /// <see cref="GridView.PageIndexChanged">PageIndexChanged</see>
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
         public delegate void PageIndexChangedEventHandler(object sender, EventArgs e);
         private PageIndexChangedEventHandler PageIndexChangedEvent;
 
@@ -149,7 +139,6 @@ namespace Tenor.Web.UI.WebControls
 
 
 
-        /// <remarks></remarks>
         /// <summary>
         /// <see cref="GridView.PagerTemplate">PagerTemplate</see>
         /// </summary>
@@ -173,10 +162,6 @@ namespace Tenor.Web.UI.WebControls
         /// <summary>
         /// <see cref="GridView.PagerSettings">PagerSettings</see>
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        ///
         [Description("Controls the paging UI settings associated with this control"),
         Category("Paging"), PersistenceMode(PersistenceMode.InnerProperty)]
         public virtual PagerSettings PagerSettings
@@ -195,9 +180,6 @@ namespace Tenor.Web.UI.WebControls
         /// <summary>
         /// <see cref="GridView.PageSize">PageSize</see>
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [Category("Paging"), Description("The number of rows to display per page"), DefaultValue(10)]
         public int PageSize
         {
@@ -224,9 +206,6 @@ namespace Tenor.Web.UI.WebControls
         /// <summary>
         /// <see cref="GridView.PageIndex">PageIndex</see>
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [Category("Paging"), Description("The index of the current page"), DefaultValue(0)]
         public int PageIndex
         {
@@ -278,11 +257,8 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Controla a aparencia de cada item do pager quando nenhum template de paginação é especificado.
+        /// Gets or sets the style of each pager item when no pager template was defined.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [PersistenceMode(PersistenceMode.InnerProperty), Category("Style"), Description("Controls the appearence of each page number/item")]
         public Style PagerStyle
         {
@@ -297,11 +273,8 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Controla a aparencia de um item selecionado do pager quando nenhum template de paginação é especificado.
+        /// Gets or sets the style of a selected item when no pager template was defined.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [PersistenceMode(PersistenceMode.InnerProperty), Category("Style"), Description("Controls the appearence of a selected pager item")]
         public Style SelectedPagerStyle
         {
@@ -320,11 +293,8 @@ namespace Tenor.Web.UI.WebControls
         #region "Sortable"
 
         /// <summary>
-        /// Determina qual coluna usar para sortear os elementos no momento do DataBind
+        /// Gets or sets a string with the column name used to sort items during DataBind.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [Category("Behavior"), Description("Determines the column name of datasource to use while sorting data")]
         public string SortBy
         {
@@ -389,23 +359,24 @@ namespace Tenor.Web.UI.WebControls
 
 
             //Read in sort direction
-            //With Page.Request.Form
-            //    If .Item("__SORTBY") <> vbNullString Then
-            //        Me.SortBy = .Item("__SORTBY")
-            //    End If
+            /*
+            With Page.Request.Form
+                If .Item("__SORTBY") <> vbNullString Then
+                    Me.SortBy = .Item("__SORTBY")
+                End If
 
-            //    'If post back, retrieve the page the user wants to skip to
-            //    If Page.IsPostBack Then
+                'If post back, retrieve the page the user wants to skip to
+                If Page.IsPostBack Then
 
-            //        If .Item("__NEXTPAGE") <> vbNullString _
-            //        AndAlso IsNumeric(.Item("__NEXTPAGE")) Then
-            //            Me.CurrentPageIndex = CInt(.Item("__NEXTPAGE"))
-            //        End If
+                    If .Item("__NEXTPAGE") <> vbNullString _
+                    AndAlso IsNumeric(.Item("__NEXTPAGE")) Then
+                        Me.CurrentPageIndex = CInt(.Item("__NEXTPAGE"))
+                    End If
 
-            //    End If
+                End If
 
-            //End With
-
+            End With
+            */
 
 
             //Read properties into local variables
@@ -669,7 +640,9 @@ namespace Tenor.Web.UI.WebControls
         private void CreateNumericPager(Control Control)
         {
             int _PageButtonCount = this.PagerSettings.PageButtonCount;
-            //If _PageButtonCount <= 0 Then _PageButtonCount = 10
+            /*
+            If _PageButtonCount <= 0 Then _PageButtonCount = 10
+            */
 
             int StartIndex = System.Convert.ToInt32((PageIndex + 1) - (_PageButtonCount / 2));
             if (StartIndex > PageCount - _PageButtonCount)
@@ -688,12 +661,13 @@ namespace Tenor.Web.UI.WebControls
                 EndIndex = PageCount - StartIndex;
             }
 
-            //If PageIndex + _PageButtonCount Mod _PageButtonCount = 0 Then
-            //    StartIndex = PageIndex + 1
-            //Else
-            //    StartIndex = CInt((Math.Floor(PageIndex / _PageButtonCount) * _PageButtonCount) + 1)
-            //End If
-
+            /*
+            If PageIndex + _PageButtonCount Mod _PageButtonCount = 0 Then
+                StartIndex = PageIndex + 1
+            Else
+                StartIndex = CInt((Math.Floor(PageIndex / _PageButtonCount) * _PageButtonCount) + 1)
+            End If
+            */
             for (int i = 0; i <= EndIndex; i++)
             {
                 if (i > 0)

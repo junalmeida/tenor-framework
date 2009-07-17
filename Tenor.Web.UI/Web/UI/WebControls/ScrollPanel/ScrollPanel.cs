@@ -17,19 +17,11 @@ using System.Text.RegularExpressions;
 
 namespace Tenor.Web.UI.WebControls
 {
-
-
-
     /// <summary>
-    /// Painél que mantém a posição das scrolls
+    /// This control is a panel that can keep scroll position through postbacks.
     /// </summary>
-    /// <remarks></remarks>
     public class ScrollPanel : System.Web.UI.WebControls.Panel, IPostBackDataHandler
     {
-
-
-
-
 
         protected override void OnPreRender(System.EventArgs e)
         {
@@ -44,9 +36,6 @@ namespace Tenor.Web.UI.WebControls
             string script = "var ScrollPanel_" + ClientID + " = new ScrollPanel(\"" + ClientID + "\");" + "\r\n";
             Page.ClientScript.RegisterStartupScript(this.GetType(), this.ClientID, script, true);
         }
-
-
-
 
         private string lastValue = string.Empty;
         bool IPostBackDataHandler.LoadPostData(string postDataKey, System.Collections.Specialized.NameValueCollection postCollection)

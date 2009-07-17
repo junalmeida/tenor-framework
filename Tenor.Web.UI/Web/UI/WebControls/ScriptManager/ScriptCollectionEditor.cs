@@ -101,19 +101,21 @@ namespace Tenor.Web.UI.WebControls.Design
         public override object ConvertTo(System.ComponentModel.ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, System.Type destinationType)
         {
             return base.ConvertTo(context, culture, value, destinationType);
-            //							if (destinationType == typeof(string))
-            //							{
-            //								return value.GetType().Name;
-            //								}
-            //								else if (destinationType == typeof(System.ComponentModel.Design.Serialization.InstanceDescriptor))
-            //								{
+            /*
+            							if (destinationType == typeof(string))
+            							{
+            								return value.GetType().Name;
+            								}
+            								else if (destinationType == typeof(System.ComponentModel.Design.Serialization.InstanceDescriptor))
+            								{
 
-            //									return new System.ComponentModel.Design.Serialization.InstanceDescriptor(value.GetType().GetConstructor(new Type[] {}), new object[] {}, true);
-            //									}
-            //									else
-            //									{
-            //										return base.ConvertTo(context, culture, value, destinationType);
-            //										}
+            									return new System.ComponentModel.Design.Serialization.InstanceDescriptor(value.GetType().GetConstructor(new Type[] {}), new object[] {}, true);
+            									}
+            									else
+            									{
+            										return base.ConvertTo(context, culture, value, destinationType);
+            										}
+             */
         }
 
 

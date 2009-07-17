@@ -8,7 +8,7 @@ using System.IO;
 using System.Drawing;
 using System.Reflection;
 using System.Web;
-//using System.Web.SessionState;
+/*using System.Web.SessionState;*/
 using System.Web.Configuration;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -66,7 +66,7 @@ namespace Tenor.Web
                 {
                     HttpContext.Current.Handler = resourceHttpHandler.originalHandler;
                 }
-                //System.Diagnostics.Debug.Assert(app.Session == null, "oops, it did not work :(");
+                /*System.Diagnostics.Debug.Assert(app.Session == null, "oops, it did not work :(");*/
 
             }
         }
@@ -134,15 +134,24 @@ namespace Tenor.Web
         }
 
         /// <summary>
+        /// <para>
         /// This method is called on each server request. Everything starts here.
-        /// This module have three sections:
+        /// This module have three sections:</para>
+        /// <list type="square">
+        /// <item>
         /// 1: TinyMCE, IEFix
         ///   The requested file of the javascript component will be processed by this section.
+        /// </item>
+        /// <item>
         /// 2: IResponseObject 
         ///   The file or image is being requested by the client. If this is the first call to this object, it will not be on the cache and WriteContent will be called. Otherwised, the cache instance will be provided.
+        /// </item>
+        /// <item>
         /// 3: InstanceRequest
         ///   Here, an instance of the desired class will be created using the provided parameter. 
         ///   The class must implement IResponseObject or declare a Property with a ResponsePropertyAttribute defined.
+        /// </item>
+        /// </list>
         /// </summary>
         void AcquireRequestState(object sender, EventArgs e)
         {
@@ -174,7 +183,7 @@ namespace Tenor.Web
                     //TODO: Check if we really need this component.
                     //If we have a 'c' (class) tries ChartRequest
                     //See Chart.cs
-                    //ChartRequest(app);
+                    /*ChartRequest(app);*/
                 }
                 else if (!string.IsNullOrEmpty(QueryString("cl")))
                 {
@@ -218,7 +227,6 @@ namespace Tenor.Web
         /// <summary>
         /// Write document headers to the client.
         /// </summary>
-        /// <remarks></remarks>
         private void WriteHeaders(HttpApplication app, CacheData dados)
         {
             app.Response.ContentType = dados.ContentType;
@@ -270,7 +278,6 @@ namespace Tenor.Web
         /// </summary>
         /// <param name="stream">The stream with data.</param>
         /// <param name="app">The HttpApplication.</param>
-        /// <remarks></remarks>
         private void WriteStream(Stream stream, HttpApplication app)
         {
             app.Context.ClearError();

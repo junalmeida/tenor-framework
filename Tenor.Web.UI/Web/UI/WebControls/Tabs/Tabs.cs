@@ -14,30 +14,19 @@ using System.Web.UI.WebControls;
 
 namespace Tenor.Web.UI.WebControls
 {
+    /*
+    PersistChildren(False), _
+    ParseChildren(GetType(ListItem), ChildrenAsProperties:=False, DefaultProperty:="Items"), _
 
-    //PersistChildren(False), _
-    //ParseChildren(GetType(ListItem), ChildrenAsProperties:=False, DefaultProperty:="Items"), _
-
-    //Designer(GetType(System.Web.UI.Design.WebControls.ListControlDesigner)), _
-    //DefaultEvent("Click"), DefaultProperty("DisplayMode"), _
+    Designer(GetType(System.Web.UI.Design.WebControls.ListControlDesigner)), _
+    DefaultEvent("Click"), DefaultProperty("DisplayMode"), _
+     */
     /// <summary>
-    /// Implementa um controle que exibe uma lista de abas.
-    /// Usado pelo TabsMultiView.
+    /// This control renders a tabbed display.
     /// </summary>
-    /// <remarks></remarks>
     [Themeable(true), AspNetHostingPermission(System.Security.Permissions.SecurityAction.LinkDemand, Level = AspNetHostingPermissionLevel.Minimal), AspNetHostingPermission(System.Security.Permissions.SecurityAction.InheritanceDemand, Level = AspNetHostingPermissionLevel.Minimal)]
     public class Tabs : ListControl, IPostBackEventHandler
     {
-
-
-        public Tabs()
-        {
-
-        }
-
-
-
-
         private TabsEventHandler ClickEvent;
         public event TabsEventHandler Click
         {
@@ -202,16 +191,16 @@ namespace Tenor.Web.UI.WebControls
                 }
             }
         }
-
-        //					void IPostBackEventHandler.RaisePostBackEvent(string eventArgument)
-        //					{
-        //						this.RaisePostBackEvent1(eventArgument);
-        //					}
+        /*
+        					void IPostBackEventHandler.RaisePostBackEvent(string eventArgument)
+        					{
+        						this.RaisePostBackEvent1(eventArgument);
+        					}
+         */
 
 
         #region " Propriedades Desativadas "
 
-        // Properties
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public override bool AutoPostBack
         {
@@ -226,7 +215,6 @@ namespace Tenor.Web.UI.WebControls
         }
 
 
-        // Properties
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public override short TabIndex
         {
@@ -272,7 +260,7 @@ namespace Tenor.Web.UI.WebControls
 
         #endregion
 
-        #region " Propriedades "
+        #region " Properties "
 
 
         internal void ApplyTabStyle(Style Style)
@@ -558,7 +546,6 @@ namespace Tenor.Web.UI.WebControls
             return base.CreateControlStyle();
         }
 
-        // Fields
         private bool _cachedIsEnabled;
         private int _firstItem = 0;
         private int _itemCount = -1;
@@ -664,7 +651,9 @@ namespace Tenor.Web.UI.WebControls
                 {
                     liAselected.Style["border-bottom"] = "solid 1px white";
                 }
-                //.Style("border-bottom") = _SelectedTabStyle.BorderStyle.ToString().ToLower() & " " & _SelectedTabStyle.BorderWidth.ToString() & " " & Drawing.ColorTranslator.ToHtml(_SelectedTabStyle.BorderColor)
+                /*
+                .Style("border-bottom") = _SelectedTabStyle.BorderStyle.ToString().ToLower() & " " & _SelectedTabStyle.BorderWidth.ToString() & " " & Drawing.ColorTranslator.ToHtml(_SelectedTabStyle.BorderColor)
+                 */
             }
             Page.Header.StyleSheet.CreateStyleRule(liAselected, null, RootCSS + " li.selected a:link, " + RootCSS + " li.selected a:visited, " + RootCSS + " li.selected span");
             if (!_SelectedTabStyle.IsEmpty)
@@ -684,14 +673,12 @@ namespace Tenor.Web.UI.WebControls
     public class TabsEventArgs : EventArgs
     {
 
-        // Methods
         public TabsEventArgs(int index)
         {
             this._index = index;
         }
 
 
-        // Properties
         public int Index
         {
             get
@@ -700,8 +687,6 @@ namespace Tenor.Web.UI.WebControls
             }
         }
 
-
-        // Fields
         private int _index;
     }
 }

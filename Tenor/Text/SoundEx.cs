@@ -26,8 +26,6 @@ namespace Tenor
 			/// <summary>
 			/// Implements the Difference algorithm, as found in SQL Server
 			/// </summary>
-			/// <param name="s1"></param>
-			/// <param name="s2"></param>
 			/// <returns>0-4 depending on the similarity of the two words</returns>
 			public virtual int Difference(string s1, string s2)
 			{
@@ -40,8 +38,6 @@ namespace Tenor
 			/// For example, the Online Dictionary of Computings specifies
 			/// several extra characters in the lookup table.
 			/// </summary>
-			/// <param name="c"></param>
-			/// <returns></returns>
 			protected virtual string EncodeChar(char c)
 			{
 				//' C# will re-order this list and produce a look-up list from it

@@ -120,7 +120,6 @@ namespace Tenor.Web.UI.WebControls
     public sealed class SlidingPanelItemCollection : ICollection, IEnumerable
     {
 
-        // Methods
         public SlidingPanelItemCollection(ArrayList items)
         {
             this.items = items;
@@ -142,7 +141,6 @@ namespace Tenor.Web.UI.WebControls
         }
 
 
-        // Properties
         public int Count
         {
             get
@@ -184,7 +182,6 @@ namespace Tenor.Web.UI.WebControls
         }
 
 
-        // Fields
         private ArrayList items;
     }
 

@@ -17,55 +17,38 @@ using System.ComponentModel;
 namespace Tenor.Web.UI.WebControls
 {
 
-
     /// <summary>
-    /// Objeto que contem informação para o evento <see cref="ScriptManager.Confirmation">ScriptManager.Confirmation</see>
+    /// Contains event arguments used on <see cref="ScriptManager.Confirmation" /> event.
     /// </summary>
-    /// <remarks></remarks>
     public class ConfirmationEventArgs : EventArgs
     {
-
-
-        public ConfirmationEventArgs(string CommandName, bool Response)
+        public ConfirmationEventArgs(string commandName, bool response)
         {
-            this.CommandName = CommandName;
-            this.Response = Response;
+            this.CommandName = commandName;
+            this.Response = response;
         }
 
         private bool _Response;
         /// <summary>
-        /// Contém a resposta do usuário no evento Confirmation.
+        /// Gets the user response on the confirmation event.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public bool Response
         {
             get
             {
                 return _Response;
             }
-            set
-            {
-                _Response = value;
-            }
         }
+
         private string _CommandName;
         /// <summary>
-        /// Contém o nome do comando.
+        /// Gets the command name.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public string CommandName
         {
             get
             {
                 return _CommandName;
-            }
-            set
-            {
-                _CommandName = value;
             }
         }
 
@@ -75,15 +58,11 @@ namespace Tenor.Web.UI.WebControls
     public delegate void ConfirmationEventHandler(object sender, ConfirmationEventArgs e);
 
     /// <summary>
-    /// Controle com diversas funcionalidades de JavaScript 1.2.
+    /// This control can manipulate declared script features.
     /// </summary>
-    /// <remarks></remarks>
     [AspNetHostingPermission(SecurityAction.Demand, Level = AspNetHostingPermissionLevel.Minimal), AspNetHostingPermission(SecurityAction.InheritanceDemand, Level = AspNetHostingPermissionLevel.Minimal), PersistChildren(false), ParseChildren(ChildrenAsProperties = true, DefaultProperty = "Scripts"), ToolboxItem(typeof(System.Web.UI.Design.WebControlToolboxItem)), ToolboxData("<{0}:ScriptManager runat=\"server\" />"), Designer(typeof(Design.ScriptManagerDesigner)), ToolboxBitmapAttribute(typeof(ScriptManager), "ScriptManager.bmp")]
     public class ScriptManager : Control, IPostBackEventHandler
     {
-
-
-
         private ConfirmationEventHandler ConfirmationEvent;
         public event ConfirmationEventHandler Confirmation
         {
@@ -104,22 +83,22 @@ namespace Tenor.Web.UI.WebControls
         }
 
         private ScriptCollection _scripts;
-        //'<DesignerSerializationVisibility(DesignerSerializationVisibility.Visible), _
-        //'NotifyParentProperty(True), _
-        //<Editor(GetType(Design.ScriptCollectionEditor), GetType(Drawing.Design.UITypeEditor))> _
-        //<EditorBrowsable(EditorBrowsableState.Always)> _
-        //<PersistenceMode(PersistenceMode.InnerDefaultProperty)> _
-        //Public ReadOnly Property Scripts() As ScriptCollection
-        //    Get
-        //        Return _scripts
-        //    End Get
-        //End Property
-
+        /*
+        '<DesignerSerializationVisibility(DesignerSerializationVisibility.Visible), _
+        'NotifyParentProperty(True), _
+        <Editor(GetType(Design.ScriptCollectionEditor), GetType(Drawing.Design.UITypeEditor))> _
+        <EditorBrowsable(EditorBrowsableState.Always)> _
+        <PersistenceMode(PersistenceMode.InnerDefaultProperty)> _
+        Public ReadOnly Property Scripts() As ScriptCollection
+            Get
+                Return _scripts
+            End Get
+        End Property
+        */
 
         /// <summary>
-        /// Armazena uma coleção de scripts pré definidos
+        /// Gets a collection of defined scripts.
         /// </summary>
-        /// <remarks></remarks>
         [NotifyParentProperty(true), DesignerSerializationVisibility(DesignerSerializationVisibility.Content), Editor(typeof(Design.ScriptCollectionEditor), typeof(System.Drawing.Design.UITypeEditor)), PersistenceMode(PersistenceMode.InnerProperty), Description("Provides a collection of scripts to this page"), Browsable(false), EditorBrowsable(EditorBrowsableState.Always), Category("Misc")]
         public ScriptCollection Scripts
         {
@@ -137,24 +116,24 @@ namespace Tenor.Web.UI.WebControls
         protected override void OnInit(System.EventArgs e)
         {
 
-            //AddHandler Page.Init, AddressOf Page_Init
+            /*
+            AddHandler Page.Init, AddressOf Page_Init
+             */
             base.OnInit(e);
-
-
         }
 
         protected override void OnPreRender(System.EventArgs e)
         {
-            //Cagou  o repeater e por iss ovoltei pro prerender.. Se der problema, deveria ser no init
+            //The previous code messed up the repeater, so we moved back to prerender. 
+            //i guess that this call must be on INIT.
             base.OnPreRender(e);
-
             Page_Init(null, e);
         }
 
 
         private void Page_Init(object sender, EventArgs e)
         {
-            //procura uma lista de script e adiciona exclusivamente cada um à página atual
+            //finds a list of scripts and adds each one once to the current page.
 
             List<Type> listaScripts = new List<Type>();
             foreach (Script i in Scripts)
@@ -166,22 +145,6 @@ namespace Tenor.Web.UI.WebControls
                 }
             }
         }
-
-        ///' <summary>
-        ///' Retorna o objeto Tracking Tipado para uso.
-        ///' É necessário que o ScriptManager contenha um Script Tracking.
-        ///' </summary>
-        ///' <returns></returns>
-        ///' <remarks></remarks>
-        //Public Function GetTracking() As Tracking
-        //    For Each i As Script In Me.Scripts
-        //        If TypeOf i Is Tracking Then
-        //            Return CType(i, WebControls.Tracking)
-        //        End If
-        //    Next
-        //    Return Nothing
-        //End Function
-
 
         private string GetScriptTags(string script)
         {
@@ -198,12 +161,9 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Procura um controle do tipo específico
+        /// Searches for an especific control.
         /// </summary>
-        /// <param name="ControlType">Nome completo do tipo desejado</param>
-        /// <param name="Controls"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <param name="ControlType">FullName of the desired type.</param>
         private static Control SearchControl(string ControlType, ControlCollection Controls)
         {
             foreach (Control i in Controls)
@@ -224,15 +184,11 @@ namespace Tenor.Web.UI.WebControls
             return null;
         }
         /// <summary>
-        /// Prepara e envia um script por MagicAjax.
+        /// Prepares and sends a script via MagicAjax.
         /// </summary>
-        /// <param name="Script"></param>
-        /// <returns>Se o contexto é uma chamada ajax ou não.</returns>
-        /// <remarks></remarks>
+        /// <returns>True if this is a MagicAjax context.</returns>
         private static bool SendMagicAjaxScript(Page Page, string Script)
         {
-
-
             Control AjaxPanel = SearchControl("MagicAjax.UI.Controls.AjaxPanel", Page.Controls);
             if (AjaxPanel != null)
             {
@@ -271,12 +227,9 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Prepara e envia um script por AjaxNet (Atlas)
+        /// Prepares and sends a script via MS AjaxNet (Atlas).
         /// </summary>
-        /// <param name="Key"></param>
-        /// <param name="Script"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>True if this is an AjaxNet context.</returns>
         private static bool SendAjaxNetScript(Page Page, string Key, string Script)
         {
             Control ScriptManager = SearchControl("System.Web.UI.ScriptManager", Page.Controls);
@@ -327,10 +280,8 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Gera uma chave aleatória para enviar o script para o cliente.
+        /// Gets a ramdom key to register scripts.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
         private static string GetRandomKey()
         {
             string alertkey = "ScriptManager." + Guid.NewGuid().ToString();
@@ -338,11 +289,9 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Faz o Encoding para javascript
+        /// Performs javascript encoding on the desired text.
+        /// Escapes the following characters: ", \, tabs, carriage and line feed.
         /// </summary>
-        /// <param name="Message"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
         private string EncodeMessage(string text)
         {
 
@@ -359,11 +308,10 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Mostra uma janela de alerta e redireciona a página para outro endereço
+        /// Pops up the browser alert window, and redirects to another address after user return.
         /// </summary>
-        /// <param name="message">Mensagem de alerta</param>
-        /// <param name="url">Url da pagina</param>
-        /// <remarks></remarks>
+        /// <param name="message">A string with the message shown on the alert window.</param>
+        /// <param name="url">The url that will be redirected to.</param>
         public void AlertAndRedirect(string message, string url)
         {
             Alert(message, true);
@@ -371,11 +319,11 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Mostra uma janela de alerta e redireciona a página para outro endereço
+        /// Pops up the browser alert window, and redirects to another address after user return.
         /// </summary>
-        /// <param name="message">Mensagem de alerta</param>
-        /// <param name="url">Url da pagina</param>
-        /// <remarks></remarks>
+        /// <param name="message">A string with the message shown on the alert window.</param>
+        /// <param name="url">The url that will be redirected to.</param>
+        /// <param name="endResponse">If true, the user code will be aborted during this call, and Page.Render will not be processed.</param>
         public void AlertAndRedirect(string message, string url, bool endResponse)
         {
             if (endResponse)
@@ -389,7 +337,7 @@ namespace Tenor.Web.UI.WebControls
                 script = string.Format(script, message, this.Page.ResolveClientUrl(url).Replace("\"", "\"\""), url);
                 HttpResponse response = HttpContext.Current.Response;
 
-                response.Write("<html><head><title>Redirecionar</title></head><body>" + "\r\n" + script + "\r\n" + "</body></html>");
+                response.Write("<html><head><title>Redirecting</title></head><body>" + "\r\n" + script + "\r\n" + "</body></html>");
                 response.End();
             }
             else
@@ -399,10 +347,9 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Redireciona para o endereço passado.
+        /// Redirects user to the address using client-side code.
         /// </summary>
-        /// <param name="url">Endereço de destino</param>
-        /// <remarks></remarks>
+        /// <param name="url">A string with the destination url.</param>
         public void Redirect(string url)
         {
             string key = GetRandomKey();
@@ -415,22 +362,22 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Mostra uma janela de alerta no navegador do cliente
+        /// Pops up the browser alert window.
         /// </summary>
-        /// <param name="message">Mensagem a ser mostrada</param>
-        /// <remarks>Mostra uma janela de alerta ao final do processamento da página.</remarks>
+        /// <param name="message">A string with the message shown on the alert window.</param>
+        /// <remarks>The alert window will be shown after page rendering.</remarks>
         public void Alert(string message)
         {
             Alert(message, true);
         }
 
         /// <summary>
-        /// Mostra uma janela de alerta no navegador do cliente
+        /// Pops up the browser alert window.
         /// </summary>
-        /// <param name="message">Mensagem a ser mostrada</param>
-        /// <param name="AfterPage">Verdadeiro para mostrar a mensagem após a página ser carregada. Padrão é verdadeiro.</param>
-        /// <remarks></remarks>
-        public void Alert(string message, bool AfterPage)
+        /// <param name="message">A string with the message shown on the alert window.</param>
+        /// <param name="afterPage">If true, shows the alert window after page rendering. Otherwise, shows it before the page rendering.</param>
+        /// <remarks>The afterPage parameter does not have any effect on ajax contexts.</remarks>
+        public void Alert(string message, bool afterPage)
         {
             string alertkey = GetRandomKey();
             message = EncodeMessage(message);
@@ -438,7 +385,7 @@ namespace Tenor.Web.UI.WebControls
             string script = "alert(\"" + message + "\");";
             if (!SendMagicAjaxScript(Page, script) && !SendAjaxNetScript(Page, alertkey, script))
             {
-                if (AfterPage)
+                if (afterPage)
                 {
                     Page.ClientScript.RegisterStartupScript(this.GetType(), alertkey, script, true);
                 }
@@ -451,64 +398,64 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Abre uma nova janela no navegador do cliente.
+        /// Opens a new browser window. 
         /// </summary>
-        /// <param name="url">Url de destino</param>
-        /// <remarks></remarks>
+        /// <param name="url">A string with the destination url.</param>
+        /// <remarks>Note that actions of this method may be blocked by user popup blocker.</remarks>
         public void OpenNewWindow(string url)
         {
             OpenNewWindow(url, Unit.Empty, Unit.Empty, false, "_blank");
         }
 
         /// <summary>
-        /// Abre uma nova janela no navegador do cliente.
+        /// Opens a new browser window. 
         /// </summary>
-        /// <param name="url">Url de destino</param>
-        /// <param name="Width">Largura em pixels</param>
-        /// <param name="Height">Altura em pixels</param>
-        /// <remarks></remarks>
-        public void OpenNewWindow(string url, Unit Width, Unit Height)
+        /// <param name="url">A string with the destination url.</param>
+        /// <param name="width">An integer with the window's width in pixels.</param>
+        /// <param name="height">An integer with the window's height in pixels.</param>
+        /// <remarks>Note that actions of this method may be blocked by user popup blocker.</remarks>
+        public void OpenNewWindow(string url, Unit width, Unit height)
         {
-            OpenNewWindow(url, Width, Height, true, "_blank");
+            OpenNewWindow(url, width, height, true, "_blank");
         }
 
         /// <summary>
-        /// Abre uma nova janela no navegador do cliente.
+        /// Opens a new browser window. 
         /// </summary>
-        /// <param name="url">Url de destino</param>
-        /// <param name="Width">Largura em pixels</param>
-        /// <param name="Height">Altura em pixels</param>
-        /// <param name="isDialog">Define se a janela será um diálogo</param>
-        /// <remarks></remarks>
-        public void OpenNewWindow(string url, Unit Width, Unit Height, bool isDialog)
+        /// <param name="url">A string with the destination url.</param>
+        /// <param name="width">An integer with the window's width in pixels.</param>
+        /// <param name="height">An integer with the window's height in pixels.</param>
+        /// <param name="isDialog">Defines if the new window will be a dialog.</param>
+        /// <remarks>Note that actions of this method may be blocked by user popup blocker.</remarks>
+        public void OpenNewWindow(string url, Unit width, Unit height, bool isDialog)
         {
-            OpenNewWindow(url, Width, Height, isDialog, "_blank");
+            OpenNewWindow(url, width, height, isDialog, "_blank");
         }
 
         /// <summary>
-        /// Abre uma nova janela no navegador do cliente.
+        /// Opens a new browser window. 
         /// </summary>
-        /// <param name="url">Url de destino</param>
-        /// <param name="target">Nome da janela</param>
-        /// <remarks></remarks>
+        /// <param name="url">A string with the destination url.</param>
+        /// <param name="target">A key to identify the new window.</param>
+        /// <remarks>Note that actions of this method may be blocked by user popup blocker.</remarks>
         public void OpenNewWindow(string url, string target)
         {
             OpenNewWindow(url, Unit.Empty, Unit.Empty, false, target);
         }
 
         /// <summary>
-        /// Abre uma nova janela no navegador do cliente.
+        /// Opens a new browser window. 
         /// </summary>
-        /// <param name="url">Url de destino</param>
-        /// <param name="target">Nome da janela</param>
-        /// <param name="isDialog">Define se a janela será um diálogo</param>
-        /// <param name="Width">Largura em pixels</param>
-        /// <param name="Height">Altura em pixels</param>
-        /// <remarks></remarks>
-        public void OpenNewWindow(string url, Unit Width, Unit Height, bool isDialog, string target)
+        /// <param name="url">A string with the destination url.</param>
+        /// <param name="width">An integer with the window's width in pixels.</param>
+        /// <param name="height">An integer with the window's height in pixels.</param>
+        /// <param name="isDialog">Defines if the new window will be a dialog.</param>
+        /// <param name="target">A key to identify the new window.</param>
+        /// <remarks>Note that actions of this method may be blocked by user popup blocker.</remarks>
+        public void OpenNewWindow(string url, Unit width, Unit height, bool isDialog, string target)
         {
             string alertkey = GetRandomKey();
-            string script = GetNewWindowScript(url, Width, Height, isDialog, target);
+            string script = GetNewWindowScript(url, width, height, isDialog, target);
             if (!SendMagicAjaxScript(Page, script) && !SendAjaxNetScript(Page, alertkey, script))
             {
                 Page.ClientScript.RegisterStartupScript(this.GetType(), alertkey, script, true);
@@ -517,59 +464,58 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Monta um script para abertura de janelas do navegador do cliente
+        /// Gets a javascript that can open a new browser window.
         /// </summary>
-        /// <param name="url">Url de destino</param>
-        /// <param name="Width">Largura da janela</param>
-        /// <param name="Height">Altura da janela</param>
-        /// <param name="isDialog">Define se a janela será um diálogo</param>
-        /// <returns>Uma string com código JavaScript 1.2</returns>
-        /// <remarks></remarks>
-        public string GetNewWindowScript(string url, Unit Width, Unit Height, bool isDialog)
+        /// <param name="url">A string with the destination url.</param>
+        /// <param name="width">An integer with the window's width in pixels.</param>
+        /// <param name="height">An integer with the window's height in pixels.</param>
+        /// <param name="isDialog">Defines if the new window will be a dialog.</param>
+        /// <remarks>Note that this script may be blocked by user popup blocker.</remarks>
+        public string GetNewWindowScript(string url, Unit width, Unit height, bool isDialog)
         {
-            return GetNewWindowScript(url, Width, Height, isDialog, "_blank");
+            return GetNewWindowScript(url, width, height, isDialog, "_blank");
         }
 
 
         /// <summary>
-        /// Monta um script para abertura de janelas do navegador do cliente
+        /// Gets a javascript that can open a new browser window.
         /// </summary>
-        /// <param name="url">Url de destino</param>
-        /// <param name="Width">Largura da janela</param>
-        /// <param name="Height">Altura da janela</param>
-        /// <param name="isDialog">Define se a janela será um diálogo</param>
-        /// <param name="target">Nome da janela</param>
-        /// <returns>Uma string com código JavaScript 1.2</returns>
-        /// <remarks></remarks>
-        public string GetNewWindowScript(string url, Unit Width, Unit Height, bool isDialog, string target)
+        /// <param name="url">A string with the destination url.</param>
+        /// <param name="width">An integer with the window's width in pixels.</param>
+        /// <param name="height">An integer with the window's height in pixels.</param>
+        /// <param name="isDialog">Defines if the new window will be a dialog.</param>
+        /// <param name="target">A key to identify the new window.</param>
+        /// <remarks>Note that this script may be blocked by user popup blocker.</remarks>
+        public string GetNewWindowScript(string url, Unit width, Unit height, bool isDialog, string target)
         {
-            return GetNewWindowScript(url, Unit.Empty, Unit.Empty, Width, Height, isDialog, target);
+            return GetNewWindowScript(url, Unit.Empty, Unit.Empty, width, height, isDialog, target);
         }
 
 
         /// <summary>
-        /// Monta um script para abertura de janelas do navegador do cliente
+        /// Gets a javascript that can open a new browser window.
         /// </summary>
-        /// <param name="url">Url de destino</param>
-        /// <param name="Width">Largura da janela</param>
-        /// <param name="Height">Altura da janela</param>
-        /// <param name="isDialog">Define se a janela será um diálogo</param>
-        /// <param name="target">Nome da janela</param>
-        /// <returns>Uma string com código JavaScript 1.2</returns>
-        /// <remarks></remarks>
-        public string GetNewWindowScript(string url, Unit Left, Unit Top, Unit Width, Unit Height, bool isDialog, string target)
+        /// <param name="url">A string with the destination url.</param>
+        /// <param name="left">An integer with the window's left position in pixels.</param>
+        /// <param name="top">An integer with the window's top position in pixels.</param>
+        /// <param name="width">An integer with the window's width in pixels.</param>
+        /// <param name="height">An integer with the window's height in pixels.</param>
+        /// <param name="isDialog">Defines if the new window will be a dialog.</param>
+        /// <param name="target">A key to identify the new window.</param>
+        /// <remarks>Note that this script may be blocked by user popup blocker.</remarks>
+        public string GetNewWindowScript(string url, Unit left, Unit top, Unit width, Unit height, bool isDialog, string target)
         {
             if (string.IsNullOrEmpty(target))
             {
                 target = "_blank";
             }
-            if (Left.IsEmpty)
+            if (left.IsEmpty)
             {
-                Left = Unit.Parse("90px");
+                left = Unit.Parse("90px");
             }
-            if (Top.IsEmpty)
+            if (top.IsEmpty)
             {
-                Top = Unit.Parse("90px");
+                top = Unit.Parse("90px");
             }
 
             string features = "";
@@ -581,34 +527,34 @@ namespace Tenor.Web.UI.WebControls
             {
                 features += "resizable=1, status=1, toolbar=0, menubar=0, location=0, scrollbars=1";
             }
-            if (!Width.IsEmpty)
+            if (!width.IsEmpty)
             {
                 if (!string.IsNullOrEmpty(features))
                 {
                     features += ", ";
                 }
-                features += "width=" + Width.Value.ToString();
+                features += "width=" + width.Value.ToString();
             }
-            if (!Height.IsEmpty)
+            if (!height.IsEmpty)
             {
                 if (!string.IsNullOrEmpty(features))
                 {
                     features += ", ";
                 }
-                features += "height=" + Height.Value.ToString();
+                features += "height=" + height.Value.ToString();
             }
 
             if (!string.IsNullOrEmpty(features))
             {
                 features += ", ";
             }
-            features += "left=" + Left.Value.ToString();
+            features += "left=" + left.Value.ToString();
 
             if (!string.IsNullOrEmpty(features))
             {
                 features += ", ";
             }
-            features += "top=" + Top.Value.ToString();
+            features += "top=" + top.Value.ToString();
 
 
             if (!string.IsNullOrEmpty(features))
@@ -622,9 +568,9 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Tenta fechar a janela atual do browser. Note que alguns navegadores bloqueiam esta ação, principalmente se a janela não tiver sido aberta por um script.
+        /// Closes the current browser window.
         /// </summary>
-        /// <remarks></remarks>
+        /// <remarks>Note that actions of this method may be blocked, specially if this window was not opened by another script code.</remarks>
         public void CloseWindow()
         {
             string alertkey = GetRandomKey();
@@ -636,35 +582,42 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Retorna um script para fechar a janela.
+        /// Gets a javascript that closes the current browser window.
         /// </summary>
-        /// <remarks></remarks>
+        /// <remarks>
+        /// Note that this script may be blocked, specially if this window was not opened by another script code.
+        /// </remarks>
         public string GetCloseWindowScript()
         {
             return "window.close();";
         }
 
         /// <summary>
-        /// Mostra uma janela de confirmação e retorna a resposta do usuário para o servidor.
-        /// Para manipular a resposta do usuário, Utilize o evento <see cref="Confirmation">Confirmation</see>.
+        /// Shows a browser confirm window, and returns user's response to the application using the <see cref="Confirmation"/> event.
         /// </summary>
-        /// <param name="CommandName">Nome do comando. Utilizado para manipular a resposta.</param>
-        /// <param name="Message">Mensagem de confirmação</param>
-        /// <remarks></remarks>
-        public void Confirm(string CommandName, string Message)
+        /// <param name="commandName">A string to identify the current action.</param>
+        /// <param name="message">A string with the message shown on the confirmation window.</param>
+        /// <remarks>To recieve user's response, check <see cref="Confirmation"/> event.</remarks>
+        public void Confirm(string commandName, string message)
         {
-            CommandName = EncodeMessage(CommandName).Replace(":", ";");
+            if (string.IsNullOrEmpty(commandName))
+                throw new ArgumentNullException("commandName");
+
+            if (string.IsNullOrEmpty(message))
+                throw new ArgumentNullException("message");
+
+            commandName = EncodeMessage(commandName).Replace(":", ";");
 
             string alertkey = GetRandomKey();
-            Message = EncodeMessage(Message);
+            message = EncodeMessage(message);
 
-            string Script = "var ScriptManager_Confirm = confirm(\"" + Message + "\");" + "\r\n";
+            string Script = "var ScriptManager_Confirm = confirm(\"" + message + "\");" + "\r\n";
 
             PostBackOptions opt = new PostBackOptions(this, "ScriptManager_Confirm.toString()", null, false, false, true, true, false, null);
             Script += " if (ScriptManager_Confirm) " + "\r\n";
-            Script += Page.ClientScript.GetPostBackEventReference(this, "confirm:" + CommandName + ":true") + ";" + "\r\n";
+            Script += Page.ClientScript.GetPostBackEventReference(this, "confirm:" + commandName + ":true") + ";" + "\r\n";
             Script += " else " + "\r\n";
-            Script += Page.ClientScript.GetPostBackEventReference(this, "confirm:" + CommandName + ":false") + ";" + "\r\n";
+            Script += Page.ClientScript.GetPostBackEventReference(this, "confirm:" + commandName + ":false") + ";" + "\r\n";
             Script += "" + "\r\n";
 
             if (!SendMagicAjaxScript(Page, Script) && !SendAjaxNetScript(Page, alertkey, Script))
@@ -675,10 +628,8 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Chama um dos eventos definidos na página
+        /// Processes event calls.
         /// </summary>
-        /// <param name="eventArgument"></param>
-        /// <remarks></remarks>
         void IPostBackEventHandler.RaisePostBackEvent(string eventArgument)
         {
             if (eventArgument.StartsWith("confirm:"))
@@ -691,22 +642,9 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Procura uma instância do scriptManager na página.
+        /// Gets the current ScriptManager instance. 
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        [Obsolete(), Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        public static ScriptManager GetScriptManager()
-        {
-            return Current;
-        }
-
-        /// <summary>
-        /// Retorna a instância atual de um ScriptManager
-        /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <remarks>You can have only one ScriptManager declared.</remarks>
         public static ScriptManager Current
         {
             get
@@ -749,21 +687,6 @@ namespace Tenor.Web.UI.WebControls
         }
 
 
-
-
-        //Private Shared Function GetScriptManager(ByVal MasterPage As MasterPage) As ScriptManager
-        //    If MasterPage Is Nothing Then Return Nothing
-
-        //    Dim script As ScriptManager = GetScriptManager(MasterPage.Controls)
-        //    If script Is Nothing Then
-        //        Return GetScriptManager(MasterPage.Master)
-        //    Else
-        //        Return script
-        //    End If
-
-        //End Function
-
-
         private static ScriptManager GetScriptManager(ControlCollection Controls)
         {
             if (Controls == null)
@@ -790,43 +713,32 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Envia o script desejado por componentes ajax ou pela página.
+        /// Registers the script by ajax context when available. 
         /// </summary>
-        /// <param name="script"></param>
-        /// <remarks></remarks>
         public void RegisterStartupScript(string script)
         {
             this.RegisterStartupScript(string.Empty, script);
-
         }
 
 
         /// <summary>
-        /// Envia o script desejado por componentes ajax ou pela página.
+        /// Registers the script by ajax context when available.
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="script"></param>
-        /// <remarks></remarks>
         public void RegisterStartupScript(string key, string script)
         {
             RegisterStartupScript(Page, key, script);
         }
         /// <summary>
-        /// Envia o script desejado por componentes ajax ou pela página.
+        /// Registers the script by ajax context when available.
         /// </summary>
-        /// <param name="script"></param>
-        /// <remarks></remarks>
         public static void RegisterStartupScript(Page Page, string script)
         {
             RegisterStartupScript(Page, null, script);
         }
 
         /// <summary>
-        /// Envia o script desejado por componentes ajax ou pela página.
+        /// Registers the script by ajax context when available.
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="script"></param>
-        /// <remarks></remarks>
         public static void RegisterStartupScript(Page Page, string key, string script)
         {
             if (string.IsNullOrEmpty(key))

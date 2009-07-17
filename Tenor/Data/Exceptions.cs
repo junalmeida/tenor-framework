@@ -167,7 +167,7 @@ namespace Tenor.Data
     }
 
     /// <summary>
-    /// Occrus when when a type is missing some ForeignKeyAttribute.
+    /// Occurs when when a type is missing some ForeignKeyAttribute.
     /// </summary>
     public class MissingForeignKeyException : InvalidMappingException
     {

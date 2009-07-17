@@ -384,14 +384,15 @@ namespace Tenor.Data
         }
         #endregion
 
-
-        //public new object this[int index]
-        //{
-        //    get
-        //    {
-        //        return base[index];
-        //    }
-        //}
+        /*
+        public new object this[int index]
+        {
+            get
+            {
+                return base[index];
+            }
+        }
+         */
 
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
         public void Insert()

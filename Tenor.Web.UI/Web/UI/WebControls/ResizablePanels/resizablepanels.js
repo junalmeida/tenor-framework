@@ -1,9 +1,9 @@
-﻿// JScript File
+﻿// ResizablePanels
 
-function ResizablePanels(id, orientation) {
-    //usar o metodo OnResize para pegar o evento resize
-    //function(value)
-
+function ResizablePanels(id, orientation)
+{
+    //using OnResize method to get the resize event.
+    /*function(value)*/
     this.OnResize = function() {
     };
 
@@ -84,8 +84,10 @@ ResizablePanels.prototype.StartSize = function(e){
             
     this.AttachEvent(document, "mousemove", this._SizeGo);
     this.AttachEvent(document, "mouseup",  this._SizeStop);
-//    window.event.cancelBubble = true;
-//    window.event.returnValue = false;
+    /*
+    window.event.cancelBubble = true;
+    window.event.returnValue = false;
+    */
 
 }
 

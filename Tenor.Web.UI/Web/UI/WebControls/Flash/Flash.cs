@@ -19,9 +19,8 @@ namespace Tenor.Web.UI.WebControls
 
 
     /// <summary>
-    /// Exibe um Adobe Flash Player na página para exibição de um filme flash.
+    /// This control shows a flash player object.
     /// </summary>
-    /// <remarks></remarks>
     [ToolboxItem(typeof(System.Web.UI.Design.WebControlToolboxItem)), ToolboxData("<{0}:Flash runat=\"server\" />"), ToolboxBitmapAttribute(typeof(Flash), Configuration.Resources.FlashBmp)]
     public class Flash : System.Web.UI.WebControls.WebControl
     {
@@ -56,11 +55,8 @@ namespace Tenor.Web.UI.WebControls
         #region "properties"
 
         /// <summary>
-        /// Specifies the location (URL) of the movie to be loaded.
+        /// Gets or sets the location (URL) of the movie to be loaded.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [Themeable(true), DefaultValue(typeof(FlashRenderMode), "ScriptTag"), Category("Behavior"), Description("Controls how the Flash object is rendered.")]
         public FlashRenderMode RenderMode
         {
@@ -82,11 +78,8 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Specifies the location (URL) of the movie to be loaded.
+        /// Gets or sets the location (URL) of the movie to be loaded.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [Themeable(true), UrlProperty("*.swf"), Editor(typeof(System.Web.UI.Design.UrlEditor), typeof(System.Drawing.Design.UITypeEditor)), DefaultValue(""), Category("Appearance"), Description("Specifies the location (URL) of the movie to be loaded")]
         public string MovieUrl
         {
@@ -109,11 +102,9 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Determines whether to show the flash context menu, allowing the user a variety of options to enhance or control playback.
+        /// Gets or sets whether to show the flash context menu, allowing the user
+        /// a variety of options to enhance or control playback.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [BrowsableAttribute(false), Themeable(true), DefaultValue(true), Category("Behavior"), Description("Determines whether to show the flash context menu, allowing the user a variety of options to enhance or control playback.")]
         public bool ShowMenu
         {
@@ -135,11 +126,8 @@ namespace Tenor.Web.UI.WebControls
             }
         }
         /// <summary>
-        /// Determines whether to allow native full screen mode.
+        /// Gets or sets whether to allow native full screen mode.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [BrowsableAttribute(false), Themeable(true), DefaultValue(true), Category("Behavior"), Description("Determines whether to allow native full screen mode.")]
         public bool AllowFullScreen
         {
@@ -162,7 +150,9 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Used to send root level variables to the movie. The format of the string is a set of name=value combinations separated by '&amp;'.
+        /// Gets or sets flashVars userd to send root level variables to the movie.
+        /// The format of the string is a set of name=value combinations separated
+        /// by '&amp;'.
         /// </summary>
         /// <value>A System.String</value>
         /// <returns>System.String</returns>
@@ -188,11 +178,11 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Specifies whether the browser should start Java when loading the Flash Player for the first time. The default value is false if this attribute is omitted. If you use JavaScript and Flash on the same page, Java must be running for the FSCommand to work.
+        /// Gets or sets whether the browser should start Java when loading the 
+        /// Flash Player for the first time. The default value is false if this
+        /// attribute is omitted. If you use JavaScript and Flash on the same
+        /// page, Java must be running for the FSCommand to work.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [BrowsableAttribute(false), Themeable(true), DefaultValue(false), Category("Behavior"), Description("Specifies whether the browser should start Java when loading the Flash Player for the first time. The default value is false if this attribute is omitted. If you use JavaScript and Flash on the same page, Java must be running for the FSCommand to work.")]
         public bool SwLiveConnect
         {
@@ -214,11 +204,9 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Specifies whether the movie begins playing immediately on loading in the browser. The default value is true.
+        /// Gets or sets whether the movie begins playing immediately on loading in
+        /// the browser. The default value is true.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [BrowsableAttribute(false), Themeable(true), DefaultValue(true), Category("Behavior"), Description("Specifies whether the movie begins playing immediately on loading in the browser.")]
         public bool Play
         {
@@ -241,13 +229,11 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Specifies whether the movie repeats indefinitely or stops when it reaches the last frame. The default value is true.
+        /// Gets or sets whether the movie repeats indefinitely or stops when it
+        /// reaches the last frame. The default value is true.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [BrowsableAttribute(false), Themeable(true), DefaultValue(true), Category("Behavior"), Description("Specifies whether the movie repeats indefinitely or stops when it reaches the last frame. The default value is true.")]
-        public bool @Loop
+        public bool Loop
         {
             get
             {
@@ -268,11 +254,9 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Specifies the quality mode used to play the flash movie.
+        /// Gets or sets the quality mode used to play the flash movie.
         /// </summary>
-        /// <value>One of the FlashQuality constants</value>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <value>One of the FlashQuality constants.</value>
         [BrowsableAttribute(false), Themeable(true), DefaultValue(typeof(FlashQuality), "Best"), Category("Behavior"), Description("Specifies the quality mode used to play the flash movie.")]
         public FlashQuality Quality
         {
@@ -295,11 +279,9 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Specifies the scale mode used to display the flash movie.
+        /// Gets or sets the scale mode used to display the flash movie.
         /// </summary>
-        /// <value>One of the FlashScale constants</value>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <value>One of the FlashScale constants.</value>
         [Themeable(true), DefaultValue(typeof(FlashScale), "ShowAll"), Category("Behavior"), Description("Specifies the scale mode used to display the flash movie.")]
         public FlashScale Scale
         {
@@ -321,11 +303,9 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Specifies the alignment used to display the flash movie.
+        /// Gets or sets the alignment used to display the flash movie.
         /// </summary>
-        /// <value>One of the FlashScale constants</value>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <value>One of the FlashScale constants.</value>
         [Themeable(true), DefaultValue(typeof(FlashAlign), "Center"), Category("Appearance"), Description("Specifies the alignment used to display the flash movie.")]
         public FlashAlign Alignment
         {
@@ -347,11 +327,8 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Determines whether to generate code to solve transparent issues for expansible banners.
+        /// Gets or sets whether to generate code to solve transparent issues for expansible banners.
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         [Themeable(true), DefaultValue(false), Category("Behavior"), Description("Determines whether to generate code to solve transparent issues for expansible banners.")]
         public bool ActAsExpansibleBanner
         {
@@ -377,8 +354,9 @@ namespace Tenor.Web.UI.WebControls
         /// </summary>
         /// <value></value>
         /// <returns></returns>
-        /// <remarks>When this property has a value, some piece of code id generated to solve browser issues on expansible banners</remarks>
-        [Themeable(true), Category("Layout"), Description("Gets or sets the Width when this control is expanded.")]
+        /// <remarks>When this property has a value, some piece of code id generated to
+        /// solve browser issues on expansible banners.</remarks>
+        [Themeable(true), Category("Layout"), Description("Defines the Width when this control is expanded.")]
         public Unit ExpandedWidth
         {
             get
@@ -402,8 +380,9 @@ namespace Tenor.Web.UI.WebControls
         /// </summary>
         /// <value></value>
         /// <returns></returns>
-        /// <remarks>When this property has a value, some piece of code id generated to solve browser issues on expansible banners</remarks>
-        [Themeable(true), Category("Layout"), Description("Gets or sets the Height when this control is expanded.")]
+        /// <remarks>When this property has a value, some piece of code id generated to solve browser
+        /// issues on expansible banners.</remarks>
+        [Themeable(true), Category("Layout"), Description("Defines the Height when this control is expanded.")]
         public Unit ExpandedHeight
         {
             get
@@ -425,9 +404,9 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Determines whether the javascript can access to this component.
+        /// Gets or sets whether the javascript can access to this component.
         /// </summary>
-        /// <value>One of the FlashScriptAccess constants</value>
+        /// <value>One of the FlashScriptAccess constants.</value>
         /// <returns></returns>
         /// <remarks></remarks>
         [Themeable(true), DefaultValue(typeof(FlashScriptAccess), "Default"), Category("Behavior"), Description("Determines whether the javascript can access to this component.")]
@@ -452,9 +431,9 @@ namespace Tenor.Web.UI.WebControls
 
 
         /// <summary>
-        /// Specifies the minimum flash version required
+        /// Gets or sets the minimum flash version required.
         /// </summary>
-        /// <value>One of the Flash Versions</value>
+        /// <value>One of the Flash Versions.</value>
         /// <returns></returns>
         /// <remarks></remarks>
         [BrowsableAttribute(false), Themeable(true), DefaultValue("8.0.0.0"), Category("Behavior"), Description("Specifies the minimum flash version required."), TypeConverter(typeof(Design.FlashVersionConverter))]
@@ -515,7 +494,7 @@ namespace Tenor.Web.UI.WebControls
 
         private void WriteParam(HtmlTextWriter writer, string name, string value)
         {
-            //escreve uma tag Param dentro do object
+            //writes a Param inside the object
             //xhtml compatible
 
             writer.Write(HtmlTextWriter.TagLeftChar + "param");
@@ -524,8 +503,7 @@ namespace Tenor.Web.UI.WebControls
             writer.Write(HtmlTextWriter.SelfClosingTagEnd);
             writer.WriteLine();
 
-
-            //para a tag embed
+            //the embed tag:
             if (name == "movie")
             {
                 name = "src";
@@ -538,19 +516,19 @@ namespace Tenor.Web.UI.WebControls
         {
             if (this.DesignMode)
             {
-                //Nada aki
+                //nothing to be done yet
             }
             else
             {
                 WriteParam(writer, "movie", ResolveClientUrl(MovieUrl));
-                // controga wmode e bgcolor de acordo com BackColor
+                // choose a wmode and a bgcolor based on BackColor value.
                 if (BackColor == System.Drawing.Color.Transparent)
                 {
                     WriteParam(writer, "wmode", "Transparent");
                 }
                 else if (BackColor.Equals(System.Drawing.Color.Empty))
                 {
-                    //fazer nada
+                    //nothing to be done.
                 }
                 else
                 {
@@ -693,8 +671,7 @@ namespace Tenor.Web.UI.WebControls
                 case FlashRenderMode.ScriptTag:
 
 
-
-                    //Adiciona os atributos da tag object ja gerada pela classe base
+                    //Scripting attributes to the 'object' tag.
 
                     if (!Unit.Equals(ExpandedWidth, Unit.Empty))
                     {
@@ -714,7 +691,7 @@ namespace Tenor.Web.UI.WebControls
                     }
 
                     _ScriptLine += ", \'" + ResolveClientUrl(MovieUrl) + "\'";
-                    // controga wmode e bgcolor de acordo com BackColor
+                    // choose a wmode and a bgcolor based on BackColor value.
                     if (BackColor == System.Drawing.Color.Transparent)
                     {
                         _ScriptLine += ", \'#ffffff\'";
@@ -722,7 +699,7 @@ namespace Tenor.Web.UI.WebControls
                     }
                     else if (BackColor.Equals(System.Drawing.Color.Empty))
                     {
-                        //fazer nada
+                        //TODO: why i'm setting a bgcolor? guess that we cant do nothing here.
                         _ScriptLine += ", \'#ffffff\'";
                         _ScriptLine += ", \'\'";
                     }
@@ -900,8 +877,7 @@ namespace Tenor.Web.UI.WebControls
             }
             else //DesignMode
             {
-                //adiciona os parametro da tag div ja gerada pela classe base
-                //este trecho é usado pelo designer
+                //adds div attributes on DesignMode.
                 writer.AddStyleAttribute(HtmlTextWriterStyle.TextAlign, "center");
                 writer.AddStyleAttribute("border", "solid 1px gray");
                 writer.AddStyleAttribute(HtmlTextWriterStyle.BackgroundColor, ColorTranslator.ToHtml(BackColor));
@@ -947,10 +923,8 @@ namespace Tenor.Web.UI.WebControls
         }
 
         /// <summary>
-        /// Em BETA
+        /// TODO: BETA. Test and improve this.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
         private string GetACOEScript()
         {
             string w;
@@ -1090,6 +1064,9 @@ namespace Tenor.Web.UI.WebControls
 
     }
 
+    /// <summary>
+    /// Determines the flash script security.
+    /// </summary>
     public enum FlashScriptAccess
     {
         @Default,
@@ -1097,52 +1074,46 @@ namespace Tenor.Web.UI.WebControls
         SameDomain
     }
 
+    /// <summary>
+    /// Determines how the flash movie will be aligned inside the flash object.
+    /// </summary>
     public enum FlashAlign
     {
         /// <summary>
         /// Align the movie on the center of the browser window.
         /// </summary>
-        /// <remarks></remarks>
         Center,
         /// <summary>
         /// Align the movie along the left edge of the browser window and crop the remaining three sides as needed.
         /// </summary>
-        /// <remarks></remarks>
         Left,
         /// <summary>
         /// Align the movie along the top edge of the browser window and crop the remaining three sides as needed.
         /// </summary>
-        /// <remarks></remarks>
         Top,
         /// <summary>
         /// Align the movie along the right edge of the browser window and crop the remaining three sides as needed.
         /// </summary>
-        /// <remarks></remarks>
         Right,
         /// <summary>
         /// Align the movie along the bottom edge of the browser window and crop the remaining three sides as needed.
         /// </summary>
-        /// <remarks></remarks>
         Bottom,
         /// <summary>
         /// Align the movie to the top left corner of the browser window and crop the bottom and remaining right and bottom side as needed.
         /// </summary>
-        /// <remarks></remarks>
         TopLeft,
         /// <summary>
         /// Align the movie to the top right corner of the browser window and crop the bottom and remaining left and bottom side as needed.
         /// </summary>
-        /// <remarks></remarks>
         TopRight,
         /// <summary>
         /// Align the movie to the bottom left corner of the browser window and crop the bottom and remaining right and top side as needed.
         /// </summary>
-        /// <remarks></remarks>
         BottomLeft,
         /// <summary>
         /// Align the movie to the bottom right corner of the browser window and crop the bottom and remaining left and top side as needed.
         /// </summary>
-        /// <remarks></remarks>
         BottomRight
     }
 
@@ -1151,22 +1122,18 @@ namespace Tenor.Web.UI.WebControls
         /// <summary>
         /// Makes the entire movie visible in the specified area without distortion, while maintaining the original aspect ratio of the movie. Borders may appear on two sides of the movie.
         /// </summary>
-        /// <remarks></remarks>
         ShowAll,
         /// <summary>
         /// Scales the movie to fill the specified area, without distortion but possibly with some cropping, while maintaining the original aspect ratio of the movie.
         /// </summary>
-        /// <remarks></remarks>
         NoBorder,
         /// <summary>
         /// Makes the entire movie visible in the specified area without trying to preserve the original aspect ratio. Distortion may occur.
         /// </summary>
-        /// <remarks></remarks>
         ExactFit,
         /// <summary>
         /// Shows the movie "as is"
         /// </summary>
-        /// <remarks></remarks>
         NoScale
     }
 
@@ -1175,32 +1142,26 @@ namespace Tenor.Web.UI.WebControls
         /// <summary>
         /// Favors playback speed over appearance and never uses anti-aliasing.
         /// </summary>
-        /// <remarks></remarks>
         Low,
         /// <summary>
         /// Emphasizes speed at first but improves appearance whenever possible. Playback begins with anti-aliasing turned off. If the Flash Player detects that the processor can handle it, anti-aliasing is turned on.
         /// </summary>
-        /// <remarks></remarks>
         Autolow,
         /// <summary>
         /// Emphasizes playback speed and appearance equally at first but sacrifices appearance for playback speed if necessary. Playback begins with anti-aliasing turned on. If the actual frame rate drops below the specified frame rate, anti-aliasing is turned off to improve playback speed. Use this setting to emulate the View > Antialias setting in Flash.
         /// </summary>
-        /// <remarks></remarks>
         Autohigh,
         /// <summary>
         /// Applies some anti-aliasing and does not smooth bitmaps. It produces a better quality than the Low setting, but lower quality than the High setting.
         /// </summary>
-        /// <remarks></remarks>
         Medium,
         /// <summary>
         /// Favors appearance over playback speed and always applies anti-aliasing. If the movie does not contain animation, bitmaps are smoothed; if the movie has animation, bitmaps are not smoothed.
         /// </summary>
-        /// <remarks></remarks>
         High,
         /// <summary>
         /// Provides the best display quality and does not consider playback speed. All output is anti-aliased and all bitmaps are smoothed.
         /// </summary>
-        /// <remarks></remarks>
         Best
     }
 
@@ -1209,12 +1170,10 @@ namespace Tenor.Web.UI.WebControls
         /// <summary>
         /// Uses javascript to render the Flash object. This is the default behavior.
         /// </summary>
-        /// <remarks></remarks>
         ScriptTag,
         /// <summary>
         /// Uses standard object tag.
         /// </summary>
-        /// <remarks></remarks>
         ObjectTag
     }
 }

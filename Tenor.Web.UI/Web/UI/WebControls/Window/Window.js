@@ -1,5 +1,4 @@
 // Window Web Control
-// Author: Marcos A. P. de Almeida Jr.
 
     function WindowControl (id, movable, resizable, bordersize, titlebarsize, closePostback) {
         this.window = document.getElementById(id);

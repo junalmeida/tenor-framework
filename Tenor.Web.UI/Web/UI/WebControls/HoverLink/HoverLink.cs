@@ -20,16 +20,11 @@ namespace Tenor.Web.UI.WebControls
 
 
     /// <summary>
-    /// Hyperlink dinâmico com Hover.
+    /// This controls show a hyperlink with mouse hover actions.
     /// </summary>
-    /// <remarks></remarks>
     [ToolboxItem(typeof(System.Web.UI.Design.WebControlToolboxItem)), ToolboxData("<{0}:HoverLink runat=\"server\" />"), ToolboxBitmapAttribute(typeof(System.Web.UI.WebControls.ImageButton), "ImageButton.bmp"), DefaultEvent("Click")]
     public class HoverLink : System.Web.UI.WebControls.HyperLink, IPostBackEventHandler
     {
-
-
-
-
         private EventHandler ClickEvent;
         public event EventHandler Click
         {
@@ -116,7 +111,7 @@ namespace Tenor.Web.UI.WebControls
                 {
                     resetnavigate = true;
                     this.NavigateUrl = "javascript:" + Page.ClientScript.GetPostBackEventReference(this, "");
-                    //writer.AddAttribute("onclick", Page.ClientScript.GetPostBackEventReference(Me, ""))
+                    /*writer.AddAttribute("onclick", Page.ClientScript.GetPostBackEventReference(Me, ""))*/
                 }
                 if (!string.IsNullOrEmpty(ImageUrl) && !string.IsNullOrEmpty(HoverImageUrl))
                 {

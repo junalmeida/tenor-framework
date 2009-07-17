@@ -54,7 +54,6 @@ namespace Tenor.Configuration
         /// <summary>
         /// Gets an System.Collection.IEnumerator which is used to iterate through the EmailsCollection.
         /// </summary>
-        /// <returns></returns>
         public System.Collections.IEnumerator GetEnumerator()
         {
             return Emails.GetEnumerator();
