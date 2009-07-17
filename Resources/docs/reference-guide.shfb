@@ -5,26 +5,26 @@
     </assemblies>
     <namespaceSummaries>
         <namespaceSummaryItem name="" isDocumented="False" />
-        <namespaceSummaryItem name="Tenor" isDocumented="True" />
-        <namespaceSummaryItem name="Tenor.BLL" isDocumented="True" />
-        <namespaceSummaryItem name="Tenor.Configuration" isDocumented="True" />
-        <namespaceSummaryItem name="Tenor.Data" isDocumented="True" />
-        <namespaceSummaryItem name="Tenor.Data.Dialects" isDocumented="True" />
-        <namespaceSummaryItem name="Tenor.Data.Dialects.MySql" isDocumented="True" />
-        <namespaceSummaryItem name="Tenor.Data.Dialects.Oracle" isDocumented="True" />
+        <namespaceSummaryItem name="Tenor" isDocumented="True">This is the base namespace of all classes that is part of this framework.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Tenor.BLL" isDocumented="True">This namespace holds a set of classes for entity layer.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Tenor.Configuration" isDocumented="True">Holds a set of classes to manage the Tenor framework behavior.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Tenor.Data" isDocumented="True">Holds classes for persistence layer.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Tenor.Data.Dialects" isDocumented="True">Holds a set of classes that is able to write sql code.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Tenor.Data.Dialects.MySql" isDocumented="True">MySql dialect specific classes.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Tenor.Data.Dialects.Oracle" isDocumented="True">Oracle dialect specific classes.</namespaceSummaryItem>
         <namespaceSummaryItem name="Tenor.Data.Dialects.PostgreSQL" isDocumented="True" />
-        <namespaceSummaryItem name="Tenor.Data.Dialects.SQLite" isDocumented="True" />
-        <namespaceSummaryItem name="Tenor.Data.Dialects.TSql" isDocumented="True" />
-        <namespaceSummaryItem name="Tenor.Diagnostics" isDocumented="True" />
-        <namespaceSummaryItem name="Tenor.Drawing" isDocumented="True" />
-        <namespaceSummaryItem name="Tenor.IO" isDocumented="True" />
-        <namespaceSummaryItem name="Tenor.Mail" isDocumented="True" />
-        <namespaceSummaryItem name="Tenor.Security" isDocumented="True" />
-        <namespaceSummaryItem name="Tenor.Text" isDocumented="True" />
-        <namespaceSummaryItem name="Tenor.Web" isDocumented="True" />
-        <namespaceSummaryItem name="Tenor.Web.UI.WebControls" isDocumented="True" />
-        <namespaceSummaryItem name="Tenor.Web.UI.WebControls.Core" isDocumented="True" />
-        <namespaceSummaryItem name="Tenor.Web.UI.WebControls.Design" isDocumented="True" />
+        <namespaceSummaryItem name="Tenor.Data.Dialects.SQLite" isDocumented="True">SQLite dialect specific classes.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Tenor.Data.Dialects.TSql" isDocumented="True">TSql dialect specific classes.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Tenor.Diagnostics" isDocumented="True">Holds a set of classes that can make debugging actions.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Tenor.Drawing" isDocumented="True">Holds a set of classes to manipulate images.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Tenor.IO" isDocumented="True">Holds a set of classes to manipulate binary data.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Tenor.Mail" isDocumented="True">Holds a set of classes to manipulate mail messages.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Tenor.Security" isDocumented="True">Holds a set of classes to manipulate security actions.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Tenor.Text" isDocumented="True">Holds a set of classes to manipulate strings.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Tenor.Web" isDocumented="True">Holds a set of classes to manipulate a web context.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Tenor.Web.UI.WebControls" isDocumented="True">Holds a set of controls to enhance web development.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Tenor.Web.UI.WebControls.Core" isDocumented="True">Holds a set of controls to enhance web development.</namespaceSummaryItem>
+        <namespaceSummaryItem name="Tenor.Web.UI.WebControls.Design" isDocumented="True">Holds a set of designer directives.</namespaceSummaryItem>
     </namespaceSummaries>
     <conceptualContent snippetFile="">
         <topics defaultTopic="945cec26-341a-4a2c-a4b3-2635f34f0baf">
@@ -42,7 +42,8 @@
             <topic id="4cf2a0ce-4c88-427d-b033-cb27f95687b7" file=".\glossary.xml" tocTitle="Glossary" revision="1" visible="True" />
         </topics>
     </conceptualContent>
-    <ProjectSummary />
+    <ProjectSummary>This is the reference guide of Tenor Framework.
+    Please, check http://sourceforge.net/projects/tenor/ for new versions and updated documentation.</ProjectSummary>
     <MissingTags>AutoDocumentCtors</MissingTags>
     <VisibleItems>Attributes, InheritedMembers, Protected, SealedProtected</VisibleItems>
     <HtmlHelp1xCompilerPath path="" />

@@ -27,6 +27,31 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "SampleApp", "SampleApp\", "
 		DefaultWebSiteLanguage = "Visual C#"
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Resources", "Resources", "{4ED50A48-424F-4C4A-85F1-0EF76EE07AE0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{A68E76D2-36DE-46D5-B779-FA9AFD961640}"
+	ProjectSection(SolutionItems) = preProject
+		Resources\docs\concepts.xml = Resources\docs\concepts.xml
+		Resources\docs\generatingtemplates.xml = Resources\docs\generatingtemplates.xml
+		Resources\docs\glossary.xml = Resources\docs\glossary.xml
+		Resources\docs\reference-guide.shfb = Resources\docs\reference-guide.shfb
+		Resources\docs\reference.xml = Resources\docs\reference.xml
+		Resources\docs\sampleapp.xml = Resources\docs\sampleapp.xml
+		Resources\docs\settingwebconfig.xml = Resources\docs\settingwebconfig.xml
+		Resources\docs\thetenormodule.xml = Resources\docs\thetenormodule.xml
+		Resources\docs\transactions.xml = Resources\docs\transactions.xml
+		Resources\docs\usinglayers.xml = Resources\docs\usinglayers.xml
+		Resources\docs\Walkthrough.xml = Resources\docs\Walkthrough.xml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "template", "template", "{4B0039AE-5D37-4849-9691-39C6C54710B8}"
+	ProjectSection(SolutionItems) = preProject
+		Resources\mygen-template\BLLBased-beta.zeus = Resources\mygen-template\BLLBased-beta.zeus
+		Resources\mygen-template\BLLBased-CS.zeus = Resources\mygen-template\BLLBased-CS.zeus
+		Resources\mygen-template\BLLBased.zeus = Resources\mygen-template\BLLBased.zeus
+		Resources\mygen-template\TemplateSnippets.xml = Resources\mygen-template\TemplateSnippets.xml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
 		Svn-Managed = True
@@ -94,5 +119,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A68E76D2-36DE-46D5-B779-FA9AFD961640} = {4ED50A48-424F-4C4A-85F1-0EF76EE07AE0}
+		{4B0039AE-5D37-4849-9691-39C6C54710B8} = {4ED50A48-424F-4C4A-85F1-0EF76EE07AE0}
 	EndGlobalSection
 EndGlobal
