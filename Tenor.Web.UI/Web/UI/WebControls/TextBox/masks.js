@@ -444,8 +444,8 @@ function __DateCheckValue(obj, msg)
 }
 
 // TODO: Translate this comment
-// função que valida datas, para substituir a regular expression que excluía 19/02 de todos os anos (o meu aniversario!)
-// adaptada do compare validator com datatype check para date do asp.net
+// function to validate dates to replace original regular expression that didn't accept february 19th (my birthday! -- rachel)
+// adapted from asp.net datatype check compare validator function
 function __ValiDATE(texto)
 {
     function GetFullYear(year)
