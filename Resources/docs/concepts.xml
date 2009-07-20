@@ -5,7 +5,7 @@
 
 
   <summary>
-    <para>Optional summary abstract</para>
+    <para>Welcome to the reference guide of Tenor Framework.</para>
   </summary>
 
 
@@ -16,37 +16,41 @@
          zero (0) to limit it to top-level sections only.  -->
     <!-- <autoOutline /> -->
 
-    <para>Required introduction</para>
+    <para>Tenor's main goal is a relational-object mapping layer. This layer was implemented using the ActiveRecord pattern.</para>
   </introduction>
 
   <!-- Add one or more top-level section elements.  These are collapsible.
        If using <autoOutline /> tag, add an address attribute to identify
        it so that it can be jumped to with a hyperlink. -->
-  <section address="Section1">
-    <title>Section title</title>
-    <content>
-      <!-- Uncomment this to create a sub-section outline
-      <autoOutline /> -->
-      <para>Add one or more sections with content</para>
-    </content>
-    <!-- If a section contains a sections element, its content creates
-         sub-sections.  These are not collapsible.-->
-    <sections>
-        <section address="SubSection1">
-            <title>Sub-section 1</title>
-            <content>
-                <para>Sub-section content.</para>
-            </content>
-        </section>
-        <section address="SubSection2">
-            <title>Sub-section 2</title>
-            <content>
-                <para>Sub-section content.</para>
-            </content>
-        </section>
-    </sections> 
-  </section>
+       
+<section>
+  <title>License</title>
+  <content>
+<para>The MIT License</para>
 
+<para>Copyright (c) 2009 Marcos Almeida Jr, Rachel Carvalho and Vinicius Barbosa.</para>
+
+<para>Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:</para>
+
+<para>The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.</para>
+
+<para>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.</para>
+  </content>
+</section>
+
+    
   <relatedTopics>
     <!-- One or more of the following:
          - A local link

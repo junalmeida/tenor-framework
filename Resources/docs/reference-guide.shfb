@@ -29,17 +29,6 @@
     <conceptualContent snippetFile="">
         <topics defaultTopic="945cec26-341a-4a2c-a4b3-2635f34f0baf">
             <topic id="945cec26-341a-4a2c-a4b3-2635f34f0baf" file=".\concepts.xml" tocTitle="Summary" revision="1" visible="True" />
-            <topic id="8fa1d48b-4d17-4cc3-a9cb-47568108c17b" title="Getting Started" revision="1" visible="True">
-                <topic id="090ee928-1320-43b7-b5e3-8c5ac2dfe93a" file=".\settingwebconfig.xml" revision="1" visible="True" />
-                <topic id="7edb8dcd-a21d-4ec9-8f7b-1fac57374a31" file=".\generatingtemplates.xml" revision="1" visible="True" />
-                <topic id="b05e35d7-bad4-42fd-af54-8d499e97e9e2" file=".\usinglayers.xml" revision="1" visible="True" />
-                <topic id="0b04e4c5-8a43-42e7-9cd6-d7832b640221" file=".\transactions.xml" revision="1" visible="True" />
-                <topic id="aef165b3-e862-4d0c-80df-25cbd7b9ab6c" file=".\thetenormodule.xml" revision="1" visible="True" />
-            </topic>
-            <topic id="f1a157f3-f4ce-478f-959b-c99c87f12d0e" title="Complete Samples" revision="1" visible="True">
-                <topic id="c5f98b00-718f-4594-8de4-4bcc8c553aeb" file=".\sampleapp.xml" revision="1" visible="True" />
-            </topic>
-            <topic id="4cf2a0ce-4c88-427d-b033-cb27f95687b7" file=".\glossary.xml" tocTitle="Glossary" revision="1" visible="True" />
         </topics>
     </conceptualContent>
     <ProjectSummary>This is the reference guide of Tenor Framework.
