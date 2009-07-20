@@ -27,7 +27,6 @@ using System.Web.UI;
 [assembly:WebResource(Tenor.Configuration.Resources.JsPreviewImage, "text/javascript")]
 [assembly:WebResource(Tenor.Configuration.Resources.PreviewBlackWhiteGif, "image/gif")]
 [assembly:WebResource(Tenor.Configuration.Resources.PreviewWhiteBlackGif, "image/gif")]
-[assembly:WebResource(Tenor.Configuration.Resources.PreviewGearGif, "image/gif")]
 [assembly:WebResource(Tenor.Configuration.Resources.PreviewPrevCloseGif, "image/jpeg")]
 [assembly:WebResource(Tenor.Configuration.Resources.PreviewGrayGif, "image/gif")]
 
@@ -174,7 +173,6 @@ namespace Tenor.Configuration
         public const string PreviewWhiteBlackGif = "Tenor.white-black.gif";
         public const string PreviewGrayGif = "Tenor.gray.gif";
         public const string PreviewPrevCloseGif = "Tenor.prev-close.jpg";
-        public const string PreviewGearGif = "Tenor.gear.gif";
 
 
         public const string JsReorderButton = "Tenor.reorderbutton.js";

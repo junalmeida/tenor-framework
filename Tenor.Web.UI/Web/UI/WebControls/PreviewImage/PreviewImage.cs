@@ -235,9 +235,6 @@ namespace Tenor.Web.UI.WebControls
                 case PreviewImageLoadingAnimation.WhiteOnBlack:
                     loadingimg = "\'" + Page.ClientScript.GetWebResourceUrl(typeof(PreviewImage), Configuration.Resources.PreviewWhiteBlackGif) + "\'";
                     break;
-                case PreviewImageLoadingAnimation.GearsOnWhite:
-                    loadingimg = "\'" + Page.ClientScript.GetWebResourceUrl(typeof(PreviewImage), Configuration.Resources.PreviewGearGif) + "\'";
-                    break;
             }
             return loadingimg;
         }

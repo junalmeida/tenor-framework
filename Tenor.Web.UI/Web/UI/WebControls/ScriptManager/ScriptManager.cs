@@ -24,8 +24,8 @@ namespace Tenor.Web.UI.WebControls
     {
         public ConfirmationEventArgs(string commandName, bool response)
         {
-            this.CommandName = commandName;
-            this.Response = response;
+            this._CommandName = commandName;
+            this._Response = response;
         }
 
         private bool _Response;
