@@ -164,7 +164,7 @@ public class GeneratedGui : DotNetScriptGui
 ##|BODY_TAG_START <%
 ##|BODY_TAG_END %>
 ##|BODY_BEGIN
-<%
+<%#REFERENCE System.Windows.Forms.dll %><%
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Win32;
@@ -307,7 +307,7 @@ public class GeneratedTemplate : DotNetScriptTemplate
 			{
 				string currentNamespace = this.defaultNamespace;
 				string folderName = string.Empty;
-				fileName = table.Name + snippets.fileExtension;
+				fileName = table.Alias + snippets.fileExtension;
 
 				CreateClass(folderName, fileName, currentNamespace, table);
 			}
@@ -371,7 +371,7 @@ public class GeneratedTemplate : DotNetScriptTemplate
 		output.clear();
 
 		string classHeader = snippets.classHeader;
-		classHeader = classHeader.Replace("{className}", table.Name);
+		classHeader = classHeader.Replace("{className}", table.Alias);
 		classHeader = classHeader.Replace("{namespace}", currentNamespace);
 		classHeader = classHeader.Replace("{tableSchema}", table.Schema);
 		classHeader = classHeader.Replace("{tableName}", table.Name);
@@ -388,29 +388,24 @@ public class GeneratedTemplate : DotNetScriptTemplate
 		StringBuilder constCampos = new StringBuilder();
 		foreach (IColumn col in table.Columns)
 		{
-
 			NameValueCollection attributes = new NameValueCollection();
 
-			string fieldName = col.Name;
+			string fieldName = col.Alias;
+			
+			if(fieldName == table.Alias) fieldName = "Field" + fieldName;
 
-			bool changeName = false;
 			foreach (IForeignKey fk in table.ForeignKeys)
 			{
 				string fkFieldName = string.Empty;
 				if (fk.ForeignTable.Equals(table))
-					fkFieldName = fk.PrimaryTable.Name;
+					fkFieldName = fk.PrimaryTable.Alias;
 				else if (fk.PrimaryTable.Equals(table))
-					fkFieldName = fk.ForeignTable.Name;
-
-				if (string.Equals(fieldName, fkFieldName))
-					changeName = true;
+					fkFieldName = fk.ForeignTable.Alias;
 			}
 
-
-			if (changeName || fieldName.ToLower().Equals(table.Name.ToLower()))
+			if (fieldName != col.Name)
 			{
-				fieldName = "Field" + fieldName;
-				attributes.Add("FieldName", fieldName);
+				attributes.Add("FieldName", col.Name);
 			}
 			string fieldType = col.LanguageType;
 			if (col.IsNullable && !col.LanguageType.ToLower().Equals("string") && col.DataType != OleDbTypeBinary)
@@ -468,105 +463,89 @@ public class GeneratedTemplate : DotNetScriptTemplate
 
 		foreach (IForeignKey fk in table.ForeignKeys)
 		{
-
-			string fkNamespace = "";
-
-			bool toOne = false;
-			string propName = "";
-			string returnType = "";
-
-			string propAttributes = "";
-			bool readOnly = false;
-
-
-			if (fk.ForeignTable.Equals(table))
+			if(tables.Contains(fk.PrimaryTable.Name) && tables.Contains(fk.ForeignTable.Name))
 			{
-				toOne = true;
-				propName = fk.PrimaryTable.Name;
-				fkNamespace = fk.PrimaryTable.Schema;
-				if (fkNamespace != "" && fkNamespace != "dbo" && fkNamespace != table.Schema)
-					fkNamespace = fkNamespace + ".";
-				else
-					fkNamespace = "";
-				returnType = fkNamespace + fk.PrimaryTable.Name;
+				bool toOne = false;
+				string propName = "";
+				string returnType = "";
 
-				for (int i = 0; i < fk.ForeignColumns.Count; i++)
+				string propAttributes = "";
+				bool readOnly = false;
+
+				if (fk.ForeignTable.Equals(table))
 				{
-					string item = snippets.foreignKeyAttribute;
-					item = item.Replace("{typeName}", returnType);
-					item = item.Replace("{foreignName}", fk.PrimaryColumns[i].Name);
-					item = item.Replace("{localName}", fk.ForeignColumns[i].Name);
-					propAttributes += item;
+					toOne = true;
+					
+					propName = fk.PrimaryTable.Alias;
+					returnType = fk.PrimaryTable.Alias;
+
+					for (int i = 0; i < fk.ForeignColumns.Count; i++)
+					{
+						string item = snippets.foreignKeyAttribute;
+						item = item.Replace("{typeName}", fk.PrimaryTable.Alias);
+						item = item.Replace("{foreignName}", fk.PrimaryColumns[i].Alias);
+						item = item.Replace("{localName}", fk.ForeignColumns[i].Alias);
+						propAttributes += item;
+					}
+					readOnly = false;
 				}
-				readOnly = false;
-			}
-			else if (fk.PrimaryTable.Equals(table) && fk.ForeignTable.PrimaryKeys.Count == 1 && fk.PrimaryColumns.Count == 1 && fk.ForeignColumns[0].IsInPrimaryKey)
-			{
-
-				toOne = true;
-				propName = fk.ForeignTable.Name;
-				fkNamespace = fk.ForeignTable.Schema;
-				if (fkNamespace != "" && fkNamespace != "dbo" && fkNamespace != table.Schema)
-					fkNamespace = fkNamespace + ".";
-				else
-					fkNamespace = "";
-				returnType = fkNamespace + fk.ForeignTable.Name;
-
-				for (int i = 0; i < fk.ForeignColumns.Count; i++)
+				else if (fk.PrimaryTable.Equals(table) && fk.ForeignTable.PrimaryKeys.Count == 1 && fk.PrimaryColumns.Count == 1 && fk.ForeignColumns[0].IsInPrimaryKey)
 				{
-					string item = snippets.foreignKeyAttribute;
-					item = item.Replace("{typeName}", returnType);
-					item = item.Replace("{foreignName}", fk.ForeignColumns[i].Name);
-					item = item.Replace("{localName}", fk.PrimaryColumns[i].Name);
-					propAttributes += item;
+					toOne = true;
+					propName = fk.ForeignTable.Alias;
+					returnType = fk.ForeignTable.Alias;
+
+					for (int i = 0; i < fk.ForeignColumns.Count; i++)
+					{
+						string item = snippets.foreignKeyAttribute;
+						item = item.Replace("{typeName}", returnType);
+						item = item.Replace("{foreignName}", fk.ForeignColumns[i].Alias);
+						item = item.Replace("{localName}", fk.PrimaryColumns[i].Alias);
+						propAttributes += item;
+					}
+					readOnly = false;
 				}
-				readOnly = false;
-			}
-			else if (fk.PrimaryTable.Equals(table))
-			{
-				toOne = false;
-				propName = ToPlural(fk.ForeignTable.Name);
-				fkNamespace = fk.ForeignTable.Schema;
-				if (fkNamespace != "" && fkNamespace != "dbo" && fkNamespace != table.Schema)
-					fkNamespace = fkNamespace + ".";
-				else
-					fkNamespace = "";
-
-				string collectionType = fkNamespace + fk.ForeignTable.Name;
-				returnType = snippets.collectionType;
-				returnType = returnType.Replace("{typeName}", collectionType);
-
-				for (int i = 0; i < fk.ForeignColumns.Count; i++)
+				else if (fk.PrimaryTable.Equals(table))
 				{
-					string item = snippets.foreignKeyAttribute;
-					item = item.Replace("{typeName}", collectionType);
-					item = item.Replace("{foreignName}", fk.ForeignColumns[i].Name);
-					item = item.Replace("{localName}", fk.PrimaryColumns[i].Name);
-					propAttributes += item;
+					toOne = false;
+					propName = ToPlural(fk.ForeignTable.Alias);
+
+					string collectionType = fk.ForeignTable.Alias;
+					returnType = snippets.collectionType;
+					returnType = returnType.Replace("{typeName}", collectionType);
+
+					for (int i = 0; i < fk.ForeignColumns.Count; i++)
+					{
+						string item = snippets.foreignKeyAttribute;
+						item = item.Replace("{typeName}", collectionType);
+						item = item.Replace("{foreignName}", fk.ForeignColumns[i].Alias);
+						item = item.Replace("{localName}", fk.PrimaryColumns[i].Alias);
+						propAttributes += item;
+					}
+					readOnly = true;
 				}
-				readOnly = true;
+
+				string fkProperty = (readOnly ? snippets.foreignKeyItemGet : snippets.foreignKeyItem);
+
+				fkProperty = fkProperty.Replace("{relationshipName}", fk.Name);
+				fkProperty = fkProperty.Replace("{propertyAttributes}", propAttributes);
+				fkProperty = fkProperty.Replace("{propertyName}", propName);
+				fkProperty = fkProperty.Replace("{returnType}", returnType);
+				fkProperty = fkProperty.Replace("{foreignProperty}", returnType);
+				fkProperty = fkProperty.Replace("{nullValue}", snippets.nullValue);
+
+				output.writeln(fkProperty);
 			}
-
-			string fkProperty = (readOnly ? snippets.foreignKeyItemGet : snippets.foreignKeyItem);
-
-			fkProperty = fkProperty.Replace("{relationshipName}", fk.Name);
-			fkProperty = fkProperty.Replace("{propertyAttributes}", propAttributes);
-			fkProperty = fkProperty.Replace("{propertyName}", propName);
-			fkProperty = fkProperty.Replace("{returnType}", returnType);
-			fkProperty = fkProperty.Replace("{foreignProperty}", returnType);
-			fkProperty = fkProperty.Replace("{nullValue}", snippets.nullValue);
-
-			output.writeln(fkProperty);
 		}
 		
 		output.writeln(snippets.metadataHeader);
 		
 		string ctor = snippets.emptyConstructor;
-		ctor = ctor.Replace("{className}", table.Name);
+		ctor = ctor.Replace("{className}", table.Alias);
 		output.writeln(ctor);
 
 		ctor = snippets.lazyConstructor;
-		ctor = ctor.Replace("{className}", table.Name);
+		ctor = ctor.Replace("{className}", table.Alias);
 		output.writeln(ctor);
 
 
@@ -574,20 +553,20 @@ public class GeneratedTemplate : DotNetScriptTemplate
 		string ctorAssigns = string.Empty;
 		foreach (IColumn col in table.PrimaryKeys)
 		{
-			ctorParams += snippets.parameter.Replace("{type}", col.LanguageType).Replace("{name}", col.Name);
+			ctorParams += snippets.parameter.Replace("{type}", col.LanguageType).Replace("{name}", col.Alias);
 			if(ctorAssigns.Length > 0) ctorAssigns += Environment.NewLine;
-			ctorAssigns += snippets.parameterAssign.Replace("{propertyName}", col.Name);
+			ctorAssigns += snippets.parameterAssign.Replace("{propertyName}", col.Alias);
 		}
 		ctorParams = ctorParams.Substring(2);
 		ctor = snippets.primaryKeysConstructor;
-		ctor = ctor.Replace("{className}", table.Name);
+		ctor = ctor.Replace("{className}", table.Alias);
 		ctor = ctor.Replace("{parameters}", ctorParams);
 		ctor = ctor.Replace("{initialization}", ctorAssigns);
 		output.writeln(ctor);
 
 		output.writeln(snippets.searchHeader);
 		string searchBlocks = snippets.searchBlocks;
-		searchBlocks = searchBlocks.Replace("{className}", table.Name);
+		searchBlocks = searchBlocks.Replace("{className}", table.Alias);
 		output.writeln(searchBlocks);
 		output.writeln(snippets.classFooter);
 
