@@ -160,6 +160,18 @@ namespace SampleApp.Business.Entities
         }
 
 
+        /// <summary>
+        /// Showing up N-N relations.
+        /// </summary>
+        [ForeignKey(Department.Properties.DepartmentId, Person.Properties.PersonId, "person_department", "departmentid", "personid")]
+        public BLLCollection<Department> DepartmentList
+        {
+            get
+            {
+                return (BLLCollection<Department>)GetPropertyValue();
+            }
+        }
+
         #endregion
         #region Constructors And Metadata
 

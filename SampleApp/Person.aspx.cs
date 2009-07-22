@@ -19,9 +19,11 @@ public partial class _Person : System.Web.UI.Page
         {
             ListCategories();
             ListMaritalStati();
+            ListDepartments();
             LoadPerson();
         }
     }
+
 
 
 
@@ -54,6 +56,14 @@ public partial class _Person : System.Web.UI.Page
                 }
                 ListItem li = cblItems.Items.FindByValue(pi.ItemId.ToString());
                 if (li != null) li.Selected = true;
+
+            }
+
+            foreach (Department d in p.DepartmentList)
+            {
+                ListItem item = cblDepartments.Items.FindByValue(d.DepartmentId.ToString());
+                if (item != null)
+                    item.Selected = true;
             }
 
         }
@@ -97,6 +107,23 @@ public partial class _Person : System.Web.UI.Page
         catch (ApplicationException ex)
         {
             throw;
+            Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
+        }
+    }
+
+
+    private void ListDepartments()
+    {
+        try
+        {
+            cblDepartments.DataSource = bp.ListDepartments();
+            cblDepartments.DataTextField = Department.Properties.Name;
+            cblDepartments.DataValueField = Department.Properties.DepartmentId;
+            cblDepartments.DataBind();
+            cblDepartments.Items.Insert(0, new ListItem("Select an item", string.Empty));
+        }
+        catch (ApplicationException ex)
+        {
             Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
         }
     }

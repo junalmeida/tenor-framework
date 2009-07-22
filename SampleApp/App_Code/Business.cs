@@ -74,6 +74,17 @@ public class Business
         }
     }
 
+    public object ListDepartments()
+    {
+        try
+        {
+            return Department.List();
+        }
+        catch (Exception ex)
+        {
+            throw new ApplicationException("Cannot list departments.", ex);
+        }
+    }
 
     public IList<Category> ListCategories()
     {

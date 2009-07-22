@@ -213,6 +213,28 @@ namespace Tenor.Data
     }
 
     /// <summary>
+    /// Occurs when a type has an invalid many-to-many mapping.
+    /// </summary>
+    public class InvalidManyToManyMappingException : InvalidMappingException
+    {
+        string propName;
+
+        internal InvalidManyToManyMappingException(Type type, string propName)
+            : base(type)
+        {
+            this.propName = propName;
+        }
+
+        public override string Message
+        {
+            get
+            {
+                return string.Format("The type '{0}' has an invalid many-to-many mapping on property '{1}'.", RelatedClass.FullName, propName);
+            }
+        }
+    }
+
+    /// <summary>
     /// Occurs when no record was found on a read operation.
     /// </summary>
     public class RecordNotFoundException : TenorException

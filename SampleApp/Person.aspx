@@ -15,6 +15,11 @@
         <asp:Label ID="lblEmail" runat="server" Text="Email: " />
         <asp:TextBox ID="txtEmail" runat="server" />
     </p>
+        <p>
+        Choose linked departments:
+        <asp:CheckBoxList ID="cblDepartments" runat="server" RepeatDirection="Vertical" RepeatLayout="Flow">
+        </asp:CheckBoxList>
+        </p>
     <p>
         Choose the items for this person:
         <asp:DropDownList ID="cmbCategory" runat="server" AutoPostBack="true" 

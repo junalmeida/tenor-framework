@@ -216,6 +216,9 @@ namespace Tenor.Data
 
     }
 
+    /// <summary>
+    /// Encapsulates all foreign key metadata.
+    /// </summary>
     internal sealed class ForeignKeyInfo : PropInfo
     {
         private ForeignKeyInfo()
@@ -297,20 +300,6 @@ namespace Tenor.Data
             }
         }
 
-        /*
-        Public ReadOnly Property ForeignPropertyName() As String
-            Get
-                'Return RelatedAttribute.ForeignPropertyName
-            End Get
-        End Property
-
-
-        Public ReadOnly Property LocalPropertyName() As String
-            Get
-                'Return RelatedAttribute.LocalPropertyName
-            End Get
-        End Property
-         */
 
         public FieldInfo[] ForeignFields
         {
@@ -355,6 +344,59 @@ namespace Tenor.Data
                 return res.ToArray();
             }
         }
+
+
+        public bool IsManyToMany 
+        {
+            get 
+            {
+                return IsArray && ManyToManyTable != null;
+            }
+        }
+
+        public string ManyToManyTable
+        {
+            get
+            {
+                foreach (ForeignKeyAttribute i in this.RelatedAttributes)
+                {
+                    if (!string.IsNullOrEmpty(i.ManyToManyTable))
+                        return i.ManyToManyTable;
+                }
+                return null;
+            }
+        }
+
+        public string[] LocalManyToManyFields
+        {
+            get
+            {
+                List<string> res = new List<string>();
+                foreach (ForeignKeyAttribute i in this.RelatedAttributes)
+                {
+                    if (string.IsNullOrEmpty(i.LocalFieldOnManyToManyTable))
+                        throw new InvalidManyToManyMappingException(this.RelatedProperty.DeclaringType, this.RelatedProperty.Name);
+                    res.Add(i.LocalFieldOnManyToManyTable);
+                }
+                return res.ToArray();
+            }
+        }
+
+        public string[] ForeignManyToManyFields
+        {
+            get
+            {
+                List<string> res = new List<string>();
+                foreach (ForeignKeyAttribute i in this.RelatedAttributes)
+                {
+                    if (string.IsNullOrEmpty(i.ForeignFieldOnManyToManyTable))
+                        throw new InvalidManyToManyMappingException(this.RelatedProperty.DeclaringType, this.RelatedProperty.Name);
+                    res.Add(i.ForeignFieldOnManyToManyTable);
+                }
+                return res.ToArray();
+            }
+        }
+
 
         public override string ToString()
         {
@@ -702,7 +744,10 @@ namespace Tenor.Data
 
     /// <summary>
     /// <para>Represents a foreign relationship. This attribute can be applied to a property that returns an instance of the foreign class, or a BLLCollection of the foreign class.</para>
-    /// If you have a composite relation, you can define more than one of this attribute to the same property.
+    /// <para>If you have a composite relation, you can define more than one of this attribute to the same property.</para>
+    /// <para>To define a Many-To-One relation, create a read-write property that returns an instance of the desired class, and set one or more of ForeignKeyAttribute to that property to map local and foreign properties.</para>
+    /// <para>To define a One-To-Many or Many-To-Many relation, create a read-only property that returns a collection of the desired class, and set one or more of ForeignKeyAttribute to that property to map local and foreign properties.</para>
+    /// <para>Many-To-Many relations needs a ForeignKeyAttribute with ManyToManyTable set with schema (when necessary) and table name, in addition of field mapping of that table.</para>
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = true)]
     public sealed class ForeignKeyAttribute : Attribute
@@ -719,11 +764,25 @@ namespace Tenor.Data
         {
             _ForeignPropertyName = foreignPropertyName;
             _LocalPropertyName = localPropertyName;
+        }
 
+
+        /// <param name="foreignPropertyName">A property declared on the foreign class. See <see cref="ForeignKeyAttribute"/> for details.</param>
+        /// <param name="localPropertyName">A property declared on this class.</param>
+        /// <param name="manyToManyTable">The name of many-to-many table used to make the relation.</param>
+        /// <param name="foreignFieldOnManyToManyTable">The foreign property correspondence field on many-to-many table.</param>
+        /// <param name="localFieldOnManyToManyTable">The local property correspondence field on many-to-many table.</param>
+        public ForeignKeyAttribute(string foreignPropertyName, string localPropertyName, string manyToManyTable, string foreignFieldOnManyToManyTable, string localFieldOnManyToManyTable)
+        {
+            _ForeignPropertyName = foreignPropertyName;
+            _LocalPropertyName = localPropertyName;
         }
 
         private string _ForeignPropertyName;
 
+        /// <summary>
+        /// A property declared on the foreign class. See <see cref="ForeignKeyAttribute"/> for details.
+        /// </summary>
         public string ForeignPropertyName
         {
             get
@@ -738,6 +797,9 @@ namespace Tenor.Data
 
 
         private string _LocalPropertyName;
+        /// <summary>
+        /// A property declared on this class.
+        /// </summary>
         public string LocalPropertyName
         {
             get
@@ -748,6 +810,38 @@ namespace Tenor.Data
             {
                 _LocalPropertyName = value;
             }
+        }
+
+        string manyToManyTableName;
+
+        /// <summary>
+        /// The name of many-to-many table used to make the relation.
+        /// </summary>
+        public string ManyToManyTable
+        {
+            get { return manyToManyTableName; }
+            set { manyToManyTableName = value; }
+        }
+
+
+        string localFieldOnManyToManyTable;
+
+        /// <summary>
+        /// The local property correspondence field on many-to-many table.
+        /// </summary>
+        public string LocalFieldOnManyToManyTable
+        {
+            get { return localFieldOnManyToManyTable; }
+            set { localFieldOnManyToManyTable = value; }
+        }
+        string foreignFieldOnManyToManyTable;
+        /// <summary>
+        /// The foreign property correspondence field on many-to-many table.
+        /// </summary>
+        public string ForeignFieldOnManyToManyTable
+        {
+            get { return foreignFieldOnManyToManyTable; }
+            set { foreignFieldOnManyToManyTable = value; }
         }
 
     }
