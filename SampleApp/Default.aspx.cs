@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections;
 using System.Configuration;
 using System.Data;
@@ -10,12 +11,19 @@ using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using Teste.TESTE;
 using Tenor.Data;
+using SampleApp.Business.Entities;
 
 public partial class _Default : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {
 
+        Person p = new Person();
+        p.EnableLazyLoading(true);
+        foreach (PersonItem i in p.PersonItemList)
+        {
+            
+        }
     }
 
     protected void btnCheck_Click(object sender, EventArgs e)

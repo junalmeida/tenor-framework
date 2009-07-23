@@ -1,3 +1,7 @@
+/* Copyright (c) 2009 Marcos Almeida Jr, Rachel Carvalho and Vinicius Barbosa.
+ *
+ * See the file license.txt for copying permission.
+ */
 using System.Diagnostics;
 using System;
 using System.Collections;

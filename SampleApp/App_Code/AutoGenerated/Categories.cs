@@ -97,9 +97,6 @@ namespace SampleApp.Business.Entities
         { }
 
 
-        public Category(bool lazyLoadingDisabled) :
-            base(lazyLoadingDisabled)
-        { }
 
 
         /// <summary>

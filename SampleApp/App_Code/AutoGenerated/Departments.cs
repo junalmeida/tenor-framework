@@ -73,10 +73,6 @@ namespace SampleApp.Business.Entities
         { }
 
 
-        public Department(bool lazyLoadingDisabled) :
-            base(lazyLoadingDisabled)
-        { }
-
 
         /// <summary>
         /// Loads Department from the database with these keys.

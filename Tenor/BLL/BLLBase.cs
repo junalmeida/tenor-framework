@@ -1,3 +1,7 @@
+/* Copyright (c) 2009 Marcos Almeida Jr, Rachel Carvalho and Vinicius Barbosa.
+ *
+ * See the file license.txt for copying permission.
+ */
 using System.Diagnostics;
 using System;
 using System.Collections;
@@ -43,15 +47,6 @@ namespace Tenor.BLL
         public BLLBase()
         {
             cacheKey = Tenor.Configuration.TenorModule.IdPrefix + this.GetType().FullName;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the BLLBase class. 
-        /// </summary>
-        /// <param name="lazyLoadingDisabled">On binding, if true, tries to load all the collections.</param>
-        public BLLBase(bool lazyLoadingDisabled) : this()
-        {
-            _IsLazyDisabled = lazyLoadingDisabled;
         }
         #endregion
 

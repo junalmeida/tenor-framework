@@ -1,4 +1,8 @@
-﻿using System;
+﻿/* Copyright (c) 2009 Marcos Almeida Jr, Rachel Carvalho and Vinicius Barbosa.
+ *
+ * See the file license.txt for copying permission.
+ */
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Tenor.Data;
@@ -33,9 +37,7 @@ namespace Tenor.BLL
 
 
             if (fields.Length == 0)
-            {
                 throw (new MissingPrimaryKeyException(this.GetType()));
-            }
 
             List<string> propertyNames = new List<string>();
             foreach (FieldInfo field in fields)
@@ -150,21 +152,27 @@ namespace Tenor.BLL
 
             dataRow = null;
 
+            
+            //TODO: Try to bind lazy properties at the same database round, and
+            //we need to define a way to choose which relations to load during bind.
 
+            /*
             if (!lazyLoading)
             {
                 foreach (ForeignKeyInfo f in foreignkeys)
                 {
-                    //TODO: Try to bind lazy properties at the same database round
                     this.LoadForeign(f.RelatedProperty.Name, true, null, connection);
                 }
             }
+             */
 
 
             if (ClassMetadata.Cacheable)
             {
                 SaveToCache();
             }
+            //Setting the lazy status.
+            this.EnableLazyLoading(lazyLoading);
         }
 
 

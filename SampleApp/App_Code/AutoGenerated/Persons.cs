@@ -180,10 +180,6 @@ namespace SampleApp.Business.Entities
         { }
 
 
-        public Person(bool lazyLoadingDisabled) :
-            base(lazyLoadingDisabled)
-        { }
-
 
         /// <summary>
         /// Loads Persons from the database with these keys.

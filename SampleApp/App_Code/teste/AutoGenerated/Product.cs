@@ -71,10 +71,6 @@ namespace Teste.TESTE
         public Product()
         { }
 
-        public Product(bool lazyLoadingDisabled) :
-            base(lazyLoadingDisabled)
-        { }
-
 		/// <summary>
 		/// Loads Product from the database with these keys.
 		/// </summary>

@@ -132,10 +132,6 @@ namespace SampleApp.Business.Entities
         { }
 
 
-        public Item(bool lazyLoadingDisabled) :
-            base(lazyLoadingDisabled)
-        { }
-
 
         /// <summary>
         /// Loads Items from the database with these keys.

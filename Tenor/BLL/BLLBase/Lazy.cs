@@ -1,4 +1,8 @@
-﻿using System;
+﻿/* Copyright (c) 2009 Marcos Almeida Jr, Rachel Carvalho and Vinicius Barbosa.
+ *
+ * See the file license.txt for copying permission.
+ */
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Tenor.Data;
@@ -24,9 +28,9 @@ namespace Tenor.BLL
         /// <param name="propertyName">Property name whose set will be called to set data.</param>
         /// <param name="lazyLoading">Defines weather to enable the lazy loading.</param>
         /// <remarks></remarks>
-        internal object LoadForeign(string propertyName, bool lazyLoading)
+        internal object LoadForeign(string propertyName)
         {
-            return LoadForeign(propertyName, lazyLoading, null, null);
+            return LoadForeign(propertyName, null, null);
         }
 
         /// <summary>
@@ -37,7 +41,7 @@ namespace Tenor.BLL
         /// <param name="connection">The connection.</param>
         /// <param name="returnType">The return type of the property.</param>
         /// <remarks></remarks>
-        internal object LoadForeign(string propertyName, bool lazyLoading, Type returnType, ConnectionStringSettings connection)
+        internal object LoadForeign(string propertyName, Type returnType, ConnectionStringSettings connection)
         {
             System.Reflection.PropertyInfo fieldP = null;
             if (returnType != null)
@@ -48,7 +52,7 @@ namespace Tenor.BLL
             {
                 fieldP = this.GetType().GetProperty(propertyName);
             }
-            return LoadForeign(fieldP, lazyLoading, connection);
+            return LoadForeign(fieldP, connection);
         }
 
         /// <summary>
@@ -58,17 +62,17 @@ namespace Tenor.BLL
         /// <param name="lazyLoading">Defines weather to enable the lazy loading.</param>
         /// <param name="connection">The connection.</param>
         /// <remarks></remarks>
-        internal object LoadForeign(System.Reflection.PropertyInfo property, bool lazyLoading, ConnectionStringSettings connection)
+        internal object LoadForeign(System.Reflection.PropertyInfo property, ConnectionStringSettings connection)
         {
             if (!propertyData.ContainsKey(property.Name))
             {
                 ForeignKeyInfo field = ForeignKeyInfo.Create(property);
                 if (field == null)
                     throw new Tenor.Data.MissingFieldException(property.DeclaringType, property.Name);
-
-                //Dim filters As String = ""
-                //Dim params As New List(Of Data.Parameter)
-
+                /*
+                Dim filters As String = ""
+                Dim params As New List(Of Data.Parameter)
+                */
                 TableInfo table = TableInfo.CreateTableInfo(field.ElementType);
                 if (connection == null)
                     connection = table.GetConnection();
@@ -82,50 +86,51 @@ namespace Tenor.BLL
                     {
                         field.ForeignFields[i].SetPropertyValue(instance, field.LocalFields[i].PropertyValue(this));
                     }
-                    instance.Bind(lazyLoading);
+                    instance.Bind();
                     field.SetPropertyValue(this, instance);
                     return instance;
                 }
 
-                //lets find objects, one-to-many and many-to-one
-                SearchOptions sc = new SearchOptions(field.ElementType);
-                sc.LazyLoading = lazyLoading;
-
-                if (field.IsManyToMany)
+                BLLBase[] instances;
+                if (lazyEnabled)
                 {
-                    throw new NotImplementedException();
+
+                    //lets find objects, one-to-many and many-to-one
+                    SearchOptions sc = new SearchOptions(field.ElementType);
+
+                    if (field.IsManyToMany)
+                    {
+                        throw new NotImplementedException();
+                    }
+                    else
+                    {
+                        //for each Foreign, join an AND operator to match foreign with local value.
+                        for (int i = 0; i <= field.ForeignFields.Length - 1; i++)
+                        {
+                            if (i > 0)
+                            {
+                                sc.Conditions.Add(Tenor.Data.LogicalOperator.And);
+                            }
+                            sc.Conditions.Add(
+                                /* the foreign property name */
+                                field.ForeignFields[i].RelatedProperty.Name,
+                                /* the local value */
+                                field.LocalFields[i].PropertyValue(this));
+
+                        }
+                        if (sc.Conditions.Count == 0)
+                        {
+                            throw (new TenorException());
+                        }
+                    }
+
+                    //lazy is enabled, go database, go!
+                    instances = Search(sc, connection);
                 }
                 else
                 {
-                    //for each Foreign, join an AND operator to match foreign with local value.
-                    for (int i = 0; i <= field.ForeignFields.Length - 1; i++)
-                    {
-                        if (i > 0)
-                        {
-                            sc.Conditions.Add(Tenor.Data.LogicalOperator.And);
-                        }
-                        sc.Conditions.Add(
-                            /* the foreign property name */
-                            field.ForeignFields[i].RelatedProperty.Name,
-                            /* the local value */
-                            field.LocalFields[i].PropertyValue(this));
-
-                    }
-                    if (sc.Conditions.Count == 0)
-                    {
-                        throw (new TenorException());
-                    }
-                }
-
-                BLLBase[] instances = Search(sc, connection);
-
-                //TODO: Review lazy load stuff.
-                if (this._IsLazyDisabled)
-                {
-                    foreach (BLLBase i in instances)
-                    {
-                        i._IsLazyDisabled = this._IsLazyDisabled;
-                    }
+                    //lazy is disabled, so, no data will be retrieved.
+                    instances = new BLLBase[] { };
                 }
 
 
@@ -230,7 +235,7 @@ namespace Tenor.BLL
                 if (fkInfo != null)
                 {
                     // this is an FK, so, route to fk loading
-                    return LoadForeign(fieldP, true, null);
+                    return LoadForeign(fieldP, null);
                 }
                 else
                 {
@@ -310,7 +315,7 @@ namespace Tenor.BLL
             }
         }
 
-
+        /*
         private bool _IsLazyDisabled = false;
         /// <summary>
         /// Returns a value indicating whether or not this class is serializing.
@@ -380,6 +385,41 @@ namespace Tenor.BLL
                 }
             }
         }
- 
+         */
+
+        /// <summary>
+        /// Lazy starts disabled.
+        /// </summary>
+        private bool lazyEnabled = false;
+        /// <summary>
+        /// Enables or disables lazy loading feature. 
+        /// <para>New instances will have lazy disabled by default, but when <see cref="Bind"/> is called, lazy feature will be enabled.</para>
+        /// <para>You can change lazy status whenever you want.</para>
+        /// </summary>
+        /// <param name="status">The status of lazy feature, if True, lazy will be enabled, otherwise, it will be disabled.</param>
+        public void EnableLazyLoading(bool status)
+        {
+            lazyEnabled = status;
+            //TODO: check if its valueable to remove null cache if properties were called with lazy disabled (when status == true).
+        }
+
+
+        /// <summary>
+        /// Clear the lazy cache off all properties in order to retrieve database values again.
+        /// </summary>
+        public void ResetLazyProperties()
+        {
+            propertyData.Clear();
+        }
+
+        /// <summary>
+        /// Clear the lazy cache for a specific property in order to retrieve database value again.
+        /// </summary>
+        /// <param name="propertyName">The name of the lazy property.</param>
+        public void ResetLazyProperty(string propertyName)
+        {
+            if (propertyData.ContainsKey(propertyName))
+                propertyData.Remove(propertyName);
+        }
     }
 }
