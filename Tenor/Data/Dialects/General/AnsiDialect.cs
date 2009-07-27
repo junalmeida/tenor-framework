@@ -391,6 +391,8 @@ namespace Tenor.Data.Dialects
             return CreateWhereSql(conditions, baseClass, joins, out parameters, true);
         }
 
+        internal const string ManyToManyAlias = "manyToManyTable";
+
         /// <summary>
         /// Creates the SQL that can filter the results. 
         /// </summary>
@@ -416,7 +418,31 @@ namespace Tenor.Data.Dialects
             {
                 object obj = conditions[i];
 
-                if (obj.GetType() == typeof(SearchCondition))
+                if (obj.GetType() == typeof(SearchConditionForManyToMany))
+                {
+                    //many-to-many specific.
+                    //the many to many table must be on the from clause.
+                    SearchConditionForManyToMany sc = (SearchConditionForManyToMany)obj;
+
+                 
+                    string parameterName = this.ParameterIdentifier + "value" + i.ToString();
+
+                    string where = "{0}.{1} = {2}";
+                    where = string.Format(where,
+                        sc.JoinAlias,
+                        this.CommandBuilder.QuoteIdentifier(sc.localField),
+                        parameterName
+                    );
+
+                    sqlWhere.Append(where);
+
+                    if (sc.Value != null)
+                    {
+                        parametersList.Add(new TenorParameter(parameterName, sc.Value));
+                    }
+
+                }
+                else if (obj.GetType() == typeof(SearchCondition))
                 {
                     SearchCondition sc = (SearchCondition)obj;
 
@@ -567,7 +593,17 @@ namespace Tenor.Data.Dialects
             StringBuilder sql = new StringBuilder();
             foreach (Join join in joins)
             {
-                string tableName = GetPrefixAndTable(join.ForeignTableInfo.Prefix, join.ForeignTableInfo.TableName) + " " + join.JoinAlias;
+
+                string tableName;
+                if (join.ForeignKey != null && join.ForeignKey.IsManyToMany)
+                {
+                    tableName = GetPrefixAndTable(join.ForeignKey.ManyToManyTablePrefix, join.ForeignKey.ManyToManyTable) + " " + join.JoinAlias;
+                }
+                else
+                {
+                    tableName = GetPrefixAndTable(join.ForeignTableInfo.Prefix, join.ForeignTableInfo.TableName) + " " + join.JoinAlias;
+                }
+
                 switch (join.JoinMode)
                 {
                     case JoinMode.InnerJoin:
@@ -582,18 +618,36 @@ namespace Tenor.Data.Dialects
                     default:
                         break;
                 }
+
+
+
                 if (string.IsNullOrEmpty(join.ParentAlias))
                 {
                     join.ParentAlias = CreateClassAlias(join.LocalTableInfo.RelatedTable);
                 }
                 StringBuilder fks = new StringBuilder();
-                for (int i = 0; i < join.ForeignKey.ForeignFields.Length; i++)
+                if (join.ForeignKey != null && join.ForeignKey.IsManyToMany)
                 {
-                    fks.Append(" AND ");
-                    fks.Append(join.ParentAlias + "." + CommandBuilder.QuoteIdentifier(join.ForeignKey.LocalFields[i].DataFieldName));
-                    fks.Append(" =  ");
-                    fks.Append(join.JoinAlias + "." + CommandBuilder.QuoteIdentifier(join.ForeignKey.ForeignFields[i].DataFieldName));
+                    //Many-to-many joins
+                    for (int i = 0; i < join.ForeignKey.ForeignFields.Length; i++)
+                    {
+                        fks.Append(" AND ");
+                        fks.Append(join.ParentAlias + "." + CommandBuilder.QuoteIdentifier(join.ForeignKey.ForeignFields[i].DataFieldName));
+                        fks.Append(" = ");
+                        fks.Append(join.JoinAlias + "." + CommandBuilder.QuoteIdentifier(join.ForeignKey.ForeignManyToManyFields[i]));
+                    }
                 }
+                else
+                {
+                    for (int i = 0; i < join.ForeignKey.ForeignFields.Length; i++)
+                    {
+                        fks.Append(" AND ");
+                        fks.Append(join.ParentAlias + "." + CommandBuilder.QuoteIdentifier(join.ForeignKey.LocalFields[i].DataFieldName));
+                        fks.Append(" =  ");
+                        fks.Append(join.JoinAlias + "." + CommandBuilder.QuoteIdentifier(join.ForeignKey.ForeignFields[i].DataFieldName));
+                    }
+                }
+
                 sql.Append(fks.Remove(0, 4));
                 sql.AppendLine();
             }
@@ -631,7 +685,6 @@ namespace Tenor.Data.Dialects
 
 
             ////' Automatic translation with a view. 
-
             /*
             if (instance.Localizable && CultureInfo.CurrentCulture.IetfLanguageTag != Configuration.Localization.DefaultCulture)
             {
@@ -647,6 +700,7 @@ namespace Tenor.Data.Dialects
 
             froms += " " + baseAlias;
             sql.AppendLine(" FROM " + froms);
+
             sql.AppendLine(joinsPart);
 
             if (!string.IsNullOrEmpty(wherePart))

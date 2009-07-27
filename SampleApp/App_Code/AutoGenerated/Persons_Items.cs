@@ -80,7 +80,7 @@ namespace SampleApp.Business.Entities
         /// <summary>
         /// Represents the relationship FK_Persons_Items_Items.
         /// </summary>
-        [ForeignKey(Item.Properties.ItemId, Properties.ItemId)]
+        [ForeignKeyField(Item.Properties.ItemId, Properties.ItemId)]
         public Item Item
         {
             get
@@ -101,7 +101,7 @@ namespace SampleApp.Business.Entities
         /// <summary>
         /// Represents the relationship FK_Persons_Items_Persons.
         /// </summary>
-        [ForeignKey(Person.Properties.PersonId, Properties.PersonId)]
+        [ForeignKeyField(Person.Properties.PersonId, Properties.PersonId)]
         public Person Person
         {
             get

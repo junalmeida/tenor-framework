@@ -16,9 +16,6 @@ namespace Tenor.Data
     /// </summary>
     public class SearchCondition
     {
-
-
-
         public SearchCondition(string joinAlias, string propertyName, object value)
             :
             this(joinAlias, propertyName, value, CompareOperator.Equal)
@@ -108,4 +105,32 @@ namespace Tenor.Data
             }
         }
     }
+
+    /*
+    internal class SearchConditionForManyToMany : SearchCondition
+    {
+        internal string localPropertyName;
+        internal string foreignField;
+        internal string localField;
+
+        internal SearchConditionForManyToMany(string alias, string foreignPropertyName, string localPropertyName, string foreignField, string localField, object value)
+            : base(alias, foreignPropertyName, value)
+        {
+            this.localPropertyName = localPropertyName;
+            this.localField = localField;
+            this.foreignField = foreignField;
+        }
+    }
+     */
+    internal class SearchConditionForManyToMany : SearchCondition
+    {
+        internal string localField;
+
+        internal SearchConditionForManyToMany(string alias, string localField, object value)
+            : base(alias, null, value)
+        {
+            this.localField = localField;
+        }
+    }
+
 }

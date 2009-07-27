@@ -95,15 +95,32 @@ namespace Tenor.BLL
                 if (lazyEnabled)
                 {
 
-                    //lets find objects, one-to-many and many-to-one
                     SearchOptions sc = new SearchOptions(field.ElementType);
 
                     if (field.IsManyToMany)
                     {
-                        throw new NotImplementedException();
+                        Join j = new Join(GeneralDialect.ManyToManyAlias);
+                        j.ForeignKey = field;
+                        j.LocalTableInfo = table;
+                        sc.Conditions.includes.Add(j);
+
+                        for (int i = 0; i <= field.ForeignFields.Length - 1; i++)
+                        {
+                            if (i > 0)
+                            {
+                                sc.Conditions.Add(Tenor.Data.LogicalOperator.And);
+                            }
+                            SearchConditionForManyToMany scmm = new SearchConditionForManyToMany(
+                                GeneralDialect.ManyToManyAlias,
+                                field.LocalManyToManyFields[i],
+                                field.LocalFields[i].PropertyValue(this));
+
+                            sc.Conditions.Add(scmm);
+                        }
                     }
                     else
                     {
+                        //lets find objects, one-to-many and many-to-one
                         //for each Foreign, join an AND operator to match foreign with local value.
                         for (int i = 0; i <= field.ForeignFields.Length - 1; i++)
                         {
@@ -120,6 +137,7 @@ namespace Tenor.BLL
                         }
                         if (sc.Conditions.Count == 0)
                         {
+                            //this should never happen.
                             throw (new TenorException());
                         }
                     }

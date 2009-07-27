@@ -24,6 +24,10 @@ public partial class _Default : System.Web.UI.Page
         {
             
         }
+        foreach (Department d in p.DepartmentList)
+        {
+        }
+
     }
 
     protected void btnCheck_Click(object sender, EventArgs e)

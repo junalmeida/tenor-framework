@@ -149,8 +149,7 @@ namespace SampleApp.Business.Entities
         /// <summary>
         /// Represents the relationship FK_Persons_Items_Persons.
         /// </summary>
-        [ForeignKey(PersonItem.Properties.PersonId, Properties.PersonId)]
-
+        [ForeignKeyField(PersonItem.Properties.PersonId, Properties.PersonId)]
         public BLLCollection<PersonItem> PersonItemList
         {
             get
@@ -161,9 +160,10 @@ namespace SampleApp.Business.Entities
 
 
         /// <summary>
-        /// Showing up N-N relations.
+        /// Example of N-N relations.
         /// </summary>
-        [ForeignKey(Department.Properties.DepartmentId, Person.Properties.PersonId, "person_department", "departmentid", "personid")]
+        [ForeignKey(ManyToManyTable="person_department")]
+        [ForeignKeyField(Department.Properties.DepartmentId, Person.Properties.PersonId, "DepartmentId", "PersonId")]
         public BLLCollection<Department> DepartmentList
         {
             get

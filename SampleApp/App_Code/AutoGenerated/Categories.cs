@@ -62,10 +62,8 @@ namespace SampleApp.Business.Entities
         /// <summary>
         /// Keeps a list of constants with property names.
         /// </summary>
-        public partial class Properties : object
+        public static partial class Properties : object
         {
-            private Properties() { }
-
             public const string CategoryId = "CategoryId";
             public const string Name = "Name";
         }
@@ -78,8 +76,7 @@ namespace SampleApp.Business.Entities
         /// <summary>
         /// Represents the relationship FK_Items_Categories.
         /// </summary>
-        [ForeignKey(Item.Properties.CategoryId, Properties.CategoryId)]
-
+        [ForeignKeyField(Item.Properties.CategoryId, Properties.CategoryId)]
         public BLLCollection<Item> ItemList
         {
             get

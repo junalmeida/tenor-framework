@@ -96,7 +96,7 @@ namespace SampleApp.Business.Entities
         /// <summary>
         /// Represents the relationship FK_Persons_Items_Items.
         /// </summary>
-        [ForeignKey(PersonItem.Properties.ItemId, Properties.ItemId)]
+        [ForeignKeyField(PersonItem.Properties.ItemId, Properties.ItemId)]
         public BLLCollection<PersonItem> PersonItemList
         {
             get
@@ -109,8 +109,7 @@ namespace SampleApp.Business.Entities
         /// <summary>
         /// Represents the relationship FK_Items_Categories.
         /// </summary>
-        [ForeignKey(Category.Properties.CategoryId, Properties.CategoryId)]
-
+        [ForeignKeyField(Category.Properties.CategoryId, Properties.CategoryId)]
         public Category Category
         {
             get

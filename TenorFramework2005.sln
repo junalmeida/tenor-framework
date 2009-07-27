@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tenor.Web.UI", "Tenor.Web.U
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "G:\...\SampleApp\", "SampleApp\", "{54987DF1-E68C-41A7-89D3-13A71CABFF87}"
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "g:\...\SampleApp\", "SampleApp\", "{54987DF1-E68C-41A7-89D3-13A71CABFF87}"
 	ProjectSection(WebsiteProperties) = preProject
 		ProjectReferences = "{5FAE8827-5AED-4918-9FFB-85B7E91901F5}|Tenor.dll;{87AB0401-5634-4DAE-8ED9-77DCE524FD80}|Tenor.Web.UI.dll;"
 		Debug.AspNetCompiler.VirtualPath = "/SampleApp"
@@ -40,7 +40,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Resources", "Resources", "{
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 	ProjectSection(SolutionItems) = preProject
+		Resources\mygen-template\BLLBased-beta.zeus = Resources\mygen-template\BLLBased-beta.zeus
 		license.txt = license.txt
+		Resources\mygen-template\TemplateSnippets.xml = Resources\mygen-template\TemplateSnippets.xml
 	EndProjectSection
 EndProject
 Global
