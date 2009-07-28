@@ -780,13 +780,13 @@ namespace Tenor.Data
             this.ManyToManyTable = manyToManyTable;
         }
 
-        ///// <param name="manyToManyTable">The name of many-to-many table used to make the relation.</param>
-        ///// <param name="manyToManyTablePrefix">Contains the database prefix of that table, usually the schema.</param>
-        //public ForeignKeyAttribute(string manyToManyTable, string manyToManyTablePrefix)
-        //{
-        //    this.ManyToManyTable = manyToManyTable;
-        //    this.ManyToManyTablePrefix = manyToManyTablePrefix;
-        //}
+        /// <param name="manyToManyTable">The name of many-to-many table used to make the relation.</param>
+        /// <param name="manyToManyTablePrefix">Contains the database prefix of that table, usually the schema.</param>
+        public ForeignKeyAttribute(string manyToManyTable, string manyToManyTablePrefix)
+        {
+            this.ManyToManyTable = manyToManyTable;
+            this.ManyToManyTablePrefix = manyToManyTablePrefix;
+        }
 
         string manyToManyTableName;
         string manyToManyTablePrefix;
@@ -808,44 +808,7 @@ namespace Tenor.Data
             get { return manyToManyTablePrefix; }
             set { manyToManyTablePrefix = value; }
         }
-
-
-        //the following region is used just to alert users that this class does not maps fields anymore.
-        #region "Obsolete Members"
-        const string errorMessage = "The purpose of this class has changed. Please use ForeignKeyFieldAttribute to map foreign key fields.";
-        [Obsolete(errorMessage, true), Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        public ForeignKeyAttribute(string foreignPropertyName, string localPropertyName)
-        {
-            throw new NotSupportedException(errorMessage);
-        }
-
-        [Obsolete(errorMessage, true), Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        public string ForeignPropertyName
-        {
-            get
-            {
-                throw new NotSupportedException(errorMessage);
-            }
-            set
-            {
-                throw new NotSupportedException(errorMessage);
-            }
-        }
-
-        [Obsolete(errorMessage, true), Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        public string LocalPropertyName
-        {
-            get
-            {
-                throw new NotSupportedException(errorMessage);
-            }
-            set
-            {
-                throw new NotSupportedException(errorMessage);
-            }
-        }
-        #endregion
-    }
+     }
 
     /// <summary>
     /// <para>Represents a foreign relationship pair.</para>
