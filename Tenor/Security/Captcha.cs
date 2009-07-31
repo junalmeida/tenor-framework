@@ -5,6 +5,7 @@ using System.IO;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
+using SystemMath = System.Math;
 namespace Tenor.Security
 {
     /// <summary>
@@ -195,8 +196,8 @@ namespace Tenor.Security
                 {
 
                     //' Adds a simple wave
-                    int newX = x + (int)(distortion * Math.Sin(Math.PI * y / 64.0));
-                    int newY = y + (int)(distortion * Math.Cos(Math.PI * x / 64.0));
+                    int newX = x + (int)(distortion * SystemMath.Sin(SystemMath.PI * y / 64.0));
+                    int newY = y + (int)(distortion * SystemMath.Cos(SystemMath.PI * x / 64.0));
                     if (newX < 0 || newX >= width)
                     {
                         newX = 0;

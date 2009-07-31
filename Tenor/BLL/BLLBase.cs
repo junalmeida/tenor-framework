@@ -24,19 +24,19 @@ using Tenor.Data.Dialects;
 namespace Tenor.BLL
 {
 
+    ///// <seealso cref="zeus.htm"/> 
     /// <summary>
     /// This is the base entity class. All of your class must inherit directly or indirectly from this
     /// class.
-    /// Children classes gain functions to read and save data to a DataBase.
+    /// <para>Children classes gain functions to read and save data to a DataBase.</para>
     /// </summary>
     /// <remarks>
     /// You can use the MyGeneration Template on file BLLBased.zeus to create your classes.
     /// </remarks>
-    ///// <seealso cref="zeus.htm"/> 
     [Serializable()]
     public abstract partial class BLLBase : object
     {
-        internal Transaction transaction;
+        internal Transaction tenorTransaction;
 
         #region "Ctors"
         private readonly string cacheKey;
@@ -228,12 +228,12 @@ namespace Tenor.BLL
                     secondQuery = string.Format(dialect.IdentityAfterQuery, autoKeyField.InsertSQL);
 
                 object result;
-                if (this.transaction != null && this.transaction.transaction != null)
+                if (this.tenorTransaction != null && this.tenorTransaction.dbTransaction != null)
                 {
-                    result = Helper.ExecuteQuery(query, parameters, transaction.transaction, dialect);
+                    result = Helper.ExecuteQuery(query, parameters, tenorTransaction.dbTransaction, dialect);
 
                     if (!string.IsNullOrEmpty(secondQuery))
-                        result = Helper.ExecuteQuery(secondQuery, null, transaction.transaction, dialect);
+                        result = Helper.ExecuteQuery(secondQuery, null, tenorTransaction.dbTransaction, dialect);
                 }
                 else
                 {
@@ -375,8 +375,8 @@ namespace Tenor.BLL
             TenorParameter[] parameters = null;
             string query = dialect.CreateDeleteSql(this.GetType(), conditions, joins, out parameters);
 
-            if (this.transaction != null && this.transaction.transaction != null)
-                Helper.ExecuteQuery(query, parameters, transaction.transaction, dialect);
+            if (this.tenorTransaction != null && this.tenorTransaction.dbTransaction != null)
+                Helper.ExecuteQuery(query, parameters, tenorTransaction.dbTransaction, dialect);
             else
                 Helper.UpdateData(query, parameters, connection);
         }
@@ -410,8 +410,8 @@ namespace Tenor.BLL
                     throw new TenorException("You can have only items with the same type.");
 
                 if (transaction == null)
-                    transaction = item.transaction;
-                else if (transaction != item.transaction)
+                    transaction = item.tenorTransaction;
+                else if (transaction != item.tenorTransaction)
                     throw new TenorException("You can have only items on the same transaction.");
 
 
@@ -431,8 +431,8 @@ namespace Tenor.BLL
             TenorParameter[] parameters = null;
             string query = dialect.CreateDeleteSql(type, conditions, joinList.ToArray(), out parameters);
 
-            if (transaction != null && transaction.transaction != null)
-                Helper.ExecuteQuery(query, parameters, transaction.transaction, dialect);
+            if (transaction != null && transaction.dbTransaction != null)
+                Helper.ExecuteQuery(query, parameters, transaction.dbTransaction, dialect);
             else
                 Helper.UpdateData(query, parameters, connection);
 

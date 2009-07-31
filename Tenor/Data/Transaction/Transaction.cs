@@ -7,9 +7,11 @@ using System.Data.Common;
 
 namespace Tenor.Data
 {
+    /// <summary>
+    /// Represents a database transaction.
+    /// </summary>
     public class Transaction : IDisposable
     {
-        
 
         public Transaction()
         {
@@ -27,14 +29,21 @@ namespace Tenor.Data
 
         private ConnectionStringSettings connection;
 
-
+        /// <summary>
+        /// Includes an instance to this transaction.
+        /// </summary>
+        /// <param name="item">A BLLBase instance.</param>
         public void Include(BLLBase item)
         {
             if (item == null)
                 throw new ArgumentNullException("item");
-            item.transaction = this;
+            item.tenorTransaction = this;
         }
 
+        /// <summary>
+        /// Includes a list of BLLBase to this transaction.
+        /// </summary>
+        /// <param name="items"></param>
         public void Include(IList<BLLBase> items)
         {
             if (items == null)
@@ -45,7 +54,7 @@ namespace Tenor.Data
 
         private DbProviderFactory factory;
         private DbConnection conn;
-        internal DbTransaction transaction;
+        internal DbTransaction dbTransaction;
 
         private void Begin()
         {
@@ -53,34 +62,49 @@ namespace Tenor.Data
             conn = factory.CreateConnection();
             conn.ConnectionString = connection.ConnectionString;
             conn.Open();
-            transaction = conn.BeginTransaction();
+            dbTransaction = conn.BeginTransaction();
         }
 
+        /// <summary>
+        /// Commits previous operations of included classes to the database.
+        /// </summary>
         public void Commit()
         {
-            transaction.Commit();
+            dbTransaction.Commit();
             this.Dispose();
         }
 
+        /// <summary>
+        /// Undoes previous operations.
+        /// </summary>
         public void Rollback()
         {
-            transaction.Rollback();
+            dbTransaction.Rollback();
             this.Dispose();
         }
 
+        /// <summary>
+        /// Undoes previous operations and throws the following exception.
+        /// </summary>
+        /// <param name="ex">A Exception to be thrown.</param>
         public void Rollback(Exception ex)
         {
             Rollback();
-            throw ex;
+            if (ex != null)
+                throw ex;
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or
+        /// resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             try
             {
 
-                transaction.Dispose();
-                transaction = null;
+                dbTransaction.Dispose();
+                dbTransaction = null;
                 if (conn.State == System.Data.ConnectionState.Open)
                     conn.Close();
                 conn.Dispose();

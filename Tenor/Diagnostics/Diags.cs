@@ -670,7 +670,7 @@ namespace Tenor.Diagnostics
                                 string value;
                                 if (p.Value is bool)
                                 {
-                                    value = Math.Abs(System.Convert.ToInt32(p.Value)).ToString();
+                                    value = System.Math.Abs(System.Convert.ToInt32(p.Value)).ToString();
                                 }
                                 else if (p.Value is string)
                                 {

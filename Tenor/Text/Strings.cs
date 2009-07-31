@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using cript = System.Security.Cryptography;
 using System.ComponentModel;
-
+using SystemMath = System.Math;
 
 namespace Tenor.Text
 {
@@ -173,7 +173,7 @@ namespace Tenor.Text
                 case Text.PasswordStyle.FiveCharsOrNumbers:
                     for (int i = 1; i <= 5; i++)
                     {
-                        int tipo = (int)(Math.Round(randomchar.NextDouble() * 100));
+                        int tipo = (int)(SystemMath.Round(randomchar.NextDouble() * 100));
                         if (tipo < 50)
                         {
                             password += (char)(randomchar.Next(AscA, AscZ));

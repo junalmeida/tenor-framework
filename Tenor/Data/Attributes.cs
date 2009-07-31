@@ -375,6 +375,14 @@ namespace Tenor.Data
             }
         }
 
+        internal bool PersistDataOnSave
+        {
+            get
+            {
+                return IsManyToMany && this.ForeignKeyDefinition.PersistManyToManyOnSave;
+            }
+        }
+
         internal string ManyToManyTablePrefix
         {
             get
@@ -645,9 +653,8 @@ namespace Tenor.Data
     }
 
     /// <summary>
-    /// Represents a a table field.
+    /// Represents a table field mapping.
     /// </summary>
-    /// <remarks></remarks>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public sealed class FieldAttribute : Attribute
     {
@@ -767,8 +774,10 @@ namespace Tenor.Data
 
     /// <summary>
     /// <para>Represents a foreign relationship. This attribute can be applied to a property that returns an instance of the foreign class, or a <see cref="Tenor.BLL.BLLCollection"/> of the foreign class.</para>
-    /// <para>Use this in conjunction with <see cref="ForeignKeyFieldAttribute"/>.</para>
     /// </summary>
+    /// <remarks>
+    /// <para>Use this with <see cref="ForeignKeyFieldAttribute"/> instances.</para>
+    /// </remarks>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public sealed class ForeignKeyAttribute : Attribute
     {
@@ -808,15 +817,28 @@ namespace Tenor.Data
             get { return manyToManyTablePrefix; }
             set { manyToManyTablePrefix = value; }
         }
+
+        bool persistOnSave = true;
+
+        /// <summary>
+        /// Determines if this relation will be persisted upon a save operation. Defaults to true.
+        /// </summary>
+        public bool PersistManyToManyOnSave
+        {
+            get { return persistOnSave; }
+            set { persistOnSave = value; }
+        }
      }
 
     /// <summary>
     /// <para>Represents a foreign relationship pair.</para>
+    /// </summary>
+    /// <remarks>
     /// <para>If you have a composite relation, you can define more than one of this attribute to the same property.</para>
     /// <para>To define a Many-To-One relation, create a read-write property that returns an instance of the desired class, and set one or more of ForeignKeyFieldAttribute to that property to map local and foreign properties.</para>
     /// <para>To define a One-To-Many or Many-To-Many relation, create a read-only property that returns a collection of the desired class, and set one or more of ForeignKeyFieldAttribute to that property to map local and foreign properties.</para>
     /// <para>Many-To-Many relations needs a ForeignKeyAttribute with ManyToManyTable set with schema (when necessary) and table name, in addition of field mapping of that table.</para>
-    /// </summary>
+    /// </remarks>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = true)]
     public sealed class ForeignKeyFieldAttribute : Attribute
     {

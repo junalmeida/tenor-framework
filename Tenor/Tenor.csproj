@@ -96,6 +96,7 @@
     <Compile Include="Drawing\Image.cs" />
     <Compile Include="IO\BinaryFile.cs" />
     <Compile Include="Mail\MailMessage.cs" />
+    <Compile Include="Math\Numbers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Security\Captcha.cs" />
     <Compile Include="Security\CaptchaSpVoice.cs" />

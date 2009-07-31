@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tenor.Web.UI", "Tenor.Web.U
 		Release.AspNetCompiler.Debug = "False"
 	EndProjectSection
 EndProject
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "g:\...\SampleApp\", "SampleApp\", "{54987DF1-E68C-41A7-89D3-13A71CABFF87}"
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "G:\...\SampleApp\", "SampleApp\", "{54987DF1-E68C-41A7-89D3-13A71CABFF87}"
 	ProjectSection(WebsiteProperties) = preProject
 		ProjectReferences = "{5FAE8827-5AED-4918-9FFB-85B7E91901F5}|Tenor.dll;{87AB0401-5634-4DAE-8ED9-77DCE524FD80}|Tenor.Web.UI.dll;"
 		Debug.AspNetCompiler.VirtualPath = "/SampleApp"
@@ -45,7 +45,26 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Resources", "Resources", "{
 		Resources\mygen-template\TemplateSnippets.xml = Resources\mygen-template\TemplateSnippets.xml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject", "TestProject\TestProject.csproj", "{AB17566A-8973-404F-9F7F-C54067B20E72}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2B3D0CCC-2E8C-40D9-9B79-C4495DFA763B}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+	ProjectSection(SolutionItems) = preProject
+		localtestrun.testrunconfig = localtestrun.testrunconfig
+		TenorFramework2005.vsmdi = TenorFramework2005.vsmdi
+	EndProjectSection
+EndProject
 Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = TenorFramework2005.vsmdi
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -91,6 +110,18 @@ Global
 		{54987DF1-E68C-41A7-89D3-13A71CABFF87}.Release|Any CPU.Build.0 = Debug|.NET
 		{54987DF1-E68C-41A7-89D3-13A71CABFF87}.Release|Mixed Platforms.ActiveCfg = Debug|.NET
 		{54987DF1-E68C-41A7-89D3-13A71CABFF87}.Release|Mixed Platforms.Build.0 = Debug|.NET
+		{AB17566A-8973-404F-9F7F-C54067B20E72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB17566A-8973-404F-9F7F-C54067B20E72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB17566A-8973-404F-9F7F-C54067B20E72}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{AB17566A-8973-404F-9F7F-C54067B20E72}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{AB17566A-8973-404F-9F7F-C54067B20E72}.MonoRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{AB17566A-8973-404F-9F7F-C54067B20E72}.MonoRelease|Any CPU.Build.0 = Release|Any CPU
+		{AB17566A-8973-404F-9F7F-C54067B20E72}.MonoRelease|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{AB17566A-8973-404F-9F7F-C54067B20E72}.MonoRelease|Mixed Platforms.Build.0 = Release|Any CPU
+		{AB17566A-8973-404F-9F7F-C54067B20E72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB17566A-8973-404F-9F7F-C54067B20E72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB17566A-8973-404F-9F7F-C54067B20E72}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{AB17566A-8973-404F-9F7F-C54067B20E72}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
