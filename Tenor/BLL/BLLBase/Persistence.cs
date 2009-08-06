@@ -324,6 +324,53 @@ namespace Tenor.BLL
             return sql;
         }
 
+        /// <summary>
+        /// Persists a list on the database. 
+        /// </summary>
+        /// <param name="propertyName">The name of a many-to-many property on this class.</param>
+        public virtual void SaveList(string propertyName)
+        {
+            if (propertyName == null) throw new ArgumentNullException("propertyName");
+            System.Reflection.PropertyInfo prop = this.GetType().GetProperty(propertyName);
+            if (prop == null)
+                throw new ArgumentException(string.Format("The property '{0}' was not found on '{1}'.", propertyName, this.GetType().FullName), "propertyName");
+            ForeignKeyInfo fkInfo = ForeignKeyInfo.Create(prop);
+            if (fkInfo == null)
+                throw new InvalidMappingException(this.GetType());
 
+            if (!fkInfo.IsManyToMany)
+                throw new TenorException("Currently, only many-to-many relations are supported");
+
+
+            TableInfo table = TableInfo.CreateTableInfo(this.GetType());
+            if (table == null)
+                throw new InvalidMappingException(this.GetType());
+
+            ConnectionStringSettings connection = (tenorTransaction == null ?table.GetConnection() : tenorTransaction.Connection);
+            GeneralDialect dialect = DialectFactory.CreateDialect(connection);
+
+            TenorParameter[] parameters;
+
+            if (dialect.GetType() == typeof(Tenor.Data.Dialects.TSql.TSql))
+            {
+                //oh god! do you have a better idea on where to write this code?
+                System.Data.SqlClient.SqlBulkCopy bulk;
+                if (tenorTransaction == null)
+                    bulk = new System.Data.SqlClient.SqlBulkCopy(tenorTransaction.Connection.ConnectionString);
+                else
+                    bulk = new System.Data.SqlClient.SqlBulkCopy((System.Data.SqlClient.SqlConnection)tenorTransaction.dbTransaction.Connection, System.Data.SqlClient.SqlBulkCopyOptions.Default, (System.Data.SqlClient.SqlTransaction)tenorTransaction.dbTransaction);
+
+                bulk.DestinationTableName = dialect.GetPrefixAndTable(fkInfo.ManyToManyTablePrefix, fkInfo.ManyToManyTable);
+                System.Data.DataTable data;
+                dialect.CreateSaveList(table, fkInfo, this, out data);
+                bulk.WriteToServer(data);
+            }
+            else
+            {
+                string sql = dialect.CreateSaveListSql(table, fkInfo, this, out parameters);
+                DbTransaction t = (tenorTransaction == null ? null : tenorTransaction.dbTransaction);
+                Helper.ExecuteQuery(sql, parameters, t, dialect);
+            }
+        }
     }
 }

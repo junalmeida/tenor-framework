@@ -46,9 +46,7 @@ namespace Tenor
             [NonSerialized()]
             private BLLBase _Parent;
             [NonSerialized()]
-            private FieldInfo[] ForeignFields;
-            [NonSerialized()]
-            private FieldInfo[] LocalFields;
+            private ForeignKeyInfo ForeignKey;
 
             internal BLLCollection(BLLBase Parent, string RelatedPropertyName)
             {
@@ -73,12 +71,9 @@ namespace Tenor
                 {
                     prop = Parent.GetType().GetProperty(RelatedPropertyName);
                 }
-                ForeignKeyInfo fkInfo = ForeignKeyInfo.Create(prop);
-                if (fkInfo == null)
+                ForeignKey = ForeignKeyInfo.Create(prop);
+                if (ForeignKey == null)
                     throw new MissingForeignKeyException(prop.DeclaringType, prop.Name);
-
-                ForeignFields = fkInfo.ForeignFields;
-                LocalFields = fkInfo.LocalFields;
 
                 list = new List<T>();
             }
@@ -89,10 +84,11 @@ namespace Tenor
             {
                 list.Add(item);
 
-                for (int i = 0; i <= ForeignFields.Length - 1; i++)
-                {
-                    ForeignFields[i].SetPropertyValue(item, LocalFields[i].PropertyValue(_Parent));
-                }
+                if (!ForeignKey.IsManyToMany)
+                    for (int i = 0; i <= ForeignKey.ForeignFields.Length - 1; i++)
+                    {
+                        ForeignKey.ForeignFields[i].SetPropertyValue(item, ForeignKey.LocalFields[i].PropertyValue(_Parent));
+                    }
             }
 
             public void AddRange(IEnumerable<T> items)

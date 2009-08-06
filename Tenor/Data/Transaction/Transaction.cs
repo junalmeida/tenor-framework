@@ -29,6 +29,11 @@ namespace Tenor.Data
 
         private ConnectionStringSettings connection;
 
+        public ConnectionStringSettings Connection
+        {
+            get { return connection; }
+        }
+
         /// <summary>
         /// Includes an instance to this transaction.
         /// </summary>
@@ -70,6 +75,8 @@ namespace Tenor.Data
         /// </summary>
         public void Commit()
         {
+            if (dbTransaction == null)
+                throw new ObjectDisposedException(this.GetType().Name);
             dbTransaction.Commit();
             this.Dispose();
         }
@@ -79,6 +86,8 @@ namespace Tenor.Data
         /// </summary>
         public void Rollback()
         {
+            if (dbTransaction == null)
+                throw new ObjectDisposedException(this.GetType().Name);
             dbTransaction.Rollback();
             this.Dispose();
         }

@@ -199,7 +199,6 @@ namespace Tenor.BLL
             return paramPrefix + field.DataFieldName.Replace(" ", "_");
         }
 
-
         /// <summary>
         /// Saves this entity data on the persistence layer.
         /// </summary>
@@ -230,14 +229,11 @@ namespace Tenor.BLL
                 object result;
                 if (this.tenorTransaction != null && this.tenorTransaction.dbTransaction != null)
                 {
-                    result = Helper.ExecuteQuery(query, parameters, tenorTransaction.dbTransaction, dialect);
-
-                    if (!string.IsNullOrEmpty(secondQuery))
-                        result = Helper.ExecuteQuery(secondQuery, null, tenorTransaction.dbTransaction, dialect);
+                    result = Helper.ExecuteQuery(query + Helper.GoStatement + secondQuery, parameters, tenorTransaction.dbTransaction, dialect);
                 }
                 else
                 {
-                    result = Helper.UpdateData(query, parameters, connection, secondQuery);
+                    result = Helper.UpdateData(query + Helper.GoStatement + secondQuery, parameters, connection);
                 }
 
                 if (!isUpdate && autoKeyField != null)

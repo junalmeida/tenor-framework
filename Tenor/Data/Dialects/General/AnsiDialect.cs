@@ -5,6 +5,7 @@ using System.Data.Common;
 using System.Collections.Specialized;
 using System.Reflection;
 using Tenor.BLL;
+using System.Collections;
 
 namespace Tenor.Data.Dialects
 {
@@ -935,6 +936,127 @@ namespace Tenor.Data.Dialects
             }
 
             return res;
+        }
+
+
+        internal string CreateSaveListSql(TableInfo baseClass, ForeignKeyInfo fkInfo, BLLBase baseInstance, out TenorParameter[] parameters)
+        {
+            string tableName = GetPrefixAndTable(fkInfo.ManyToManyTablePrefix, fkInfo.ManyToManyTable);
+            List<object> localValues = new List<object>();
+            foreach (FieldInfo f in fkInfo.LocalFields)
+            {
+                localValues.Add(f.PropertyValue(baseInstance));
+            }
+
+            IList values = (IList)fkInfo.PropertyValue(baseInstance);
+
+
+            object[,] propertyValues = new object[values.Count, fkInfo.ForeignManyToManyFields.Length];
+
+            for (int i = 0; i < values.Count; i++)
+            {
+                for (int j = 0; j < fkInfo.ForeignFields.Length; j++)
+                {
+                    propertyValues[i, j] = fkInfo.ForeignFields[j].PropertyValue(values[i]);
+                }
+            }
+
+            return CreateSaveListSql(tableName, fkInfo.LocalManyToManyFields, localValues.ToArray(), fkInfo.ForeignManyToManyFields, propertyValues, out parameters);
+        }
+
+
+        internal virtual void CreateSaveList(TableInfo baseClass, ForeignKeyInfo fkInfo, BLLBase baseInstance, out System.Data.DataTable data)
+        {
+            throw new NotSupportedException();
+        }
+
+        /// <summary>
+        /// Generates the SQL code necessary to persist N:N lists.
+        /// </summary>
+        /// <param name="tableNameExpression">Contains the table name and prefix already escaped.</param>
+        /// <param name="localFields">Contains an array of local related field names.</param>
+        /// <param name="localValues">Contains an array of local related values.</param>
+        /// <param name="foreignFields">Contains an array of foreign related field names.</param>
+        /// <param name="propertyValues">Contains a multi-dimensional array with values to be inserted. The first dimension will be the row number, the second dimension will be the foreign field array index.</param>
+        /// <param name="parameters">Outputs a list of TenorParameters created.</param>
+        /// <returns>A String with sql query that can update the database.</returns>
+        public virtual string CreateSaveListSql(string tableNameExpression, string[] localFields, object[] localValues, string[] foreignFields, object[,] propertyValues, out TenorParameter[] parameters)
+        {
+            const string localParamPrefix = "local{0}";
+            List<TenorParameter> parameterList = new List<TenorParameter>();
+
+            for (int i = 0; i < localValues.Length; i++)
+            {
+                TenorParameter p = new TenorParameter(string.Format(localParamPrefix, i), localValues[i]);
+                parameterList.Add(p);
+            }
+
+            StringBuilder sql = new StringBuilder();
+            sql.Append(string.Format("DELETE FROM {0} WHERE ", tableNameExpression));
+            for (int i = 0; i < localFields.Length; i++)
+            {
+                if (i > 0)
+                    sql.Append(this.GetOperator(LogicalOperator.And));
+                sql.Append(this.CommandBuilder.QuoteIdentifier(localFields[i]));
+                sql.Append(" = ");
+                sql.Append(this.ParameterIdentifier + string.Format(localParamPrefix, i));
+            }
+            sql.AppendLine();
+            sql.AppendLine("GO");
+
+            sql.Append(string.Format("INSERT INTO {0} (", tableNameExpression));
+            for (int i = 0; i < localFields.Length; i++)
+            {
+                if (i > 0)
+                    sql.Append(", ");
+                sql.Append(this.CommandBuilder.QuoteIdentifier(localFields[i]));
+            }
+            for (int i = 0; i < foreignFields.Length; i++)
+            {
+                sql.Append(", ");
+                sql.Append(this.CommandBuilder.QuoteIdentifier(foreignFields[i]));
+            }
+            sql.AppendLine(") VALUES ");
+
+            for (int i = 0; i <= propertyValues.GetUpperBound(0); i++)
+            {
+                if (i > 0)
+                    sql.Append(", ");
+
+                sql.Append("(");
+                for (int j = 0; j < localFields.Length; j++)
+                {
+                    if (j > 0)
+                        sql.Append(", ");
+                    sql.Append(this.ParameterIdentifier + string.Format(localParamPrefix, j));
+                }
+                for (int j = 0; j < foreignFields.Length; j++)
+                {
+                    sql.Append(", ");
+
+                    string value = string.Empty;
+                    Type type = propertyValues[i, j].GetType();
+                    if (type == typeof(string) || type == typeof(DateTime))
+                    {
+                        value = string.Format("'{0}'", propertyValues[i, j].ToString().Replace("'", "''"));
+                    }
+                    else if (type.IsEnum)
+                    {
+                        //TODO: Support converting enums to char and strings for legacy databases.
+                        value = ((long)propertyValues[i, j]).ToString();
+                    }
+                    else
+                    {
+                        value = propertyValues[i, j].ToString();
+                    }
+
+                    sql.Append(value);
+                }
+                sql.AppendLine(")");
+            }
+
+            parameters = parameterList.ToArray();
+            return sql.ToString();
         }
 
 

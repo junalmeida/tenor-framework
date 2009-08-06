@@ -1,3 +1,7 @@
+/* Copyright (c) 2009 Marcos Almeida Jr, Rachel Carvalho and Vinicius Barbosa.
+ *
+ * See the file license.txt for copying permission.
+ */
 using System.Diagnostics;
 using System;
 using System.Collections;
@@ -16,7 +20,7 @@ namespace Tenor.Data
     /// Represents a set of methods that implements persistence code.
     /// </summary>
     /// <remarks></remarks>
-    public sealed class Helper
+    public static class Helper
     {
 
         /// <summary>
@@ -24,12 +28,6 @@ namespace Tenor.Data
         /// TODO: Consider moving this to ConfigurationManager.
         /// </summary>
         public const int DefaultTimeout = 260;
-
-        /// <summary>
-        /// This is an static class.
-        /// </summary>
-        private Helper()
-        { }
 
         /// <summary>
         /// Creates the DbProviderFactory. 
@@ -230,7 +228,7 @@ namespace Tenor.Data
         {
             return UpdateData(query, parameters, null);
         }
-
+        /*
         /// <summary>
         /// Executes a query on the database.
         /// </summary>
@@ -241,6 +239,7 @@ namespace Tenor.Data
         {
             return UpdateData(query, parameters, connection, (string)null);
         }
+         */
 
         /// <summary>
         /// Executes a query on the database.
@@ -248,8 +247,7 @@ namespace Tenor.Data
         /// <param name="query">A SQL query to execute.</param>
         /// <param name="parameters">Parameters collection.</param>
         /// <param name="connection">The connection.</param>
-        /// <param name="secondSql">The second sql query to be executed.</param>
-        public static object UpdateData(string query, TenorParameter[] parameters, ConnectionStringSettings connection, string secondSql)
+        public static object UpdateData(string query, TenorParameter[] parameters, ConnectionStringSettings connection)
         {
             if (connection == null)
                 connection = BLL.BLLBase.SystemConnection;
@@ -261,13 +259,12 @@ namespace Tenor.Data
             DbTransaction transaction = null;
             try
             {
+
                 conn.Open();
                 transaction = conn.BeginTransaction();
+
                 object retVal = ExecuteQuery(query, parameters, transaction, dialect);
-                if (!string.IsNullOrEmpty(secondSql))
-                {
-                    retVal = ExecuteQuery(secondSql, null, transaction, dialect);
-                }
+
                 transaction.Commit();
                 return retVal;
             }
@@ -285,26 +282,14 @@ namespace Tenor.Data
                 conn.Dispose();
             }
         }
+        internal const string GoStatement = "\r\nGO\r\n";
 
         internal static object ExecuteQuery(string sql, TenorParameter[] parameters, DbTransaction transaction, GeneralDialect dialect)
         {
             DbConnection conn = transaction.Connection;
             DbCommand cmd;
 
-            object returnValue = 0;
 
-            cmd = conn.CreateCommand();
-            cmd.Transaction = transaction;
-            cmd.CommandText = sql;
-            cmd.CommandTimeout = Helper.DefaultTimeout;
-            
-            if (parameters != null)
-            {
-                foreach (TenorParameter param in parameters)
-                {
-                    cmd.Parameters.Add(param.ToDbParameter(dialect.Factory));
-                }
-            }
 
             try
             {
@@ -349,11 +334,47 @@ namespace Tenor.Data
                 Diagnostics.Debug.HandleError(ex);
             }
 
-            object result = cmd.ExecuteScalar();
-            if (result != null && !result.Equals(DBNull.Value))
+            string[] querys = sql.Split(new string[] { GoStatement }, StringSplitOptions.RemoveEmptyEntries);
+            object returnValue = 0;
+            bool mustCommit = false;
+            if (transaction == null)
             {
-                returnValue = result;
+                transaction = conn.BeginTransaction();
+                mustCommit = true;
             }
+            try
+            {
+                foreach (string query in querys)
+                {
+                    cmd = conn.CreateCommand();
+
+                    cmd.Transaction = transaction;
+                    cmd.CommandText = query;
+                    cmd.CommandTimeout = Helper.DefaultTimeout;
+
+                    if (parameters != null)
+                    {
+                        foreach (TenorParameter param in parameters)
+                        {
+                            cmd.Parameters.Add(param.ToDbParameter(dialect.Factory));
+                        }
+                    }
+                    object result = cmd.ExecuteScalar();
+                    if (result != null && !result.Equals(DBNull.Value))
+                    {
+                        returnValue = result;
+                    }
+                }
+            }
+            catch
+            {
+                if (mustCommit)
+                    transaction.Rollback();
+                throw;
+            }
+
+            if (mustCommit)
+                transaction.Commit();
 
             /*else if (dialect != null && (!string.IsNullOrEmpty(dialect.IdentityBeforeQuery) || !string.IsNullOrEmpty(dialect.IdentityAfterQuery)) && !dialect.GetIdentityOnSameCommand)
             {
