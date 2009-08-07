@@ -965,7 +965,7 @@ namespace Tenor.Data.Dialects
         }
 
 
-        internal virtual void CreateSaveList(TableInfo baseClass, ForeignKeyInfo fkInfo, BLLBase baseInstance, out System.Data.DataTable data)
+        internal virtual string CreateSaveList(TableInfo baseClass, ForeignKeyInfo fkInfo, BLLBase baseInstance, out TenorParameter[] parameters, out System.Data.DataTable data)
         {
             throw new NotSupportedException();
         }

@@ -85,7 +85,7 @@ namespace Tenor.Data.Dialects.TSql
         }
 
 
-        internal override void CreateSaveList(TableInfo baseClass, ForeignKeyInfo fkInfo, Tenor.BLL.BLLBase baseInstance, out System.Data.DataTable data)
+        internal override string CreateSaveList(TableInfo baseClass, ForeignKeyInfo fkInfo, Tenor.BLL.BLLBase baseInstance, out TenorParameter[] parameters, out System.Data.DataTable data)
         {
             IList values = (IList)fkInfo.PropertyValue(baseInstance);
 
@@ -115,6 +115,29 @@ namespace Tenor.Data.Dialects.TSql
                 }
                 data.Rows.Add(row);
             }
+            const string localParamPrefix = "local{0}";
+
+            List<TenorParameter> parame = new List<TenorParameter>();
+            string tableExpression = GetPrefixAndTable(fkInfo.ManyToManyTablePrefix, fkInfo.ManyToManyTable);
+            // generating delete statement
+            StringBuilder sql = new StringBuilder();
+            sql.Append(string.Format("DELETE FROM {0} WHERE ", tableExpression));
+            for (int i = 0; i < fkInfo.LocalManyToManyFields.Length; i++)
+            {
+                if (i > 0)
+                    sql.Append(this.GetOperator(LogicalOperator.And));
+                sql.Append(this.CommandBuilder.QuoteIdentifier(fkInfo.LocalManyToManyFields[i]));
+                sql.Append(" = ");
+                sql.Append(this.ParameterIdentifier + string.Format(localParamPrefix, i));
+
+                TenorParameter p = new TenorParameter(string.Format(localParamPrefix, i), fkInfo.LocalFields[i].PropertyValue(baseInstance));
+                parame.Add(p);
+            }
+            parameters = parame.ToArray();
+            sql.AppendLine();
+            return sql.ToString();
+
+
         }
     }
 }

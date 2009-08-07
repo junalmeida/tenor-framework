@@ -350,25 +350,26 @@ namespace Tenor.BLL
             GeneralDialect dialect = DialectFactory.CreateDialect(connection);
 
             TenorParameter[] parameters;
+            DbTransaction t = (tenorTransaction == null ? null : tenorTransaction.dbTransaction);
 
             if (dialect.GetType() == typeof(Tenor.Data.Dialects.TSql.TSql))
             {
                 //oh god! do you have a better idea on where to write this code?
                 System.Data.SqlClient.SqlBulkCopy bulk;
-                if (tenorTransaction == null)
+                if (t == null)
                     bulk = new System.Data.SqlClient.SqlBulkCopy(tenorTransaction.Connection.ConnectionString);
                 else
-                    bulk = new System.Data.SqlClient.SqlBulkCopy((System.Data.SqlClient.SqlConnection)tenorTransaction.dbTransaction.Connection, System.Data.SqlClient.SqlBulkCopyOptions.Default, (System.Data.SqlClient.SqlTransaction)tenorTransaction.dbTransaction);
+                    bulk = new System.Data.SqlClient.SqlBulkCopy((System.Data.SqlClient.SqlConnection)t.Connection, System.Data.SqlClient.SqlBulkCopyOptions.Default, (System.Data.SqlClient.SqlTransaction)t);
 
                 bulk.DestinationTableName = dialect.GetPrefixAndTable(fkInfo.ManyToManyTablePrefix, fkInfo.ManyToManyTable);
                 System.Data.DataTable data;
-                dialect.CreateSaveList(table, fkInfo, this, out data);
+                string sql = dialect.CreateSaveList(table, fkInfo, this, out parameters, out data);
+                Helper.ExecuteQuery(sql, parameters, t, dialect);
                 bulk.WriteToServer(data);
             }
             else
             {
                 string sql = dialect.CreateSaveListSql(table, fkInfo, this, out parameters);
-                DbTransaction t = (tenorTransaction == null ? null : tenorTransaction.dbTransaction);
                 Helper.ExecuteQuery(sql, parameters, t, dialect);
             }
         }

@@ -32,16 +32,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{A68E76D2-36DE-46D5-B779-FA9AFD961640}"
 	ProjectSection(SolutionItems) = preProject
 		Resources\docs\concepts.xml = Resources\docs\concepts.xml
-		Resources\docs\generatingtemplates.xml = Resources\docs\generatingtemplates.xml
-		Resources\docs\glossary.xml = Resources\docs\glossary.xml
 		Resources\docs\reference-guide.shfb = Resources\docs\reference-guide.shfb
-		Resources\docs\reference.xml = Resources\docs\reference.xml
-		Resources\docs\sampleapp.xml = Resources\docs\sampleapp.xml
-		Resources\docs\settingwebconfig.xml = Resources\docs\settingwebconfig.xml
-		Resources\docs\thetenormodule.xml = Resources\docs\thetenormodule.xml
-		Resources\docs\transactions.xml = Resources\docs\transactions.xml
-		Resources\docs\usinglayers.xml = Resources\docs\usinglayers.xml
-		Resources\docs\Walkthrough.xml = Resources\docs\Walkthrough.xml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "template", "template", "{4B0039AE-5D37-4849-9691-39C6C54710B8}"

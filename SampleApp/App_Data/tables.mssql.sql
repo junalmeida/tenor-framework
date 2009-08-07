@@ -1,8 +1,10 @@
 ﻿-- Drop
 DROP TABLE PersonItem;
 DROP TABLE Items;
-DROP TABLE Persons;
 DROP TABLE Categories;
+DROP TABLE Person_Department;
+DROP TABLE Departments;
+DROP TABLE Persons;
 
 GO
 
@@ -39,6 +41,19 @@ CREATE TABLE PersonItem (
 	FOREIGN KEY(PersonId) REFERENCES Persons (PersonId),
     PRIMARY KEY (ItemId, PersonId)
 );
+
+CREATE TABLE  Departments (
+  DepartmentId int NOT NULL PRIMARY KEY IDENTITY,
+  Name varchar(50) NOT NULL
+) 
+
+CREATE TABLE Person_Department (
+  PersonId int NOT NULL,
+  DepartmentId int NOT NULL,
+  PRIMARY KEY (PersonId,DepartmentId),
+	FOREIGN KEY(PersonId) REFERENCES Persons (PersonId),
+	FOREIGN KEY(DepartmentId) REFERENCES Departments (DepartmentId),
+) 
 
 GO
 

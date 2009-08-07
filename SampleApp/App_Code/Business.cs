@@ -151,7 +151,7 @@ public class Business
     public void TestMethod()
     {
         //Loads a person and adds 3 departments to its N:N relation.
-        Person p = new Person(10);
+        Person p = new Person(2);
         p.Name += "Changed";
 
         foreach (Department depto in p.DepartmentList)

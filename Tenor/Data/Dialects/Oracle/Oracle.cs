@@ -109,5 +109,85 @@ namespace Tenor.Data.Dialects.Oracle
 
             return alias;
         }
+
+
+        public override string CreateSaveListSql(string tableNameExpression, string[] localFields, object[] localValues, string[] foreignFields, object[,] propertyValues, out TenorParameter[] parameters)
+        {
+            const string localParamPrefix = "local{0}";
+            List<TenorParameter> parameterList = new List<TenorParameter>();
+
+            for (int i = 0; i < localValues.Length; i++)
+            {
+                TenorParameter p = new TenorParameter(string.Format(localParamPrefix, i), localValues[i]);
+                parameterList.Add(p);
+            }
+
+            StringBuilder sql = new StringBuilder();
+            sql.Append(string.Format("DELETE FROM {0} WHERE ", tableNameExpression));
+            for (int i = 0; i < localFields.Length; i++)
+            {
+                if (i > 0)
+                    sql.Append(this.GetOperator(LogicalOperator.And));
+                sql.Append(this.CommandBuilder.QuoteIdentifier(localFields[i]));
+                sql.Append(" = ");
+                sql.Append(this.ParameterIdentifier + string.Format(localParamPrefix, i));
+            }
+            sql.AppendLine(LineEnding);
+            sql.AppendLine("GO");
+
+            sql.Append(string.Format("INSERT INTO {0} (", tableNameExpression));
+            for (int i = 0; i < localFields.Length; i++)
+            {
+                if (i > 0)
+                    sql.Append(", ");
+                sql.Append(this.CommandBuilder.QuoteIdentifier(localFields[i]));
+            }
+            for (int i = 0; i < foreignFields.Length; i++)
+            {
+                sql.Append(", ");
+                sql.Append(this.CommandBuilder.QuoteIdentifier(foreignFields[i]));
+            }
+            sql.AppendLine(") ");
+
+            for (int i = 0; i <= propertyValues.GetUpperBound(0); i++)
+            {
+                if (i > 0)
+                    sql.Append(" UNION ALL ");
+
+                sql.Append(" SELECT ");
+                for (int j = 0; j < localFields.Length; j++)
+                {
+                    if (j > 0)
+                        sql.Append(", ");
+                    sql.Append(this.ParameterIdentifier + string.Format(localParamPrefix, j));
+                }
+                for (int j = 0; j < foreignFields.Length; j++)
+                {
+                    sql.Append(", ");
+
+                    string value = string.Empty;
+                    Type type = propertyValues[i, j].GetType();
+                    if (type == typeof(string) || type == typeof(DateTime))
+                    {
+                        value = string.Format("'{0}'", propertyValues[i, j].ToString().Replace("'", "''"));
+                    }
+                    else if (type.IsEnum)
+                    {
+                        //TODO: Support converting enums to char and strings for legacy databases.
+                        value = ((long)propertyValues[i, j]).ToString();
+                    }
+                    else
+                    {
+                        value = propertyValues[i, j].ToString();
+                    }
+
+                    sql.Append(value);
+                }
+                sql.AppendLine(" FROM DUAL ");
+            }
+            sql.Append(LineEnding);
+            parameters = parameterList.ToArray();
+            return sql.ToString();
+        }
     }
 }

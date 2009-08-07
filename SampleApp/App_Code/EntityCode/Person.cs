@@ -116,22 +116,17 @@ namespace SampleApp.Business.Entities
         END;
         */
 
-        // SQLite
-        // We've found no way of having the special field return any numeric type other than Int64 :(
-        //[SpecialField("ifnull(length(photo), 0)")]
-	    // End SQLite
+        long photoLength;
+        // SQLite - We've found no way of having the special field return any numeric type other than Int64 :(
+        [SpecialField("ifnull(length(photo), 0)")]
 
-        // SQL Server
+        //SQL Server
         //[SpecialField("isnull(len(photo), 0)")]
-
         // Oracle
         //[SpecialField("nvl(dbms_lob.getlength(\"Photo\"), 0)")]
         
         // Oracle
         //[SpecialField("COALESCE(length(\"Photo\"), 0)")]
-
-        long photoLength;
-        [SpecialField("COALESCE(length(\"Photo\"), 0)")]
         public long PhotoLength
         {
             get { return photoLength; }

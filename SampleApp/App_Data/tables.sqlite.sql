@@ -1,6 +1,8 @@
 -- Drop
 DROP TABLE "main"."PersonItem";
 DROP TABLE "main"."Items";
+DROP TABLE "main"."Person_Department";
+DROP TABLE "main"."Departments";
 DROP TABLE "main"."Persons";
 DROP TABLE "main"."Categories";
 
@@ -38,6 +40,20 @@ CREATE TABLE "main"."PersonItem" (
     PRIMARY KEY ("ItemId", "PersonId")
 );
 
+CREATE TABLE "main"."Departments" 
+(
+  "DepartmentId" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  "Name" varchar(50) NOT NULL
+); 
+
+CREATE TABLE "main"."Person_Department" 
+(
+  "PersonId" INTEGER NOT NULL,
+  "DepartmentId" INTEGER NOT NULL,
+  PRIMARY KEY ("PersonId","DepartmentId"),
+	FOREIGN KEY("PersonId") REFERENCES "Persons" ("PersonId"),
+	FOREIGN KEY("DepartmentId") REFERENCES "Departments" ("DepartmentId"),
+); 
 
 -- Data
 INSERT INTO "Categories" ("Name")
