@@ -85,6 +85,15 @@ public partial class _Person : System.Web.UI.Page
             if (!string.IsNullOrEmpty(cmbMaritalStatus.SelectedValue))
                 p.MaritalStatus = (MaritalStatus)int.Parse(cmbMaritalStatus.SelectedValue);
 
+            foreach (ListItem li in cblDepartments.Items)
+            {
+                if (li.Selected)
+                {
+                    Department dept = new Department();
+                    dept.DepartmentId = int.Parse(li.Value);
+                    p.DepartmentList.Add(dept);
+                }
+            }
 
             if (fupPhoto.HasFile)
             {
@@ -120,10 +129,10 @@ public partial class _Person : System.Web.UI.Page
             cblDepartments.DataTextField = Department.Properties.Name;
             cblDepartments.DataValueField = Department.Properties.DepartmentId;
             cblDepartments.DataBind();
-            cblDepartments.Items.Insert(0, new ListItem("Select an item", string.Empty));
         }
         catch (ApplicationException ex)
-        {
+        { 
+            throw;
             Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
         }
     }
@@ -140,6 +149,7 @@ public partial class _Person : System.Web.UI.Page
         }
         catch (ApplicationException ex)
         {
+            throw;
             Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
         }
     }

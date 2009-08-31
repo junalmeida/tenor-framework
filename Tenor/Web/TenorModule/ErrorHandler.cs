@@ -48,7 +48,7 @@ namespace Tenor.Web
 
             foreach (HttpModuleAction m in sec.Modules)
             {
-                if (m.Type.StartsWith(httpModule.AssemblyQualifiedName))
+                if (m.Type.StartsWith(string.Format("{0}, {1}", httpModule.FullName, httpModule.Assembly.GetName().Name)))
                 {
                     return true;
                 }

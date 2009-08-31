@@ -112,7 +112,7 @@ namespace SampleApp.Business.Entities
         /// </summary>
         public static Department[] Search(ConditionCollection conditions, SortingCollection sorting, bool distinct, int limit, ConnectionStringSettings connection)
         {
-            SearchOptions sc = new SearchOptions(typeof(Person));
+            SearchOptions sc = new SearchOptions(typeof(Department));
             if (conditions != null)
                 sc.Conditions = conditions;
             if (sorting != null)

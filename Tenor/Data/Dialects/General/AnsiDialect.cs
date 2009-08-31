@@ -1004,55 +1004,59 @@ namespace Tenor.Data.Dialects
             sql.AppendLine();
             sql.AppendLine("GO");
 
-            sql.Append(string.Format("INSERT INTO {0} (", tableNameExpression));
-            for (int i = 0; i < localFields.Length; i++)
+            if (propertyValues.GetUpperBound(0) > -1) // if we have values on the list
             {
-                if (i > 0)
-                    sql.Append(", ");
-                sql.Append(this.CommandBuilder.QuoteIdentifier(localFields[i]));
-            }
-            for (int i = 0; i < foreignFields.Length; i++)
-            {
-                sql.Append(", ");
-                sql.Append(this.CommandBuilder.QuoteIdentifier(foreignFields[i]));
-            }
-            sql.AppendLine(") VALUES ");
 
-            for (int i = 0; i <= propertyValues.GetUpperBound(0); i++)
-            {
-                if (i > 0)
-                    sql.Append(", ");
-
-                sql.Append("(");
-                for (int j = 0; j < localFields.Length; j++)
+                sql.Append(string.Format("INSERT INTO {0} (", tableNameExpression));
+                for (int i = 0; i < localFields.Length; i++)
                 {
-                    if (j > 0)
+                    if (i > 0)
                         sql.Append(", ");
-                    sql.Append(this.ParameterIdentifier + string.Format(localParamPrefix, j));
+                    sql.Append(this.CommandBuilder.QuoteIdentifier(localFields[i]));
                 }
-                for (int j = 0; j < foreignFields.Length; j++)
+                for (int i = 0; i < foreignFields.Length; i++)
                 {
                     sql.Append(", ");
-
-                    string value = string.Empty;
-                    Type type = propertyValues[i, j].GetType();
-                    if (type == typeof(string) || type == typeof(DateTime))
-                    {
-                        value = string.Format("'{0}'", propertyValues[i, j].ToString().Replace("'", "''"));
-                    }
-                    else if (type.IsEnum)
-                    {
-                        //TODO: Support converting enums to char and strings for legacy databases.
-                        value = ((long)propertyValues[i, j]).ToString();
-                    }
-                    else
-                    {
-                        value = propertyValues[i, j].ToString();
-                    }
-
-                    sql.Append(value);
+                    sql.Append(this.CommandBuilder.QuoteIdentifier(foreignFields[i]));
                 }
-                sql.AppendLine(")");
+                sql.AppendLine(") VALUES ");
+
+                for (int i = 0; i <= propertyValues.GetUpperBound(0); i++)
+                {
+                    if (i > 0)
+                        sql.Append(", ");
+
+                    sql.Append("(");
+                    for (int j = 0; j < localFields.Length; j++)
+                    {
+                        if (j > 0)
+                            sql.Append(", ");
+                        sql.Append(this.ParameterIdentifier + string.Format(localParamPrefix, j));
+                    }
+                    for (int j = 0; j < foreignFields.Length; j++)
+                    {
+                        sql.Append(", ");
+
+                        string value = string.Empty;
+                        Type type = propertyValues[i, j].GetType();
+                        if (type == typeof(string) || type == typeof(DateTime))
+                        {
+                            value = string.Format("'{0}'", propertyValues[i, j].ToString().Replace("'", "''"));
+                        }
+                        else if (type.IsEnum)
+                        {
+                            //TODO: Support converting enums to char and strings for legacy databases.
+                            value = ((long)propertyValues[i, j]).ToString();
+                        }
+                        else
+                        {
+                            value = propertyValues[i, j].ToString();
+                        }
+
+                        sql.Append(value);
+                    }
+                    sql.AppendLine(")");
+                }
             }
 
             parameters = parameterList.ToArray();

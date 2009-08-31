@@ -18,7 +18,7 @@ public partial class _Default : System.Web.UI.Page
     protected void Page_Load(object sender, EventArgs e)
     {
         Business b = new Business();
-        b.TestMethod();
+        //b.TestMethod();
     }
 
     protected void btnCheck_Click(object sender, EventArgs e)

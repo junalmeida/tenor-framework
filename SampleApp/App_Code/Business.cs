@@ -43,8 +43,10 @@ public class Business
             //Calling entity's Save method. Validation is done automatically on Validate method.
             t.Include(p);
             p.Save(p.PersonId > 0);
+            p.SaveList("DepartmentList");
 
             //Persisting lists
+            p.EnableLazyLoading(true);
             t.Include(p.PersonItemList.ToArray());
             PersonItem.Delete(p.PersonItemList.ToArray());
 
@@ -56,6 +58,7 @@ public class Business
                 t.Include(pi);
                 pi.Save(false);
             }
+
 
             t.Commit();
 
@@ -72,7 +75,7 @@ public class Business
         }
     }
 
-    public object ListDepartments()
+    public IList<Department> ListDepartments()
     {
         try
         {
