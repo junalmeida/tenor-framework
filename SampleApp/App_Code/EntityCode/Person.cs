@@ -119,11 +119,11 @@ namespace SampleApp.Business.Entities
         int photoLength;
         // MYSQL AND
         // SQLite - We've found no way of having the special field return any numeric type other than Int64 :(
-        [SpecialField("ifnull(length(photo), 0)")]
+        //[SpecialField("ifnull(length(photo), 0)")]
 
 
         //SQL Server
-        //[SpecialField("isnull(len(photo), 0)")]
+        [SpecialField("isnull(len(photo), 0)")]
         // Oracle
         //[SpecialField("nvl(dbms_lob.getlength(\"Photo\"), 0)")]
         
