@@ -183,7 +183,7 @@ namespace Tenor.Data
 
 
 
-        internal List<ForeignKeyInfo> eagerLoading = new List<ForeignKeyInfo>();
+        internal Dictionary<ForeignKeyInfo, string> eagerLoading = new Dictionary<ForeignKeyInfo, string>();
 
         /// <summary>
         /// Includes the property on the eager loading list.
@@ -198,7 +198,10 @@ namespace Tenor.Data
             if (fkInfo == null)
                 throw new MissingForeignKeyException(baseType, foreignPropertyName);
 
-            eagerLoading.Add(fkInfo);
+            //TODO: Find a better alias name.
+            string alias = foreignPropertyName;
+
+            eagerLoading.Add(fkInfo, alias);
         }
 
     }

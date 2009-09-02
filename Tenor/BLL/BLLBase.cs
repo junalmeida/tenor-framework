@@ -119,8 +119,13 @@ namespace Tenor.BLL
 
                 List<FieldInfo[]> meta = new List<FieldInfo[]>();
                 meta.Add(BLLBase.GetPrimaryKeys(searchOptions.baseType));
-                foreach (ForeignKeyInfo fkInfo in searchOptions.eagerLoading)
-                    meta.Add(BLLBase.GetPrimaryKeys(fkInfo.ElementType));
+
+                List<ForeignKeyInfo> keys = new List<ForeignKeyInfo>(); //i need this to get fks by index
+                foreach (ForeignKeyInfo fkInfo in searchOptions.eagerLoading.Keys)
+                {
+                    keys.Add(fkInfo);
+                    meta.Add(BLLBase.GetPrimaryKeys(fkInfo.ElementType)); //pks of each eagerloading
+                }
 
                 List<string>[] lastPk = new List<string>[meta.Count];
                 for (int i = 0; i < meta.Count; i++)
@@ -130,12 +135,12 @@ namespace Tenor.BLL
                 {
                     for(int i = 0; i < meta.Count; i++)
                     {
-                        ForeignKeyInfo key = (i == 0 ? null : searchOptions.eagerLoading[i - 1]);
+                        ForeignKeyInfo key = (i == 0 ? null : keys[i - 1]);
 
                         string currentPKs = string.Empty;
                         foreach (FieldInfo fi in meta[i])
                         {
-                            string alias = (i == 0 ? fi.DataFieldName : key.RelatedProperty.Name + fi.DataFieldName);
+                            string alias = (i == 0 ? fi.DataFieldName : searchOptions.eagerLoading[key] + fi.DataFieldName);
                             currentPKs += dr[alias].ToString();
                         }
 
@@ -143,7 +148,7 @@ namespace Tenor.BLL
                         {
                             lastPk[i].Add(currentPKs);
                             BLLBase instance = (BLLBase)Activator.CreateInstance((i == 0 ? searchOptions.baseType : key.ElementType));
-                            instance.Bind(searchOptions.LazyLoading, (i == 0 ? null : key.RelatedProperty.Name), null, dr);
+                            instance.Bind(searchOptions.LazyLoading, (i == 0 ? null : searchOptions.eagerLoading[key]), null, dr);
 
                             if (key == null)
                                 instances.Add(instance);
@@ -902,9 +907,9 @@ namespace Tenor.BLL
             GetPlainJoins(options.Conditions, list);
 
             if (dialect != null) 
-                foreach (ForeignKeyInfo fkInfo in options.eagerLoading)
+                foreach (ForeignKeyInfo fkInfo in options.eagerLoading.Keys)
                 {
-                    Join j = new Join(dialect.CreateClassAlias(fkInfo.ElementType)); //check the alias.
+                    Join j = new Join(options.eagerLoading[fkInfo]);
                     j.ParentAlias = null; //will be used in future to make joins of other levels.
                     j.JoinMode = JoinMode.LeftJoin; //left? are you right?
                     j.PropertyName = fkInfo.RelatedProperty.Name;

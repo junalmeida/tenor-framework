@@ -313,7 +313,7 @@ namespace Tenor.BLL
 
 
             //adding values from eager loading types
-            foreach (ForeignKeyInfo fkInfo in searchOptions.eagerLoading)
+            foreach (ForeignKeyInfo fkInfo in searchOptions.eagerLoading.Keys)
             {
                 fieldInfos = new List<FieldInfo>();
                 spFields = new List<SpecialFieldInfo>();
@@ -329,7 +329,7 @@ namespace Tenor.BLL
                 //joins: joins was made on GetPlainJoins.
 
                 sqlFields.Append(", ");
-                sqlFields.Append(dialect.CreateSelectSql(fkInfo.ElementType, fkInfo.RelatedProperty.Name, fieldInfos.ToArray(), spFields.ToArray()));
+                sqlFields.Append(dialect.CreateSelectSql(fkInfo.ElementType, searchOptions.eagerLoading[fkInfo], fieldInfos.ToArray(), spFields.ToArray()));
             }
 
 

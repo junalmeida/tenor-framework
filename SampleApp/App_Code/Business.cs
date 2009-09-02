@@ -154,6 +154,8 @@ public class Business
     public void TestMethod()
     {
         SearchOptions so = new SearchOptions(typeof(Item));
+        so.Conditions.Add("Name", "First category", "c");
+        so.Conditions.Include("Category", "c");
         so.LoadAlso("PersonItemList");
         so.LoadAlso("Category");
         Item[] items = (Item[])so.Execute();

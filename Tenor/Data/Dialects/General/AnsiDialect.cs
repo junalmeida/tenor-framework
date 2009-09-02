@@ -498,20 +498,25 @@ namespace Tenor.Data.Dialects
         }
 
 
-        internal string CreateSelectSql(Type baseClass, string baseFieldAlias, FieldInfo[] fields, SpecialFieldInfo[] spFields)
+        internal string CreateSelectSql(Type baseClass, string tableAlias, FieldInfo[] fields, SpecialFieldInfo[] spFields)
         {
             //TODO: Consider removing baseClass parameter.
             StringBuilder fieldsSql = new StringBuilder();
+            bool prepend = true;
+            if (string.IsNullOrEmpty(tableAlias))
+            {
+                tableAlias = CreateClassAlias(baseClass);
+                prepend = false;
+            }
 
-            string tableAlias = CreateClassAlias(baseClass);
             foreach (FieldInfo f in fields)
             {
                 string identifier = CommandBuilder.QuoteIdentifier(f.DataFieldName);
 
                 string fieldAlias = f.DataFieldName;
-                if (!string.IsNullOrEmpty(baseFieldAlias))
+                if (prepend)
                 {
-                    fieldAlias = baseFieldAlias + fieldAlias;
+                    fieldAlias = tableAlias + fieldAlias;
                 }
                 
                 //TODO :Check if we can consider all fields from the parameter.
@@ -533,12 +538,14 @@ namespace Tenor.Data.Dialects
             if (spFields != null)
                 foreach (SpecialFieldInfo f in spFields)
                 {
-                    string alias = CreateClassAlias(f.RelatedProperty.DeclaringType);
   
                     fieldsSql.Append(", ");
-                    fieldsSql.Append(GetSpecialFieldExpression(alias, f));
+                    fieldsSql.Append(GetSpecialFieldExpression(tableAlias, f));
  
-                    string falias = baseFieldAlias + f.Alias;
+                    string falias = f.Alias;
+                    if (prepend)
+                        falias = tableAlias + falias;
+
                     fieldsSql.Append(" AS ").Append(falias);
                 }
             fieldsSql = fieldsSql.Remove(0, 2);
