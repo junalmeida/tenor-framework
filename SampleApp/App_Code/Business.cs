@@ -153,6 +153,13 @@ public class Business
 
     public void TestMethod()
     {
+        SearchOptions so = new SearchOptions(typeof(Item));
+        so.LoadAlso("PersonItemList");
+        so.LoadAlso("Category");
+        Item[] items = (Item[])so.Execute();
+        items.ToString();
+
+        /*
         //Loads a person and adds 3 departments to its N:N relation.
         Person p = new Person(2);
         p.Name += "Changed";
@@ -189,6 +196,6 @@ public class Business
             return;
         }
         t.Commit();
-
+        */
     }
 }

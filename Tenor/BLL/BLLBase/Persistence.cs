@@ -56,7 +56,7 @@ namespace Tenor.BLL
         /// <remarks></remarks>
         protected void Bind(bool lazyLoading, string[] filterMembers)
         {
-            Bind(lazyLoading, filterMembers, null);
+            Bind(lazyLoading, null, filterMembers, null);
         }
 
 
@@ -67,7 +67,7 @@ namespace Tenor.BLL
         /// <param name="lazyLoading">Defines weather lazy loading is enabled.</param>
         /// <param name="filterMembers">Property members used to filter data.</param>
         /// <param name="dataRow">A System.Data.DataRow to bind this instance. When this parameter is not set, Tenor return data from the database.</param>
-        protected virtual void Bind(bool lazyLoading, string[] filterMembers, System.Data.DataRow dataRow)
+        protected virtual void Bind(bool lazyLoading, string baseFieldAlias, string[] filterMembers, System.Data.DataRow dataRow)
         {
             bool fromSearch = (dataRow != null);
             //dataRow is null when Bind is called from LoadForeing or directly from user code.
@@ -141,12 +141,14 @@ namespace Tenor.BLL
             {
                 if (f.PrimaryKey || !f.LazyLoading)
                 {
-                    f.SetPropertyValue(this, dataRow[f.DataFieldName]);
+                    string alias = baseFieldAlias + f.DataFieldName;
+                    f.SetPropertyValue(this, dataRow[alias]);
                 }
             }
             foreach (SpecialFieldInfo f in spfields)
             {
-                f.SetPropertyValue(this, dataRow[f.Alias]);
+                string alias = baseFieldAlias + f.Alias;
+                f.SetPropertyValue(this, dataRow[alias]);
             }
 
 
@@ -278,7 +280,7 @@ namespace Tenor.BLL
                 throw (new ArgumentNullException("searchOptions", "You must specify a SearchOptions instance."));
             }
 
-            TableInfo table = TableInfo.CreateTableInfo(searchOptions._BaseClass);
+            TableInfo table = TableInfo.CreateTableInfo(searchOptions.baseType);
 
             if (connection == null)
             {
@@ -288,35 +290,66 @@ namespace Tenor.BLL
 
             //Read Joins
 
-            Join[] joins = GetPlainJoins(searchOptions.Conditions, searchOptions._BaseClass);
+            List<Join> joins = new List<Join>();
+            joins.AddRange(GetPlainJoins(searchOptions, dialect));
+
+
 
             //Get necessary fields to create the select statement.
+            StringBuilder sqlFields = new StringBuilder();
             List<FieldInfo> fieldInfos = new List<FieldInfo>();
-            foreach (FieldInfo f in BLLBase.GetFields(searchOptions._BaseClass))
+            List<SpecialFieldInfo> spFields = new List<SpecialFieldInfo>();
+
+
+
+            foreach (FieldInfo f in BLLBase.GetFields(searchOptions.baseType))
             {
                 if (f.PrimaryKey || !f.LazyLoading)
                     fieldInfos.Add(f);
             }
-            SpecialFieldInfo[] spFields = BLLBase.GetSpecialFields(searchOptions._BaseClass);
+            spFields.AddRange(BLLBase.GetSpecialFields(searchOptions.baseType));
+            sqlFields.Append(dialect.CreateSelectSql(table.RelatedTable, null, fieldInfos.ToArray(), spFields.ToArray()));
 
-            string sqlFields = dialect.CreateSelectSql(table.RelatedTable, fieldInfos.ToArray(), spFields);
+
+
+            //adding values from eager loading types
+            foreach (ForeignKeyInfo fkInfo in searchOptions.eagerLoading)
+            {
+                fieldInfos = new List<FieldInfo>();
+                spFields = new List<SpecialFieldInfo>();
+
+                //select 
+                foreach (FieldInfo f in BLLBase.GetFields(fkInfo.ElementType))
+                {
+                    if (f.PrimaryKey || !f.LazyLoading)
+                        fieldInfos.Add(f);
+                }
+                //spfields
+                spFields.AddRange(BLLBase.GetSpecialFields(fkInfo.ElementType));
+                //joins: joins was made on GetPlainJoins.
+
+                sqlFields.Append(", ");
+                sqlFields.Append(dialect.CreateSelectSql(fkInfo.ElementType, fkInfo.RelatedProperty.Name, fieldInfos.ToArray(), spFields.ToArray()));
+            }
+
+
 
 
             //Sorting
             string appendToSelect = null;
-            string sqlSort = dialect.CreateSortSql(searchOptions.Sorting, table.RelatedTable, joins, searchOptions.Distinct, out appendToSelect);
+            string sqlSort = dialect.CreateSortSql(searchOptions.Sorting, table.RelatedTable, joins.ToArray(), searchOptions.Distinct, out appendToSelect);
             if (!string.IsNullOrEmpty(appendToSelect))
-                sqlFields += appendToSelect;
+                sqlFields.Append(appendToSelect);
 
             //Creates the where part
-            string sqlWhere = dialect.CreateWhereSql(searchOptions.Conditions, searchOptions._BaseClass, joins, out parameters);
+            string sqlWhere = dialect.CreateWhereSql(searchOptions.Conditions, searchOptions.baseType, joins.ToArray(), out parameters);
 
             // Creates the join parts
-            string sqlJoins = dialect.CreateJoinsSql(joins);
+            string sqlJoins = dialect.CreateJoinsSql(joins.ToArray());
 
 
             // Creates the entire sql string
-            string sql = dialect.CreateFullSql(searchOptions._BaseClass, searchOptions.Distinct, justCount, searchOptions.Top, sqlFields, sqlJoins, sqlSort, sqlWhere);
+            string sql = dialect.CreateFullSql(searchOptions.baseType, searchOptions.Distinct, justCount, searchOptions.Top, sqlFields.ToString(), sqlJoins, sqlSort, sqlWhere);
 
 
             Tenor.Diagnostics.Debug.DebugSQL("GetSearchSql()", sql, parameters, connection);

@@ -138,7 +138,7 @@ namespace Tenor.Data.Dialects
         /// </summary>
         /// <param name="classType">A Type that implements a BLLBase</param>
         /// <returns></returns>
-        protected virtual string CreateClassAlias(Type classType)
+        public virtual string CreateClassAlias(Type classType)
         {
             if (classType == null)
                 throw new ArgumentNullException("classType");
@@ -498,19 +498,28 @@ namespace Tenor.Data.Dialects
         }
 
 
-        internal string CreateSelectSql(Type baseClass, FieldInfo[] fields, SpecialFieldInfo[] spFields)
+        internal string CreateSelectSql(Type baseClass, string baseFieldAlias, FieldInfo[] fields, SpecialFieldInfo[] spFields)
         {
-            string alias = CreateClassAlias(baseClass);
+            //TODO: Consider removing baseClass parameter.
             StringBuilder fieldsSql = new StringBuilder();
 
+            string tableAlias = CreateClassAlias(baseClass);
             foreach (FieldInfo f in fields)
             {
+                string identifier = CommandBuilder.QuoteIdentifier(f.DataFieldName);
+
+                string fieldAlias = f.DataFieldName;
+                if (!string.IsNullOrEmpty(baseFieldAlias))
+                {
+                    fieldAlias = baseFieldAlias + fieldAlias;
+                }
+                
                 //TODO :Check if we can consider all fields from the parameter.
                 /*
                  * if (f.PrimaryKey || !f.LazyLoading)
                  * {
                  */
-                fieldsSql.Append(", " + alias + "." + CommandBuilder.QuoteIdentifier(f.DataFieldName));
+                fieldsSql.Append(string.Format(", {0}.{1} {2}", tableAlias, identifier, fieldAlias));
                 /*
                  * }
                  */
@@ -524,9 +533,13 @@ namespace Tenor.Data.Dialects
             if (spFields != null)
                 foreach (SpecialFieldInfo f in spFields)
                 {
+                    string alias = CreateClassAlias(f.RelatedProperty.DeclaringType);
+  
                     fieldsSql.Append(", ");
                     fieldsSql.Append(GetSpecialFieldExpression(alias, f));
-                    fieldsSql.Append(" AS ").Append(f.Alias);
+ 
+                    string falias = baseFieldAlias + f.Alias;
+                    fieldsSql.Append(" AS ").Append(falias);
                 }
             fieldsSql = fieldsSql.Remove(0, 2);
             return fieldsSql.ToString();

@@ -276,7 +276,7 @@ namespace Tenor.BLL
                     }
 
                     TenorParameter[] parameters = null;
-                    string fieldsPart = dialect.CreateSelectSql(table.RelatedTable, new FieldInfo[] { field }, null);
+                    string fieldsPart = dialect.CreateSelectSql(table.RelatedTable, null, new FieldInfo[] { field }, null);
                     string wherePart = dialect.CreateWhereSql(conditions, table.RelatedTable, null, out parameters);
                     string sql = dialect.CreateFullSql(table.RelatedTable,
                                                 false, false,
