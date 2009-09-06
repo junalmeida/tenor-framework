@@ -80,7 +80,7 @@ namespace Tenor.Text
 			Int32 div = num / divisor;
 			Int32 mod = num % divisor;
  
-			Int32[] newNum = new Int32[] {div,mod};
+			//Int32[] newNum = new Int32[] {div,mod};
  
 			numeroLista.Add(mod);
  
@@ -103,9 +103,9 @@ namespace Tenor.Text
 				return false;
 		}
  
-		private bool EhUltimoGrupo(Int32 ps) {
-			return((ps > 0) & ((Int32) numeroLista[ps] != 0) || !TemMaisGrupos(ps - 1));
-		}
+		//private bool EhUltimoGrupo(Int32 ps) {
+		//	return((ps > 0) & ((Int32) numeroLista[ps] != 0) || !TemMaisGrupos(ps - 1));
+		//}
  
 		private bool EhGrupoZero(Int32 ps) {
 			if (ps <= 0 || ps >= numeroLista.Count)
@@ -178,7 +178,7 @@ namespace Tenor.Text
 		public override String ToString() {
 			StringBuilder buf = new StringBuilder();
  
-			Int32 numero = (Int32) numeroLista[0];
+			//Int32 numero = (Int32) numeroLista[0];
 			Int32 count;
 			for (count = numeroLista.Count -1; count > 0; count--) {
 				if (buf.Length > 0 &  !EhGrupoZero(count)) {

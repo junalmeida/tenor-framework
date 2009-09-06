@@ -165,10 +165,8 @@ namespace Tenor.Drawing
             {
                 case BarCodeMode.TwoOfFive:
                     return GenerateTwoOfFive();
-                    break;
                 default:
                     throw new InvalidOperationException();
-                    break;
             }
         }
 

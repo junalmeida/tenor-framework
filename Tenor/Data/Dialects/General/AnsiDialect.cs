@@ -748,7 +748,7 @@ namespace Tenor.Data.Dialects
             StringBuilder fields = new StringBuilder();
             StringBuilder values = new StringBuilder();
             StringBuilder fieldAndValues = new StringBuilder();
-            string alias = CreateClassAlias(baseClass);
+            //string alias = CreateClassAlias(baseClass);
             bool update = conditions != null && conditions.Count > 0;
 
             foreach (FieldInfo field in data.Keys)
@@ -910,7 +910,7 @@ namespace Tenor.Data.Dialects
 
         internal string CreateDeleteSql(Type baseClass, ConditionCollection conditions, Join[] joins, out TenorParameter[] parameters)
         {
-            string alias = CreateClassAlias(baseClass);
+            //string alias = CreateClassAlias(baseClass);
 
             TableInfo table = TableInfo.CreateTableInfo(baseClass);
 

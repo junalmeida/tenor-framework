@@ -922,6 +922,7 @@ namespace Tenor.Web.UI.WebControls
 
         }
 
+		/*
         /// <summary>
         /// TODO: BETA. Test and improve this.
         /// </summary>
@@ -982,6 +983,7 @@ namespace Tenor.Web.UI.WebControls
 
             return res.ToString();
         }
+		 */
 
         protected override void OnPreRender(System.EventArgs e)
         {

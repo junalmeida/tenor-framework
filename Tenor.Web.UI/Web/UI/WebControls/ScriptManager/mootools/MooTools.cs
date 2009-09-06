@@ -152,7 +152,7 @@ namespace Tenor.Web.UI.WebControls
                 throw (new InvalidOperationException("Header tag must be a server control."));
             }
 
-            string modulo = this.Module.ToString();
+            //string modulo = this.Module.ToString();
 
 
             Literal script = new Literal();

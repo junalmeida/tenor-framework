@@ -135,7 +135,6 @@ namespace Tenor.BLL
 
             FieldInfo[] fields = GetFields(this.GetType());
             SpecialFieldInfo[] spfields = GetSpecialFields(this.GetType());
-            ForeignKeyInfo[] foreignkeys = GetForeignKeys(this.GetType());
 
             foreach (FieldInfo f in fields)
             {
@@ -159,6 +158,7 @@ namespace Tenor.BLL
             /*
             if (!lazyLoading)
             {
+            ForeignKeyInfo[] foreignkeys = GetForeignKeys(this.GetType());
                 foreach (ForeignKeyInfo f in foreignkeys)
                 {
                     this.LoadForeign(f.RelatedProperty.Name, true, null, connection);

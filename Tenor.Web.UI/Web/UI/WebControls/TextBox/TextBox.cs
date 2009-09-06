@@ -321,7 +321,8 @@ namespace Tenor.Web.UI.WebControls
             switch (TextBoxMode)
             {
                 case WebControls.TextBoxMode.RichText:
-                    System.Reflection.Assembly tinymce = System.Reflection.Assembly.Load(new System.Reflection.AssemblyName(Configuration.Resources.AssemblyTinyMCE));
+                    //System.Reflection.Assembly tinymce = 
+				    System.Reflection.Assembly.Load(new System.Reflection.AssemblyName(Configuration.Resources.AssemblyTinyMCE));
                     Configuration.HttpModule.CheckHttpModule();
                     break;
                 /*

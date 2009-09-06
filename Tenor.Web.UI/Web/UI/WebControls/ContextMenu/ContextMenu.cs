@@ -273,15 +273,17 @@ namespace Tenor.Web.UI.WebControls
         #endregion
 
         #region " Postback "
+		/*
         private string GetPostBackEventReference(string eventArgument)
         {
             /*
             If (Me.CausesValidation AndAlso (Me.Page.GetValidators(Me.ValidationGroup).Count > 0)) Then
                 Return ("javascript:" & Util.GetClientValidatedPostback(Me, Me.ValidationGroup, eventArgument))
             End If
-             */
+             *//*
             return this.Page.ClientScript.GetPostBackClientHyperlink(this, eventArgument, true);
         }
+	    */
 
         #endregion
 

@@ -26,6 +26,11 @@ namespace Tenor.Web.UI.WebControls
     public class SortableBulletedList : System.Web.UI.WebControls.BulletedList, IPostBackDataHandler
     {
 
+		SortableBulletedList() 
+		{
+			this.Load += SortableBulletedList_Load;
+			this.PreRender += SortableBulletedList_PreRender;
+		}
 
         private void SortableBulletedList_Load(object sender, System.EventArgs e)
         {

@@ -613,7 +613,7 @@ namespace Tenor.Web.UI.WebControls
 
             string Script = "var ScriptManager_Confirm = confirm(\"" + message + "\");" + "\r\n";
 
-            PostBackOptions opt = new PostBackOptions(this, "ScriptManager_Confirm.toString()", null, false, false, true, true, false, null);
+            //PostBackOptions opt = new PostBackOptions(this, "ScriptManager_Confirm.toString()", null, false, false, true, true, false, null);
             Script += " if (ScriptManager_Confirm) " + "\r\n";
             Script += Page.ClientScript.GetPostBackEventReference(this, "confirm:" + commandName + ":true") + ";" + "\r\n";
             Script += " else " + "\r\n";

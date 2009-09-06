@@ -283,8 +283,7 @@ namespace Tenor.Web
                         {
                             lock (messagesLock)
                             {
-                                object obj;
-                                obj = Cache.Add("instance:" + app.Request.QueryString.ToString(), cacheData, null, System.Web.Caching.Cache.NoAbsoluteExpiration, new TimeSpan(0, 20, 0), System.Web.Caching.CacheItemPriority.Default, new System.Web.Caching.CacheItemRemovedCallback(Cache_onItemRemoved));
+                                Cache.Add("instance:" + app.Request.QueryString.ToString(), cacheData, null, System.Web.Caching.Cache.NoAbsoluteExpiration, new TimeSpan(0, 20, 0), System.Web.Caching.CacheItemPriority.Default, new System.Web.Caching.CacheItemRemovedCallback(Cache_onItemRemoved));
                             }
                         }
 
