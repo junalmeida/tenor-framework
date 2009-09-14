@@ -1,11 +1,11 @@
-﻿<%@ Page Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="PersonList.aspx.cs" Inherits="PersonList" Title="Person List - Tenor Sample Web App" %>
+﻿<%@ Page Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="PersonList.aspx.cs" Inherits="SampleApp.PersonList" Title="Person List - Tenor Sample Web App" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" Runat="Server">
 </asp:Content>
 <asp:Content ID="Content2" ContentPlaceHolderID="Content" Runat="Server">
 <asp:Panel ID="pnlSearch" runat="server" DefaultButton="btnSearch">
     <p>Please, type in some information to search.</p>
-    <p>Person's name: <asp:TextBox ID="txtName" runat="server" /></p>
+    <p>Person's name: <asp:TextBox ID="txtName" runat="server" Width="317px" /></p>
     <p>Person's item's name: <asp:TextBox ID="txtItemName" runat="server" /></p>
     <p>Item's category: <asp:TextBox ID="txtCategory" runat="server" /></p>
     

@@ -1,31 +1,9 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tenor", "Tenor\Tenor.csproj", "{5FAE8827-5AED-4918-9FFB-85B7E91901F5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tenor.Web.UI", "Tenor.Web.UI\Tenor.Web.UI.csproj", "{87AB0401-5634-4DAE-8ED9-77DCE524FD80}"
-EndProject
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "SampleApp", "SampleApp\", "{54987DF1-E68C-41A7-89D3-13A71CABFF87}"
-	ProjectSection(WebsiteProperties) = preProject
-		TargetFramework = "2.0"
-		ProjectReferences = "{5FAE8827-5AED-4918-9FFB-85B7E91901F5}|Tenor.dll;{87AB0401-5634-4DAE-8ED9-77DCE524FD80}|Tenor.Web.UI.dll;"
-		Debug.AspNetCompiler.VirtualPath = "/SampleApp"
-		Debug.AspNetCompiler.PhysicalPath = "SampleApp\"
-		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\SampleApp\"
-		Debug.AspNetCompiler.Updateable = "true"
-		Debug.AspNetCompiler.ForceOverwrite = "true"
-		Debug.AspNetCompiler.FixedNames = "false"
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.VirtualPath = "/SampleApp"
-		Release.AspNetCompiler.PhysicalPath = "SampleApp\"
-		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\SampleApp\"
-		Release.AspNetCompiler.Updateable = "true"
-		Release.AspNetCompiler.ForceOverwrite = "true"
-		Release.AspNetCompiler.FixedNames = "false"
-		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "1228"
-		DefaultWebSiteLanguage = "Visual C#"
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Resources", "Resources", "{4ED50A48-424F-4C4A-85F1-0EF76EE07AE0}"
 EndProject
@@ -42,6 +20,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "template", "template", "{4B
 		Resources\mygen-template\BLLBased.zeus = Resources\mygen-template\BLLBased.zeus
 		Resources\mygen-template\TemplateSnippets.xml = Resources\mygen-template\TemplateSnippets.xml
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp", "SampleApp\SampleApp.csproj", "{5942CEF1-5760-435F-AE6E-8EC99B243314}"
 EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution
@@ -92,21 +72,21 @@ Global
 		{87AB0401-5634-4DAE-8ED9-77DCE524FD80}.Release|Any CPU.Build.0 = Release|Any CPU
 		{87AB0401-5634-4DAE-8ED9-77DCE524FD80}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{87AB0401-5634-4DAE-8ED9-77DCE524FD80}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{54987DF1-E68C-41A7-89D3-13A71CABFF87}.Debug|.NET.ActiveCfg = Debug|.NET
-		{54987DF1-E68C-41A7-89D3-13A71CABFF87}.Debug|.NET.Build.0 = Debug|.NET
-		{54987DF1-E68C-41A7-89D3-13A71CABFF87}.Debug|Any CPU.ActiveCfg = Debug|.NET
-		{54987DF1-E68C-41A7-89D3-13A71CABFF87}.Debug|Mixed Platforms.ActiveCfg = Debug|.NET
-		{54987DF1-E68C-41A7-89D3-13A71CABFF87}.Debug|Mixed Platforms.Build.0 = Debug|.NET
-		{54987DF1-E68C-41A7-89D3-13A71CABFF87}.MonoRelease|.NET.ActiveCfg = Debug|.NET
-		{54987DF1-E68C-41A7-89D3-13A71CABFF87}.MonoRelease|.NET.Build.0 = Debug|.NET
-		{54987DF1-E68C-41A7-89D3-13A71CABFF87}.MonoRelease|Any CPU.ActiveCfg = Debug|.NET
-		{54987DF1-E68C-41A7-89D3-13A71CABFF87}.MonoRelease|Mixed Platforms.ActiveCfg = Debug|.NET
-		{54987DF1-E68C-41A7-89D3-13A71CABFF87}.MonoRelease|Mixed Platforms.Build.0 = Debug|.NET
-		{54987DF1-E68C-41A7-89D3-13A71CABFF87}.Release|.NET.ActiveCfg = Debug|.NET
-		{54987DF1-E68C-41A7-89D3-13A71CABFF87}.Release|.NET.Build.0 = Debug|.NET
-		{54987DF1-E68C-41A7-89D3-13A71CABFF87}.Release|Any CPU.ActiveCfg = Debug|.NET
-		{54987DF1-E68C-41A7-89D3-13A71CABFF87}.Release|Mixed Platforms.ActiveCfg = Debug|.NET
-		{54987DF1-E68C-41A7-89D3-13A71CABFF87}.Release|Mixed Platforms.Build.0 = Debug|.NET
+		{5942CEF1-5760-435F-AE6E-8EC99B243314}.Debug|.NET.ActiveCfg = Debug|Any CPU
+		{5942CEF1-5760-435F-AE6E-8EC99B243314}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5942CEF1-5760-435F-AE6E-8EC99B243314}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5942CEF1-5760-435F-AE6E-8EC99B243314}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{5942CEF1-5760-435F-AE6E-8EC99B243314}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{5942CEF1-5760-435F-AE6E-8EC99B243314}.MonoRelease|.NET.ActiveCfg = Release|Any CPU
+		{5942CEF1-5760-435F-AE6E-8EC99B243314}.MonoRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{5942CEF1-5760-435F-AE6E-8EC99B243314}.MonoRelease|Any CPU.Build.0 = Release|Any CPU
+		{5942CEF1-5760-435F-AE6E-8EC99B243314}.MonoRelease|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{5942CEF1-5760-435F-AE6E-8EC99B243314}.MonoRelease|Mixed Platforms.Build.0 = Release|Any CPU
+		{5942CEF1-5760-435F-AE6E-8EC99B243314}.Release|.NET.ActiveCfg = Release|Any CPU
+		{5942CEF1-5760-435F-AE6E-8EC99B243314}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5942CEF1-5760-435F-AE6E-8EC99B243314}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5942CEF1-5760-435F-AE6E-8EC99B243314}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{5942CEF1-5760-435F-AE6E-8EC99B243314}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -13,22 +13,26 @@ using Teste.TESTE;
 using Tenor.Data;
 using SampleApp.Business.Entities;
 
-public partial class _Default : System.Web.UI.Page
+namespace SampleApp
 {
-    protected void Page_Load(object sender, EventArgs e)
+    public partial class _Default : System.Web.UI.Page
     {
-        Business b = new Business();
-        //b.TestMethod();
-    }
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            BusinessProcess b = new BusinessProcess();
+            b.TestMethod();
+        }
 
-    protected void btnCheck_Click(object sender, EventArgs e)
-    {
-        Tenor.Security.Captcha cap = Session["captcha"] as Tenor.Security.Captcha;
-        if (cap == null)
-            Tenor.Web.UI.WebControls.ScriptManager.Current.Alert("Unknown error");
-        else if (cap.ValidateCaptcha(txtCaptcha.Text))
-            Tenor.Web.UI.WebControls.ScriptManager.Current.Alert("You are a human! (or not...)");
-        else 
-            Tenor.Web.UI.WebControls.ScriptManager.Current.Alert("You are a human! But you typed a wrong code.");
+
+        protected void btnCheck_Click(object sender, EventArgs e)
+        {
+            Tenor.Security.Captcha cap = Session["captcha"] as Tenor.Security.Captcha;
+            if (cap == null)
+                Tenor.Web.UI.WebControls.ScriptManager.Current.Alert("Unknown error");
+            else if (cap.ValidateCaptcha(txtCaptcha.Text))
+                Tenor.Web.UI.WebControls.ScriptManager.Current.Alert("You are a human! (or not...)");
+            else
+                Tenor.Web.UI.WebControls.ScriptManager.Current.Alert("You are a human! But you typed a wrong code.");
+        }
     }
 }

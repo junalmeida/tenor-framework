@@ -10,48 +10,51 @@ using System.Web.UI.WebControls;
 using System.Web.UI.WebControls.WebParts;
 using SampleApp.Business.Entities;
 using System.Collections.Generic;
-
-public partial class PersonList : System.Web.UI.Page
+namespace SampleApp
 {
-    Business bp = new Business();
-    protected void Page_Load(object sender, EventArgs e)
-    {
-        
-    }
-    protected void btnSearch_Click(object sender, EventArgs e)
-    {
-        Search();
-    }
 
-    private void Search()
+    public partial class PersonList : System.Web.UI.Page
     {
-        try
+        BusinessProcess bp = new BusinessProcess();
+        protected void Page_Load(object sender, EventArgs e)
         {
-            IList<Person> result = bp.ListPersons(txtName.Text, txtItemName.Text, txtCategory.Text);
-            grdResults.DataKeyNames = new string[] { "PersonId" };
-            grdResults.DataSource = result;
-            grdResults.DataBind();
-            pnlResults.Visible = true;
+
         }
-        catch (ApplicationException ex)
+        protected void btnSearch_Click(object sender, EventArgs e)
         {
-            throw;
-            Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
+            Search();
         }
-    }
-    protected void grdResults_RowDeleting(object sender, GridViewDeleteEventArgs e)
-    {
-        try
+
+        private void Search()
         {
-            Person person = new Person();
-            person.PersonId = Convert.ToInt32(grdResults.DataKeys[e.RowIndex].Value);
-            bp.Delete(person);
+            try
+            {
+                IList<Person> result = bp.ListPersons(txtName.Text, txtItemName.Text, txtCategory.Text);
+                grdResults.DataKeyNames = new string[] { "PersonId" };
+                grdResults.DataSource = result;
+                grdResults.DataBind();
+                pnlResults.Visible = true;
+            }
+            catch (ApplicationException ex)
+            {
+                throw;
+                Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
+            }
         }
-        catch (ApplicationException ex)
+        protected void grdResults_RowDeleting(object sender, GridViewDeleteEventArgs e)
         {
-            Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
-            return;
+            try
+            {
+                Person person = new Person();
+                person.PersonId = Convert.ToInt32(grdResults.DataKeys[e.RowIndex].Value);
+                bp.Delete(person);
+            }
+            catch (ApplicationException ex)
+            {
+                Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
+                return;
+            }
+            Search();
         }
-        Search();
     }
 }
