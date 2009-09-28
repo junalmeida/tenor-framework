@@ -21,10 +21,12 @@ namespace SampleApp
             {
                 ListCategories();
                 ListMaritalStati();
+                ListContractTypes();
                 ListDepartments();
                 LoadPerson();
             }
         }
+
 
 
 
@@ -47,8 +49,8 @@ namespace SampleApp
                 txtName.Text = p.Name;
                 txtEmail.Text = p.Email;
                 chkActive.Checked = p.Active;
-                cmbMaritalStatus.SelectedValue = (p.MaritalStatus.HasValue ? ((int)p.MaritalStatus.Value).ToString() : string.Empty);
-
+                cmbMaritalStatus.SelectedValue = /*((int)p.MaritalStatus).ToString(); */(p.MaritalStatus.HasValue ? ((int)p.MaritalStatus.Value).ToString() : string.Empty);
+                cmbContractType.SelectedValue = /*((int)p.ContractType).ToString(); */(p.ContractType.HasValue ? ((int)p.ContractType.Value).ToString() : string.Empty);
                 foreach (PersonItem pi in p.PersonItemList)
                 {
                     if (string.IsNullOrEmpty(cmbCategory.SelectedValue))
@@ -84,8 +86,11 @@ namespace SampleApp
                 p.Name = txtName.Text;
                 p.Email = txtEmail.Text;
                 p.Active = chkActive.Checked;
+
                 if (!string.IsNullOrEmpty(cmbMaritalStatus.SelectedValue))
                     p.MaritalStatus = (MaritalStatus)int.Parse(cmbMaritalStatus.SelectedValue);
+                if (!string.IsNullOrEmpty(cmbContractType.SelectedValue))
+                    p.ContractType = (ContractType)int.Parse(cmbContractType.SelectedValue);
 
                 foreach (ListItem li in cblDepartments.Items)
                 {
@@ -172,6 +177,24 @@ namespace SampleApp
             }
 
         }
+
+        private void ListContractTypes()
+        {
+            try
+            {
+                cmbContractType.DataTextField = "Value";
+                cmbContractType.DataValueField = "Key";
+                cmbContractType.DataSource = Tenor.Text.Strings.EnumToDictionary(typeof(ContractType));
+                cmbContractType.DataBind();
+                cmbContractType.Items.Insert(0, new ListItem("Don't know", ""));
+            }
+            catch (ApplicationException ex)
+            {
+                Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
+            }
+        }
+
+
 
         protected void cmbCategory_SelectedIndexChanged(object sender, EventArgs e)
         {

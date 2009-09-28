@@ -123,7 +123,19 @@ namespace SampleApp.Business.Entities
             get { return maritalStatus; }
             set { maritalStatus = value; }
         }
-	
+
+        private ContractType? contractType;
+
+        /// <summary>
+        /// Specify the contract type. 
+        /// * For testing string enum.
+        /// </summary>
+        [Field()]
+        public ContractType? ContractType
+        {
+            get { return contractType; }
+            set { contractType = value; }
+        }	
 
         /// <summary>
         /// Keeps a list of constants with property names.

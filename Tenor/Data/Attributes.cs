@@ -123,35 +123,43 @@ namespace Tenor.Data
         {
             try
             {
-
                 if (RelatedProperty.ReflectedType != Instance.GetType())
                 {
                     throw (new InvalidCastException());
                 }
 
+
                 object res = RelatedProperty.GetValue(Instance, null);
                 if (res == null)
                 {
-                    return (ConvertNullToDBNull ? DBNull.Value : null);
+                    res =  (ConvertNullToDBNull ? DBNull.Value : null);
                 }
-                else
+                else if (res.GetType() == typeof(Nullable<>))
                 {
-                    if (res.GetType() == typeof(Nullable<>))
+
+                    if (!System.Convert.ToBoolean(res.GetType().GetProperty("HasValue").GetValue(res, null)))
                     {
-                        if (!System.Convert.ToBoolean(res.GetType().GetProperty("HasValue").GetValue(res, null)))
-                        {
-                            return (ConvertNullToDBNull ? DBNull.Value : null);
-                        }
-                        else
-                        {
-                            return res.GetType().GetProperty("Value").GetValue(res, null);
-                        }
+                        res = (ConvertNullToDBNull ? DBNull.Value : null);
                     }
                     else
                     {
-                        return res;
+                        res = res.GetType().GetProperty("Value").GetValue(res, null);
                     }
                 }
+
+                if (res != null && res.GetType().IsEnum)
+                {
+                    System.Reflection.FieldInfo fInfo = res.GetType().GetField(res.ToString());
+                    if (fInfo != null) {
+                        EnumDatabaseValueAttribute[] att = (EnumDatabaseValueAttribute[])fInfo.GetCustomAttributes(typeof(EnumDatabaseValueAttribute), true);
+                        if (att.Length == 1)
+                        {
+                            res = att[0].Value;
+                        }
+                    }
+                }
+
+                return res;
             }
             catch (Exception ex)
             {
@@ -181,8 +189,7 @@ namespace Tenor.Data
 
                         if (type != null && value.GetType() != type)
                         {
-                            if (type.IsEnum)
-                                type = typeof(Int32);
+                                CheckEnumType(ref value, ref type);
                             
                             value = Convert.ChangeType(value, type);
                         }
@@ -195,9 +202,15 @@ namespace Tenor.Data
                     }
                     else
                     {
+                        Type type = RelatedProperty.PropertyType;
+
                         // Changes the type of the value for providers that don't detect types correctly
-                        if (value.GetType() != RelatedProperty.PropertyType)
-                            value = Convert.ChangeType(value, RelatedProperty.PropertyType);
+                        if (value.GetType() != type)
+                        {
+                            CheckEnumType(ref value, ref type);
+
+                            value = Convert.ChangeType(value, type);
+                        }
 
                         RelatedProperty.SetValue(Instance, value, null);
                     }
@@ -208,6 +221,36 @@ namespace Tenor.Data
                 throw (new TenorException("Cannot set \'" + this.RelatedProperty.Name + "\' value. See inner exception for details.", ex));
             }
 
+        }
+
+        /// <summary>
+        /// Converts the enum to the right type, and if its a string, converts it to the enum value.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="type"></param>
+        private static void CheckEnumType(ref object value, ref Type type)
+        {
+            if (type.IsEnum)
+            {
+                System.Reflection.FieldInfo[] values = type.GetFields();
+                //Only try to find EnumDatabaseValue if its a string 
+                if (value.GetType() == typeof(string))
+                {
+                    Array realValues = Enum.GetValues(type);
+                    for (int i = 1; i < values.Length; i++)
+                    {
+                        EnumDatabaseValueAttribute[] att = (EnumDatabaseValueAttribute[])values[i].GetCustomAttributes(typeof(EnumDatabaseValueAttribute), true);
+                        if (att.Length == 1 && att[0].Value == value.ToString())
+                        {
+                            value = realValues.GetValue(i - 1);
+                            break;
+                        }
+                    }
+                }
+
+                //Set the real enum type. Can be Int16,32 and 64.
+                type = values[0].FieldType;
+            }
         }
         internal void SetPropertyValue(object Instance, object value)
         {
@@ -961,6 +1004,26 @@ namespace Tenor.Data
         }
 
 
+    }
+
+    /// <summary>
+    /// Represents the value that Tenor will use to persist the enum value. 
+    /// Useful on legacy databases.
+    /// </summary>
+    [global::System.AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
+    public sealed class EnumDatabaseValueAttribute : Attribute
+    {
+        readonly string value;
+
+        public EnumDatabaseValueAttribute(string value)
+        {
+            this.value = value;
+        }
+
+        public string Value
+        {
+            get { return value; }
+        }
     }
     #endregion
 

@@ -95,6 +95,15 @@ namespace SampleApp {
         protected global::System.Web.UI.WebControls.DropDownList cmbMaritalStatus;
         
         /// <summary>
+        /// cmbContractType control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList cmbContractType;
+        
+        /// <summary>
         /// lblPhoto control.
         /// </summary>
         /// <remarks>

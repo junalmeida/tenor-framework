@@ -34,6 +34,10 @@
         <asp:DropDownList ID="cmbMaritalStatus" runat="server" />
     </p>
     <p>
+        Choose the contract type:
+        <asp:DropDownList ID="cmbContractType" runat="server" />
+    </p>
+    <p>
         <asp:Label ID="lblPhoto" runat="server" Text="Photo:" />
         <asp:FileUpload ID="fupPhoto" runat="server" />
     </p>

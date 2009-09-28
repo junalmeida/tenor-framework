@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.50727</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{87AB0401-5634-4DAE-8ED9-77DCE524FD80}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -13,8 +13,9 @@
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Nonshipping>true</Nonshipping>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>tenorwebui.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -95,7 +96,6 @@
     <Compile Include="Web\UI\WebControls\Window\Design\WindowDesigner.cs" />
     <Compile Include="Web\UI\WebControls\Window\janela\WindowPlasticStyle.cs" />
     <Compile Include="Web\UI\WebControls\Window\Window.cs">
-      <SubType>Component</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -183,7 +183,6 @@
     <Content Include="Web\UI\WebControls\Window\Window.js" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="tenorwebui.snk" />
     <None Include="Web\UI\WebControls\Adapters\CSSFriendlyAdapters.browser" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
