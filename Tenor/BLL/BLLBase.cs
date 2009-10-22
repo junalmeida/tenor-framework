@@ -913,6 +913,7 @@ namespace Tenor.BLL
                     j.ParentAlias = null; //will be used in future to make joins of other levels.
                     j.JoinMode = JoinMode.LeftJoin; //left? are you right?
                     j.PropertyName = fkInfo.RelatedProperty.Name;
+                    j.ForeignTableInfo = TableInfo.CreateTableInfo(fkInfo.ElementType);
                     if (!list.Contains(j))
                         list.Add(j);
                 }

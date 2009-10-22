@@ -616,8 +616,11 @@ namespace Tenor.Data.Dialects
             {
 
                 string tableName;
-                if (join.ForeignKey != null && join.ForeignKey.IsManyToMany)
+                bool isLazy = false;
+                if (join.ForeignTableInfo == null && join.ForeignKey.IsManyToMany)
                 {
+                    //lazy loading
+                    isLazy = true;
                     tableName = GetPrefixAndTable(join.ForeignKey.ManyToManyTablePrefix, join.ForeignKey.ManyToManyTable) + " " + join.JoinAlias;
                 }
                 else
@@ -625,18 +628,22 @@ namespace Tenor.Data.Dialects
                     tableName = GetPrefixAndTable(join.ForeignTableInfo.Prefix, join.ForeignTableInfo.TableName) + " " + join.JoinAlias;
                 }
 
+
+                string joinSql = string.Empty;
+                string joinSql2 = string.Empty;
                 switch (join.JoinMode)
                 {
                     case JoinMode.InnerJoin:
-                        sql.Append(" INNER JOIN " + tableName + " ON ");
+                        joinSql=(" INNER JOIN " + tableName + " ON ");
                         break;
                     case JoinMode.LeftJoin:
-                        sql.Append(" LEFT OUTER JOIN " + tableName + " ON ");
+                        joinSql=(" LEFT OUTER JOIN " + tableName + " ON ");
                         break;
                     case JoinMode.RightJoin:
-                        sql.Append(" RIGHT OUTER JOIN " + tableName + " ON ");
+                        joinSql=(" RIGHT OUTER JOIN " + tableName + " ON ");
                         break;
                     default:
+                        throw new InvalidOperationException();
                         break;
                 }
 
@@ -647,15 +654,45 @@ namespace Tenor.Data.Dialects
                     join.ParentAlias = CreateClassAlias(join.LocalTableInfo.RelatedTable);
                 }
                 StringBuilder fks = new StringBuilder();
+                StringBuilder fksMiddle = new StringBuilder();
                 if (join.ForeignKey != null && join.ForeignKey.IsManyToMany)
                 {
-                    //Many-to-many joins
-                    for (int i = 0; i < join.ForeignKey.ForeignFields.Length; i++)
+                    if (isLazy)
                     {
-                        fks.Append(" AND ");
-                        fks.Append(join.ParentAlias + "." + CommandBuilder.QuoteIdentifier(join.ForeignKey.ForeignFields[i].DataFieldName));
-                        fks.Append(" = ");
-                        fks.Append(join.JoinAlias + "." + CommandBuilder.QuoteIdentifier(join.ForeignKey.ForeignManyToManyFields[i]));
+                        //Many-to-many for lazy joins
+                        for (int i = 0; i < join.ForeignKey.ForeignFields.Length; i++)
+                        {
+                            fks.Append(" AND ");
+                            fks.Append(join.ParentAlias + "." + CommandBuilder.QuoteIdentifier(join.ForeignKey.ForeignFields[i].DataFieldName));
+                            fks.Append(" = ");
+                            fks.Append(join.JoinAlias + "." + CommandBuilder.QuoteIdentifier(join.ForeignKey.ForeignManyToManyFields[i]));
+                        }
+                    }
+                    else
+                    {
+                        string middleTableJoin = join.JoinAlias + "_internal";
+                        //Many-to-many joins
+                        for (int i = 0; i < join.ForeignKey.ForeignFields.Length; i++)
+                        {
+                            fks.Append(" AND ");
+                            fks.Append(join.JoinAlias + "." + CommandBuilder.QuoteIdentifier(join.ForeignKey.ForeignFields[i].DataFieldName));
+                            fks.Append(" = ");
+                            fks.Append(middleTableJoin + "." + CommandBuilder.QuoteIdentifier(join.ForeignKey.ForeignManyToManyFields[i]));
+                        }
+
+                        tableName = GetPrefixAndTable(join.ForeignKey.ManyToManyTablePrefix, join.ForeignKey.ManyToManyTable) + " " + middleTableJoin;
+                        joinSql2 = " LEFT OUTER JOIN " + tableName + " ON ";
+                        //Many-to-many joins on middle table
+                        for (int i = 0; i < join.ForeignKey.ForeignFields.Length; i++)
+                        {
+                            fksMiddle.Append(" AND ");
+                            fksMiddle.Append(join.ParentAlias + "." + CommandBuilder.QuoteIdentifier(join.ForeignKey.LocalFields[i].DataFieldName));
+                            fksMiddle.Append(" = ");
+                            fksMiddle.Append(middleTableJoin + "." + CommandBuilder.QuoteIdentifier(join.ForeignKey.LocalManyToManyFields[i]));
+                        }
+                        sql.Append(joinSql2);
+                        sql.Append(fksMiddle.Remove(0, 4));
+                        sql.AppendLine();
                     }
                 }
                 else
@@ -668,7 +705,7 @@ namespace Tenor.Data.Dialects
                         fks.Append(join.JoinAlias + "." + CommandBuilder.QuoteIdentifier(join.ForeignKey.ForeignFields[i].DataFieldName));
                     }
                 }
-
+                sql.Append(joinSql);
                 sql.Append(fks.Remove(0, 4));
                 sql.AppendLine();
             }

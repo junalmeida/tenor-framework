@@ -153,13 +153,18 @@ public class Business
 
     public void TestMethod()
     {
-        SearchOptions so = new SearchOptions(typeof(Item));
-        so.Conditions.Add("Name", "First category", "c");
-        so.Conditions.Include("Category", "c");
-        so.LoadAlso("PersonItemList");
-        so.LoadAlso("Category");
-        Item[] items = (Item[])so.Execute();
-        items.ToString();
+        Person p = new Person(1);
+        p.DepartmentList.ToString();
+
+        SearchOptions so = new SearchOptions(typeof(Person));
+        //so.Conditions.Include("DepartmentList", "dp");
+        //so.Conditions.Add("Name", "Dpto1", "dp");
+        //so.Conditions.Include("Category", "c");
+        //so.LoadAlso("PersonItemList");
+        so.LoadAlso("DepartmentList");
+        Person[] persons = (Person[])so.Execute();
+
+        persons.ToString();
 
         /*
         //Loads a person and adds 3 departments to its N:N relation.

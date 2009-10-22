@@ -34,7 +34,8 @@ namespace SampleApp.Business.Entities
 
         public static Person[] List(string name, string itemName, string categoryName)
         {
-            ConditionCollection cc = new ConditionCollection();
+            SearchOptions so = new SearchOptions(typeof(Person));
+            ConditionCollection cc = so.Conditions;
             if (!string.IsNullOrEmpty(name))
             {
                 cc.Add(Person.Properties.Name, name, CompareOperator.Like);
@@ -58,9 +59,9 @@ namespace SampleApp.Business.Entities
                 cc.Add(Category.Properties.Name, categoryName, CompareOperator.Like, "c");
             }
 
-            SortingCollection sc = new SortingCollection();
+            SortingCollection sc = so.Sorting;
             sc.Add(Person.Properties.Name, SortOrder.Ascending);
-            return Person.Search(cc, sc, true);
+            return (Person[])so.Execute();
         }
 
 
