@@ -33,20 +33,45 @@ namespace Tenor.Configuration
         }
     }
 
+    public enum LogMode
+    {
+        None,
+        Email,
+        File
+    }
+
     /// <summary>
     /// Represents the Exception section of a configuration file.
     /// </summary>
     public class ExceptionsSection : ConfigurationElement, System.Collections.IEnumerable
     {
+        [ConfigurationProperty("logMode", DefaultValue = LogMode.None)]
+        public LogMode LogMode
+        {
+            get
+            {
+                return (LogMode)this[this.Properties["logMode"]];
+            }
+        }
+
+        [ConfigurationProperty("filePath", DefaultValue = "")]
+        public string FilePath
+        {
+            get
+            {
+                return (string)this[this.Properties["filePath"]];
+            }
+        }
+
         /// <summary>
         /// Gets the list of defined emails.
         /// </summary>
-        [ConfigurationProperty("", Options = ConfigurationPropertyOptions.IsDefaultCollection)]
+        [ConfigurationProperty("emails", Options = ConfigurationPropertyOptions.IsDefaultCollection)]
         public EmailsCollection Emails
         {
             get
             {
-                return (EmailsCollection)this[this.Properties[""]];
+                return (EmailsCollection)this[this.Properties["emails"]];
             }
         }
 
@@ -61,6 +86,7 @@ namespace Tenor.Configuration
 
         #endregion
     }
+
     /// <summary>
     /// Represents a collection of emails.
     /// </summary>

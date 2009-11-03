@@ -129,6 +129,7 @@
     <EmbeddedResource Include="Web\mime.xml" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Configuration\TenorConfiguration.xsd" />
     <None Include="tenor.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

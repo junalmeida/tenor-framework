@@ -10,6 +10,7 @@ using System.Web.UI;
 using System.Configuration;
 using System.Data.Common;
 using System.Text;
+using Tenor.Configuration;
 
 
 namespace Tenor.Diagnostics
@@ -104,194 +105,214 @@ namespace Tenor.Diagnostics
         {
             try
             {
+                Tenor.Configuration.Tenor config = Tenor.Configuration.Tenor.Current;
+
                 if (exception == null)
                     throw new ArgumentNullException("exception");
 
-                string requestUrl = "";
-                if (app != null)
-                {
-                    requestUrl = app.Request.Url.GetLeftPart(UriPartial.Authority) + app.Request.RawUrl;
-                }
-
-
-
-                Mail.MailMessage errmail = new Mail.MailMessage();
-
-                foreach (Tenor.Configuration.EmailElement email in Tenor.Configuration.Tenor.Current.Exceptions.Emails)
-                {
-                    errmail.To.Add(new System.Net.Mail.MailAddress(email.Email, email.Name));
-                }
-
-                if (errmail.To.Count == 0)
-                {
-                    errmail.Dispose();
+                if (config.Exceptions.LogMode == LogMode.None
+                    || (config.Exceptions.LogMode == LogMode.Email && config.Exceptions.Emails.Count == 0)
+                    || (config.Exceptions.LogMode == LogMode.File && 
+                        (string.IsNullOrEmpty(config.Exceptions.FilePath) || !Directory.Exists(config.Exceptions.FilePath))))
                     return;
-                }
 
-                errmail.Subject = (HandledByUser ? "Handled" : "Unhandled").ToString() + " Exception: " + requestUrl + " (" + DateTime.Now.ToString() + ")";
-                errmail.IsBodyHtml = true;
-                errmail.BodyEncoding = System.Text.Encoding.UTF8;
+                string requestUrl = string.Empty;
+                if (app != null)
+                    requestUrl = app.Request.Url.GetLeftPart(UriPartial.Authority) + app.Request.RawUrl;
+
+                string title = (HandledByUser ? "Handled" : "Unhandled").ToString() + " Exception: " + requestUrl + " (" + DateTime.Now.ToString() + ")";
+
+                string body = string.Empty;
+
                 try
                 {
                     HttpException htmlex = exception as HttpException;
                     if (htmlex != null)
                     {
-                        errmail.Body = htmlex.GetHtmlErrorMessage();
+                        body = htmlex.GetHtmlErrorMessage();
                     }
                 }
-                catch
+                catch { }
+
+                if (body.Trim().Length < 10)
+                    body = BuildExceptionDetails(app, exception);
+
+                body = BuildExtraInfo(app, exception, body);
+
+                if (config.Exceptions.LogMode == LogMode.Email)
                 {
+                    Mail.MailMessage errmail = new Mail.MailMessage();
 
+                    foreach (EmailElement email in config.Exceptions.Emails)
+                    {
+                        errmail.To.Add(new System.Net.Mail.MailAddress(email.Email, email.Name));
+                    }
+
+                    if (errmail.To.Count == 0)
+                    {
+                        errmail.Dispose();
+                        return;
+                    }
+
+                    errmail.Subject = title;
+                    errmail.IsBodyHtml = true;
+                    errmail.BodyEncoding = System.Text.Encoding.UTF8;
+                    errmail.Body = body;
+
+                    errmail.Send();
                 }
-
-                if (errmail.Body.Trim().Length < 10)
+                else if(config.Exceptions.LogMode == LogMode.File)
                 {
-                    string serverError = string.Empty;
-                    if (app != null)
-                    {
-                        serverError = "Server Error in \'" + app.Request.ApplicationPath + "\' Application.";
-                    }
-                    else
-                    {
-                        serverError = "Server Error";
-                        System.Reflection.Assembly ass = System.Reflection.Assembly.GetCallingAssembly();
-                        if (ass != null)
-                        {
-                            serverError = "Server Error in \'" + ass.GetName().Name + "\' Application.";
-                        }
-                    }
-
-                    //TODO: Move this email template to an external xml file on an assembly resource.
-
-                    System.Text.StringBuilder except = new System.Text.StringBuilder();
-
-                    except.AppendLine("<html>");
-                    except.AppendLine("<head>");
-                    except.Append("   <title>");
-                    except.Append(exception.Message);
-                    except.AppendLine("</title>");
-                    except.AppendLine("   <style type=\"text/css\">");
-                    except.AppendLine("body {font-family:\"Verdana\";font-weight:normal;font-size: .7em;color:black;} ");
-                    except.AppendLine("p {font-family:\"Verdana\";font-weight:normal;color:black;margin-top: -5px} ");
-                    except.AppendLine("b {font-family:\"Verdana\";font-weight:bold;color:black;margin-top: -5px} ");
-                    except.AppendLine("H1 { font-family:\"Verdana\";font-weight:normal;font-size:18pt;color:red } ");
-                    except.AppendLine("H2 { font-family:\"Verdana\";font-weight:normal;font-size:14pt;color:maroon } ");
-                    except.AppendLine("pre {font-family:\"Lucida Console\";font-size: .9em} ");
-                    except.AppendLine(".marker {font-weight: bold; color: black;text-decoration: none;} ");
-                    except.AppendLine(".version {color: gray;} ");
-                    except.AppendLine(".error {margin-bottom: 10px;} ");
-                    except.AppendLine(".expandable { text-decoration:underline; font-weight:bold; color:navy; cursor:hand; } ");
-                    except.AppendLine("   </style>");
-                    except.AppendLine("</head>");
-                    except.AppendLine("<body bgcolor=\"white\">");
-                    except.Append("<h1>");
-                    except.Append(serverError);
-                    except.AppendLine("<hr  width=\"100%\" size=\"1\" color=\"silver\" /></h1>");
-
-                    except.Append("<h2><i>");
-                    except.Append(exception.Message);
-                    except.AppendLine("</i></h2>");
-
-                    except.AppendLine("<b>Detalhes:</b><br /><br />");
-                    except.AppendLine("<table width=100% bgcolor=\"#ffffcc\">");
-                    except.AppendLine("   <tr>");
-                    except.AppendLine("      <td>");
-                    except.AppendLine("         <code><pre>");
-                    except.AppendLine(HttpUtility.HtmlEncode(exception.ToString()));
-                    except.AppendLine("         </pre></code>");
-                    except.AppendLine("      </td>");
-                    except.AppendLine("   </tr>");
-                    except.AppendLine("</table>");
-
-                    string st = Environment.StackTrace;
-                    string endOfDoesNotMatter = "HandleError(Exception exception)" + Environment.NewLine;
-                    int i = st.IndexOf(endOfDoesNotMatter);
-                    if (i > 0)
-                    {
-                        st = st.Substring(i + endOfDoesNotMatter.Length);
-                    }
-                    else
-                    {
-                        endOfDoesNotMatter = "get_StackTrace()" + Environment.NewLine;
-                        i = st.IndexOf(endOfDoesNotMatter);
-                        if (i > 0)
-                        {
-                            st = st.Substring(i + endOfDoesNotMatter.Length);
-                        }
-                    }
-
-                    except.AppendLine("<br /><b>Stack Trace:</b> <br /><br />");
-                    except.AppendLine("<table width=\"100%\" bgcolor=\"#ffffcc\">");
-                    except.AppendLine("   <tr>");
-                    except.AppendLine("      <td>");
-                    except.AppendLine("          <code><pre>");
-                    except.AppendLine(st);
-                    except.AppendLine("          </pre></code>");
-                    except.AppendLine("      </td>");
-                    except.AppendLine("   </tr>");
-                    except.AppendLine("</table>");
-
-                    except.AppendLine("</body>");
-                    except.AppendLine("</html>");
-
-                    errmail.Body = except.ToString();
+                    string path = config.Exceptions.FilePath;
+                    if (!path.EndsWith("\\"))
+                        path += "\\";
+                    File.WriteAllText(string.Format("{1}\\{0:yyyy-MM-dd-HH-mm-ss}.html", DateTime.Now, path), body, System.Text.Encoding.UTF8);
                 }
-
-                string extraInfo = string.Empty;
-
-                Exception ex = exception;
-                while (ex != null)
-                {
-                    if (ex.Data.Count > 0)
-                    {
-
-                        extraInfo += "<br /><br /><b>Additional Information: </b>";
-                        if (ex != exception && (exception.GetType() != typeof(HttpUnhandledException)))
-                        {
-                            extraInfo += ex.GetType().FullName + ": " + ex.Message;
-                        }
-
-                        extraInfo += "<br /><br />";
-
-                        extraInfo += "<table width=100% bgcolor=\"#ffffcc\">" + "\r\n" + "   <tr>" + "\r\n" + "      <td>" + "\r\n" + "         <code><pre>" + "\r\n";
-                        try
-                        {
-                            foreach (DictionaryEntry d in ex.Data)
-                            {
-                                extraInfo += HttpUtility.HtmlEncode(d.Key.ToString() + "\r\n" + "\t" + d.Value.ToString()) + "\r\n" + "\r\n";
-                            }
-                        }
-                        catch
-                        {
-
-                        }
-
-                        extraInfo += "         </pre></code>" + "\r\n" + "      </td>" + "\r\n" + "   </tr>" + "\r\n" + "</table>" + "\r\n";
-
-                    }
-                    ex = ex.InnerException;
-                }
-
-
-
-                if (app != null)
-                {
-                    extraInfo += GetExtraInfoHtml(app);
-                }
-                extraInfo += GetServerInfoHtml();
-                extraInfo += GetLoadedAssembliesHtml();
-
-                errmail.Body = errmail.Body.Replace("</body>", extraInfo + "</body>");
-
-                errmail.Send();
-
             }
-            catch
-            {
-
-            }
+            catch { }
         }
 
+        private static string BuildExceptionDetails(HttpApplication app, Exception exception)
+        {
+            string serverError = string.Empty;
+            if (app != null)
+            {
+                serverError = "Server Error in \'" + app.Request.ApplicationPath + "\' Application.";
+            }
+            else
+            {
+                serverError = "Server Error";
+                System.Reflection.Assembly ass = System.Reflection.Assembly.GetCallingAssembly();
+                if (ass != null)
+                {
+                    serverError = "Server Error in \'" + ass.GetName().Name + "\' Application.";
+                }
+            }
+
+            //TODO: Move this email template to an external xml file on an assembly resource.
+
+            System.Text.StringBuilder except = new System.Text.StringBuilder();
+
+            except.AppendLine("<html>");
+            except.AppendLine("<head>");
+            except.Append("   <title>");
+            except.Append(exception.Message);
+            except.AppendLine("</title>");
+            except.AppendLine("   <style type=\"text/css\">");
+            except.AppendLine("body {font-family:\"Verdana\";font-weight:normal;font-size: .7em;color:black;} ");
+            except.AppendLine("p {font-family:\"Verdana\";font-weight:normal;color:black;margin-top: -5px} ");
+            except.AppendLine("b {font-family:\"Verdana\";font-weight:bold;color:black;margin-top: -5px} ");
+            except.AppendLine("H1 { font-family:\"Verdana\";font-weight:normal;font-size:18pt;color:red } ");
+            except.AppendLine("H2 { font-family:\"Verdana\";font-weight:normal;font-size:14pt;color:maroon } ");
+            except.AppendLine("pre {font-family:\"Lucida Console\";font-size: .9em} ");
+            except.AppendLine(".marker {font-weight: bold; color: black;text-decoration: none;} ");
+            except.AppendLine(".version {color: gray;} ");
+            except.AppendLine(".error {margin-bottom: 10px;} ");
+            except.AppendLine(".expandable { text-decoration:underline; font-weight:bold; color:navy; cursor:hand; } ");
+            except.AppendLine("   </style>");
+            except.AppendLine("</head>");
+            except.AppendLine("<body bgcolor=\"white\">");
+            except.Append("<h1>");
+            except.Append(serverError);
+            except.AppendLine("<hr  width=\"100%\" size=\"1\" color=\"silver\" /></h1>");
+
+            except.Append("<h2><i>");
+            except.Append(exception.Message);
+            except.AppendLine("</i></h2>");
+
+            except.AppendLine("<b>Detalhes:</b><br /><br />");
+            except.AppendLine("<table width=100% bgcolor=\"#ffffcc\">");
+            except.AppendLine("   <tr>");
+            except.AppendLine("      <td>");
+            except.AppendLine("         <code><pre>");
+            except.AppendLine(HttpUtility.HtmlEncode(exception.ToString()));
+            except.AppendLine("         </pre></code>");
+            except.AppendLine("      </td>");
+            except.AppendLine("   </tr>");
+            except.AppendLine("</table>");
+
+            string st = Environment.StackTrace;
+            string endOfDoesNotMatter = "HandleError(Exception exception)" + Environment.NewLine;
+            int i = st.IndexOf(endOfDoesNotMatter);
+            if (i > 0)
+            {
+                st = st.Substring(i + endOfDoesNotMatter.Length);
+            }
+            else
+            {
+                endOfDoesNotMatter = "get_StackTrace()" + Environment.NewLine;
+                i = st.IndexOf(endOfDoesNotMatter);
+                if (i > 0)
+                {
+                    st = st.Substring(i + endOfDoesNotMatter.Length);
+                }
+            }
+
+            except.AppendLine("<br /><b>Stack Trace:</b> <br /><br />");
+            except.AppendLine("<table width=\"100%\" bgcolor=\"#ffffcc\">");
+            except.AppendLine("   <tr>");
+            except.AppendLine("      <td>");
+            except.AppendLine("          <code><pre>");
+            except.AppendLine(st);
+            except.AppendLine("          </pre></code>");
+            except.AppendLine("      </td>");
+            except.AppendLine("   </tr>");
+            except.AppendLine("</table>");
+
+            except.AppendLine("</body>");
+            except.AppendLine("</html>");
+
+            return except.ToString();
+        }
+
+        private static string BuildExtraInfo(HttpApplication app, Exception exception, string body)
+        {
+            string extraInfo = string.Empty;
+
+            Exception ex = exception;
+            while (ex != null)
+            {
+                if (ex.Data.Count > 0)
+                {
+
+                    extraInfo += "<br /><br /><b>Additional Information: </b>";
+                    if (ex != exception && (exception.GetType() != typeof(HttpUnhandledException)))
+                    {
+                        extraInfo += ex.GetType().FullName + ": " + ex.Message;
+                    }
+
+                    extraInfo += "<br /><br />";
+
+                    extraInfo += "<table width=100% bgcolor=\"#ffffcc\">" + "\r\n" + "   <tr>" + "\r\n" + "      <td>" + "\r\n" + "         <code><pre>" + "\r\n";
+                    try
+                    {
+                        foreach (DictionaryEntry d in ex.Data)
+                        {
+                            extraInfo += HttpUtility.HtmlEncode(d.Key.ToString() + "\r\n" + "\t" + d.Value.ToString()) + "\r\n" + "\r\n";
+                        }
+                    }
+                    catch
+                    {
+
+                    }
+
+                    extraInfo += "         </pre></code>" + "\r\n" + "      </td>" + "\r\n" + "   </tr>" + "\r\n" + "</table>" + "\r\n";
+
+                }
+                ex = ex.InnerException;
+            }
+
+
+
+            if (app != null)
+            {
+                extraInfo += GetExtraInfoHtml(app);
+            }
+            extraInfo += GetServerInfoHtml();
+            extraInfo += GetLoadedAssembliesHtml();
+
+            return body.Replace("</body>", extraInfo + "</body>");
+        }
 
         private static string GetExtraInfoHtml(HttpApplication app)
         {
