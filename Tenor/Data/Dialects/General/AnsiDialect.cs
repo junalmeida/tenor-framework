@@ -910,14 +910,13 @@ namespace Tenor.Data.Dialects
 
         internal string CreateDeleteSql(Type baseClass, ConditionCollection conditions, Join[] joins, out TenorParameter[] parameters)
         {
-            //string alias = CreateClassAlias(baseClass);
-
             TableInfo table = TableInfo.CreateTableInfo(baseClass);
 
-
             string clause = CreateWhereSql(conditions, baseClass, joins, out parameters, false);
+            if (!string.IsNullOrEmpty(clause))
+                clause = " WHERE " + clause;
 
-            return "DELETE FROM " + GetPrefixAndTable(table.Prefix, table.TableName) + " WHERE " + clause;
+            return "DELETE FROM " + GetPrefixAndTable(table.Prefix, table.TableName) + clause;
         }
 
 

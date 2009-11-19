@@ -110,6 +110,7 @@ namespace Tenor.Data
         /// <returns>A <see cref="System.Data.DataTable">DataTable</see> with results of the query.</returns>
         public static DataTable QueryData(string sqlSelect, TenorParameter[] parameters)
         {
+            // Gotcha!
             return QueryData(null, sqlSelect, parameters);
         }
 
@@ -146,7 +147,6 @@ namespace Tenor.Data
             }
 
 
-
             try
             {
                 cmd = conn.CreateCommand();
@@ -166,9 +166,6 @@ namespace Tenor.Data
                     dtRetorno = new DataTable();
                     dtRetorno.Load(reader);
                 }
-
-
-
             }
             catch (Exception up)
             {
@@ -259,7 +256,6 @@ namespace Tenor.Data
             DbTransaction transaction = null;
             try
             {
-
                 conn.Open();
                 transaction = conn.BeginTransaction();
 
@@ -282,14 +278,16 @@ namespace Tenor.Data
                 conn.Dispose();
             }
         }
-        internal const string GoStatement = "\r\nGO\r\n";
+
+        /// <summary>
+        /// Query separator token, use to separate query executions
+        /// </summary>
+        internal const string GoStatement = "\r\nGOGOGO\r\n";
 
         internal static object ExecuteQuery(string sql, TenorParameter[] parameters, DbTransaction transaction, GeneralDialect dialect)
         {
             DbConnection conn = transaction.Connection;
             DbCommand cmd;
-
-
 
             try
             {
@@ -315,11 +313,11 @@ namespace Tenor.Data
                     traceInfo.AppendLine(sql);
 
                     string st = Environment.StackTrace;
-                    string fimDaondeNaoImporta = "get_StackTrace()" + Environment.NewLine;
-                    int i = st.IndexOf(fimDaondeNaoImporta);
+                    string endOfWhatDoesntMatter = "get_StackTrace()" + Environment.NewLine;
+                    int i = st.IndexOf(endOfWhatDoesntMatter);
                     if (i > 0)
                     {
-                        st = st.Substring(i + fimDaondeNaoImporta.Length);
+                        st = st.Substring(i + endOfWhatDoesntMatter.Length);
                     }
 
                     traceInfo.AppendLine("Stack Trace:");
@@ -334,7 +332,7 @@ namespace Tenor.Data
                 Diagnostics.Debug.HandleError(ex);
             }
 
-            string[] querys = sql.Split(new string[] { GoStatement }, StringSplitOptions.RemoveEmptyEntries);
+            string[] queries = sql.Split(new string[] { GoStatement }, StringSplitOptions.RemoveEmptyEntries);
             object returnValue = 0;
             bool mustCommit = false;
             if (transaction == null)
@@ -344,7 +342,7 @@ namespace Tenor.Data
             }
             try
             {
-                foreach (string query in querys)
+                foreach (string query in queries)
                 {
                     cmd = conn.CreateCommand();
 
@@ -375,57 +373,6 @@ namespace Tenor.Data
 
             if (mustCommit)
                 transaction.Commit();
-
-            /*else if (dialect != null && (!string.IsNullOrEmpty(dialect.IdentityBeforeQuery) || !string.IsNullOrEmpty(dialect.IdentityAfterQuery)) && !dialect.GetIdentityOnSameCommand)
-            {
-                string currentQuery = cmd.CommandText;
-                cmd.CommandText = dialect.IdentityBeforeQuery;
-                object value1 = cmd.ExecuteScalar();
-
-
-                cmd.CommandText = currentQuery;
-                returnValue = cmd.ExecuteNonQuery();
-
-                cmd.CommandText = dialect.IdentityAfterQuery;
-                object value2 = cmd.ExecuteScalar();
-            }
-            else
-            {
-                returnValue = cmd.ExecuteNonQuery();
-            }*/
-
-            /*
-            if (sql.Trim().StartsWith("INSERT INTO", StringComparison.CurrentCultureIgnoreCase))
-            {
-                if (cmd.Connection.GetType() == typeof(System.Data.SqlClient.SqlConnection))
-                {
-                    cmd.CommandText += " SELECT SCOPE_IDENTITY()";
-                }
-                else if (cmd.Connection.GetType().FullName.Contains("MySQL"))
-                {
-                    cmd.CommandText += " SELECT LAST_INSERT_ID()";
-                }
-                else if (cmd.Connection.GetType().FullName.Contains("SQLite"))
-                {
-                    cmd.CommandText += ";" + Environment.NewLine + "SELECT LAST_INSERT_ROWID();";
-                }
-                else
-                {
-                    cmd.CommandText += " SELECT -1";
-                }
-						
-                object resultado = cmd.ExecuteScalar();
-                if (! resultado.Equals(DBNull.Value))
-                {
-                    retorno = System.Convert.ToInt32(resultado);
-                }
-						
-            }
-            else
-            {
-                retorno = cmd.ExecuteNonQuery();
-            }
-            */
 
             return returnValue;
 

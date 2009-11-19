@@ -357,24 +357,7 @@ namespace Tenor.BLL
         /// </summary>
         public void Delete()
         {
-
-            ConditionCollection conditions = CreateDeleteConditions(this);
-
-
-            TableInfo table = TableInfo.CreateTableInfo(this.GetType());
-            ConnectionStringSettings connection = table.GetConnection();
-            GeneralDialect dialect = DialectFactory.CreateDialect(connection);
-
-
-            Join[] joins = GetPlainJoins(conditions, table.RelatedTable);
-            
-            TenorParameter[] parameters = null;
-            string query = dialect.CreateDeleteSql(this.GetType(), conditions, joins, out parameters);
-
-            if (this.tenorTransaction != null && this.tenorTransaction.dbTransaction != null)
-                Helper.ExecuteQuery(query, parameters, tenorTransaction.dbTransaction, dialect);
-            else
-                Helper.UpdateData(query, parameters, connection);
+            Delete(this.GetType(), CreateDeleteConditions(this), this.tenorTransaction);
         }
 
         /// <summary>
@@ -391,9 +374,6 @@ namespace Tenor.BLL
             Type type = null;
             Transaction transaction = null;
 
-            List<Join> joinList = new List<Join>();
-
-
             ConditionCollection conditions = new ConditionCollection();
             foreach (BLLBase item in instances)
             {
@@ -403,36 +383,75 @@ namespace Tenor.BLL
                 if (type == null)
                     type = item.GetType();
                 else if (type != item.GetType())
-                    throw new TenorException("You can have only items with the same type.");
+                    throw new TenorException("You can only have items with the same type.");
 
                 if (transaction == null)
                     transaction = item.tenorTransaction;
                 else if (transaction != item.tenorTransaction)
-                    throw new TenorException("You can have only items on the same transaction.");
-
+                    throw new TenorException("You can only have items on the same transaction.");
 
                 ConditionCollection cc = CreateDeleteConditions(item);
 
                 if (conditions.Count > 0)
                     conditions.Add(LogicalOperator.Or);
                 conditions.Add(cc);
-                joinList.AddRange(GetPlainJoins(cc, item.GetType()));
             }
 
+            Delete(type, conditions, transaction);
+        }
+
+        /// <summary>
+        /// Deletes instances of the passed type that match the conditions passed
+        /// </summary>
+        /// <param name="type">Type</param>
+        /// <param name="conditions">Conditions</param>
+        public static void Delete(Type type, ConditionCollection conditions)
+        {
+            if (type == null)
+                throw new ArgumentNullException("type");
+            if (!type.IsSubclassOf(typeof(BLL.BLLBase)))
+                throw new Tenor.BLL.InvalidTypeException(type, "type");
+            
+            Transaction transaction = new Transaction();
+
+            try
+            {
+                Delete(type, conditions, transaction);
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Deletes instances of the passed type that match the conditions passed
+        /// </summary>
+        /// <param name="type">Type</param>
+        /// <param name="conditions">Conditions</param>
+        /// <param name="transaction">Transaction, in case the operation must belong to one</param>
+        public static void Delete(Type type, ConditionCollection conditions, Transaction transaction)
+        {
+            if (type == null)
+                throw new ArgumentNullException("type");
+            if (!type.IsSubclassOf(typeof(BLL.BLLBase)))
+                throw new Tenor.BLL.InvalidTypeException(type, "type");
+            
             TableInfo table = TableInfo.CreateTableInfo(type);
             ConnectionStringSettings connection = table.GetConnection();
             GeneralDialect dialect = DialectFactory.CreateDialect(connection);
 
+            Join[] joins = GetPlainJoins(conditions, type);
 
             TenorParameter[] parameters = null;
-            string query = dialect.CreateDeleteSql(type, conditions, joinList.ToArray(), out parameters);
+            string query = dialect.CreateDeleteSql(type, conditions, joins, out parameters);
 
             if (transaction != null && transaction.dbTransaction != null)
                 Helper.ExecuteQuery(query, parameters, transaction.dbTransaction, dialect);
             else
                 Helper.UpdateData(query, parameters, connection);
-
-
         }
 
         private static ConditionCollection CreateDeleteConditions(BLLBase instance)
