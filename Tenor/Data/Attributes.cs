@@ -270,6 +270,8 @@ namespace Tenor.Data
 
         internal static ForeignKeyInfo Create(System.Reflection.PropertyInfo theProperty)
         {
+            if (theProperty == null)
+                return null;
             ForeignKeyInfo fk = new ForeignKeyInfo();
 
             fk._RelatedProperty = theProperty;

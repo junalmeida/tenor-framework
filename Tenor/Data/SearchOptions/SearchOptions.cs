@@ -17,7 +17,7 @@ namespace Tenor.Data
     {
 
 
-        internal Type _BaseClass;
+        internal Type baseType;
 
         /// <summary>
         /// Creates an instance of SearchOptions based on a base class.
@@ -30,7 +30,7 @@ namespace Tenor.Data
             if (!baseClass.IsSubclassOf(typeof(BLL.BLLBase)))
                 throw new Tenor.BLL.InvalidTypeException(baseClass, "baseClass");
 
-            _BaseClass = baseClass;
+            baseType = baseClass;
         }
 
 
@@ -178,7 +178,31 @@ namespace Tenor.Data
 
         public override string ToString()
         {
-            return this.GetType().Name + ": " + _BaseClass.Name;
+            return this.GetType().Name + ": " + baseType.Name;
         }
+
+
+
+        internal Dictionary<ForeignKeyInfo, string> eagerLoading = new Dictionary<ForeignKeyInfo, string>();
+
+        /// <summary>
+        /// Includes the property on the eager loading list.
+        /// </summary>
+        /// <param name="foreignPropertyName">The name of the property on the base class of this SearchOptions.</param>
+        public void LoadAlso(string foreignPropertyName)
+        {
+            if (string.IsNullOrEmpty(foreignPropertyName))
+                throw new ArgumentNullException("foreignPropertyName");
+
+            ForeignKeyInfo fkInfo = ForeignKeyInfo.Create(baseType.GetProperty(foreignPropertyName));
+            if (fkInfo == null)
+                throw new MissingForeignKeyException(baseType, foreignPropertyName);
+
+            //TODO: Find a better alias name.
+            string alias = foreignPropertyName;
+
+            eagerLoading.Add(fkInfo, alias);
+        }
+
     }
 }

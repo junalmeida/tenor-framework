@@ -83,7 +83,7 @@ namespace Tenor.BLL
         public static BLLBase[] Search(SearchOptions searchOptions, ConnectionStringSettings connection)
         {
             Tenor.Data.DataTable rs = SearchWithDataTable(searchOptions, connection);
-            return BindRows(rs, searchOptions._BaseClass, searchOptions.LazyLoading);
+            return BindRows(rs, searchOptions);
         }
 
         /// <summary>
@@ -94,22 +94,92 @@ namespace Tenor.BLL
         /// <param name="baseClass">Defines which type to load.</param>
         /// <exception cref="System.ArgumentNullException">Occurs when table or baseClass parameters are null.</exception>
         /// <returns>An array of entities.</returns>
-        public static BLLBase[] BindRows(DataTable table, Type baseClass, bool lazyLoading)
+        public static BLLBase[] BindRows(DataTable table, SearchOptions searchOptions)
         {
             if (table == null)
                 throw new ArgumentNullException("table");
-            if (baseClass == null)
-                throw new ArgumentNullException("baseClass");
-            if (!baseClass.IsSubclassOf(typeof(BLLBase)))
-                throw new Tenor.BLL.InvalidTypeException(baseClass, "baseClass");
-
-            BLLBase[] instances = (BLLBase[])(Array.CreateInstance(baseClass, table.Rows.Count));
-            for (int i = 0; i <= instances.Length - 1; i++)
+            if (searchOptions == null)
+                throw new ArgumentNullException("searchOptions");
+            if (searchOptions.eagerLoading.Count == 0)
             {
-                instances[i] = (BLLBase)(Activator.CreateInstance(baseClass));
-                instances[i].Bind(lazyLoading, null, table.Rows[i]);
+                //TODO: Check if this is necessary by performance needs.
+                BLLBase[] instances = (BLLBase[])(Array.CreateInstance(searchOptions.baseType, table.Rows.Count));
+                for (int i = 0; i <= instances.Length - 1; i++)
+                {
+                    instances[i] = (BLLBase)(Activator.CreateInstance(searchOptions.baseType));
+                    instances[i].Bind(searchOptions.LazyLoading, null, null, table.Rows[i]);
+                }
+                return instances;
             }
-            return instances;
+            else
+            {
+                Type listof = Type.GetType("System.Collections.Generic.List`1[[" + searchOptions.baseType.AssemblyQualifiedName + "]]");
+                IList instances = (IList)Activator.CreateInstance(listof);
+                //lets get metadata for baseClass and other things requested by the user.
+
+                List<FieldInfo[]> meta = new List<FieldInfo[]>();
+                meta.Add(BLLBase.GetPrimaryKeys(searchOptions.baseType));
+
+                List<ForeignKeyInfo> keys = new List<ForeignKeyInfo>(); //i need this to get fks by index
+                foreach (ForeignKeyInfo fkInfo in searchOptions.eagerLoading.Keys)
+                {
+                    keys.Add(fkInfo);
+                    meta.Add(BLLBase.GetPrimaryKeys(fkInfo.ElementType)); //pks of each eagerloading
+                }
+
+                List<string>[] lastPk = new List<string>[meta.Count];
+                for (int i = 0; i < meta.Count; i++)
+                    lastPk[i] = new List<string>();
+
+                foreach (DataRow dr in table.Rows)
+                {
+                    for(int i = 0; i < meta.Count; i++)
+                    {
+                        ForeignKeyInfo key = (i == 0 ? null : keys[i - 1]);
+
+                        string currentPKs = string.Empty;
+                        foreach (FieldInfo fi in meta[i])
+                        {
+                            string alias = (i == 0 ? fi.DataFieldName : searchOptions.eagerLoading[key] + fi.DataFieldName);
+                            currentPKs += dr[alias].ToString();
+                        }
+
+                        if (!string.IsNullOrEmpty(currentPKs) && !lastPk[i].Contains(currentPKs))
+                        {
+                            lastPk[i].Add(currentPKs);
+                            BLLBase instance = (BLLBase)Activator.CreateInstance((i == 0 ? searchOptions.baseType : key.ElementType));
+                            instance.Bind(searchOptions.LazyLoading, (i == 0 ? null : searchOptions.eagerLoading[key]), null, dr);
+
+                            if (key == null)
+                                instances.Add(instance);
+                            else
+                            {
+                                string basePk = string.Empty;
+                                foreach (FieldInfo fi in meta[0])
+                                {
+                                    string alias = fi.DataFieldName;
+                                    basePk += dr[alias].ToString();
+                                }
+                                int index = lastPk[0].IndexOf(basePk);
+                                BLLBase baseInstance = (BLLBase)instances[index];
+                                if (key.IsArray)
+                                {
+                                    baseInstance.lazyEnabled = false;
+                                    IList value = (IList)baseInstance.GetPropertyValue(key.RelatedProperty.Name);
+                                    baseInstance.lazyEnabled = true;
+                                    value.Add(instance);
+                                }
+                                else
+                                {
+                                    baseInstance.SetPropertyValue(key.RelatedProperty.Name, instance);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return (BLLBase[])instances.GetType().GetMethod("ToArray").Invoke(instances, null);
+            }
         }
 
 
@@ -138,7 +208,7 @@ namespace Tenor.BLL
             TenorParameter[] parameters = null;
             if (connection == null)
             {
-                TableInfo table = TableInfo.CreateTableInfo(searchOptions._BaseClass);
+                TableInfo table = TableInfo.CreateTableInfo(searchOptions.baseType);
                 connection = table.GetConnection();
             }
 
@@ -845,14 +915,33 @@ namespace Tenor.BLL
         #region Join Utility
         internal static Join[] GetPlainJoins(ConditionCollection conditions, Type baseClass)
         {
+            SearchOptions opt = new SearchOptions(baseClass);
+            opt.Conditions = conditions;
+            return GetPlainJoins(opt, null);
+        }
+
+        internal static Join[] GetPlainJoins(SearchOptions options, GeneralDialect dialect)
+        {
             List<Join> list = new List<Join>();
-            GetPlainJoins(conditions, list);
+            GetPlainJoins(options.Conditions, list);
+
+            if (dialect != null) 
+                foreach (ForeignKeyInfo fkInfo in options.eagerLoading.Keys)
+                {
+                    Join j = new Join(options.eagerLoading[fkInfo]);
+                    j.ParentAlias = null; //will be used in future to make joins of other levels.
+                    j.JoinMode = JoinMode.LeftJoin; //left? are you right?
+                    j.PropertyName = fkInfo.RelatedProperty.Name;
+                    j.ForeignTableInfo = TableInfo.CreateTableInfo(fkInfo.ElementType);
+                    if (!list.Contains(j))
+                        list.Add(j);
+                }
 
             foreach (Join join in list)
             {
                 if (join.ForeignKey == null)
                 {
-                    SetProperty(list, join, baseClass);
+                    SetProperty(list, join, options.baseType);
                 }
             }
             return list.ToArray();

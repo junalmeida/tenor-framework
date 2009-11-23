@@ -84,7 +84,7 @@ namespace Tenor.Data.Dialects.Oracle
 
         private Dictionary<string, Type> aliases = new Dictionary<string, Type>();
 
-        protected override string CreateClassAlias(Type classType)
+        public override string CreateClassAlias(Type classType)
         {
             string alias = base.CreateClassAlias(classType);
 
