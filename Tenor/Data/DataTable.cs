@@ -84,11 +84,11 @@ namespace Tenor.Data
 
         }
 
-        private void AttachConnection(ConnectionStringSettings Connection)
+        private void AttachConnection(ConnectionStringSettings connection)
         {
-            factory = Helper.GetFactory(Connection);
-            _ActiveConnection = factory.CreateConnection();
-            _ActiveConnection.ConnectionString = Connection.ConnectionString;
+            factory = Helper.GetFactory(connection);
+            _ActiveConnection = Helper.CreateConnection(factory, connection);
+
             _Cmd = _ActiveConnection.CreateCommand();
             _Cmd.CommandTimeout = Helper.DefaultTimeout;
             _Ad = factory.CreateDataAdapter();

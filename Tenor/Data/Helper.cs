@@ -129,8 +129,8 @@ namespace Tenor.Data
 
             DataTable dtRetorno = null;
 
-            DbConnection conn = factory.CreateConnection();
-            conn.ConnectionString = connectionString.ConnectionString;
+            DbConnection conn = CreateConnection(factory, connectionString);
+
             DbCommand cmd = null;
             DbDataReader reader;
 
@@ -251,8 +251,8 @@ namespace Tenor.Data
 
             GeneralDialect dialect = DialectFactory.CreateDialect(connection);
 
-            DbConnection conn = dialect.Factory.CreateConnection();
-            conn.ConnectionString = connection.ConnectionString;
+            DbConnection conn = CreateConnection(dialect.Factory, connection);
+
             DbTransaction transaction = null;
             try
             {
@@ -399,6 +399,43 @@ namespace Tenor.Data
                     throw new InvalidOperationException("Invalid provider");
             }
 
+        }
+
+        internal static DbConnection CreateConnection(ConnectionStringSettings connection)
+        {
+            if (connection == null)
+                throw new NullReferenceException("connection");
+
+            DbProviderFactory factory = DbProviderFactories.GetFactory(connection.ProviderName);
+            return CreateConnection(factory, connection);
+        }
+
+        internal static DbConnection CreateConnection(DbProviderFactory factory, ConnectionStringSettings connection)
+        {
+            if (factory == null)
+                throw new NullReferenceException("factory");
+            if (connection == null)
+                throw new NullReferenceException("connection");
+
+            string value = connection.ConnectionString;
+            if (string.IsNullOrEmpty(value))
+                throw new ConfigurationErrorsException("An invalid connection string was set.");
+
+            
+
+            if (value.Contains("{0}"))
+            {
+                string path = typeof(Helper).Assembly.GetName().CodeBase;
+                if (path.StartsWith("file:///"))
+                    path = new FileInfo(path.Substring(8).Replace("/", Path.DirectorySeparatorChar.ToString())).DirectoryName;
+                else
+                    path = Environment.CurrentDirectory;
+                value = string.Format(value, path);
+            }
+
+            DbConnection conn = factory.CreateConnection();
+            conn.ConnectionString = value;
+            return conn;
         }
 
     }

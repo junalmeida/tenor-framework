@@ -64,8 +64,8 @@ namespace Tenor.Data
         private void Begin()
         {
             factory = Helper.GetFactory(this.connection);
-            conn = factory.CreateConnection();
-            conn.ConnectionString = connection.ConnectionString;
+            conn = Helper.CreateConnection(factory, connection);
+
             conn.Open();
             dbTransaction = conn.BeginTransaction();
         }

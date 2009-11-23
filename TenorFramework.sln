@@ -5,6 +5,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tenor.Web.UI", "Tenor.Web.UI\Tenor.Web.UI.csproj", "{87AB0401-5634-4DAE-8ED9-77DCE524FD80}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Resources", "Resources", "{4ED50A48-424F-4C4A-85F1-0EF76EE07AE0}"
+	ProjectSection(SolutionItems) = preProject
+		license.txt = license.txt
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{A68E76D2-36DE-46D5-B779-FA9AFD961640}"
 	ProjectSection(SolutionItems) = preProject
@@ -32,10 +35,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "bin", "bin", "{9547EA97-71B
 		Resources\bin\System.Data.SQLite.xml = Resources\bin\System.Data.SQLite.xml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tenor.Test", "Tenor.Test\Tenor.Test.csproj", "{3D49FCBB-2056-44F2-99BA-AFEE78086F84}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5ADC66AA-3131-41F6-8005-8DB1E69FBCF0}"
+	ProjectSection(SolutionItems) = preProject
+		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
+		TenorFramework.vsmdi = TenorFramework.vsmdi
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp.Business", "SampleApp.Business\SampleApp.Business.csproj", "{648E95EC-A041-41B6-B201-B82AD0440A77}"
+EndProject
 Global
-	GlobalSection(SubversionScc) = preSolution
-		Svn-Managed = True
-		Manager = AnkhSVN - Subversion Support for Visual Studio
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = TenorFramework.vsmdi
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|.NET = Debug|.NET
@@ -89,13 +101,43 @@ Global
 		{5942CEF1-5760-435F-AE6E-8EC99B243314}.MonoRelease|.NET.ActiveCfg = Release|Any CPU
 		{5942CEF1-5760-435F-AE6E-8EC99B243314}.MonoRelease|Any CPU.ActiveCfg = Release|Any CPU
 		{5942CEF1-5760-435F-AE6E-8EC99B243314}.MonoRelease|Any CPU.Build.0 = Release|Any CPU
-		{5942CEF1-5760-435F-AE6E-8EC99B243314}.MonoRelease|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{5942CEF1-5760-435F-AE6E-8EC99B243314}.MonoRelease|Mixed Platforms.Build.0 = Release|Any CPU
+		{5942CEF1-5760-435F-AE6E-8EC99B243314}.MonoRelease|Mixed Platforms.ActiveCfg = MonoRelease|Any CPU
+		{5942CEF1-5760-435F-AE6E-8EC99B243314}.MonoRelease|Mixed Platforms.Build.0 = MonoRelease|Any CPU
 		{5942CEF1-5760-435F-AE6E-8EC99B243314}.Release|.NET.ActiveCfg = Release|Any CPU
 		{5942CEF1-5760-435F-AE6E-8EC99B243314}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5942CEF1-5760-435F-AE6E-8EC99B243314}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5942CEF1-5760-435F-AE6E-8EC99B243314}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{5942CEF1-5760-435F-AE6E-8EC99B243314}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{3D49FCBB-2056-44F2-99BA-AFEE78086F84}.Debug|.NET.ActiveCfg = Debug|Any CPU
+		{3D49FCBB-2056-44F2-99BA-AFEE78086F84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D49FCBB-2056-44F2-99BA-AFEE78086F84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D49FCBB-2056-44F2-99BA-AFEE78086F84}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{3D49FCBB-2056-44F2-99BA-AFEE78086F84}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{3D49FCBB-2056-44F2-99BA-AFEE78086F84}.MonoRelease|.NET.ActiveCfg = Release|Any CPU
+		{3D49FCBB-2056-44F2-99BA-AFEE78086F84}.MonoRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{3D49FCBB-2056-44F2-99BA-AFEE78086F84}.MonoRelease|Any CPU.Build.0 = Release|Any CPU
+		{3D49FCBB-2056-44F2-99BA-AFEE78086F84}.MonoRelease|Mixed Platforms.ActiveCfg = MonoRelease|Any CPU
+		{3D49FCBB-2056-44F2-99BA-AFEE78086F84}.MonoRelease|Mixed Platforms.Build.0 = MonoRelease|Any CPU
+		{3D49FCBB-2056-44F2-99BA-AFEE78086F84}.Release|.NET.ActiveCfg = Release|Any CPU
+		{3D49FCBB-2056-44F2-99BA-AFEE78086F84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D49FCBB-2056-44F2-99BA-AFEE78086F84}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D49FCBB-2056-44F2-99BA-AFEE78086F84}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{3D49FCBB-2056-44F2-99BA-AFEE78086F84}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{648E95EC-A041-41B6-B201-B82AD0440A77}.Debug|.NET.ActiveCfg = Debug|Any CPU
+		{648E95EC-A041-41B6-B201-B82AD0440A77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{648E95EC-A041-41B6-B201-B82AD0440A77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{648E95EC-A041-41B6-B201-B82AD0440A77}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{648E95EC-A041-41B6-B201-B82AD0440A77}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{648E95EC-A041-41B6-B201-B82AD0440A77}.MonoRelease|.NET.ActiveCfg = Release|Any CPU
+		{648E95EC-A041-41B6-B201-B82AD0440A77}.MonoRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{648E95EC-A041-41B6-B201-B82AD0440A77}.MonoRelease|Any CPU.Build.0 = Release|Any CPU
+		{648E95EC-A041-41B6-B201-B82AD0440A77}.MonoRelease|Mixed Platforms.ActiveCfg = MonoRelease|Any CPU
+		{648E95EC-A041-41B6-B201-B82AD0440A77}.MonoRelease|Mixed Platforms.Build.0 = MonoRelease|Any CPU
+		{648E95EC-A041-41B6-B201-B82AD0440A77}.Release|.NET.ActiveCfg = Release|Any CPU
+		{648E95EC-A041-41B6-B201-B82AD0440A77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{648E95EC-A041-41B6-B201-B82AD0440A77}.Release|Any CPU.Build.0 = Release|Any CPU
+		{648E95EC-A041-41B6-B201-B82AD0440A77}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{648E95EC-A041-41B6-B201-B82AD0440A77}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -104,5 +146,9 @@ Global
 		{A68E76D2-36DE-46D5-B779-FA9AFD961640} = {4ED50A48-424F-4C4A-85F1-0EF76EE07AE0}
 		{4B0039AE-5D37-4849-9691-39C6C54710B8} = {4ED50A48-424F-4C4A-85F1-0EF76EE07AE0}
 		{9547EA97-71B2-4507-A4C0-4FA0A7FF3BE2} = {4ED50A48-424F-4C4A-85F1-0EF76EE07AE0}
+	EndGlobalSection
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
 	EndGlobalSection
 EndGlobal

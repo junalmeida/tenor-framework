@@ -19,8 +19,6 @@ namespace SampleApp
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            BusinessProcess b = new BusinessProcess();
-            b.TestMethod();
         }
 
 
