@@ -63,8 +63,13 @@ namespace Tenor.Data.Dialects
             if (!dialects.ContainsKey("MySql.Data.MySqlClient"))
                 dialects.Add("MySql.Data.MySqlClient", typeof(MySql.MySql));
 
+#if MONO
+            if (!dialects.ContainsKey("Mono.Data.Sqlite"))
+                dialects.Add("Mono.Data.Sqlite", typeof(SQLite.SQLite));
+#endif            
             if (!dialects.ContainsKey("System.Data.SQLite"))
                 dialects.Add("System.Data.SQLite", typeof(SQLite.SQLite));
+
 
             if (!dialects.ContainsKey("System.Data.OracleClient"))
                 dialects.Add("System.Data.OracleClient", typeof(Oracle.Oracle));

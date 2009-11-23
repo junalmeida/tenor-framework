@@ -39,7 +39,14 @@ namespace Tenor.Data.Dialects.SQLite
         
         public override string ProviderInvariantName
         {
-            get { return "System.Data.SQLite"; }
+            get
+            { 
+            #if MONO
+            return "Mono.Data.Sqlite";
+            #else
+            return "System.Data.SQLite"; 
+            #endif
+            }
         }
 
         protected override string ParameterIdentifier

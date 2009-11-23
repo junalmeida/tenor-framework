@@ -4,13 +4,14 @@ using System.Collections.Generic;
 
 using Tenor.Data;
 using SampleApp.Business.Entities;
+using Tenor.BLL;
 
 #if MSTEST
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Tenor.BLL;
 #else
 using TestMethodAttribute = NUnit.Framework.TestAttribute;
 using TestClassAttribute = NUnit.Framework.TestFixtureAttribute;
+using Assert = NUnit.Framework.Assert;
 #endif
 
 
