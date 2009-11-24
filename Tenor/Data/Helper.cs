@@ -33,10 +33,23 @@ namespace Tenor.Data
         /// Creates the DbProviderFactory. 
         /// TODO: Move all this stuff to dialects.
         /// </summary>
-        internal static DbProviderFactory GetFactory(ConnectionStringSettings Connection)
+        internal static DbProviderFactory GetFactory(ConnectionStringSettings connection)
         {
-            DbProviderFactory factory = DbProviderFactories.GetFactory(Connection.ProviderName);
-            return factory;
+			try
+			{
+				string provider = connection.ProviderName;
+#if MONO
+				if (provider == "System.Data.SQLite")
+					provider = "Mono.Data.Sqlite";
+				#endif
+				DbProviderFactory factory = DbProviderFactories.GetFactory(provider);
+				return factory;
+			}
+			catch(Exception e)
+			{
+				throw new System.Configuration.ConfigurationErrorsException(string.Format("Cannot load factory for {0} on connection {1}.", connection.ProviderName, connection.Name), e);
+			}
+           
         }
         /// <summary>
         /// Creates the CommandBuilder. 
@@ -379,9 +392,9 @@ namespace Tenor.Data
         }
 
         [Obsolete()]
-        internal static string GetParameterPrefix(ConnectionStringSettings Connection)
+        internal static string GetParameterPrefix(ConnectionStringSettings connection)
         {
-            return GetParameterPrefix(GetFactory(Connection));
+            return GetParameterPrefix(GetFactory(connection));
         }
 
         [Obsolete()]
@@ -426,11 +439,21 @@ namespace Tenor.Data
             if (value.Contains("{0}"))
             {
                 string path = typeof(Helper).Assembly.GetName().CodeBase;
-                if (path.StartsWith("file:///"))
-                    path = new FileInfo(path.Substring(8).Replace("/", Path.DirectorySeparatorChar.ToString())).DirectoryName;
+
+                if (path.StartsWith("file:///")) 
+                {
+					if (Path.DirectorySeparatorChar == '/')
+					{
+						path = new FileInfo(path.Substring(7)).DirectoryName;
+					}
+					else
+					{
+						path = new FileInfo(path.Substring(8).Replace("/", Path.DirectorySeparatorChar.ToString())).DirectoryName;
+					}
+                }
                 else
                     path = Environment.CurrentDirectory;
-                value = string.Format(value, path);
+				value = string.Format(value, path);
             }
 
             DbConnection conn = factory.CreateConnection();

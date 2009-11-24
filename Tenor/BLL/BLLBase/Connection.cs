@@ -49,7 +49,7 @@ namespace Tenor.BLL
                 int i = 0;
                 do
                 {
-                    if (!ConfigurationManager.ConnectionStrings[i].ConnectionString.ToLower().Contains("|datafile|") && !ConfigurationManager.ConnectionStrings[i].ConnectionString.ToLower().Contains("aspnetdb.mdf"))
+                    if (!ConfigurationManager.ConnectionStrings[i].ConnectionString.ToLower().Contains("|datafile|") && !ConfigurationManager.ConnectionStrings[i].ConnectionString.ToLower().Contains("aspnetdb."))
                     {
                         break;
                     }
