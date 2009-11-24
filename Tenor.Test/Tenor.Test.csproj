@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Tenor.Test</RootNamespace>
     <AssemblyName>Tenor.Test</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
   </PropertyGroup>
@@ -63,6 +63,9 @@
     <Reference Include="nunit.framework" />
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Data.SQLite, Version=1.0.60.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139">
       <SpecificVersion>False</SpecificVersion>
@@ -82,6 +85,10 @@
     <ProjectReference Include="..\SampleApp.Business\SampleApp.Business.csproj">
       <Project>{648E95EC-A041-41B6-B201-B82AD0440A77}</Project>
       <Name>SampleApp.Business</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tenor.Linq\Tenor.Linq.csproj">
+      <Project>{BD10F917-67D6-40F9-B934-ACE73E30E6F3}</Project>
+      <Name>Tenor.Linq</Name>
     </ProjectReference>
     <ProjectReference Include="..\Tenor\Tenor.csproj">
       <Project>{5FAE8827-5AED-4918-9FFB-85B7E91901F5}</Project>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Linq;
+using System;
 using System.Text;
 using System.Collections.Generic;
 
@@ -38,6 +39,21 @@ namespace Tenor.Test
             Person[] persons2 = Person.Search(cc, null);
 
             ShouldListsBeEqual(persons, persons2, false);
+        }
+
+
+        [TestMethod]
+        public void LinqSelectWithConditions()
+        {
+            Tenor.Linq.SearchOptions<Person> so = new Tenor.Linq.SearchOptions<Person>();
+
+            so.Where(p => p.Active == true);
+
+            Person[] persons = so.ToArray();
+            Person[] persons2 = so.ToArray();
+
+            ShouldListsBeEqual(persons, persons2, false);
+
         }
     }
 }
