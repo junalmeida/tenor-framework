@@ -57,14 +57,12 @@ namespace Tenor.Data
                 Include(item);
         }
 
-        private DbProviderFactory factory;
         private DbConnection conn;
         internal DbTransaction dbTransaction;
 
         private void Begin()
         {
-            factory = Helper.GetFactory(this.connection);
-            conn = Helper.CreateConnection(factory, connection);
+            conn = Helper.CreateConnection(connection);
 
             conn.Open();
             dbTransaction = conn.BeginTransaction();

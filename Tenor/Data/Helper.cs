@@ -30,38 +30,6 @@ namespace Tenor.Data
         public const int DefaultTimeout = 260;
 
         /// <summary>
-        /// Creates the DbProviderFactory. 
-        /// TODO: Move all this stuff to dialects.
-        /// </summary>
-        internal static DbProviderFactory GetFactory(ConnectionStringSettings connection)
-        {
-			try
-			{
-				string provider = connection.ProviderName;
-#if MONO
-				if (provider == "System.Data.SQLite")
-					provider = "Mono.Data.Sqlite";
-				#endif
-				DbProviderFactory factory = DbProviderFactories.GetFactory(provider);
-				return factory;
-			}
-			catch(Exception e)
-			{
-				throw new System.Configuration.ConfigurationErrorsException(string.Format("Cannot load factory for {0} on connection {1}.", connection.ProviderName, connection.Name), e);
-			}
-           
-        }
-        /// <summary>
-        /// Creates the CommandBuilder. 
-        /// TODO: Move all this stuff to dialects.
-        /// </summary>
-        internal static DbCommandBuilder GetCommandBuilder(ConnectionStringSettings connection)
-        {
-            DbCommandBuilder builder = GetFactory(connection).CreateCommandBuilder();
-            return builder;
-        }
-
-        /// <summary>
         /// Converts a system type name into a database type.
         /// </summary>
         /// <param name="systemType">A system type</param>
@@ -138,11 +106,12 @@ namespace Tenor.Data
         {
             if (connectionString == null)
                 throw new ArgumentNullException("connectionString");
-            DbProviderFactory factory = GetFactory(connectionString);
+            GeneralDialect dialect = DialectFactory.CreateDialect(connectionString);
+
 
             DataTable dtRetorno = null;
 
-            DbConnection conn = CreateConnection(factory, connectionString);
+            DbConnection conn = CreateConnection(dialect, connectionString);
 
             DbCommand cmd = null;
             DbDataReader reader;
@@ -169,7 +138,7 @@ namespace Tenor.Data
                 {
                     foreach (TenorParameter param in parameters)
                     {
-                        cmd.Parameters.Add(param.ToDbParameter(factory));
+                        cmd.Parameters.Add(param.ToDbParameter(dialect.Factory));
                     }
                 }
                 conn.Open();
@@ -264,7 +233,7 @@ namespace Tenor.Data
 
             GeneralDialect dialect = DialectFactory.CreateDialect(connection);
 
-            DbConnection conn = CreateConnection(dialect.Factory, connection);
+            DbConnection conn = CreateConnection(dialect, connection);
 
             DbTransaction transaction = null;
             try
@@ -394,7 +363,7 @@ namespace Tenor.Data
         [Obsolete()]
         internal static string GetParameterPrefix(ConnectionStringSettings connection)
         {
-            return GetParameterPrefix(GetFactory(connection));
+            return GetParameterPrefix(DialectFactory.CreateDialect(connection).Factory);
         }
 
         [Obsolete()]
@@ -418,15 +387,14 @@ namespace Tenor.Data
         {
             if (connection == null)
                 throw new NullReferenceException("connection");
-
-            DbProviderFactory factory = DbProviderFactories.GetFactory(connection.ProviderName);
-            return CreateConnection(factory, connection);
+            GeneralDialect dialect = DialectFactory.CreateDialect(connection);
+            return CreateConnection(dialect, connection);
         }
 
-        internal static DbConnection CreateConnection(DbProviderFactory factory, ConnectionStringSettings connection)
+        internal static DbConnection CreateConnection(GeneralDialect dialect, ConnectionStringSettings connection)
         {
-            if (factory == null)
-                throw new NullReferenceException("factory");
+            if (dialect == null)
+                throw new NullReferenceException("dialect");
             if (connection == null)
                 throw new NullReferenceException("connection");
 
@@ -456,7 +424,7 @@ namespace Tenor.Data
 				value = string.Format(value, path);
             }
 
-            DbConnection conn = factory.CreateConnection();
+            DbConnection conn = dialect.Factory.CreateConnection();
             conn.ConnectionString = value;
             return conn;
         }

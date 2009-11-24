@@ -671,7 +671,7 @@ namespace Tenor.Diagnostics
                 if (System.Diagnostics.Debugger.IsAttached)
                 {
 
-                    DbProviderFactory factory = Helper.GetFactory(connection);
+                    DbProviderFactory factory = Tenor.Data.Dialects.DialectFactory.CreateDialect(connection).Factory;
                     StringBuilder traceInfo = new StringBuilder();
                     traceInfo.AppendLine();
                     traceInfo.AppendLine(header);

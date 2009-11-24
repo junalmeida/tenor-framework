@@ -86,8 +86,10 @@ namespace Tenor.Data
 
         private void AttachConnection(ConnectionStringSettings connection)
         {
-            factory = Helper.GetFactory(connection);
-            _ActiveConnection = Helper.CreateConnection(factory, connection);
+            Tenor.Data.Dialects.GeneralDialect dialect = Dialects.DialectFactory.CreateDialect(connection);
+
+            factory = dialect.Factory;
+            _ActiveConnection = Helper.CreateConnection(connection);
 
             _Cmd = _ActiveConnection.CreateCommand();
             _Cmd.CommandTimeout = Helper.DefaultTimeout;
