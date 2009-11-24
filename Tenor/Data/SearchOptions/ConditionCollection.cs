@@ -13,7 +13,7 @@ namespace Tenor.Data
     /// <summary>
     /// This class provides a way to make searches on entities.
     /// </summary>
-    public class ConditionCollection : Collection<object>
+    public class ConditionCollection : IEnumerable
     {
 
 
@@ -56,15 +56,15 @@ namespace Tenor.Data
         /// <remarks></remarks>
         public void Add(LogicalOperator logicalOperator)
         {
-            if (this.Items.Count == 0)
+            if (this.Count == 0)
             {
                 throw (new ArgumentException("Cannot insert an operator when the collection is empty.", "logicalOperator", null));
             }
-            else if (this[this.Items.Count - 1].GetType() == typeof(LogicalOperator))
+            else if (Items[this.Count - 1].GetType() == typeof(LogicalOperator))
             {
                 throw (new ArgumentException("Cannot insert an operator when the last item is another operator.", "logicalOperator", null));
             }
-            base.Add(logicalOperator);
+            BaseAdd(logicalOperator);
         }
 
         /// <summary>
@@ -149,12 +149,12 @@ namespace Tenor.Data
             {
                 throw (new ArgumentNullException("searchCondition"));
             }
-            else if (Count > 0 && this[Count - 1].GetType() != typeof(Data.LogicalOperator))
+            else if (this.Count > 0 && Items[this.Count - 1].GetType() != typeof(Data.LogicalOperator))
             {
                 throw (new ArgumentException("Cannot insert a SearchCondition when the last item is not an operator.", "searchCondition"));
             }
 
-            base.Add(searchCondition);
+            BaseAdd(searchCondition);
             return this;
         }
 
@@ -170,7 +170,7 @@ namespace Tenor.Data
             {
                 throw (new ArgumentException("Cannot insert Null or empty collection."));
             }
-            else if (this.Items.Count > 0 && (this[this.Items.Count - 1].GetType() == typeof(SearchCondition) || this[this.Items.Count - 1].GetType() == typeof(ConditionCollection)))
+            else if (this.Count > 0 && (Items[this.Count - 1].GetType() == typeof(SearchCondition) || Items[this.Items.Count - 1].GetType() == typeof(ConditionCollection)))
             {
                 throw (new ArgumentException("Cannot insert a SearchCondition when the last item is not an operator.", "searchConditions", null));
             }
@@ -178,16 +178,15 @@ namespace Tenor.Data
             {
                 throw (new ArgumentException("Invalid ConditionCollecion. Collections cannot end with an operator.", "searchConditions", null));
             }
-            base.Add(searchConditions);
+            BaseAdd(searchConditions);
 
             return this;
         }
 
 
-        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        public new void Add(object item)
+        private void BaseAdd(object item)
         {
-            base.Add(item);
+            Items.Add(item);
         }
 
         #endregion
@@ -317,40 +316,47 @@ namespace Tenor.Data
         }
         #endregion
 
-        #region " Contains e IndexOf "
+        #region " Contains, IndexOf e Count "
         public bool Contains(ConditionCollection SearchConditions)
         {
-            return base.Contains(SearchConditions);
+            return Items.Contains(SearchConditions);
         }
 
         public bool Contains(SearchCondition SearchCondition)
         {
-            return base.Contains(SearchCondition);
+            return Items.Contains(SearchCondition);
         }
 
-        public bool Contains(Data.LogicalOperator LogicalOperator)
-        {
-            return base.Contains(LogicalOperator);
-        }
+        //public bool Contains(Data.LogicalOperator LogicalOperator)
+        //{
+        //    return Items.Contains(LogicalOperator);
+        //}
 
         public int IndexOf(ConditionCollection SearchConditions)
         {
-            return base.IndexOf(SearchConditions);
+            return Items.IndexOf(SearchConditions);
         }
 
         public int IndexOf(SearchCondition SearchCondition)
         {
-            return base.IndexOf(SearchCondition);
+            return Items.IndexOf(SearchCondition);
         }
 
-        public int IndexOf(Data.LogicalOperator LogicalOperator)
+        //public int IndexOf(LogicalOperator LogicalOperator)
+        //{
+        //    return Items.IndexOf(LogicalOperator);
+        //}
+
+        public int Count
         {
-            return base.IndexOf(LogicalOperator);
+            get { return Items.Count; }
         }
 
         #endregion
 
-        #region " Include Table "
+        List<object> Items = new List<object>();
+
+        #region " Include Class "
         internal List<Join> includes = new List<Join>();
 
         /// <summary>
@@ -384,34 +390,19 @@ namespace Tenor.Data
         }
         #endregion
 
-        /*
-        public new object this[int index]
+
+        public object this[int index]
         {
             get
             {
-                return base[index];
+                return Items[index];
             }
         }
-         */
 
-        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        public void Insert()
+        public IEnumerator GetEnumerator()
         {
-            throw new NotSupportedException();
+            return Items.GetEnumerator();
         }
 
-        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        public void Remove()
-        {
-            throw new NotSupportedException();
-        }
-
-        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        public void RemoveAt()
-        {
-            throw new NotSupportedException();
-        }
-
-        
     }
 }
