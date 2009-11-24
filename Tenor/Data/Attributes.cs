@@ -87,19 +87,17 @@ namespace Tenor.Data
 
         public ConnectionStringSettings GetConnection()
         {
+            ConnectionStringSettings conn = null;
             if (string.IsNullOrEmpty(attribute.ConnectionName))
-            {
-                return BLL.BLLBase.SystemConnection;
-            }
+                conn = BLL.BLLBase.SystemConnection;
             else
             {
-                ConnectionStringSettings conn = ConfigurationManager.ConnectionStrings[attribute.ConnectionName];
+                conn = ConfigurationManager.ConnectionStrings[attribute.ConnectionName];
                 if (conn == null)
-                {
                     throw new TenorException(string.Format("Cannot find a connection with the name '{0}'", attribute.ConnectionName));
-                }
-                return conn;
             }
+
+            return conn;
         }
     }
 

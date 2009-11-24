@@ -32,47 +32,6 @@ namespace Tenor.Test
             //provide a way to check if it was loaded on eager mode.
 
 
-            /*
-            //Loads a person and adds 3 departments to its N:N relation.
-            Person p = new Person(2);
-            p.Name += "Changed";
-
-            foreach (Department depto in p.DepartmentList)
-            {
-                //blah
-            }
-            p.DepartmentList.Clear();
-
-            Department d = new Department();
-            d.DepartmentId = 1;
-            p.DepartmentList.Add(d);
-
-            d = new Department();
-            d.DepartmentId = 3;
-            p.DepartmentList.Add(d);
-
-            d = new Department();
-            d.DepartmentId = 4;
-            p.DepartmentList.Add(d);
-
-
-            Transaction t = new Transaction();
-            try
-            {
-                t.Include(p);
-                p.Save(true);
-                p.SaveList("DepartmentList");
-            }
-            catch
-            {
-                t.Rollback();
-                return;
-            }
-            t.Commit();
-            */
- 
-
-
         }
     }
 }

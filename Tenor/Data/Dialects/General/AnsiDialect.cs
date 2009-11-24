@@ -1058,7 +1058,7 @@ namespace Tenor.Data.Dialects
                 sql.Append(this.ParameterIdentifier + string.Format(localParamPrefix, i));
             }
             sql.AppendLine();
-            sql.AppendLine("GO");
+            sql.AppendLine(Helper.GoStatement);
 
             if (propertyValues.GetUpperBound(0) > -1) // if we have values on the list
             {

@@ -36,16 +36,16 @@ namespace Tenor.Data.Dialects.SQLite
                 return builder;
             }
         }
-        
+
         public override string ProviderInvariantName
         {
             get
-            { 
-            #if MONO
-            return "Mono.Data.Sqlite";
-            #else
-            return "System.Data.SQLite"; 
-            #endif
+            {
+#if MONO
+                return "Mono.Data.Sqlite";
+#else
+                return "System.Data.SQLite";
+#endif
             }
         }
 
@@ -116,7 +116,7 @@ namespace Tenor.Data.Dialects.SQLite
                 sql.Append(this.ParameterIdentifier + string.Format(localParamPrefix, i));
             }
             sql.AppendLine(LineEnding);
-            sql.AppendLine("GO");
+            sql.AppendLine(Helper.GoStatement);
             if (propertyValues.GetUpperBound(0) > -1) // if we have values on the list
             {
 

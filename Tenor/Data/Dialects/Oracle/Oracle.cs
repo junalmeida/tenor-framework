@@ -133,7 +133,7 @@ namespace Tenor.Data.Dialects.Oracle
                 sql.Append(this.ParameterIdentifier + string.Format(localParamPrefix, i));
             }
             sql.AppendLine(LineEnding);
-            sql.AppendLine("GO");
+            sql.AppendLine(Helper.GoStatement);
 
             sql.Append(string.Format("INSERT INTO {0} (", tableNameExpression));
             for (int i = 0; i < localFields.Length; i++)

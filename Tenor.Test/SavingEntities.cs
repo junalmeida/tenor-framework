@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SampleApp.Business.Entities;
 using Tenor.BLL;
+using Tenor.Data;
 #else
 using TestMethodAttribute = NUnit.Framework.TestAttribute;
 using TestClassAttribute = NUnit.Framework.TestFixtureAttribute;
@@ -49,6 +50,54 @@ namespace Tenor.Test
             Person p = CreateNewPerson();
 
             p = new Person(p.PersonId);
+
+        }
+
+
+        [TestMethod]
+        public void SaveManyToManyList()
+        {
+
+            //Loads a person and adds 3 departments to its N:N relation.
+            Person p = new Person(2);
+            p.Name += " Changed";
+
+            p.DepartmentList.Clear();
+
+            int[] departments = new int[] { 1, 3, 4 };
+
+            foreach (int id in departments)
+            {
+                Department d = new Department();
+                d.DepartmentId = id;
+                p.DepartmentList.Add(d);
+            }
+
+
+            Transaction t = new Transaction();
+            try
+            {
+                t.Include(p);
+                p.Save(true);
+                p.SaveList("DepartmentList");
+                t.Commit();
+            }
+            catch (Exception ex)
+            {
+                t.Rollback();
+                Assert.Fail("Cannot save person. " + ex.Message);
+            }
+
+            //Check if person 2 have the departments 1, 3 and 4
+            p = new Person(2);
+
+            foreach (int id in departments)
+            {
+                Department d = new Department();
+                d.DepartmentId = id;
+                if (!p.DepartmentList.Contains(d))
+                    Assert.Fail(string.Format("Department {0} was not associated with person 2. ", id));
+            }
 
         }
 

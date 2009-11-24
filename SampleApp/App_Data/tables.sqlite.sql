@@ -57,6 +57,19 @@ CREATE TABLE "main"."Person_Department"
 ); 
 
 -- Data
+INSERT INTO "Departments" ("Name")
+VALUES ('Department 1');
+INSERT INTO "Departments" ("Name")
+VALUES ('Department 2');
+INSERT INTO "Departments" ("Name")
+VALUES ('Department 3');
+INSERT INTO "Departments" ("Name")
+VALUES ('Department 4');
+INSERT INTO "Departments" ("Name")
+VALUES ('Department 5');
+
+
+
 INSERT INTO "Categories" ("Name")
 VALUES ('First category');
 INSERT INTO "Categories" ("Name")
