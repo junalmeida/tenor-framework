@@ -21,7 +21,8 @@ CREATE TABLE "main"."Persons"
 	"Expires" DATETIME,
 	"Active" BOOLEAN NOT NULL,
 	"Photo" BLOB,
-	"MaritalStatus" INT(4)
+	"MaritalStatus" INT(4),
+	"ContractType" INT(4)
 );
 
 CREATE TABLE "main"."Items"
@@ -52,7 +53,7 @@ CREATE TABLE "main"."Person_Department"
   "DepartmentId" INTEGER NOT NULL,
   PRIMARY KEY ("PersonId","DepartmentId"),
 	FOREIGN KEY("PersonId") REFERENCES "Persons" ("PersonId"),
-	FOREIGN KEY("DepartmentId") REFERENCES "Departments" ("DepartmentId"),
+	FOREIGN KEY("DepartmentId") REFERENCES "Departments" ("DepartmentId")
 ); 
 
 -- Data
