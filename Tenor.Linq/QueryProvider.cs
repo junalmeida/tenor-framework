@@ -52,7 +52,12 @@ namespace Tenor.Linq
 
         public object Execute(Expression expression)
         {
-            return null;
+            Type type = expression.Type;
+            Tenor.Data.SearchOptions so = new Tenor.Data.SearchOptions(type);
+
+
+
+            return so.Execute();
         }
 
 

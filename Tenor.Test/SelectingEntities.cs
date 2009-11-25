@@ -45,9 +45,9 @@ namespace Tenor.Test
         [TestMethod]
         public void LinqSelectWithConditions()
         {
-            Tenor.Linq.SearchOptions<Person> so = new Tenor.Linq.SearchOptions<Person>();
+            IQueryable<Person> so = new Tenor.Linq.SearchOptions<Person>();
 
-            so.Where(p => p.Active == true);
+            so = so.Where(p => p.Active == true);
 
             Person[] persons = so.ToArray();
             Person[] persons2 = so.ToArray();
