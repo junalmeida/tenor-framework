@@ -13,18 +13,18 @@ namespace Tenor.Data
     /// <summary>
     /// Represents a set of search definitions.
     /// </summary>
-    public class SearchOptions : ISearchOptions 
+    public class SearchOptions //: ISearchOptions 
     {
 
 
         internal Type baseType;
-        public Type Class
-        {
-            get
-            {
-                return baseType;
-            }
-        }
+        //public Type Class
+        //{
+        //    get
+        //    {
+        //        return baseType;
+        //    }
+        //}
 
         /// <summary>
         /// Creates an instance of SearchOptions based on a base class.

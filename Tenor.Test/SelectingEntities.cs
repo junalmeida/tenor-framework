@@ -49,7 +49,22 @@ namespace Tenor.Test
 
             so = so.Where(p => p.Active && (p.Email == null || !p.Email.Contains("@")));
 
+            so = so.OrderBy(p => p.Name);
+
+            so = so.OrderByDescending(p => p.Active);
+
+
+            so = so.Distinct();
+
+            //we cannot test this on sqlite.
+            //so = so.Take(10);
+
+
             Person[] persons = so.ToArray();
+
+            //int personCount = so.Count();
+            //Assert.AreEqual(personCount, persons.Length);
+
             Person[] persons2 = so.ToArray();
 
             ShouldListsBeEqual(persons, persons2, false);

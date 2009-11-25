@@ -8,7 +8,10 @@ using System.Linq.Expressions;
 
 namespace Tenor.Linq
 {
-    public class SearchOptions<T> : Tenor.Data.ISearchOptions, IEnumerable, IQueryable, System.Linq.IQueryable<T> where T : BLLBase
+    /// <summary>
+    /// Represents a set of search definitions. You can use Linq to make your queries.
+    /// </summary>
+    public class SearchOptions<T> : IOrderedQueryable, IOrderedQueryable<T>, IEnumerable, IQueryable, System.Linq.IQueryable<T> where T : BLLBase
     {
 
         #region Enumerators
@@ -31,15 +34,15 @@ namespace Tenor.Linq
         {
         }
 
-        public SearchOptions(Expression expression) : this (null,expression)
+        public SearchOptions(Expression expression) : this (null, expression)
         {
         }
 
-        public SearchOptions(QueryProvider provider, Expression expression)
+        public SearchOptions(IQueryProvider provider, Expression expression)
         {
 
             if (provider == null)
-                this.provider = new QueryProvider();
+                this.provider = new TenorQueryProvider();
             else
                 this.provider = provider;
 
@@ -66,37 +69,37 @@ namespace Tenor.Linq
             get { return provider; }
         }
 
-        private bool distinct;
+        //private bool distinct;
 
-        /// <summary>
-        /// Determines whether to do a distinct query against the database.
-        /// </summary>
-        /// <value>A Boolean.</value>
-        /// <remarks>The default is False.</remarks>
-        public bool Distinct
-        {
-            get { return distinct; }
-            set { distinct = value; }
-        }
+        ///// <summary>
+        ///// Determines whether to do a distinct query against the database.
+        ///// </summary>
+        ///// <value>A Boolean.</value>
+        ///// <remarks>The default is False.</remarks>
+        //public bool Distinct
+        //{
+        //    get { return distinct; }
+        //    set { distinct = value; }
+        //}
 
-        private int _Top = 0;
-        /// <summary>
-        /// Determines whether the TOP or Limit function is enabled.
-        /// </summary>
-        /// <value>A Integer.</value>
-        /// <remarks>The default is 0 (no top).</remarks>
-        public int Top
-        {
-            get { return _Top; }
-            set
-            {
-                if (value < 0)
-                {
-                    value = 0;
-                }
-                _Top = value;
-            }
-        }
+        //private int _Top = 0;
+        ///// <summary>
+        ///// Determines whether the TOP or Limit function is enabled.
+        ///// </summary>
+        ///// <value>A Integer.</value>
+        ///// <remarks>The default is 0 (no top).</remarks>
+        //public int Top
+        //{
+        //    get { return _Top; }
+        //    set
+        //    {
+        //        if (value < 0)
+        //        {
+        //            value = 0;
+        //        }
+        //        _Top = value;
+        //    }
+        //}
 
 
         private bool _LazyLoading = true;
