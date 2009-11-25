@@ -8,26 +8,26 @@ using System.Linq.Expressions;
 
 namespace Tenor.Linq
 {
-    public class SearchOptions<T> : IEnumerable, IQueryable, System.Linq.IQueryable<T> where T : BLLBase
+    public class SearchOptions<T> : Tenor.Data.ISearchOptions, IEnumerable, IQueryable, System.Linq.IQueryable<T> where T : BLLBase
     {
 
         #region Enumerators
 
         public IEnumerator GetEnumerator()
         {
-            return ((IEnumerable)this.Provider.Execute<T>(this.Expression)).GetEnumerator();
+            return ((IEnumerable)this.Provider.Execute(this.Expression)).GetEnumerator();
         }
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
-            return ((IEnumerable<T>)this.Provider.Execute<T>(this.Expression)).GetEnumerator();
+            return ((IEnumerable<T>)this.Provider.Execute(this.Expression)).GetEnumerator();
         }
 
         #endregion
 
 
 
-        public SearchOptions() : this(null)
+        public SearchOptions() : this(null, null)
         {
         }
 
@@ -66,6 +66,49 @@ namespace Tenor.Linq
             get { return provider; }
         }
 
+        private bool distinct;
 
+        /// <summary>
+        /// Determines whether to do a distinct query against the database.
+        /// </summary>
+        /// <value>A Boolean.</value>
+        /// <remarks>The default is False.</remarks>
+        public bool Distinct
+        {
+            get { return distinct; }
+            set { distinct = value; }
+        }
+
+        private int _Top = 0;
+        /// <summary>
+        /// Determines whether the TOP or Limit function is enabled.
+        /// </summary>
+        /// <value>A Integer.</value>
+        /// <remarks>The default is 0 (no top).</remarks>
+        public int Top
+        {
+            get { return _Top; }
+            set
+            {
+                if (value < 0)
+                {
+                    value = 0;
+                }
+                _Top = value;
+            }
+        }
+
+
+        private bool _LazyLoading = true;
+        /// <summary>
+        /// Determines whether the LazyLoading is enabled.
+        /// </summary>
+        /// <value>A Boolean.</value>
+        /// <remarks>The default is True.</remarks>
+        public virtual bool LazyLoading
+        {
+            get { return _LazyLoading; }
+            set { _LazyLoading = value; }
+        }
     }
 }

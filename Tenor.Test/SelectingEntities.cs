@@ -47,7 +47,7 @@ namespace Tenor.Test
         {
             IQueryable<Person> so = new Tenor.Linq.SearchOptions<Person>();
 
-            so = so.Where(p => p.Active == true);
+            so = so.Where(p => p.Active && (p.Email == null || !p.Email.Contains("@")));
 
             Person[] persons = so.ToArray();
             Person[] persons2 = so.ToArray();
