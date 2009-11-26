@@ -14,6 +14,11 @@ namespace Tenor.Linq
     public class SearchOptions<T> : IOrderedQueryable, IOrderedQueryable<T>, IEnumerable, IQueryable, System.Linq.IQueryable<T> where T : BLLBase
     {
 
+        public static IQueryable<T> CreateQuery()
+        {
+            return new SearchOptions<T>();
+        }
+
         #region Enumerators
 
         public IEnumerator GetEnumerator()
@@ -30,11 +35,12 @@ namespace Tenor.Linq
 
 
 
-        public SearchOptions() : this(null, null)
+        internal SearchOptions() : this(null, null)
         {
         }
 
-        public SearchOptions(Expression expression) : this (null, expression)
+        internal SearchOptions(Expression expression)
+            : this(null, expression)
         {
         }
 
@@ -68,39 +74,6 @@ namespace Tenor.Linq
         {
             get { return provider; }
         }
-
-        //private bool distinct;
-
-        ///// <summary>
-        ///// Determines whether to do a distinct query against the database.
-        ///// </summary>
-        ///// <value>A Boolean.</value>
-        ///// <remarks>The default is False.</remarks>
-        //public bool Distinct
-        //{
-        //    get { return distinct; }
-        //    set { distinct = value; }
-        //}
-
-        //private int _Top = 0;
-        ///// <summary>
-        ///// Determines whether the TOP or Limit function is enabled.
-        ///// </summary>
-        ///// <value>A Integer.</value>
-        ///// <remarks>The default is 0 (no top).</remarks>
-        //public int Top
-        //{
-        //    get { return _Top; }
-        //    set
-        //    {
-        //        if (value < 0)
-        //        {
-        //            value = 0;
-        //        }
-        //        _Top = value;
-        //    }
-        //}
-
 
         private bool _LazyLoading = true;
         /// <summary>

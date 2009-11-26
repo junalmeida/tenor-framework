@@ -82,6 +82,9 @@ namespace Tenor.BLL
         /// <returns>An array of entities.</returns>
         public static BLLBase[] Search(SearchOptions searchOptions, ConnectionStringSettings connection)
         {
+            if (searchOptions.Top > 0 && searchOptions.eagerLoading.Count > 0)
+                throw new NotSupportedException("Cannot use eager loading with Top/Limit.");
+
             Tenor.Data.DataTable rs = SearchWithDataTable(searchOptions, connection);
             return BindRows(rs, searchOptions);
         }
@@ -192,6 +195,8 @@ namespace Tenor.BLL
         /// <remarks></remarks>
         public static int Count(SearchOptions searchOptions, ConnectionStringSettings connection)
         {
+            if (searchOptions.eagerLoading.Count > 0)
+                throw new NotSupportedException("Cannot use eager loading with aggregation.");
             Tenor.Data.DataTable rs = SearchWithDataTable(searchOptions, connection, true);
             return System.Convert.ToInt32(rs.Rows[0][0]);
         }

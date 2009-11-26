@@ -13,7 +13,7 @@ namespace Tenor.Data
     /// <summary>
     /// Represents a set of search definitions.
     /// </summary>
-    public class SearchOptions //: ISearchOptions 
+    public class SearchOptions : ISearchOptions 
     {
 
 

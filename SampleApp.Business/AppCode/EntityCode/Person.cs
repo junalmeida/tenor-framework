@@ -118,12 +118,12 @@ namespace SampleApp.Business.Entities
 
 
         //SQL Server
-        //[SpecialField("isnull(len(photo), 0)")]
+        [SpecialField("isnull(len(photo), 0)")]
         // Oracle
         //[SpecialField("nvl(dbms_lob.getlength(\"Photo\"), 0)")]
         
         // Postgres
-        [SpecialField("COALESCE(length(\"Photo\"), 0)")]
+        //[SpecialField("COALESCE(length(\"Photo\"), 0)")]
         public int PhotoLength
         {
             get { return photoLength; }

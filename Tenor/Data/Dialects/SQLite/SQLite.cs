@@ -86,12 +86,12 @@ namespace Tenor.Data.Dialects.SQLite
 
         public override LimitType LimitAt
         {
-            get { throw new NotImplementedException(); }
+            get { return LimitType.End; }
         }
 
         public override string CreateLimit(int limitValue)
         {
-            throw new NotImplementedException();
+            return string.Format(" LIMIT {0}", limitValue);
         }
 
         public override string CreateSaveListSql(string tableNameExpression, string[] localFields, object[] localValues, string[] foreignFields, object[,] propertyValues, out TenorParameter[] parameters)

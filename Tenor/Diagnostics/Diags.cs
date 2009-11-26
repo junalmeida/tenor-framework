@@ -681,7 +681,10 @@ namespace Tenor.Diagnostics
                         foreach (TenorParameter p in parameters)
                         {
                             //TODO: Consider recieving the Dialect from a parameter or create one to generate specific code.
-                            traceInfo.AppendLine("DECLARE " + p.ParameterName + " " + Helper.GetDbTypeName(p.Value.GetType(), factory).ToLower());
+                            Type valueType = p.Value.GetType();
+                            if (valueType.IsEnum)
+                                valueType = valueType.GetFields()[0].FieldType;
+                            traceInfo.AppendLine("DECLARE " + p.ParameterName + " " + Helper.GetDbTypeName(valueType, factory).ToLower());
                             if (p.Value == null)
                             {
                                 traceInfo.AppendLine("SET " + p.ParameterName + " = NULL");

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 using SampleApp.Business.Entities;
 using Tenor.Data;
+using Tenor.Linq;
 #if MSTEST
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 #else
@@ -45,19 +46,20 @@ namespace Tenor.Test
         [TestMethod]
         public void LinqSelectWithConditions()
         {
-            IQueryable<Person> so = new Tenor.Linq.SearchOptions<Person>();
+            IQueryable<Person> so = Tenor.Linq.SearchOptions<Person>.CreateQuery();
 
-            so = so.Where(p => p.Active && (p.Email == null || !p.Email.Contains("@")));
+            
+            so = so.Where(p => p.Active && p.Email.StartsWith("j"));
+            //so = so.Where(p => p.DepartmentList.Any(e => e.Name == "blah"));
+            //so = so.Where(p => p.DepartmentList.Any(e => e.Name == "blleh"));
 
             so = so.OrderBy(p => p.Name);
 
             so = so.OrderByDescending(p => p.Active);
-
-
+            
             so = so.Distinct();
-
-            //we cannot test this on sqlite.
             //so = so.Take(10);
+            so = so.LoadAlso(p => p.DepartmentList);
 
 
             Person[] persons = so.ToArray();
@@ -65,9 +67,12 @@ namespace Tenor.Test
             //int personCount = so.Count();
             //Assert.AreEqual(personCount, persons.Length);
 
-            Person[] persons2 = so.ToArray();
+            //so = Tenor.Linq.SearchOptions<Person>.CreateQuery();
+            //Person[] persons2 = (from p in so
+            //                     where p.Active && p.Email.StartsWith("j")
+            //                     select p).ToArray();
 
-            ShouldListsBeEqual(persons, persons2, false);
+            //ShouldListsBeEqual(persons, persons2, false);
 
         }
     }

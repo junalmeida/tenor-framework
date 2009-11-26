@@ -23,7 +23,8 @@ CREATE TABLE Persons
 	Expires DATETIME,
 	Active BIT NOT NULL,
 	Photo VARBINARY(MAX),
-	MaritalStatus TINYINT
+	MaritalStatus TINYINT,
+	ContractType TINYINT
 );
 
 CREATE TABLE Items
@@ -69,6 +70,17 @@ INSERT INTO Items (Description, CategoryId)
 VALUES ('Second item', 1);
 INSERT INTO Items (Description, CategoryId)
 VALUES ('Third item', 2);
+
+INSERT INTO "Departments" ("Name")
+VALUES ('Department 1');
+INSERT INTO "Departments" ("Name")
+VALUES ('Department 2');
+INSERT INTO "Departments" ("Name")
+VALUES ('Department 3');
+INSERT INTO "Departments" ("Name")
+VALUES ('Department 4');
+INSERT INTO "Departments" ("Name")
+VALUES ('Department 5');
 
 INSERT INTO Persons (Name, Email, Active)
 VALUES ('John Doe', 'john@aol.com', 1);

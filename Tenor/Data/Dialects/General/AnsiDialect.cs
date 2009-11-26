@@ -644,7 +644,6 @@ namespace Tenor.Data.Dialects
                         break;
                     default:
                         throw new InvalidOperationException();
-                        break;
                 }
 
 
@@ -733,7 +732,9 @@ namespace Tenor.Data.Dialects
             }
             else
             {
-                sql.Append(" COUNT(" + baseAlias + ".*) ");
+                if (isDistinct)
+                    sql.Append(" DISTINCT");
+                sql.Append(" COUNT(*) ");
             }
 
 
@@ -780,7 +781,7 @@ namespace Tenor.Data.Dialects
             }
 
 
-            if (!string.IsNullOrEmpty(sortPart))
+            if (!string.IsNullOrEmpty(sortPart) && !justCount)
             {
                 sql.Append(" ORDER BY ");
                 sql.AppendLine(sortPart.ToString());

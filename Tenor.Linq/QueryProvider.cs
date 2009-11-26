@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Tenor.Linq
 {
@@ -76,6 +77,7 @@ namespace Tenor.Linq
 
 
             searchOptions = new Tenor.Data.SearchOptions(type);
+            aliasList = new Dictionary<MemberInfo, string>();
 
             ReadExpressions(expression);
 
@@ -104,6 +106,7 @@ namespace Tenor.Linq
             finally
             {
                 searchOptions = null;
+                aliasList = null;
             }
         }
 
@@ -122,7 +125,7 @@ namespace Tenor.Linq
                             /* LINQ Methods */
                             case "Where":
                                 //the where clause.
-                                ReadWhereExpressions(searchOptions.Conditions, mce.Arguments[1], false);
+                                ReadWhereExpressions(searchOptions.Conditions, mce.Arguments[1], false, null);
                                 break;
                             case "OrderBy":
                                 ReadOrderByExpressions(mce.Arguments[1], true);
@@ -142,6 +145,11 @@ namespace Tenor.Linq
                                 //just pass it on
                                 break;
                             /* END LINQ */
+                            /* TENOR LINQ Methods */
+                            case "LoadAlso":
+                                ReadEager(mce.Arguments[1], null);
+                                break;
+                            /* END LINQ Methods */
                             default:
                                 throw new NotImplementedException("Linq method call to '" + mce.Method.Name.ToString() + "' is not implemented. Please, send a feature request.");
                         }
@@ -153,7 +161,11 @@ namespace Tenor.Linq
                     {
                         //TODO: Check if we need to check constants.
                         ConstantExpression cex = (ConstantExpression)ex;
-
+                        Tenor.Data.ISearchOptions item = cex.Value as Tenor.Data.ISearchOptions;
+                        if (item != null)
+                        {
+                            searchOptions.LazyLoading = item.LazyLoading;
+                        }
                     }
                     break;
                 default:
@@ -162,8 +174,36 @@ namespace Tenor.Linq
             }
         }
 
+        private void ReadEager(Expression expression, string alias)
+        {
+            switch (expression.NodeType)
+            {
+                case ExpressionType.Quote:
+                    {
+                        UnaryExpression exp = (UnaryExpression)expression;
+                        ReadEager(exp.Operand, alias);
+                    }
+                    break;
+                case ExpressionType.Lambda:
+                    {
+                        LambdaExpression exp = (LambdaExpression)expression;
+                        ReadEager(exp.Body, alias);
+                    }
+                    break;
+                case ExpressionType.MemberAccess:
+                    {
+                        MemberExpression exp = (MemberExpression)expression;
+                        searchOptions.LoadAlso(exp.Member.Name);
+                    }
+                    break;
+                default:
+                    throw new NotImplementedException("Linq '" + expression.NodeType.ToString() + "' is not implemented. Please, send a feature request.");
+            }
 
-        private void ReadWhereExpressions(Tenor.Data.ConditionCollection cc, Expression ex, bool not)
+        }
+        Dictionary<MemberInfo, string> aliasList = null;
+        
+        private void ReadWhereExpressions(Tenor.Data.ConditionCollection cc, Expression ex, bool not, string alias)
         {
             switch (ex.NodeType)
             {
@@ -173,7 +213,7 @@ namespace Tenor.Linq
                         if (une.IsLifted || une.IsLiftedToNull)
                             throw new NotImplementedException();
 
-                        ReadWhereExpressions(cc, une.Operand, false);
+                        ReadWhereExpressions(cc, une.Operand, not, alias);
 
                     }
                     break;
@@ -181,7 +221,7 @@ namespace Tenor.Linq
                     {
                         LambdaExpression lex = ex as LambdaExpression;
                         //TODO: Should we check parameters?
-                        ReadWhereExpressions(cc, lex.Body, false);
+                        ReadWhereExpressions(cc, lex.Body, not, alias);
                     }
                     break;
                 case ExpressionType.Not:
@@ -190,7 +230,7 @@ namespace Tenor.Linq
                         if (une.IsLifted || une.IsLiftedToNull)
                             throw new NotImplementedException();
 
-                        ReadWhereExpressions(cc, une.Operand, true);
+                        ReadWhereExpressions(cc, une.Operand, !not, alias);
                     }
                     break;
                 case ExpressionType.And:
@@ -200,10 +240,12 @@ namespace Tenor.Linq
 
                         Tenor.Data.ConditionCollection newCc = new Tenor.Data.ConditionCollection();
 
-                        ReadWhereExpressions(newCc, andBinary.Left, false);
+                        ReadWhereExpressions(newCc, andBinary.Left, not, alias);
                         newCc.Add(Tenor.Data.LogicalOperator.And);
-                        ReadWhereExpressions(newCc, andBinary.Right, false);
+                        ReadWhereExpressions(newCc, andBinary.Right, not, alias);
 
+                        if (cc.Count > 0 && cc[cc.Count - 1].GetType() != typeof(Tenor.Data.LogicalOperator))
+                            cc.Add(Tenor.Data.LogicalOperator.And);
                         cc.Add(newCc);
                     }
                     break;
@@ -214,29 +256,28 @@ namespace Tenor.Linq
 
                         Tenor.Data.ConditionCollection newCc = new Tenor.Data.ConditionCollection();
 
-                        ReadWhereExpressions(newCc, andBinary.Left, false);
+                        ReadWhereExpressions(newCc, andBinary.Left, not, alias);
                         newCc.Add(Tenor.Data.LogicalOperator.Or);
-                        ReadWhereExpressions(newCc, andBinary.Right, false);
+                        ReadWhereExpressions(newCc, andBinary.Right, not, alias);
 
+                        if (cc.Count > 0 && cc[cc.Count - 1].GetType() != typeof(Tenor.Data.LogicalOperator))
+                            cc.Add(Tenor.Data.LogicalOperator.And);
                         cc.Add(newCc);
                     }
                     break;
                 case ExpressionType.Equal:
                 case ExpressionType.NotEqual:
+                case ExpressionType.LessThan:
+                case ExpressionType.LessThanOrEqual:
+                case ExpressionType.GreaterThan:
+                case ExpressionType.GreaterThanOrEqual:
                     {
                         BinaryExpression bex = ex as BinaryExpression;
 
 
-                        MemberExpression left = bex.Left as MemberExpression;
-                        if (left == null)
-                            left = bex.Right as MemberExpression;
-                        if (left == null)
-                            throw new NotImplementedException("Not implemeted lambda expression.");
-                        ConstantExpression right = bex.Right as ConstantExpression;
-                        if (right == null)
-                            right = bex.Left as ConstantExpression;
-                        if (right == null)
-                            throw new NotImplementedException("Not implemeted lambda expression.");
+                        MemberExpression left = ReadMember(bex);
+                        ConstantExpression right = ReadConstant(bex);
+
 
                         Tenor.Data.CompareOperator op = Tenor.Data.CompareOperator.Equal;
                         if (ex.NodeType == ExpressionType.Equal && !not)
@@ -247,8 +288,25 @@ namespace Tenor.Linq
                             op = Tenor.Data.CompareOperator.NotEqual;
                         else if (ex.NodeType == ExpressionType.NotEqual && not)
                             op = Tenor.Data.CompareOperator.Equal;
+                        else if (ex.NodeType == ExpressionType.GreaterThan && !not)
+                            op = Tenor.Data.CompareOperator.GreaterThan;
+                        else if (ex.NodeType == ExpressionType.GreaterThan && not)
+                            op = Tenor.Data.CompareOperator.LessThan;
+                        else if (ex.NodeType == ExpressionType.LessThan && !not)
+                            op = Tenor.Data.CompareOperator.LessThan;
+                        else if (ex.NodeType == ExpressionType.LessThan && not)
+                            op = Tenor.Data.CompareOperator.GreaterThan;
+                        else if (ex.NodeType == ExpressionType.GreaterThanOrEqual && !not)
+                            op = Tenor.Data.CompareOperator.GreaterThanOrEqual;
+                        else if (ex.NodeType == ExpressionType.GreaterThanOrEqual && not)
+                            op = Tenor.Data.CompareOperator.LessThanOrEqual;
+                        else if (ex.NodeType == ExpressionType.LessThanOrEqual && !not)
+                            op = Tenor.Data.CompareOperator.LessThanOrEqual;
+                        else if (ex.NodeType == ExpressionType.LessThanOrEqual && not)
+                            op = Tenor.Data.CompareOperator.GreaterThanOrEqual;
 
-                        cc.Add(left.Member.Name, right.Value, op);
+
+                        cc.Add(left.Member.Name, right.Value, op, alias);
                     }
                     break;
                 case ExpressionType.MemberAccess:
@@ -261,10 +319,11 @@ namespace Tenor.Linq
                         if (not)
                             op = Tenor.Data.CompareOperator.NotEqual;
 
-                        cc.Add(mex.Member.Name, true, op);
+                        if (cc.Count > 0 && cc[cc.Count - 1].GetType() != typeof(Tenor.Data.LogicalOperator))
+                            cc.Add(Tenor.Data.LogicalOperator.And);
+                        cc.Add(mex.Member.Name, true, op, alias);
                     }
                     break;
-
                 case ExpressionType.Call:
                     {
                         MethodCallExpression mce = (MethodCallExpression)ex;
@@ -274,25 +333,47 @@ namespace Tenor.Linq
                             case "Contains":
                             case "StartsWith":
                             case "EndsWith":
-                                //this will generate a like expression
-                                MemberExpression member = mce.Object as MemberExpression;
-                                if (mce.Object == null)
-                                    throw new InvalidOperationException();
-                                string value = (string)((ConstantExpression)mce.Arguments[0]).Value;
+                                {
+                                    //this will generate a like expression
+                                    MemberExpression member = mce.Object as MemberExpression;
+                                    if (mce.Object == null)
+                                        throw new InvalidOperationException();
+                                    string value = (string)((ConstantExpression)mce.Arguments[0]).Value;
 
-                                if (mce.Method.Name == "StartsWith")
-                                    value = string.Format("%{0}", value);
-                                else if (mce.Method.Name == "EndsWith")
-                                    value = string.Format("{0}%", value);
-                                else if (mce.Method.Name == "Contains")
-                                    value = string.Format("%{0}%", value);
+                                    if (mce.Method.Name == "StartsWith")
+                                        value = string.Format("{0}%", value);
+                                    else if (mce.Method.Name == "EndsWith")
+                                        value = string.Format("%{0}", value);
+                                    else if (mce.Method.Name == "Contains")
+                                        value = string.Format("%{0}%", value);
 
-                                Tenor.Data.CompareOperator op = Tenor.Data.CompareOperator.Like;
-                                if (not)
-                                    op = Tenor.Data.CompareOperator.NotLike;
+                                    Tenor.Data.CompareOperator op = Tenor.Data.CompareOperator.Like;
+                                    if (not)
+                                        op = Tenor.Data.CompareOperator.NotLike;
 
-                                cc.Add(member.Member.Name, value, op);
+                                    cc.Add(member.Member.Name, value, op);
+                                }
+                                break;
+                            case "Any":
+                                {
+                                    MemberExpression member = mce.Arguments[0] as MemberExpression;
+                                    string newAlias = null;
+                                    if (aliasList.ContainsKey(member.Member))
+                                        newAlias = aliasList[member.Member];
+                                    else
+                                    {
+                                        newAlias = string.Concat(alias, member.Member.Name);
+                                        aliasList.Add(member.Member, newAlias);
+                                        searchOptions.Conditions.Include(alias, member.Member.Name, newAlias, Tenor.Data.JoinMode.LeftJoin);
+                                    }
 
+                                    Tenor.Data.ConditionCollection newCc = new Tenor.Data.ConditionCollection();
+                                    ReadWhereExpressions(newCc, mce.Arguments[1], not, newAlias);
+                                    if (cc.Count > 0 && cc[cc.Count - 1].GetType() != typeof(Tenor.Data.LogicalOperator))
+                                        cc.Add(Tenor.Data.LogicalOperator.And);
+                                    cc.Add(newCc);
+
+                                }
                                 break;
                             default:
                                 throw new NotImplementedException("Linq method call to '" + mce.Method.Name + "' is not implemented. Please, send a feature request.");
@@ -302,6 +383,48 @@ namespace Tenor.Linq
                 default:
                     throw new NotImplementedException("Linq '" + ex.NodeType.ToString() + "' is not implemented. Please, send a feature request.");
             }
+        }
+
+        private static ConstantExpression ReadConstant(BinaryExpression bex)
+        {
+            ConstantExpression right = null;
+            if (bex.Right.NodeType == ExpressionType.Convert)
+                right = ((UnaryExpression)bex.Right).Operand as ConstantExpression;
+            else
+                right = bex.Right as ConstantExpression;
+
+            if (right == null)
+            {
+                if (bex.Left.NodeType == ExpressionType.Convert)
+                    right = ((UnaryExpression)bex.Left).Operand as ConstantExpression;
+                else
+                    right = bex.Left as ConstantExpression;
+            }
+
+            if (right == null)
+                throw new NotImplementedException("Not implemeted lambda expression.");
+            return right;
+        }
+
+        private static MemberExpression ReadMember(BinaryExpression bex)
+        {
+            MemberExpression left = null;
+            if (bex.Left.NodeType == ExpressionType.Convert)
+                left = ((UnaryExpression)bex.Left).Operand as MemberExpression;
+            else
+                left = bex.Left as MemberExpression;
+
+            if (left == null)
+            {
+                if (bex.Right.NodeType == ExpressionType.Convert)
+                    left = ((UnaryExpression)bex.Right).Operand as MemberExpression;
+                else
+                    left = bex.Right as MemberExpression;
+            }
+
+            if (left == null)
+                throw new NotImplementedException("Not implemeted lambda expression.");
+            return left;
         }
 
 
