@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Text;
 using System.Collections.Generic;
-
-#if MSTEST
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SampleApp.Business.Entities;
 using Tenor.BLL;
 using Tenor.Data;
+#if MSTEST
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 #else
 using TestMethodAttribute = NUnit.Framework.TestAttribute;
 using TestClassAttribute = NUnit.Framework.TestFixtureAttribute;
+using Assert = NUnit.Framework.Assert;
 #endif
 
 namespace Tenor.Test
