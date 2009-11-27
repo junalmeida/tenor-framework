@@ -61,7 +61,7 @@ namespace Tenor.Test
 
             //Loads a person and adds 3 departments to its N:N relation.
             Person p = new Person(2);
-            p.Name += " Changed";
+            p.MaritalStatus = (MaritalStatus)new Random().Next(0, 8);
 
             p.DepartmentList.Clear();
 
