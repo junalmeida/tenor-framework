@@ -1,13 +1,13 @@
-﻿<xs:schema targetNamespace="urn:Tenor" xmlns="urn:Tenor" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+﻿<xs:schema targetNamespace="urn:tenor-configuration" xmlns="urn:tenor-configuration" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
     <xs:element name="tenor" type="Tenor.Configuration.Tenor" />
     <xs:complexType name="Tenor.Configuration.Tenor">
         <xs:sequence>
-            <xs:element minOccurs="0" name="exceptions" type="Tenor.Configuration.ExceptionsSection">
+            <xs:element minOccurs="0" maxOccurs="1" name="exceptions" type="Tenor.Configuration.ExceptionsSection">
                 <xs:annotation>
                     <xs:documentation>Exception handling configuration</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element minOccurs="0" name="dialects" type="Tenor.Configuration.DialectsSection">
+            <xs:element minOccurs="0" maxOccurs="1" name="dialects" type="Tenor.Configuration.DialectsCollection">
                 <xs:annotation>
                     <xs:documentation>SQL dialects configuration</xs:documentation>
                 </xs:annotation>
@@ -16,7 +16,7 @@
     </xs:complexType>
     <xs:complexType name="Tenor.Configuration.ExceptionsSection">
         <xs:sequence>
-            <xs:element minOccurs="0" name="emails" type="Tenor.Configuration.EmailsCollection">
+            <xs:element minOccurs="0" maxOccurs="1" name="emails" type="Tenor.Configuration.EmailsCollection">
                 <xs:annotation>
                     <xs:documentation>List of e-mail addresses that will get an e-mail everytime an exception is logged in case LogMode is set to Email.</xs:documentation>
                 </xs:annotation>
@@ -42,7 +42,7 @@
     </xs:complexType>
     <xs:complexType name="Tenor.Configuration.EmailsCollection">
         <xs:sequence>
-            <xs:element minOccurs="0" maxOccurs="unbounded" name="emailElement" type="Tenor.Configuration.EmailElement">
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="add" type="Tenor.Configuration.EmailElement">
                 <xs:annotation>
                     <xs:documentation>The EmailElement Configuration Element.</xs:documentation>
                 </xs:annotation>
@@ -65,7 +65,7 @@
     </xs:complexType>
     <xs:complexType name="Tenor.Configuration.DialectsSection">
         <xs:sequence>
-            <xs:element minOccurs="0" name="dialects" type="Tenor.Configuration.DialectsCollection">
+            <xs:element minOccurs="0" maxOccurs="1" name="dialects" type="Tenor.Configuration.DialectsCollection">
                 <xs:annotation>
                     <xs:documentation>List of custom SQL dialects</xs:documentation>
                 </xs:annotation>
@@ -74,7 +74,7 @@
     </xs:complexType>
     <xs:complexType name="Tenor.Configuration.DialectsCollection">
         <xs:sequence>
-            <xs:element minOccurs="0" maxOccurs="unbounded" name="dialectElement" type="Tenor.Configuration.DialectElement">
+            <xs:element minOccurs="0" maxOccurs="unbounded" name="add" type="Tenor.Configuration.DialectElement">
                 <xs:annotation>
                     <xs:documentation>The DialectElement Configuration Element.</xs:documentation>
                 </xs:annotation>
