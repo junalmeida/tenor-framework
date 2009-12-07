@@ -184,8 +184,7 @@ namespace Tenor.BLL
                 return (BLLBase[])instances.GetType().GetMethod("ToArray").Invoke(instances, null);
             }
         }
-
-
+        
         /// <summary>
         /// Count data on the database based on definitions.
         /// </summary>
@@ -200,8 +199,7 @@ namespace Tenor.BLL
             Tenor.Data.DataTable rs = SearchWithDataTable(searchOptions, connection, true);
             return System.Convert.ToInt32(rs.Rows[0][0]);
         }
-
-
+        
         private static Tenor.Data.DataTable SearchWithDataTable(SearchOptions SearchOptions, ConnectionStringSettings Connection)
         {
             return SearchWithDataTable(SearchOptions, Connection, false);
@@ -225,12 +223,16 @@ namespace Tenor.BLL
             rs.Bind();
             return rs;
         }
-
-
-
+        
         #endregion
 
         #region " Save "
+
+        [Obsolete]
+        internal static string GetParamName(string paramPrefix, FieldInfo field)
+        {
+            return paramPrefix + field.DataFieldName.Replace(" ", "_");
+        }
 
         /// <summary>
         /// Saves this entity data on the persistence layer.
@@ -259,6 +261,7 @@ namespace Tenor.BLL
             }
             Save(isUpdate, null);
         }
+
         /// <summary>
         /// Saves this entity data on the persistence layer.
         /// </summary>
@@ -267,11 +270,6 @@ namespace Tenor.BLL
         public virtual void Save(bool isUpdate)
         {
             Save(isUpdate, null);
-        }
-        [Obsolete]
-        internal static string GetParamName(string paramPrefix, FieldInfo field)
-        {
-            return paramPrefix + field.DataFieldName.Replace(" ", "_");
         }
 
         /// <summary>
@@ -553,6 +551,7 @@ namespace Tenor.BLL
         #endregion
 
         #region " Localizable "
+
         /// <summary>
         /// When overriden, indicates that this entity can be localized automatically.
         /// </summary>
@@ -564,6 +563,7 @@ namespace Tenor.BLL
                 return false;
             }
         }
+
         #endregion
 
         #region "Find Functions"
@@ -608,8 +608,7 @@ namespace Tenor.BLL
             SetFindDefinitions<T>(propertyExpression, value, compareOperator);
             return Array.Find<T>(items, new Predicate<T>(BLLCollection<T>.FindDelegate));
         }
-
-
+        
         /// <summary>
         /// Search for objects on the collection.
         /// </summary>
@@ -728,8 +727,7 @@ namespace Tenor.BLL
         {
             return Find<BLLBase>(items, propertyExpression, value, compareOperator);
         }
-
-
+        
         /// <summary>
         /// Search for objects on the collection.
         /// </summary>
@@ -803,12 +801,13 @@ namespace Tenor.BLL
         {
             return FindLastIndex<BLLBase>(items, propertyExpression, value);
         }
+
         #endregion
-
-
+        
         #endregion
 
         #region "Sort Functions"
+        
         /// <summary>
         /// Sorts the entities on the collection based on a property.
         /// </summary>
@@ -818,8 +817,7 @@ namespace Tenor.BLL
         {
             Array.Sort(items, new BLLBaseComparer(propertyExpression));
         }
-
-
+        
         private class BLLBaseComparer : IComparer
         {
 
@@ -837,7 +835,6 @@ namespace Tenor.BLL
             }
         }
 
-
         #endregion
 
         #region " Extra "
@@ -850,11 +847,11 @@ namespace Tenor.BLL
         {
             return true;
         }
+        
         #endregion
 
         #region " Operators "
-
-
+        
         public override bool Equals(object obj)
         {
             BLLBase x = this;
@@ -910,14 +907,11 @@ namespace Tenor.BLL
         {
             return !object.Equals(x, y);
         }
+
         #endregion
 
-
-
-
-
-
         #region Join Utility
+
         internal static Join[] GetPlainJoins(ConditionCollection conditions, Type baseClass)
         {
             SearchOptions opt = new SearchOptions(baseClass);
@@ -1004,7 +998,5 @@ namespace Tenor.BLL
         }
 
         #endregion
-
-
     }
 }
