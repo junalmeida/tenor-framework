@@ -170,7 +170,6 @@ namespace Tenor.Linq
                     break;
                 default:
                     throw new NotImplementedException("Linq '" + ex.NodeType.ToString() + "' is not implemented. Please, send a feature request.");
-                    break;
             }
         }
 
