@@ -5,6 +5,9 @@ using System.Drawing;
 
 namespace Tenor.Drawing
 {
+    /// <summary>
+    /// The set of barcode types that can be generated.
+    /// </summary>
     public enum BarCodeMode 
     {
         /// <summary>

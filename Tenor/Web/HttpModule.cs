@@ -55,7 +55,7 @@ namespace Tenor.Web
         {
 
             HttpApplication app = (HttpApplication)sender;
-            if (app.Context.Request.RawUrl.ToLower().Contains(Configuration.TenorModule.HandlerFileName.ToLower()))
+            if (app.Context.Request.RawUrl.ToLower().Contains(Configuration.Tenor.Current.TenorModule.HandlerFileName.ToLower()))
             {
 
                 MyHttpHandler resourceHttpHandler = HttpContext.Current.Handler as MyHttpHandler;
@@ -74,7 +74,7 @@ namespace Tenor.Web
         private void Application_PostMapRequestHandler(object sender, EventArgs e)
         {
             HttpApplication app = (HttpApplication)sender;
-            if (app.Context.Request.RawUrl.ToLower().Contains(Configuration.TenorModule.HandlerFileName.ToLower()))
+            if (app.Context.Request.RawUrl.ToLower().Contains(Configuration.Tenor.Current.TenorModule.HandlerFileName.ToLower()))
             {
 
                 if (app.Context.Handler is System.Web.SessionState.IReadOnlySessionState || app.Context.Handler is System.Web.SessionState.IRequiresSessionState)
@@ -158,19 +158,19 @@ namespace Tenor.Web
 
             HttpApplication app = (HttpApplication)sender;
             string path = app.Request.Path.ToLower();
-            if (path.Contains(Tenor.Configuration.TenorModule.HandlerFileName.ToLower() + "/tiny_mce/"))
+            if (path.Contains(Tenor.Configuration.Tenor.Current.TenorModule.HandlerFileName.ToLower() + "/tiny_mce/"))
             {
                 //TinyMCE
                 //See TinyMCE.cs
                 TinyMCERequest(app);
             }
-            else if (path.Contains(Tenor.Configuration.TenorModule.HandlerFileName.ToLower() + "/iefix/"))
+            else if (path.Contains(Tenor.Configuration.Tenor.Current.TenorModule.HandlerFileName.ToLower() + "/iefix/"))
             {
                 //IEFix
                 //See IEFix.cs
                 IEFixRequest(app);
             }
-            else if (path.Contains(Tenor.Configuration.TenorModule.HandlerFileName.ToLower()))
+            else if (path.Contains(Tenor.Configuration.Tenor.Current.TenorModule.HandlerFileName.ToLower()))
             {
                 if (!string.IsNullOrEmpty(QueryString("id")))
                 {
@@ -256,7 +256,7 @@ namespace Tenor.Web
             }
 
             //sets cache parameters.
-            if (app.Request[Tenor.Configuration.TenorModule.NoCache] != string.Empty)
+            if (app.Request[Tenor.Configuration.TenorModuleSection.NoCache] != string.Empty)
             {
                 app.Response.Cache.SetCacheability(HttpCacheability.NoCache);
             }

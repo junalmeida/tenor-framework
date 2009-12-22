@@ -73,9 +73,9 @@ namespace Tenor.Web
                 dados.FileName = fileName;
                 dados.ForceDownload = forceDownload;
 
-                context.Cache.Insert(Tenor.Configuration.TenorModule.IdPrefix + sControlName, dados, null, DateTime.UtcNow.AddMinutes(2), System.Web.Caching.Cache.NoSlidingExpiration);
+                context.Cache.Insert(Tenor.Configuration.TenorModuleSection.IdPrefix + sControlName, dados, null, DateTime.UtcNow.AddMinutes(2), System.Web.Caching.Cache.NoSlidingExpiration);
 
-                string uri = Tenor.Configuration.TenorModule.HandlerFileName + "?id=" + sControlName;
+                string uri = Tenor.Configuration.Tenor.Current.TenorModule.HandlerFileName + "?id=" + sControlName;
 
                 if (context.Request.ApplicationPath.EndsWith("/"))
                 {
@@ -99,7 +99,7 @@ namespace Tenor.Web
         /// <remarks>The object must implement the <see cref="Tenor.Web.IResponseObject">IResponseObject</see> interface.</remarks>
         public static string RegisterObjectForRequest(object @object)
         {
-            return RegisterObjectForRequest(@object, Tenor.Configuration.TenorModule.DefaultExpiresTime, false, null);
+            return RegisterObjectForRequest(@object, Tenor.Configuration.TenorModuleSection.DefaultExpiresTime, false, null);
         }
 
         /// <summary>

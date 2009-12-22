@@ -43,7 +43,7 @@ namespace Tenor.Web
             CacheData item = null;
 
             object messagesLock = new object();
-            if (app.Request[Tenor.Configuration.TenorModule.NoCache] == string.Empty)
+            if (app.Request[Tenor.Configuration.TenorModuleSection.NoCache] == string.Empty)
             {
                 lock (messagesLock)
                 {
@@ -239,7 +239,7 @@ namespace Tenor.Web
                         File = responseObject.WriteContent();
 
                         CacheData cacheData = new CacheData();
-                        cacheData.Expires = Tenor.Configuration.TenorModule.DefaultExpiresTime;
+                        cacheData.Expires = Tenor.Configuration.TenorModuleSection.DefaultExpiresTime;
                         cacheData.ContentType = responseObject.ContentType;
                         cacheData.ContentLength = File.Length;
 
@@ -279,7 +279,7 @@ namespace Tenor.Web
 
 
                         cacheData.Object = File;
-                        if (app.Request[Tenor.Configuration.TenorModule.NoCache] == string.Empty)
+                        if (app.Request[Tenor.Configuration.TenorModuleSection.NoCache] == string.Empty)
                         {
                             lock (messagesLock)
                             {

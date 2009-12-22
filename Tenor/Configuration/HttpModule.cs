@@ -5,22 +5,37 @@ using Tenor.Data;
 using System.Data;
 using System.Collections.Generic;
 using System.IO;
+using System.Configuration;
 
 namespace Tenor.Configuration
 {
     /// <summary>
     /// Encapsulates all configuration constants of TenorModule.
     /// </summary>
-    public static class TenorModule
+    public class TenorModuleSection :  ConfigurationElement
     {
         /// <summary>
         /// Defines the default expiration time in seconds.
         /// </summary>
         public const int DefaultExpiresTime = 1 * 60 * 60;
+        private const string handlerFileName = "Tenor.axd";
+
         /// <summary>
         /// Defines the virtual file name that calls this module.
         /// </summary>
-        public const string HandlerFileName = "Tenor.axd";
+        [ConfigurationProperty("handlerFileName", DefaultValue = "")]
+        public string HandlerFileName
+        {
+            get
+            {
+                string ret = (string)this[this.Properties["handlerFileName"]];
+                if (string.IsNullOrEmpty(ret))
+                    return handlerFileName;
+                else
+                    return ret;
+            }
+        }
+
         /// <summary>
         /// Defines a base name of all keys.
         /// </summary>

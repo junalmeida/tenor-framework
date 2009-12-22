@@ -6,7 +6,7 @@
 <div>
     <p>Captcha Test:</p>
     Please type in the following characters:
-    <img src="Tenor.axd?captcha=captcha" alt="captcha" /><a href="Tenor.axd?captcha=captcha&audio=1">Audio</a>
+    <img src="blah.axd?captcha=captcha" alt="captcha" /><a href="blah.axd?captcha=captcha&audio=1">Audio</a>
     <asp:TextBox ID="txtCaptcha" runat="server" />
     <asp:Button ID="btnCheck" runat="server" Text="Test" OnClick="btnCheck_Click" />
 </div>

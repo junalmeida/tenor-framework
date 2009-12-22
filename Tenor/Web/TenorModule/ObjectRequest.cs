@@ -26,7 +26,7 @@ namespace Tenor.Web
             CacheData obj;
             lock (messagesLock)
             {
-                obj = (CacheData)(app.Context.Cache.Get(Tenor.Configuration.TenorModule.IdPrefix + QueryString("id")));
+                obj = (CacheData)(app.Context.Cache.Get(Tenor.Configuration.TenorModuleSection.IdPrefix + QueryString("id")));
             }
 
             if (obj == null)
@@ -56,7 +56,7 @@ namespace Tenor.Web
                 //lets clear the cache.
                 lock (messagesLock)
                 {
-                    app.Context.Cache.Remove(Tenor.Configuration.TenorModule.IdPrefix + QueryString("id"));
+                    app.Context.Cache.Remove(Tenor.Configuration.TenorModuleSection.IdPrefix + QueryString("id"));
 
                     app.Context.ClearError();
                     app.Context.AddError(new HttpException(500, "server error", new InvalidCastException()));
@@ -71,7 +71,7 @@ namespace Tenor.Web
                 lock (messagesLock)
                 {
 
-                    app.Context.Cache.Remove(Tenor.Configuration.TenorModule.IdPrefix + QueryString("id"));
+                    app.Context.Cache.Remove(Tenor.Configuration.TenorModuleSection.IdPrefix + QueryString("id"));
 
                     Web.IResponseObject rObj = (IResponseObject)obj.Object;
                     app.Response.Clear();
@@ -99,7 +99,7 @@ namespace Tenor.Web
 
                     //keeps the data on cache.
                     obj.Object = memres;
-                    app.Context.Cache.Insert(Tenor.Configuration.TenorModule.IdPrefix + QueryString("id"), obj, null, System.Web.Caching.Cache.NoAbsoluteExpiration, new TimeSpan(0, 0, obj.Expires));
+                    app.Context.Cache.Insert(Tenor.Configuration.TenorModuleSection.IdPrefix + QueryString("id"), obj, null, System.Web.Caching.Cache.NoAbsoluteExpiration, new TimeSpan(0, 0, obj.Expires));
                     /*app.Context.Cache.Insert(IdPrefix & app.Request.QueryString("id"), obj, Nothing, Caching.Cache.NoAbsoluteExpiration, New TimeSpan(0, 0, obj.Expires), Caching.CacheItemPriority.Normal, AddressOf Cache_onItemRemoved)*/
                     return;
                 }

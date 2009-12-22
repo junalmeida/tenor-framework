@@ -115,7 +115,7 @@ namespace Tenor.Web
             }
 
 
-            string uri = Tenor.Configuration.TenorModule.HandlerFileName;
+            string uri = Tenor.Configuration.Tenor.Current.TenorModule.HandlerFileName;
             if (context.Request.ApplicationPath.EndsWith("/"))
             {
                 uri = context.Request.ApplicationPath + uri;
@@ -199,7 +199,7 @@ namespace Tenor.Web
             if (context == null)
                 throw new InvalidContextException();
 
-            string uri = Tenor.Configuration.TenorModule.HandlerFileName;
+            string uri = Tenor.Configuration.Tenor.Current.TenorModule.HandlerFileName;
             if (context.Request.ApplicationPath.EndsWith("/"))
             {
                 uri = context.Request.ApplicationPath + uri;

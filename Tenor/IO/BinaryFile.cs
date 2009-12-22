@@ -159,7 +159,7 @@ namespace Tenor.IO
         /// <remarks>The registered url will have the <see cref="Tenor.Configuration.TenorModule.DefaultExpiresTime">DefaultExpiresTime</see> defined.</remarks>
         public string GetFileUrl()
         {
-            return GetFileUrl(Tenor.Configuration.TenorModule.DefaultExpiresTime);
+            return GetFileUrl(Tenor.Configuration.TenorModuleSection.DefaultExpiresTime);
         }
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace Tenor.IO
         /// <remarks>The registered url will have the <see cref="Tenor.Configuration.TenorModule.DefaultExpiresTime">DefaultExpiresTime</see> defined.</remarks>
         public string GetFileUrl(bool forceDownload, string fileName)
         {
-            return GetFileUrl(Tenor.Configuration.TenorModule.DefaultExpiresTime, forceDownload, fileName);
+            return GetFileUrl(Tenor.Configuration.TenorModuleSection.DefaultExpiresTime, forceDownload, fileName);
         }
 
         /// <summary>

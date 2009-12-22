@@ -60,5 +60,17 @@ namespace Tenor.Configuration
             }
         }
 
+
+        /// <summary>
+        /// Gets an object that defines settings for exception handling.
+        /// </summary>
+        [ConfigurationProperty("tenorModule")]
+        public TenorModuleSection TenorModule
+        {
+            get
+            {
+                return (TenorModuleSection)this[this.Properties["tenorModule"]];
+            }
+        }
     }
 }

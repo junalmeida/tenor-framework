@@ -8,6 +8,6 @@ namespace Tenor.Configuration
         /// <summary>
         /// Defines the cache key.
         /// </summary>
-        public const string CacheKey = TenorModule.IdPrefix + "BLL_Core_Localization";
+        public const string CacheKey = TenorModuleSection.IdPrefix + "BLL_Core_Localization";
     }
 }

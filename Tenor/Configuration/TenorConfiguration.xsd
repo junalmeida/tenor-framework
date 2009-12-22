@@ -1,99 +1,110 @@
 ﻿<xs:schema targetNamespace="urn:tenor-configuration" xmlns="urn:tenor-configuration" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
-    <xs:element name="tenor" type="Tenor.Configuration.Tenor" />
-    <xs:complexType name="Tenor.Configuration.Tenor">
-        <xs:sequence>
-            <xs:element minOccurs="0" maxOccurs="1" name="exceptions" type="Tenor.Configuration.ExceptionsSection">
-                <xs:annotation>
-                    <xs:documentation>Exception handling configuration</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-            <xs:element minOccurs="0" maxOccurs="1" name="dialects" type="Tenor.Configuration.DialectsCollection">
-                <xs:annotation>
-                    <xs:documentation>SQL dialects configuration</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
-    <xs:complexType name="Tenor.Configuration.ExceptionsSection">
-        <xs:sequence>
-            <xs:element minOccurs="0" maxOccurs="1" name="emails" type="Tenor.Configuration.EmailsCollection">
-                <xs:annotation>
-                    <xs:documentation>List of e-mail addresses that will get an e-mail everytime an exception is logged in case LogMode is set to Email.</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-        </xs:sequence>
-        <xs:attribute name="logMode" use="optional">
-            <xs:annotation>
-                <xs:documentation>Determines how to log exceptions. Default none.</xs:documentation>
-            </xs:annotation>
-            <xs:simpleType>
-                <xs:restriction base="xs:NMTOKEN">
-                    <xs:enumeration value="None" />
-                    <xs:enumeration value="Email" />
-                    <xs:enumeration value="File" />
-                </xs:restriction>
-            </xs:simpleType>
-        </xs:attribute>
-        <xs:attribute name="filePath" use="optional" type="xs:string">
-            <xs:annotation>
-                <xs:documentation>Path to the directory where exceptions will be stored in case LogMode is set to File.</xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-    </xs:complexType>
-    <xs:complexType name="Tenor.Configuration.EmailsCollection">
-        <xs:sequence>
-            <xs:element minOccurs="0" maxOccurs="unbounded" name="add" type="Tenor.Configuration.EmailElement">
-                <xs:annotation>
-                    <xs:documentation>The EmailElement Configuration Element.</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
-    <xs:complexType name="Tenor.Configuration.EmailElement">
-        <xs:sequence>
-        </xs:sequence>
-        <xs:attribute name="email" use="required" type="xs:string">
-            <xs:annotation>
-                <xs:documentation>E-mail address.</xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-        <xs:attribute name="name" use="optional" type="xs:string">
-            <xs:annotation>
-                <xs:documentation>Name (alias)</xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-    </xs:complexType>
-    <xs:complexType name="Tenor.Configuration.DialectsSection">
-        <xs:sequence>
-            <xs:element minOccurs="0" maxOccurs="1" name="dialects" type="Tenor.Configuration.DialectsCollection">
-                <xs:annotation>
-                    <xs:documentation>List of custom SQL dialects</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
-    <xs:complexType name="Tenor.Configuration.DialectsCollection">
-        <xs:sequence>
-            <xs:element minOccurs="0" maxOccurs="unbounded" name="add" type="Tenor.Configuration.DialectElement">
-                <xs:annotation>
-                    <xs:documentation>The DialectElement Configuration Element.</xs:documentation>
-                </xs:annotation>
-            </xs:element>
-        </xs:sequence>
-    </xs:complexType>
-    <xs:complexType name="Tenor.Configuration.DialectElement">
-        <xs:sequence>
-        </xs:sequence>
-        <xs:attribute name="providerName" use="required" type="xs:float">
-            <xs:annotation>
-                <xs:documentation>Name of the DB provider</xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-        <xs:attribute name="type" use="required" type="xs:string">
-            <xs:annotation>
-                <xs:documentation>Full type name of the corresponding dialect</xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-    </xs:complexType>
+  <xs:element name="tenor" type="Tenor.Configuration.Tenor" />
+  <xs:complexType name="Tenor.Configuration.Tenor">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="exceptions" type="Tenor.Configuration.ExceptionsSection">
+        <xs:annotation>
+          <xs:documentation>Exception handling configuration</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element minOccurs="0" maxOccurs="1" name="dialects" type="Tenor.Configuration.DialectsCollection">
+        <xs:annotation>
+          <xs:documentation>SQL dialects configuration</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element minOccurs="0" maxOccurs="1" name="tenorModule" type="Tenor.Configuration.TenorModuleSection">
+        <xs:annotation>
+          <xs:documentation>Tenor Module configuration</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Tenor.Configuration.ExceptionsSection">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="emails" type="Tenor.Configuration.EmailsCollection">
+        <xs:annotation>
+          <xs:documentation>List of e-mail addresses that will get an e-mail everytime an exception is logged in case LogMode is set to Email.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="logMode" use="optional">
+      <xs:annotation>
+        <xs:documentation>Determines how to log exceptions. Default none.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:NMTOKEN">
+          <xs:enumeration value="None" />
+          <xs:enumeration value="Email" />
+          <xs:enumeration value="File" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="filePath" use="optional" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Path to the directory where exceptions will be stored in case LogMode is set to File.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:complexType name="Tenor.Configuration.EmailsCollection">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="add" type="Tenor.Configuration.EmailElement">
+        <xs:annotation>
+          <xs:documentation>The EmailElement Configuration Element.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Tenor.Configuration.EmailElement">
+    <xs:sequence>
+    </xs:sequence>
+    <xs:attribute name="email" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>E-mail address.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="name" use="optional" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Name (alias)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  <xs:complexType name="Tenor.Configuration.DialectsSection">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="dialects" type="Tenor.Configuration.DialectsCollection">
+        <xs:annotation>
+          <xs:documentation>List of custom SQL dialects</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Tenor.Configuration.DialectsCollection">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="add" type="Tenor.Configuration.DialectElement">
+        <xs:annotation>
+          <xs:documentation>The DialectElement Configuration Element.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Tenor.Configuration.DialectElement">
+    <xs:sequence>
+    </xs:sequence>
+    <xs:attribute name="providerName" use="required" type="xs:float">
+      <xs:annotation>
+        <xs:documentation>Name of the DB provider</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="type" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation>Full type name of the corresponding dialect</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+
+  <xs:complexType name="Tenor.Configuration.TenorModuleSection">
+    <xs:attribute name="handlerFileName" type="xs:string" use="optional" />
+  </xs:complexType>
+
 </xs:schema>
 

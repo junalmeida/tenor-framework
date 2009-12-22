@@ -46,7 +46,7 @@ namespace Tenor.BLL
         /// </summary>
         public BLLBase()
         {
-            cacheKey = Tenor.Configuration.TenorModule.IdPrefix + this.GetType().FullName;
+            cacheKey = Tenor.Configuration.TenorModuleSection.IdPrefix + this.GetType().FullName;
         }
         #endregion
 

@@ -26,7 +26,6 @@ namespace Tenor.BLL
         /// Loads a foreign key property.
         /// </summary>
         /// <param name="propertyName">Property name whose set will be called to set data.</param>
-        /// <param name="lazyLoading">Defines weather to enable the lazy loading.</param>
         /// <remarks></remarks>
         internal object LoadForeign(string propertyName)
         {
@@ -37,7 +36,6 @@ namespace Tenor.BLL
         /// Loads a foreign key property.
         /// </summary>
         /// <param name="propertyName">Property name whose set will be called to set data.</param>
-        /// <param name="lazyLoading">Defines weather to enable the lazy loading.</param>
         /// <param name="connection">The connection.</param>
         /// <param name="returnType">The return type of the property.</param>
         /// <remarks></remarks>
@@ -59,7 +57,6 @@ namespace Tenor.BLL
         /// Loads a foreign key property.
         /// </summary>
         /// <param name="property">The property.</param>
-        /// <param name="lazyLoading">Defines weather to enable the lazy loading.</param>
         /// <param name="connection">The connection.</param>
         /// <remarks></remarks>
         internal object LoadForeign(System.Reflection.PropertyInfo property, ConnectionStringSettings connection)
