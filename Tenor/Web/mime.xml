@@ -936,7 +936,5 @@
   <mimetype ext="odb">application/vnd.oasis.opendocument.database</mimetype>
   <mimetype ext="odi">application/vnd.oasis.opendocument.image</mimetype>
   
-  
-  
   <mimetype ext="ica" description="Citrix ICA Client">application/x-ica</mimetype>
 </MimeTypes>
