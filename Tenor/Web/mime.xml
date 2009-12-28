@@ -921,12 +921,12 @@
   <mimetype ext="sda">application/vnd.stardivision.draw</mimetype>
   <mimetype ext="sxm">application/vnd.sun.xml.math</mimetype>
   <mimetype ext="smf">application/vnd.stardivision.math</mimetype>
-  <mimetype ext="odt">application/vnd.oasis.opendocument.text</mimetype>
-  <mimetype ext="ott">application/vnd.oasis.opendocument.text-template</mimetype>
+  <mimetype ext="odt" description="OpenDocument Text">application/vnd.oasis.opendocument.text</mimetype>
+  <mimetype ext="ott" description="OpenDocument Text Template">application/vnd.oasis.opendocument.text-template</mimetype>
   <mimetype ext="oth">application/vnd.oasis.opendocument.text-web</mimetype>
   <mimetype ext="odm">application/vnd.oasis.opendocument.text-master</mimetype>
-  <mimetype ext="odg">application/vnd.oasis.opendocument.graphics</mimetype>
-  <mimetype ext="otg">application/vnd.oasis.opendocument.graphics-template</mimetype>
+  <mimetype ext="odg" description="OpenDocument Graphics">application/vnd.oasis.opendocument.graphics</mimetype>
+  <mimetype ext="otg" description="OpenDocument Graphics Template">application/vnd.oasis.opendocument.graphics-template</mimetype>
   <mimetype ext="odp">application/vnd.oasis.opendocument.presentation</mimetype>
   <mimetype ext="otp">application/vnd.oasis.opendocument.presentation-template</mimetype>
   <mimetype ext="ods">application/vnd.oasis.opendocument.spreadsheet</mimetype>
@@ -935,4 +935,8 @@
   <mimetype ext="odf">application/vnd.oasis.opendocument.formula</mimetype>
   <mimetype ext="odb">application/vnd.oasis.opendocument.database</mimetype>
   <mimetype ext="odi">application/vnd.oasis.opendocument.image</mimetype>
+  
+  
+  
+  <mimetype ext="ica" description="Citrix ICA Client">application/x-ica</mimetype>
 </MimeTypes>
