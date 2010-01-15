@@ -75,16 +75,17 @@ namespace Tenor.Data.Dialects.TSql
         {
             get { return true; }
         }
+
         public override LimitType LimitAt
         {
             get { return LimitType.Start; }
         }
+
         public override string CreateLimit(int limitValue)
         {
             return "TOP " + limitValue.ToString();
         }
-
-
+        
         internal override string CreateSaveList(TableInfo baseClass, ForeignKeyInfo fkInfo, Tenor.BLL.BLLBase baseInstance, out TenorParameter[] parameters, out System.Data.DataTable data)
         {
             IList values = (IList)fkInfo.PropertyValue(baseInstance);
@@ -138,6 +139,56 @@ namespace Tenor.Data.Dialects.TSql
             return sql.ToString();
 
 
+        }
+
+        internal override string CreateFullSql(Type baseClass, bool isDistinct, bool justCount, int limit, int? pagingStart, int? pagingEnd, string fieldsPart, string joinsPart, string sortPart, string wherePart)
+        {
+            if (pagingStart.HasValue && pagingEnd.HasValue)
+            {
+                if (justCount)
+                    throw new InvalidOperationException("It is not possible to page a count result.");
+
+                if (limit > 0)
+                    throw new InvalidOperationException("It is not possible to use limit with a paged result.");
+
+                TableInfo table = TableInfo.CreateTableInfo(baseClass);
+                string baseAlias = CreateClassAlias(baseClass);
+                StringBuilder sql = new StringBuilder();
+
+                sql.Append("SELECT * FROM (");
+                sql.Append("SELECT");
+                
+                // TODO: test if distinct works with paging
+                if (isDistinct)
+                    sql.Append(" DISTINCT");
+                
+                sql.Append(" ROW_NUMBER() OVER (ORDER BY ");
+                sql.AppendLine(sortPart.ToString());
+                sql.Append(") AS ROW, ");
+                sql.AppendLine(fieldsPart);
+
+                string froms = GetPrefixAndTable(table.Prefix, table.TableName);
+
+                froms += " " + baseAlias;
+                sql.AppendLine(" FROM " + froms);
+
+                sql.AppendLine(joinsPart);
+
+                if (!string.IsNullOrEmpty(wherePart))
+                {
+                    sql.Append(" WHERE ");
+                    sql.AppendLine(wherePart);
+                }
+
+                sql.AppendLine(") AS ListWithRowNumbers");
+                sql.AppendLine(string.Format("WHERE  Row >= {0} AND Row <= {1}", pagingStart.Value, pagingEnd.Value));
+
+                return sql.ToString();
+            }
+            else
+            {
+                return base.CreateFullSql(baseClass, isDistinct, justCount, limit, null, null, fieldsPart, joinsPart, sortPart, wherePart);
+            }
         }
     }
 }

@@ -711,7 +711,12 @@ namespace Tenor.Data.Dialects
             return sql.ToString();
         }
 
-        internal string CreateFullSql(Type baseClass, bool isDistinct, bool justCount, int limit, string fieldsPart, string joinsPart, string sortPart, string wherePart)
+        internal virtual string CreateFullSql(Type baseClass, bool isDistinct, bool justCount, int limit, string fieldsPart, string joinsPart, string sortPart, string wherePart)
+        {
+            return CreateFullSql(baseClass, isDistinct, justCount, limit, null, null, fieldsPart, joinsPart, sortPart, wherePart);
+        }
+
+        internal virtual string CreateFullSql(Type baseClass, bool isDistinct, bool justCount, int limit, int? pagingStart, int? pagingEnd, string fieldsPart, string joinsPart, string sortPart, string wherePart)
         {
             TableInfo table = TableInfo.CreateTableInfo(baseClass);
             string baseAlias = CreateClassAlias(baseClass);

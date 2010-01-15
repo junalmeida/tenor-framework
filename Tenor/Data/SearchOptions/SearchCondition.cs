@@ -21,16 +21,13 @@ namespace Tenor.Data
             this(joinAlias, propertyName, value, CompareOperator.Equal)
         {
         }
-
-
-
+        
         public SearchCondition(string joinAlias, string propertyName, object value, CompareOperator compareOperator)
             :
             this(joinAlias, propertyName, value, compareOperator, ((Type)null))
         {
         }
-
-
+        
         public SearchCondition(string joinAlias, string propertyName, object value, CompareOperator compareOperator, Type castType)
         {
             _joinAlias = joinAlias;

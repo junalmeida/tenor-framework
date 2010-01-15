@@ -76,6 +76,7 @@
   <ItemGroup>
     <Compile Include="DeletingEntities.cs" />
     <Compile Include="EagerLoading.cs" />
+    <Compile Include="Paging.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SavingEntities.cs" />
     <Compile Include="SelectingEntities.cs" />

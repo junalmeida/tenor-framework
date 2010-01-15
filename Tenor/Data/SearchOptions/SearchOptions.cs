@@ -157,6 +157,17 @@ namespace Tenor.Data
 
 
         /// <summary>
+        /// Executes the query defined on this instance respecting page and page size arguments.
+        /// </summary>
+        /// <param name="page">Desired page number (zero-based)</param>
+        /// <param name="pageSize">Page size</param>
+        public BLL.BLLBase[] ExecutePaged(int page, int pageSize)
+        {
+            return BLL.BLLBase.Search(this, page, pageSize);
+        }
+
+
+        /// <summary>
         /// Executes the query defined on this instance.
         /// </summary>
         public BLL.BLLBase[] Execute(ConnectionStringSettings Connection)
@@ -210,6 +221,5 @@ namespace Tenor.Data
 
             eagerLoading.Add(fkInfo, alias);
         }
-
     }
 }

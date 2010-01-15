@@ -88,6 +88,31 @@ namespace Tenor.BLL
             Tenor.Data.DataTable rs = SearchWithDataTable(searchOptions, connection);
             return BindRows(rs, searchOptions);
         }
+        
+        /// <summary>
+        /// Search data on the database based on definitions.
+        /// </summary>
+        /// <param name="searchOptions">The search definitions.</param>
+        /// <param name="page">Desired page number (zero-based)</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns></returns>
+        public static BLLBase[] Search(SearchOptions searchOptions, int page, int pageSize)
+        {
+            // TODO: implement overload passing connection
+
+            int totalCount = Count(searchOptions);
+
+            int pageCount = (int)System.Math.Ceiling((double)totalCount / (double)pageSize);
+
+            if (pageCount > 0 && page >= pageCount) page = pageCount - 1;
+
+            int pagingStart = (page * pageSize) + 1;
+            int pagingEnd = (page + 1) * pageSize;
+
+            Tenor.Data.DataTable rs = SearchWithDataTable(searchOptions, null, false, pagingStart, pagingEnd);
+            return BindRows(rs, searchOptions);
+        }
+
 
         /// <summary>
         /// Converts a datatable into a set of instances of baseClass.
@@ -200,14 +225,18 @@ namespace Tenor.BLL
             return System.Convert.ToInt32(rs.Rows[0][0]);
         }
         
-        private static Tenor.Data.DataTable SearchWithDataTable(SearchOptions SearchOptions, ConnectionStringSettings Connection)
+        private static Tenor.Data.DataTable SearchWithDataTable(SearchOptions searchOptions, ConnectionStringSettings connection)
         {
-            return SearchWithDataTable(SearchOptions, Connection, false);
+            return SearchWithDataTable(searchOptions, connection, false);
         }
 
         private static Tenor.Data.DataTable SearchWithDataTable(SearchOptions searchOptions, ConnectionStringSettings connection, bool justCount)
         {
+            return SearchWithDataTable(searchOptions, connection, justCount, null, null);
+        }
 
+        private static Tenor.Data.DataTable SearchWithDataTable(SearchOptions searchOptions, ConnectionStringSettings connection, bool justCount, int? pagingStart, int? pagingEnd)
+        {
             TenorParameter[] parameters = null;
             if (connection == null)
             {
@@ -215,15 +244,17 @@ namespace Tenor.BLL
                 connection = table.GetConnection();
             }
 
-            string sql = GetSearchSql(searchOptions, justCount, connection, out parameters);
+            string sql = GetSearchSql(searchOptions, justCount, pagingStart, pagingEnd, connection, out parameters);
+
             Tenor.Data.DataTable rs = new Tenor.Data.DataTable(sql, parameters, connection);
             DataSet ds = new DataSet();
             ds.Tables.Add(rs);
             ds.EnforceConstraints = false;
             rs.Bind();
+
             return rs;
         }
-        
+
         #endregion
 
         #region " Save "

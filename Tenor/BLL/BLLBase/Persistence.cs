@@ -269,9 +269,11 @@ namespace Tenor.BLL
         /// <param name="searchOptions">The search definitions.</param>
         /// <param name="connection">The Connection.</param>
         /// <param name="justCount">Indicates that this is a COUNT query.</param>
+        /// <param name="pagingStart">First row number that should be returned when paging</param>
+        /// <param name="pagingEnd">Last row number that should be returned when paging</param>
         /// <param name="parameters">Outputs the generated parameters.</param>
         /// <returns>A SQL query.</returns>
-        public static string GetSearchSql(SearchOptions searchOptions, bool justCount, ConnectionStringSettings connection, out TenorParameter[] parameters)
+        public static string GetSearchSql(SearchOptions searchOptions, bool justCount, int? pagingStart, int? pagingEnd, ConnectionStringSettings connection, out TenorParameter[] parameters)
         {
             GeneralDialect dialect = DialectFactory.CreateDialect(connection);
 
@@ -301,15 +303,19 @@ namespace Tenor.BLL
             List<SpecialFieldInfo> spFields = new List<SpecialFieldInfo>();
 
 
-
             foreach (FieldInfo f in BLLBase.GetFields(searchOptions.baseType))
             {
                 if (f.PrimaryKey || !f.LazyLoading)
                     fieldInfos.Add(f);
-            }
-            spFields.AddRange(BLLBase.GetSpecialFields(searchOptions.baseType));
-            sqlFields.Append(dialect.CreateSelectSql(table.RelatedTable, null, fieldInfos.ToArray(), spFields.ToArray()));
 
+                // when paging, at least one sorting criterion is needed
+                if (pagingStart.HasValue && pagingEnd.HasValue && searchOptions.Sorting.Count == 0 && f.PrimaryKey)
+                    searchOptions.Sorting.Add(f.RelatedProperty.Name);
+            }
+
+            spFields.AddRange(BLLBase.GetSpecialFields(searchOptions.baseType));
+            
+            sqlFields.Append(dialect.CreateSelectSql(table.RelatedTable, null, fieldInfos.ToArray(), spFields.ToArray()));
 
 
             //adding values from eager loading types
@@ -333,11 +339,11 @@ namespace Tenor.BLL
             }
 
 
-
-
             //Sorting
             string appendToSelect = null;
+
             string sqlSort = dialect.CreateSortSql(searchOptions.Sorting, table.RelatedTable, joins.ToArray(), searchOptions.Distinct, out appendToSelect);
+            
             if (!string.IsNullOrEmpty(appendToSelect))
                 sqlFields.Append(appendToSelect);
 
@@ -349,13 +355,14 @@ namespace Tenor.BLL
 
 
             // Creates the entire sql string
-            string sql = dialect.CreateFullSql(searchOptions.baseType, searchOptions.Distinct, justCount, searchOptions.Top, sqlFields.ToString(), sqlJoins, sqlSort, sqlWhere);
+            string sql = dialect.CreateFullSql(searchOptions.baseType, searchOptions.Distinct, justCount, searchOptions.Top, pagingStart, pagingEnd, sqlFields.ToString(), sqlJoins, sqlSort, sqlWhere);
 
 
             Tenor.Diagnostics.Debug.DebugSQL("GetSearchSql()", sql, parameters, connection);
 
             return sql;
         }
+
 
         /// <summary>
         /// Persists a list on the database. 
