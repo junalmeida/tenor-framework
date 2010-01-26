@@ -303,9 +303,15 @@ namespace Tenor.BLL
             List<SpecialFieldInfo> spFields = new List<SpecialFieldInfo>();
 
 
-            foreach (FieldInfo f in BLLBase.GetFields(searchOptions.baseType))
+            FieldInfo[] allFields;
+            if (justCount)
+                allFields = BLLBase.GetFields(searchOptions.baseType, true); //lets count using distinct subquery
+            else
+                allFields = BLLBase.GetFields(searchOptions.baseType); //lets get all fields
+
+            foreach (FieldInfo f in allFields)
             {
-                if (f.PrimaryKey || !f.LazyLoading)
+                if (f.PrimaryKey || (!f.LazyLoading && !justCount)) //primary keys and eager fields must be loaded
                     fieldInfos.Add(f);
 
                 // when paging, at least one sorting criterion is needed
@@ -313,7 +319,8 @@ namespace Tenor.BLL
                     searchOptions.Sorting.Add(f.RelatedProperty.Name);
             }
 
-            spFields.AddRange(BLLBase.GetSpecialFields(searchOptions.baseType));
+            if (!justCount) //we don't need it on counting
+                spFields.AddRange(BLLBase.GetSpecialFields(searchOptions.baseType));
             
             sqlFields.Append(dialect.CreateSelectSql(table.RelatedTable, null, fieldInfos.ToArray(), spFields.ToArray()));
 

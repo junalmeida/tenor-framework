@@ -7,6 +7,7 @@ using System.Collections;
 using Tenor.Data;
 #if MSTEST
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Data.Common;
 #else
 using TestMethodAttribute = NUnit.Framework.TestAttribute;
 using TestClassAttribute = NUnit.Framework.TestFixtureAttribute;
@@ -62,5 +63,31 @@ namespace Tenor.Test
 
         }
 
+
+        protected DataTable LowLevelExecuteQuery(string query, params DbParameter[] parameters)
+        {
+            DbProviderFactory fac = DbProviderFactories.GetFactory(Tenor.BLL.BLLBase.SystemConnection.ProviderName);
+            DbConnection con = fac.CreateConnection();
+            con.ConnectionString = Tenor.BLL.BLLBase.SystemConnection.ConnectionString;
+            try
+            {
+                con.Open();
+                DbCommand cmd = con.CreateCommand();
+                cmd.CommandText = query;
+                if (parameters != null && parameters.Length > 0)
+                    cmd.Parameters.AddRange(parameters);
+
+                DbDataAdapter adapt = fac.CreateDataAdapter();
+                adapt.SelectCommand = cmd;
+                DataTable dt = new DataTable();
+                adapt.Fill(dt);
+                return dt;
+            }
+            finally
+            {
+                if (con.State != System.Data.ConnectionState.Closed)
+                    con.Close();
+            }
+        }
     }
 }

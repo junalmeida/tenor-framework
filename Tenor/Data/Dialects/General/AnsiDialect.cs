@@ -718,6 +718,7 @@ namespace Tenor.Data.Dialects
 
         internal virtual string CreateFullSql(Type baseClass, bool isDistinct, bool justCount, int limit, int? pagingStart, int? pagingEnd, string fieldsPart, string joinsPart, string sortPart, string wherePart)
         {
+
             TableInfo table = TableInfo.CreateTableInfo(baseClass);
             string baseAlias = CreateClassAlias(baseClass);
             StringBuilder sql = new StringBuilder();
@@ -733,14 +734,12 @@ namespace Tenor.Data.Dialects
                 {
                     sql.Append(CreateLimit(limit) + " ");
                 }
-                sql.AppendLine(fieldsPart);
             }
             else
             {
-                if (isDistinct)
-                    sql.Append(" DISTINCT");
-                sql.Append(" COUNT(*) ");
+                sql.Append(" COUNT(*) from (SELECT DISTINCT ");
             }
+            sql.AppendLine(fieldsPart);
 
 
             string froms = GetPrefixAndTable(table.Prefix, table.TableName);
@@ -797,6 +796,8 @@ namespace Tenor.Data.Dialects
                 sql.Append(" " + CreateLimit(limit));
             }
 
+            if (justCount) //close the opened parenthesis of subquery count and add alias
+                sql.Append(" ) countQuery");
             /*
              * sql.Append(LineEnding);
              */

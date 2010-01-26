@@ -8,6 +8,7 @@ using Tenor.Data;
 using Tenor.Linq;
 #if MSTEST
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Data.Common;
 #else
 using TestMethodAttribute = NUnit.Framework.TestAttribute;
 using TestClassAttribute = NUnit.Framework.TestFixtureAttribute;
@@ -74,6 +75,27 @@ namespace Tenor.Test
 
             //ShouldListsBeEqual(persons, persons2, false);
 
+        }
+
+
+        [TestMethod]
+        public void Count()
+        {
+            DataTable countLowLevelDt = LowLevelExecuteQuery(@"
+SELECT  COUNT(*) from (SELECT DISTINCT p.PersonId
+ FROM Persons p
+ LEFT OUTER JOIN person_department pd ON p.PersonId = pd.PersonId
+ LEFT OUTER JOIN Departments d ON d.DepartmentId = pd.DepartmentId
+ WHERE  (d.Name IS NOT NULL) 
+ ) countQuery
+");
+            int countLowLevel = (int)countLowLevelDt[0][0];
+
+            IQueryable<Person> so = Tenor.Linq.SearchOptions<Person>.CreateQuery();
+            so = so.Where(p => p.DepartmentList.Any(e => e.Name != null));
+            int count = so.Count();
+
+            Assert.AreEqual(countLowLevel, count);
         }
     }
 }
