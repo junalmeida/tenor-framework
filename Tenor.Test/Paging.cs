@@ -61,19 +61,21 @@ namespace Tenor.Test
         {
             SearchOptions so = new SearchOptions(typeof(Person));
             so.Conditions.Include("PersonItemList", "pi");
-            
+            so.Conditions.Include("pi", "Item", "i", JoinMode.InnerJoin);
+            so.Distinct = true;
+
             //so.Conditions.Add(new SearchCondition(string.Empty, Person.Properties.Name, "jane%", CompareOperator.Like));
-            so.Conditions.Add(new SearchCondition("pi", PersonItem.Properties.ItemId, 2));
+            so.Conditions.Add(new SearchCondition("i", Item.Properties.Description, "%item", CompareOperator.Like));
 
             so.Sorting.Add(Person.Properties.PersonId, SortOrder.Descending);
 
             // zero-based
             int page = 0;
-            int pageSize = 10;
+            int pageSize = 2;
 
             Person[] items = (Person[])so.ExecutePaged(page, pageSize);
 
-            Person[] allItems = Person.Search(so.Conditions, so.Sorting);
+            Person[] allItems = Person.Search(so.Conditions, so.Sorting, true);
 
             Person[] pagedInMemory = allItems.Skip(page * pageSize).Take(pageSize).ToArray();
 

@@ -161,6 +161,7 @@ namespace Tenor.Data
         /// </summary>
         /// <param name="page">Desired page number (zero-based)</param>
         /// <param name="pageSize">Page size</param>
+        [Obsolete("This method is unable to return distinct values from the base class. If duplications are caused by joins, they will not be ignored. Use with caution.", false)]
         public BLL.BLLBase[] ExecutePaged(int page, int pageSize)
         {
             return BLL.BLLBase.Search(this, page, pageSize);

@@ -63,7 +63,7 @@ public class GeneratedGui : DotNetScriptGui
 		GuiLabel lblTbl = ui.AddLabel("lblTables", "Desired tables:", "Choose the tables from which you want to generate classes.");
 		GuiCheckBoxList cmbTables = ui.AddCheckBoxList("cmbTable", "");
 		cmbTables.Height = 200;
-		GuiButton btn = ui.AddButton("btnSelectAll", "Select all tables", "");
+		GuiButton btn = ui.AddButton("btnSelectAll", "Select/deselect all tables", "");
 		btn.AttachEvent("onclick", "btn_onclick");
 		
 		GuiLabel lblNamespace = ui.AddLabel("lblNamespace", "Namespace:", "Default namespace.");
@@ -117,7 +117,7 @@ public class GeneratedGui : DotNetScriptGui
 	
 	public void bindTables(string sDatabase)
 	{
-		string[] tabelas = ((string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Tables","")).Split(';');
+		string[] tables = ((string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Tables","")).Split(';');
 	
 		int count = 0;
 	
@@ -128,7 +128,7 @@ public class GeneratedGui : DotNetScriptGui
 			IDatabase db = MyMeta.Databases[sDatabase];
 			cmbTable.BindData(db.Tables);
 			
-			foreach(string item in tabelas) 
+			foreach(string item in tables) 
 			{
 				try 
 				{
@@ -145,10 +145,21 @@ public class GeneratedGui : DotNetScriptGui
 		bindTables(cmbDatabases.SelectedText);
 	}
 	
+	private bool all;
+	
 	public void btn_onclick(GuiButton control)
 	{
 		GuiCheckBoxList cmbTable = ui["cmbTable"] as GuiCheckBoxList;
-		cmbTable.SelectAll();
+		if(!all)
+		{
+			cmbTable.SelectAll();
+			all = true;
+		}
+		else
+		{
+			cmbTable.ClearSelected();
+			all = false;
+		}
 	}
 	
 	public void cmbLanguages_onchange(GuiComboBox cmbLanguages)
