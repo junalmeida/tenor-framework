@@ -163,7 +163,7 @@ namespace Tenor.Data.Dialects
         /// <summary>
         /// Creates the query part equivalent to a SpecialFieldAttribute.
         /// </summary>
-        private string GetSpecialFieldExpression(string classAlias, SpecialFieldInfo spFieldInfo)
+        protected string GetSpecialFieldExpression(string classAlias, SpecialFieldInfo spFieldInfo)
         {
             string expression = spFieldInfo.Expression;
             return GetSpecialFieldExpression(classAlias, expression);
@@ -335,7 +335,7 @@ namespace Tenor.Data.Dialects
         /// <param name="sortOrder">A SortOrder value that defines how items are sorted.</param>
         /// <param name="castType">Specifies that a cast is needed on the table field.</param>
         /// <returns>Returns the query part that sorts the results.</returns>
-        protected virtual string CreateOrderBy(Type classType, string classAlias, string propertyName, SortOrder sortOrder, Type castType)
+        protected virtual string CreateOrderBy(Type classType, string classAlias, string propertyName, string propertyAlias, SortOrder sortOrder, Type castType)
         {
             if (string.IsNullOrEmpty(classAlias))
                 classAlias = CreateClassAlias(classType);
@@ -356,7 +356,14 @@ namespace Tenor.Data.Dialects
                 str.Append(classAlias);
 
                 str.Append(".");
-                str.Append(CommandBuilder.QuoteIdentifier(fieldInfo.DataFieldName));
+                if (!string.IsNullOrEmpty(propertyAlias))
+                {
+                    str.Append(propertyAlias);
+                }
+                else
+                {
+                    str.Append(CommandBuilder.QuoteIdentifier(fieldInfo.DataFieldName));
+                }
 
                 if (castType != null)
                 {
@@ -552,7 +559,7 @@ namespace Tenor.Data.Dialects
             return fieldsSql.ToString();
         }
 
-        internal string CreateSortSql(SortingCollection sortCollection, Type baseClass, Join[] joins, bool isDistinct, out string appendToSelect)
+        internal virtual string CreateSortSql(SortingCollection sortCollection, Type baseClass, Join[] joins, bool isDistinct, bool isPaging, out string appendToSelect)
         {
             //Sorting
             StringBuilder sqlSort = new StringBuilder();
@@ -581,7 +588,7 @@ namespace Tenor.Data.Dialects
 
 
                 sqlSort.Append(", ");
-                sqlSort.Append(CreateOrderBy(table, alias, sort.PropertyName, sort.SortOrder, sort.CastType));
+                sqlSort.Append(CreateOrderBy(table, alias, sort.PropertyName, string.Empty, sort.SortOrder, sort.CastType));
                 //fields that must come into sort part
                 if (isDistinct && table != baseClass)
                 {

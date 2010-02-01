@@ -96,11 +96,9 @@ namespace Tenor.BLL
         /// <param name="page">Desired page number (zero-based)</param>
         /// <param name="pageSize">Page size</param>
         /// <returns></returns>
-        public static BLLBase[] Search(SearchOptions searchOptions, int page, int pageSize)
+        public static BLLBase[] Search(SearchOptions searchOptions, int page, int pageSize, ConnectionStringSettings connection)
         {
-            // TODO: implement overload passing connection
-
-            int totalCount = Count(searchOptions);
+            int totalCount = Count(searchOptions, connection);
 
             int pageCount = (int)System.Math.Ceiling((double)totalCount / (double)pageSize);
 
@@ -109,7 +107,7 @@ namespace Tenor.BLL
             int pagingStart = (page * pageSize) + 1;
             int pagingEnd = (page + 1) * pageSize;
 
-            Tenor.Data.DataTable rs = SearchWithDataTable(searchOptions, null, false, pagingStart, pagingEnd);
+            Tenor.Data.DataTable rs = SearchWithDataTable(searchOptions, connection, false, pagingStart, pagingEnd);
             return BindRows(rs, searchOptions);
         }
 

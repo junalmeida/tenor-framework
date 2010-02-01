@@ -101,11 +101,11 @@ namespace Tenor.Data
         }
     }
 
-    internal abstract class PropInfo
+    public abstract class PropInfo
     {
 
         protected System.Reflection.PropertyInfo _RelatedProperty;
-        internal virtual System.Reflection.PropertyInfo RelatedProperty
+        public virtual System.Reflection.PropertyInfo RelatedProperty
         {
             get
             {
@@ -113,11 +113,12 @@ namespace Tenor.Data
             }
         }
 
-        internal object PropertyValue(object Instance)
+        public object PropertyValue(object Instance)
         {
             return PropertyValue(Instance, true);
         }
-        internal object PropertyValue(object Instance, bool ConvertNullToDBNull)
+
+        public object PropertyValue(object Instance, bool ConvertNullToDBNull)
         {
             try
             {
@@ -166,7 +167,7 @@ namespace Tenor.Data
 
         }
 
-        internal void SetPropertyValue(object Instance, bool ConvertNullToDBNull, object value)
+        public void SetPropertyValue(object Instance, bool ConvertNullToDBNull, object value)
         {
             try
             {
@@ -250,7 +251,8 @@ namespace Tenor.Data
                 type = values[0].FieldType;
             }
         }
-        internal void SetPropertyValue(object Instance, object value)
+
+        public void SetPropertyValue(object Instance, object value)
         {
             SetPropertyValue(Instance, true, value);
         }
@@ -572,12 +574,12 @@ namespace Tenor.Data
     /// <summary>
     /// Encapsulates all special field metadata.
     /// </summary>
-    internal sealed class SpecialFieldInfo : PropInfo
+    public sealed class SpecialFieldInfo : PropInfo
     {
 
         private SpecialFieldInfo() { }
 
-        internal static SpecialFieldInfo Create(System.Reflection.PropertyInfo theProperty)
+        public static SpecialFieldInfo Create(System.Reflection.PropertyInfo theProperty)
         {
             SpecialFieldInfo sp = new SpecialFieldInfo();
 
@@ -598,7 +600,7 @@ namespace Tenor.Data
 
         private SpecialFieldAttribute _Attribute;
 
-        internal string Expression
+        public string Expression
         {
             get
             {
@@ -607,7 +609,7 @@ namespace Tenor.Data
         }
 
 
-        internal string Alias
+        public string Alias
         {
             get
             {

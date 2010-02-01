@@ -7,6 +7,7 @@ using System.Data.SqlClient;
 using System.Data.Common;
 using System.Collections.Specialized;
 using System.Collections;
+using Tenor.BLL;
 
 namespace Tenor.Data.Dialects.TSql
 {
@@ -141,6 +142,114 @@ namespace Tenor.Data.Dialects.TSql
 
         }
 
+        /// <summary>
+        /// Checks whether there's any join that is part of a collection association
+        /// </summary>
+        /// <param name="join">Join</param>
+        /// <param name="joins">All joins</param>
+        /// <param name="alias">Property alias</param>
+        /// <param name="propName">Property name</param>
+        private void CheckJoin(Join join, Join[] joins, string alias, string propName)
+        {
+            if (join.ForeignKey.IsArray)
+                throw new InvalidSortException(string.Format("You can't sort by a field that is in a collection association: alias {0} property {1}", alias, propName));
+            
+            if (!string.IsNullOrEmpty(join.ParentAlias))
+            {
+                foreach (Join j in joins)
+                {
+                    if (j.JoinAlias == join.ParentAlias)
+                    {
+                        CheckJoin(j, joins, alias, propName);
+                        break;
+                    }
+                }
+            }
+        }
+
+        internal override string CreateSortSql(SortingCollection sortCollection, Type baseClass, Join[] joins, bool isDistinct, bool isPaging, out string appendToSelect)
+        {
+            if (isPaging)
+            {
+                StringBuilder sqlSort = new StringBuilder();
+                appendToSelect = string.Empty;
+                foreach (SortingCriteria sort in sortCollection)
+                {
+                    Type table = baseClass;
+
+                    // to be replaced in CreateFullSql
+                    string alias = "[[[base_class_alias]]]";
+
+                    string propAlias = string.Empty;
+
+                    Join join = null;
+                    
+                    if (!string.IsNullOrEmpty(sort.JoinAlias))
+                    {
+                        int pos = Array.IndexOf(joins, new Join(sort.JoinAlias));
+                        if (pos == -1)
+                            throw new InvalidCollectionArgument(CollectionProblem.InvalidJoin, sort.JoinAlias);
+                        
+                        join = joins[pos];
+
+                        CheckJoin(join, joins, sort.JoinAlias, sort.PropertyName);
+                        
+                        table = join.ForeignKey.ElementType;
+                        alias = "[[[join_class_alias]]]";
+                    }
+
+                    PropertyInfo property = table.GetProperty(sort.PropertyName);
+                    if (property == null)
+                        throw new MissingFieldException(table, sort.PropertyName);
+                    
+                    FieldInfo fieldInfo = FieldInfo.Create(property);
+                    
+                    SpecialFieldInfo spInfo = SpecialFieldInfo.Create(property);
+                    
+                    if (fieldInfo == null && spInfo == null)
+                        throw new MissingFieldException(table, property.Name, true);
+
+                    if (join != null)
+                        propAlias = join.JoinAlias + "||" + sort.PropertyName;
+
+                    sqlSort.Append(", ");
+                    sqlSort.Append(CreateOrderBy(table, alias, sort.PropertyName, propAlias, sort.SortOrder, sort.CastType));
+                    
+                    // -- isn't this useless? doesn't it always duplicate what "createorderby" has done?
+                    ////fields that must come into sort part
+                    //if (isDistinct && table != baseClass)
+                    //{
+                    //    StringBuilder fieldExpression = new StringBuilder();
+
+                    //    if (fieldInfo != null)
+                    //    {
+                    //        fieldExpression.Append(alias + "." + CommandBuilder.QuoteIdentifier(fieldInfo.DataFieldName));
+                    //    }
+                    //    else if (spInfo != null)
+                    //    {
+                    //        fieldExpression.Append(GetSpecialFieldExpression(alias, spInfo));
+                    //        fieldExpression.Append(" AS " + spInfo.Alias);
+                    //    }
+
+                    //    string field = ", " + fieldExpression;
+                    //    if (!appendToSelect.Contains(field))
+                    //    {
+                    //        appendToSelect += (field);
+                    //    }
+                    //}
+                }
+
+                if (sqlSort.Length > 0)
+                    sqlSort = sqlSort.Remove(0, 2);
+
+                return sqlSort.ToString();
+            }
+            else
+            {
+                return base.CreateSortSql(sortCollection, baseClass, joins, isDistinct, isPaging, out appendToSelect);
+            }
+        }
+
         internal override string CreateFullSql(Type baseClass, bool isDistinct, bool justCount, int limit, int? pagingStart, int? pagingEnd, string fieldsPart, string joinsPart, string sortPart, string wherePart)
         {
             if (pagingStart.HasValue && pagingEnd.HasValue)
@@ -151,39 +260,117 @@ namespace Tenor.Data.Dialects.TSql
                 if (limit > 0)
                     throw new InvalidOperationException("It is not possible to use limit with a paged result.");
 
+
                 TableInfo table = TableInfo.CreateTableInfo(baseClass);
                 string baseAlias = CreateClassAlias(baseClass);
-                StringBuilder sql = new StringBuilder();
 
-                sql.Append("SELECT * FROM (");
-                sql.Append("SELECT");
+                string baseSQL = @"SELECT distinct * FROM
+(SELECT ROW_NUMBER() OVER (ORDER BY [[[sort_for_row_number]]]
+) AS ROW, [[[PKS_for_row_number]]]
+FROM (
+SELECT DISTINCT [[[without_to_many_relations_regular_query]]]
+) DistinctQuery
+) AS ListWithRowNumbers
+INNER JOIN 
+(
+SELECT [[[regular_query]]]
+) AllDataQuery
+ON [[[joins_between_row_num_and_data]]]
+WHERE  ListWithRowNumbers.Row >= {0} AND ListWithRowNumbers.Row <= {1}
+ORDER BY [[[sort_without_alias]]]";
+
+
+                string sortRowNumber = sortPart.Replace("[[[base_class_alias]]]", "DistinctQuery").Replace("[[[join_class_alias]]]", "DistinctQuery").Replace("||", "_");
+
+                FieldInfo[] pks = BLLBase.GetFields(baseClass, true);
+                string pksRowNumber = string.Empty;
                 
-                // TODO: test if distinct works with paging
-                if (isDistinct)
-                    sql.Append(" DISTINCT");
-                
-                sql.Append(" ROW_NUMBER() OVER (ORDER BY ");
-                sql.AppendLine(sortPart.ToString());
-                sql.Append(") AS ROW, ");
-                sql.AppendLine(fieldsPart);
+                foreach (FieldInfo pk in pks)
+                    pksRowNumber += ", DistinctQuery." + pk.DataFieldName;
+
+                if (pksRowNumber.Length > 0)
+                    pksRowNumber = pksRowNumber.Substring(2);
 
                 string froms = GetPrefixAndTable(table.Prefix, table.TableName);
 
                 froms += " " + baseAlias;
-                sql.AppendLine(" FROM " + froms);
 
-                sql.AppendLine(joinsPart);
+                StringBuilder innerQuery = new StringBuilder();
+
+                string sortSeparator = "||";
+
+                StringBuilder sortingExtraFields = new StringBuilder();
+
+                // TODO: also get sort fields
+                innerQuery.Append(CreateSelectSql(baseClass, string.Empty, BLLBase.GetFields(baseClass, null), new SpecialFieldInfo[0]));
+                foreach (string part in sortPart.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    if (part.Contains(sortSeparator))
+                    {
+                        string inPart = part.Trim();
+                        if (inPart.EndsWith(" ASC"))
+                            inPart = inPart.Substring(0, inPart.Length - " ASC".Length);
+                        else if (inPart.EndsWith(" DESC"))
+                            inPart = inPart.Substring(0, inPart.Length - " DESC".Length);
+
+                        string[] parts = inPart.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
+                        Array.Reverse(parts);
+
+                        string fieldAlias = parts[0].Trim();
+
+                        int separatorIndex = fieldAlias.IndexOf(sortSeparator);
+                        sortingExtraFields.AppendFormat(", {0}.{1} {2}", fieldAlias.Substring(0, separatorIndex), fieldAlias.Substring(separatorIndex + sortSeparator.Length), fieldAlias.Replace(sortSeparator, "_"));
+                    }
+                }
+
+                innerQuery.Append(sortingExtraFields.ToString());
+
+                innerQuery.AppendLine(" FROM " + froms);
+
+                innerQuery.AppendLine(joinsPart);
 
                 if (!string.IsNullOrEmpty(wherePart))
                 {
-                    sql.Append(" WHERE ");
-                    sql.AppendLine(wherePart);
+                    innerQuery.Append(" WHERE ");
+                    innerQuery.AppendLine(wherePart);
                 }
 
-                sql.AppendLine(") AS ListWithRowNumbers");
-                sql.AppendLine(string.Format("WHERE  Row >= {0} AND Row <= {1}", pagingStart.Value, pagingEnd.Value));
+                StringBuilder regularQuery = new StringBuilder();
+                
+                regularQuery.AppendLine(fieldsPart);
 
-                return sql.ToString();
+                regularQuery.Append(sortingExtraFields.ToString());
+
+                regularQuery.AppendLine(" FROM " + froms);
+
+                regularQuery.AppendLine(joinsPart);
+
+                if (!string.IsNullOrEmpty(wherePart))
+                {
+                    regularQuery.Append(" WHERE ");
+                    regularQuery.AppendLine(wherePart);
+                }
+
+                string joinsRowNum = "";
+
+                foreach (FieldInfo pk in pks)
+                    joinsRowNum += " AND ListWithRowNumbers." + pk.DataFieldName + " = AllDataQuery." + pk.DataFieldName + Environment.NewLine;
+
+                if (joinsRowNum.Length > 0)
+                    joinsRowNum = joinsRowNum.Substring(5);
+
+                string finalSort = sortPart.Replace("[[[base_class_alias]]]", "AllDataQuery").Replace("[[[join_class_alias]]]", "AllDataQuery").Replace("||", "_");
+
+                string sql = baseSQL.Replace("[[[sort_for_row_number]]]", sortRowNumber)
+                                .Replace("[[[PKS_for_row_number]]]", pksRowNumber)
+                                .Replace("[[[without_to_many_relations_regular_query]]]", innerQuery.ToString())
+                                .Replace("[[[regular_query]]]", regularQuery.ToString())
+                                .Replace("[[[joins_between_row_num_and_data]]]", joinsRowNum)
+                                .Replace("[[[sort_without_alias]]]", finalSort);
+
+                sql = string.Format(sql, pagingStart.Value, pagingEnd.Value);
+
+                return sql;
             }
             else
             {

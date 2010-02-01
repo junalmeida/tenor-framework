@@ -270,7 +270,7 @@ namespace Tenor.Data
     }
 
     /// <summary>
-    /// Occurs when condition information is missing or mistaked.
+    /// Occurs when condition information is missing or mistaken.
     /// </summary>
     public class InvalidCollectionArgument : TenorException
     {
@@ -306,6 +306,21 @@ namespace Tenor.Data
         }
     }
 
+    /// <summary>
+    /// Occurs when a field belonging to a collection association is given when paging
+    /// </summary>
+    public class InvalidSortException : TenorException
+    {
+        public InvalidSortException()
+            : base()
+        {
+        }
+
+        public InvalidSortException(string message)
+            : base(message)
+        {
+        }
+    }
 }
 
 namespace Tenor.Web

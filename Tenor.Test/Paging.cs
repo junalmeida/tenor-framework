@@ -59,32 +59,153 @@ namespace Tenor.Test
         [TestMethod]
         public void PagingTest()
         {
-            SearchOptions so = new SearchOptions(typeof(Person));
-            so.Conditions.Include("PersonItemList", "pi");
-            so.Conditions.Include("pi", "Item", "i", JoinMode.InnerJoin);
+            Type type = typeof(Person);
+
+            SearchOptions so = new SearchOptions(type);
             so.Distinct = true;
 
-            //so.Conditions.Add(new SearchCondition(string.Empty, Person.Properties.Name, "jane%", CompareOperator.Like));
-            so.Conditions.Add(new SearchCondition("i", Item.Properties.Description, "%item", CompareOperator.Like));
-
-            so.Sorting.Add(Person.Properties.PersonId, SortOrder.Descending);
-
-            // zero-based
-            int page = 0;
             int pageSize = 2;
 
-            Person[] items = (Person[])so.ExecutePaged(page, pageSize);
+            PagingTestBase(pageSize, so, type);
+        }
 
-            Person[] allItems = Person.Search(so.Conditions, so.Sorting, true);
+        [TestMethod]
+        public void PagingWithConditionsTest()
+        {
+            Type type = typeof(Person);
 
-            Person[] pagedInMemory = allItems.Skip(page * pageSize).Take(pageSize).ToArray();
+            SearchOptions so = new SearchOptions(type);
+            so.Distinct = true;
 
-            Assert.AreEqual(items.Length, pagedInMemory.Length);
+            so.Conditions.Add(new SearchCondition(string.Empty, Person.Properties.Name, "jane%", CompareOperator.Like));
 
-            for (int i = 0; i < items.Length; i++)
+            int pageSize = 2;
+
+            PagingTestBase(pageSize, so, type);
+        }
+
+        [TestMethod]
+        public void PagingWithJoinAndConditionsTest()
+        {
+            Type type = typeof(Person);
+
+            SearchOptions so = new SearchOptions(type);
+            so.Distinct = true;
+            
+            so.Conditions.Include("PersonItemList", "pi");
+           
+            so.Conditions.Add(new SearchCondition("pi", PersonItem.Properties.ItemId, 2));
+
+            int pageSize = 2;
+
+            PagingTestBase(pageSize, so, type);
+        }
+
+        [TestMethod]
+        public void PagingWithJoinToManyAndConditionsTest()
+        {
+            Type type = typeof(Person);
+
+            SearchOptions so = new SearchOptions(type);
+            so.Distinct = true;
+
+            so.Conditions.Include("PersonItemList", "pi");
+            so.Conditions.Include("pi", "Item", "i", JoinMode.InnerJoin);
+
+            so.Conditions.Add(new SearchCondition("i", Item.Properties.Description, "%item", CompareOperator.Like));
+
+            int pageSize = 2;
+
+            PagingTestBase(pageSize, so, type);
+        }
+
+        [TestMethod]
+        public void PagingWithJoinToManyConditionsAndOtherTableSortingTest()
+        {
+            Type type = typeof(Item);
+            
+            SearchOptions so = new SearchOptions(type);
+            so.Distinct = true;
+
+            so.Conditions.Include("PersonItemList", "pi");
+            so.Conditions.Include("pi", "Person", "p", JoinMode.InnerJoin);
+            so.Conditions.Include(string.Empty, "Category", "c", JoinMode.LeftJoin);
+
+            so.Conditions.Add(new SearchCondition("p", Person.Properties.Name, "%doe", CompareOperator.Like));
+
+            so.Sorting.Add("c", Category.Properties.Name);
+            so.Sorting.Add(Item.Properties.Description);
+
+            int pageSize = 2;
+
+            PagingTestBase(pageSize, so, type);
+        }
+
+        [TestMethod]
+        public void PagingWithSortingToManyTest()
+        {
+            Type type = typeof(Item);
+
+            SearchOptions so = new SearchOptions(type);
+            so.Distinct = true;
+
+            so.Conditions.Include("PersonItemList", "pi");
+            so.Conditions.Include("pi", "Person", "p", JoinMode.InnerJoin);
+            so.Conditions.Include(string.Empty, "Category", "c", JoinMode.LeftJoin);
+
+            so.Sorting.Add("p", Person.Properties.Name);
+            so.Sorting.Add("c", Category.Properties.Name);
+            so.Sorting.Add(Item.Properties.Description);
+
+            bool exceptionHappened = false;
+            try
             {
-                Assert.AreEqual(items[i].PersonId, pagedInMemory[i].PersonId);
+                so.ExecutePaged(0, 2);
             }
+            catch (InvalidSortException)
+            {
+                exceptionHappened = true;
+            }
+
+            if (!exceptionHappened)
+                Assert.Fail("An InvalidSortException should have been thrown. Sorting by collection association fields is not allowed.");
+        }
+        /// <summary>
+        /// Base to paging tests with person
+        /// </summary>
+        /// <param name="page">Desired page (zero-based)</param>
+        /// <param name="pageSize">Page size</param>
+        /// <param name="so">Search options</param>
+        private void PagingTestBase(int pageSize, SearchOptions so, Type type)
+        {
+            BLLBase[] allItems = BLLBase.Search(so);
+
+            int pages = (int)System.Math.Ceiling((double)allItems.Length / (double)pageSize);
+
+            for (int page = 0; page < pages; page++)
+            {
+                BLLBase[] pagedInMemory = allItems.Skip(page * pageSize).Take(pageSize).ToArray();
+                BLLBase[] items = so.ExecutePaged(page, pageSize);
+
+                Assert.AreEqual(items.Length, pagedInMemory.Length, string.Format("Page {0} should have {1} items and has {2}.", page + 1, pagedInMemory.Length, items.Length));
+
+                for (int i = 0; i < items.Length; i++)
+                    PagingTestObjectComparison(items[i], pagedInMemory[i], type);
+            }
+        }
+
+        /// <summary>
+        /// Diferent ways to compare objects
+        /// </summary>
+        /// <param name="item1">First item</param>
+        /// <param name="item2">Second item</param>
+        /// <param name="type">Item type</param>
+        private void PagingTestObjectComparison(BLLBase item1, BLLBase item2, Type type)
+        {
+            if (type == typeof(Person))
+                Assert.AreEqual(((Person)item1).PersonId, ((Person)item2).PersonId);
+            if (type == typeof(Item))
+                Assert.AreEqual(((Item)item1).ItemId, ((Item)item2).ItemId);
         }
     }
 }

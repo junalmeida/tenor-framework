@@ -346,13 +346,18 @@ namespace Tenor.BLL
             }
 
 
-            //Sorting
-            string appendToSelect = null;
+            //Sorting (not necessary for count queries)
+            string sqlSort = string.Empty;
 
-            string sqlSort = dialect.CreateSortSql(searchOptions.Sorting, table.RelatedTable, joins.ToArray(), searchOptions.Distinct, out appendToSelect);
-            
-            if (!string.IsNullOrEmpty(appendToSelect))
-                sqlFields.Append(appendToSelect);
+            if (!justCount)
+            {
+                string appendToSelect = null;
+
+                sqlSort = dialect.CreateSortSql(searchOptions.Sorting, table.RelatedTable, joins.ToArray(), searchOptions.Distinct, pagingStart.HasValue && pagingEnd.HasValue, out appendToSelect);
+
+                if (!string.IsNullOrEmpty(appendToSelect))
+                    sqlFields.Append(appendToSelect);
+            }
 
             //Creates the where part
             string sqlWhere = dialect.CreateWhereSql(searchOptions.Conditions, searchOptions.baseType, joins.ToArray(), out parameters);
