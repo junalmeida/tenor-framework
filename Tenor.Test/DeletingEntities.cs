@@ -64,7 +64,7 @@ namespace Tenor.Test
             Person[] dbPeople = Person.Search(cc, null);
             if (dbPeople.Length > 0)
             {
-                Assert.Fail("Instances was not deleted.");
+                Assert.Fail("Instances were not deleted.");
             }
         }
     }
