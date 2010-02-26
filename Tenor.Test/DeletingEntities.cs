@@ -21,7 +21,7 @@ namespace Tenor.Test
     /// Summary description for DeletingEntities
     /// </summary>
     [TestClass]
-    public class DeletingEntities
+    public class DeletingEntities : TestBase
     {
         /// <summary>
         /// Deletes one entity.

@@ -19,7 +19,7 @@ namespace Tenor.Test
     /// Summary description for SavingEntities
     /// </summary>
     [TestClass]
-    public class SavingEntities
+    public class SavingEntities : TestBase
     {
         public static string RandomString(int size, bool lowerCase)
         {

@@ -14,6 +14,12 @@ using TestMethodAttribute = NUnit.Framework.TestAttribute;
 using TestClassAttribute = NUnit.Framework.TestFixtureAttribute;
 #endif
 
+#if SQLITE
+using DbInt = System.Int64;
+#else
+using DbInt = System.Int32;
+#endif
+
 namespace Tenor.Test
 {
     /// <summary>
@@ -89,7 +95,8 @@ SELECT  COUNT(*) from (SELECT DISTINCT p.PersonId
  WHERE  (d.Name IS NOT NULL) 
  ) countQuery
 ");
-            int countLowLevel = (int)countLowLevelDt[0][0];
+
+            DbInt countLowLevel = (DbInt)countLowLevelDt[0][0];
 
             IQueryable<Person> so = Tenor.Linq.SearchOptions<Person>.CreateQuery();
             so = so.Where(p => p.DepartmentList.Any(e => e.Name != null));

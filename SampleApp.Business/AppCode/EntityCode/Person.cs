@@ -7,6 +7,14 @@ using System.Text;
 using Tenor.Data;
 using Tenor.Web;
 
+#if SQLITE
+// SQLite - We've found no way of having the special
+// field return any numeric type other than Int64 :(
+using DbInt = System.Int64;
+#else
+using DbInt = System.Int32;
+#endif
+
 namespace SampleApp.Business.Entities
 {
     public partial class Person : BLLBase
@@ -21,7 +29,7 @@ namespace SampleApp.Business.Entities
                 sb.AppendLine("You must type a valid email address.");
 
             if (sb.Length > 0)
-                throw new ApplicationException("Could not save. Please check the following:\r\n" + sb.ToString()); 
+                throw new ApplicationException("Could not save. Please check the following:\r\n" + sb.ToString());
             //If you don't need to throw exception, just return false.
 
             return true;
@@ -94,7 +102,11 @@ namespace SampleApp.Business.Entities
             }
         }
 
-        // [SpecialField("CastToTiny(length(photo) > 0)")]
+
+
+        DbInt photoLength;
+
+#if MYSQL
         // In MySql it's necessary to cast a bigint to tinyint in order for it to come as a bool
         // And, as there's no native function, we've created this one:
         /*
@@ -110,21 +122,18 @@ namespace SampleApp.Business.Entities
           RETURN value;
         END;
         */
-
-        int photoLength;
-        // MYSQL AND
-        // SQLite - We've found no way of having the special field return any numeric type other than Int64 :(
-        //[SpecialField("ifnull(length(photo), 0)")]
-
-
-        //SQL Server
+        //create the CastToTiny Function above.
+        [SpecialField("CastToTiny(length(photo) > 0)")] 
+#elif SQLITE
+        [SpecialField("ifnull(length(photo), 0)")]
+#elif MSSQL
         [SpecialField("isnull(len(photo), 0)")]
-        // Oracle
-        //[SpecialField("nvl(dbms_lob.getlength(\"Photo\"), 0)")]
-        
-        // Postgres
-        //[SpecialField("COALESCE(length(\"Photo\"), 0)")]
-        public int PhotoLength
+#elif ORACLE
+        [SpecialField("nvl(dbms_lob.getlength(\"Photo\"), 0)")]
+#elif POSTGRES        
+        [SpecialField("COALESCE(length(\"Photo\"), 0)")]
+#endif
+        public DbInt PhotoLength
         {
             get { return photoLength; }
             set { photoLength = value; }
