@@ -114,7 +114,7 @@ namespace Tenor.BLL
                 }
 
 
-                System.Data.DataTable dt = SearchWithDataTable(so, connection);
+                System.Data.DataTable dt = so.SearchWithDataTable(connection);
 
                 if (dt.Rows.Count == 0)
                 {
@@ -289,6 +289,10 @@ namespace Tenor.BLL
                 connection = table.GetConnection();
             }
 
+            //Read Projections
+            List<Projection> projections = new List<Projection>();
+            foreach (Projection p in searchOptions.Projections)
+                projections.Add(p);
 
             //Read Joins
 
@@ -306,6 +310,10 @@ namespace Tenor.BLL
             FieldInfo[] allFields;
             if (justCount)
                 allFields = BLLBase.GetFields(searchOptions.baseType, true); //lets count using distinct subquery
+            else if (searchOptions.Projections.Count > 0)
+            {
+                allFields = ReadProjections<FieldInfo>(projections, null, BLLBase.GetFields(searchOptions.baseType));
+            }
             else
                 allFields = BLLBase.GetFields(searchOptions.baseType); //lets get all fields
 
@@ -320,7 +328,15 @@ namespace Tenor.BLL
             }
 
             if (!justCount) //we don't need it on counting
-                spFields.AddRange(BLLBase.GetSpecialFields(searchOptions.baseType));
+            {
+                SpecialFieldInfo[] fields = BLLBase.GetSpecialFields(searchOptions.baseType);
+                if (searchOptions.Projections.Count > 0)
+                {
+                    fields = ReadProjections<SpecialFieldInfo>(projections, null, fields);
+                }
+
+                spFields.AddRange(fields);
+            }
             
             sqlFields.Append(dialect.CreateSelectSql(table.RelatedTable, null, fieldInfos.ToArray(), spFields.ToArray()));
 
@@ -331,14 +347,22 @@ namespace Tenor.BLL
                 fieldInfos = new List<FieldInfo>();
                 spFields = new List<SpecialFieldInfo>();
 
-                //select 
-                foreach (FieldInfo f in BLLBase.GetFields(fkInfo.ElementType))
+                //select all fields, or only the projection.
+                FieldInfo[] allEagerFields = BLLBase.GetFields(fkInfo.ElementType);
+                if (searchOptions.Projections.Count > 0)
+                    allEagerFields = ReadProjections<FieldInfo>(projections, fkInfo.RelatedProperty.Name, allEagerFields);
+
+                foreach (FieldInfo f in allEagerFields)
                 {
                     if (f.PrimaryKey || !f.LazyLoading)
                         fieldInfos.Add(f);
                 }
                 //spfields
-                spFields.AddRange(BLLBase.GetSpecialFields(fkInfo.ElementType));
+                SpecialFieldInfo[] allSpFields = BLLBase.GetSpecialFields(fkInfo.ElementType);
+                if (searchOptions.Projections.Count > 0)
+                    allSpFields = ReadProjections<SpecialFieldInfo>(projections, fkInfo.RelatedProperty.Name, allSpFields);
+
+                spFields.AddRange(allSpFields);
                 //joins: joins was made on GetPlainJoins.
 
                 sqlFields.Append(", ");
@@ -359,6 +383,11 @@ namespace Tenor.BLL
                     sqlFields.Append(appendToSelect);
             }
 
+            //Check if we found all projections:
+            if (projections.Count > 0)
+                throw new InvalidProjectionException(projections[0]);
+
+
             //Creates the where part
             string sqlWhere = dialect.CreateWhereSql(searchOptions.Conditions, searchOptions.baseType, joins.ToArray(), out parameters);
 
@@ -372,7 +401,33 @@ namespace Tenor.BLL
 
             Tenor.Diagnostics.Debug.DebugSQL("GetSearchSql()", sql, parameters, connection);
 
+
             return sql;
+        }
+
+        private static T[] ReadProjections<T>(IList<Projection> projections, string joinAlias, T[] allFields) where T: PropInfo
+        {
+            List<T> allFieldsList = new List<T>();
+            for (int i = projections.Count - 1; i >= 0; i--)
+            {
+                Projection p = projections[i];
+                if (p.JoinAlias == joinAlias)
+                {
+                    bool added = false;
+                    foreach (T f in allFields)
+                        if (f.RelatedProperty.Name == p.PropertyName)
+                        {
+                            added = true;
+                            allFieldsList.Add(f);
+                            break;
+                        }
+                    if (!added)
+                        throw new InvalidProjectionException(p);
+                    else
+                        projections.RemoveAt(i);
+                }
+            }
+            return allFieldsList.ToArray();
         }
 
 

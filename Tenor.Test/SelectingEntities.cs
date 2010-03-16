@@ -32,7 +32,15 @@ namespace Tenor.Test
         public void SelectEverything()
         {
             Person[] persons = Person.Search(null, null);
-           
+
+            var query =
+                from person in Tenor.Linq.SearchOptions<Person>.CreateQuery()
+                select person;
+
+            Person[] persons2 = query.ToArray();
+
+            CollectionAssert.AreEqual(persons, persons2);
+
         }
 
         [TestMethod]
@@ -46,40 +54,65 @@ namespace Tenor.Test
             //lets use the same ConditionCollection again
             Person[] persons2 = Person.Search(cc, null);
 
-            ShouldListsBeEqual(persons, persons2, false);
+            CollectionAssert.AreEqual(persons, persons2);
         }
 
+        private string GetFilterTest()
+        {
+            return "j";
+        }
+
+        private string GetFilterTest(int a, string b)
+        {
+            return b;
+        }
 
         [TestMethod]
         public void LinqSelectWithConditions()
         {
-            IQueryable<Person> so = Tenor.Linq.SearchOptions<Person>.CreateQuery();
+            string filterQuery = "j";
 
-            
-            so = so.Where(p => p.Active && p.Email.StartsWith("j"));
+            //testing using linq lambda. 
+            IQueryable<Person> so = Tenor.Linq.SearchOptions<Person>.CreateQuery();
+            so = so.Where(p => p.Active && p.Email.StartsWith(filterQuery));
             //so = so.Where(p => p.DepartmentList.Any(e => e.Name == "blah"));
             //so = so.Where(p => p.DepartmentList.Any(e => e.Name == "blleh"));
-
             so = so.OrderBy(p => p.Name);
-
             so = so.OrderByDescending(p => p.Active);
-            
             so = so.Distinct();
             //so = so.Take(10);
             so = so.LoadAlso(p => p.DepartmentList);
 
-
             Person[] persons = so.ToArray();
 
-            //int personCount = so.Count();
-            //Assert.AreEqual(personCount, persons.Length);
+            //testing using linq query
+            var query =
+                (
+                from person in Tenor.Linq.SearchOptions<Person>.CreateQuery()
+                where person.Active && person.Email.StartsWith(GetFilterTest(0, filterQuery))
+                orderby person.Name, person.Active descending
+                select person
+                )
+                .Distinct()
+                .LoadAlso(p => p.DepartmentList);
 
-            //so = Tenor.Linq.SearchOptions<Person>.CreateQuery();
-            //Person[] persons2 = (from p in so
-            //                     where p.Active && p.Email.StartsWith("j")
-            //                     select p).ToArray();
+            Person[] persons2 = query.ToArray();
 
-            //ShouldListsBeEqual(persons, persons2, false);
+
+            //testing using classic way.
+            SearchOptions search = new SearchOptions(typeof(Person));
+            search.Conditions.Add(Person.Properties.Active, true);
+            search.Conditions.And(Person.Properties.Email, filterQuery + "%", CompareOperator.Like);
+            search.Sorting.Add(Person.Properties.Name);
+            search.Sorting.Add(Person.Properties.Active, SortOrder.Descending);
+            search.Distinct = true;
+            search.LoadAlso("DepartmentList");
+
+            Person[] persons3 = (Person[])search.Execute();
+
+            CollectionAssert.AreEqual(persons2, persons);
+            CollectionAssert.AreEqual(persons3, persons);
+
 
         }
 
@@ -103,6 +136,8 @@ SELECT  COUNT(*) from (SELECT DISTINCT p.PersonId
             int count = so.Count();
 
             Assert.AreEqual(countLowLevel, count);
+            if (countLowLevel <= 0)
+                Assert.Fail("Invalid data.");
         }
     }
 }

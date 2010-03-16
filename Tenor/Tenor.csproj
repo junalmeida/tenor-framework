@@ -228,6 +228,8 @@
     <Compile Include="Data\Helper.cs" />
     <Compile Include="Data\Parameter.cs" />
     <Compile Include="Data\SearchOptions\ConditionCollection.cs" />
+    <Compile Include="Data\SearchOptions\Projection.cs" />
+    <Compile Include="Data\SearchOptions\ProjectionCollection.cs" />
     <Compile Include="Data\SearchOptions\ISearchOptions.cs" />
     <Compile Include="Data\SearchOptions\JoinModes.cs" />
     <Compile Include="Data\SearchOptions\Operators.cs" />

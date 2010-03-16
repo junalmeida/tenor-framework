@@ -11,7 +11,7 @@ namespace Tenor.Linq
     /// <summary>
     /// Represents a set of search definitions. You can use Linq to make your queries.
     /// </summary>
-    public class SearchOptions<T> : IOrderedQueryable, IOrderedQueryable<T>, IEnumerable, IQueryable, System.Linq.IQueryable<T> where T : BLLBase
+    public class SearchOptions<T> : IOrderedQueryable, IOrderedQueryable<T>, IEnumerable, IQueryable, System.Linq.IQueryable<T> //where T : BLLBase
     {
 
         public static IQueryable<T> CreateQuery()

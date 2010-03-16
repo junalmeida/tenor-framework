@@ -97,36 +97,7 @@ namespace Tenor.Test
         }
 
 
-        protected void ShouldListsBeEqual(IList listA, IList listB, bool checkOrder)
-        {
-            if (listA == null && listB == null)
-                return;
-            else if (listA != null && listB != null)
-            {
-                if (listA.Count != listB.Count)
-                    Assert.Fail("First IList containing {0} elements and second IList containing {1} elements.", listA.Count, listB.Count);
-
-                if (checkOrder)
-                {
-                    for (int i = 0; i < listA.Count; i++)
-                        if (!object.Equals(listA[i], listB[i]))
-                            Assert.Fail("Lists are different.");
-
-                }
-                else
-                {
-                    for (int i = 0; i < listA.Count; i++)
-                        if (!listB.Contains(listA[i]))
-                            Assert.Fail("Lists are different.");
-                }
-            }
-            else
-            {
-                Assert.Fail("You passed just one list.");
-            }
-
-        }
-
+    
         protected void LowLevelExecuteNonQuery(string query, params DbParameter[] parameters)
         {
             DbProviderFactory fac = DbProviderFactories.GetFactory(Tenor.BLL.BLLBase.SystemConnection.ProviderName);

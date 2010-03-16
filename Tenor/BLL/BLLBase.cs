@@ -58,9 +58,12 @@ namespace Tenor.BLL
         /// </summary>
         /// <param name="searchOptions">An instance of SearchOptions with search definitions.</param>
         /// <returns>An array of entities.</returns>
+        [Obsolete("Use SearchOptions.Execute instead.")]
         public static BLLBase[] Search(SearchOptions searchOptions)
         {
-            return Search(searchOptions, null);
+            if (searchOptions == null)
+                throw new ArgumentNullException("searchOptions");
+            return searchOptions.Execute();
         }
 
         /// <summary>
@@ -69,9 +72,12 @@ namespace Tenor.BLL
         /// <param name="searchOptions">An instance of SearchOptions with search definitions.</param>
         /// <returns>The number os records found.</returns>
         /// <remarks></remarks>
+        [Obsolete("Use SearchOptions.ExecuteCount instead.")]
         public static int Count(SearchOptions searchOptions)
         {
-            return Count(searchOptions, null);
+            if (searchOptions == null)
+                throw new ArgumentNullException("searchOptions");
+            return searchOptions.ExecuteCount();
         }
 
         /// <summary>
@@ -80,13 +86,12 @@ namespace Tenor.BLL
         /// <param name="searchOptions">The search definitions.</param>
         /// <param name="connection">The Connection.</param>
         /// <returns>An array of entities.</returns>
+        [Obsolete("Use SearchOptions.Execute instead.")]
         public static BLLBase[] Search(SearchOptions searchOptions, ConnectionStringSettings connection)
         {
-            if (searchOptions.Top > 0 && searchOptions.eagerLoading.Count > 0)
-                throw new NotSupportedException("Cannot use eager loading with Top/Limit.");
-
-            Tenor.Data.DataTable rs = SearchWithDataTable(searchOptions, connection);
-            return BindRows(rs, searchOptions);
+            if (searchOptions == null)
+                throw new ArgumentNullException("searchOptions");
+            return searchOptions.Execute(connection);
         }
         
         /// <summary>
@@ -96,19 +101,27 @@ namespace Tenor.BLL
         /// <param name="page">Desired page number (zero-based)</param>
         /// <param name="pageSize">Page size</param>
         /// <returns></returns>
+        [Obsolete("Use SearchOptions.ExecutePaged instead.")]
         public static BLLBase[] Search(SearchOptions searchOptions, int page, int pageSize, ConnectionStringSettings connection)
         {
-            int totalCount = Count(searchOptions, connection);
-
-            int pageCount = (int)System.Math.Ceiling((double)totalCount / (double)pageSize);
-
-            if (pageCount > 0 && page >= pageCount) page = pageCount - 1;
-
-            int pagingStart = (page * pageSize) + 1;
-            int pagingEnd = (page + 1) * pageSize;
-
-            Tenor.Data.DataTable rs = SearchWithDataTable(searchOptions, connection, false, pagingStart, pagingEnd);
-            return BindRows(rs, searchOptions);
+            if (searchOptions == null)
+                throw new ArgumentNullException("searchOptions");
+            return searchOptions.ExecutePaged(page, pageSize, connection);
+        }
+        
+        /// <summary>
+        /// Count data on the database based on definitions.
+        /// </summary>
+        /// <param name="searchOptions">An instance of SearchOptions with search definitions.</param>
+        /// <param name="connection">The Connection.</param>
+        /// <returns>The number os records found.</returns>
+        /// <remarks></remarks>
+        [Obsolete("Use SearchOptions.ExecuteCount")]
+        public static int Count(SearchOptions searchOptions, ConnectionStringSettings connection)
+        {
+            if (searchOptions == null)
+                throw new ArgumentNullException("searchOptions");
+            return searchOptions.ExecuteCount(connection);
         }
 
 
@@ -139,7 +152,7 @@ namespace Tenor.BLL
             }
             else
             {
-                Type listof = Type.GetType("System.Collections.Generic.List`1[[" + searchOptions.baseType.AssemblyQualifiedName + "]]");
+                Type listof = typeof(List<>).MakeGenericType(searchOptions.baseType);
                 IList instances = (IList)Activator.CreateInstance(listof);
                 //lets get metadata for baseClass and other things requested by the user.
 
@@ -208,50 +221,7 @@ namespace Tenor.BLL
             }
         }
         
-        /// <summary>
-        /// Count data on the database based on definitions.
-        /// </summary>
-        /// <param name="searchOptions">An instance of SearchOptions with search definitions.</param>
-        /// <param name="connection">The Connection.</param>
-        /// <returns>The number os records found.</returns>
-        /// <remarks></remarks>
-        public static int Count(SearchOptions searchOptions, ConnectionStringSettings connection)
-        {
-            if (searchOptions.eagerLoading.Count > 0)
-                throw new NotSupportedException("Cannot use eager loading with aggregation.");
-            Tenor.Data.DataTable rs = SearchWithDataTable(searchOptions, connection, true);
-            return System.Convert.ToInt32(rs.Rows[0][0]);
-        }
-        
-        private static Tenor.Data.DataTable SearchWithDataTable(SearchOptions searchOptions, ConnectionStringSettings connection)
-        {
-            return SearchWithDataTable(searchOptions, connection, false);
-        }
 
-        private static Tenor.Data.DataTable SearchWithDataTable(SearchOptions searchOptions, ConnectionStringSettings connection, bool justCount)
-        {
-            return SearchWithDataTable(searchOptions, connection, justCount, null, null);
-        }
-
-        private static Tenor.Data.DataTable SearchWithDataTable(SearchOptions searchOptions, ConnectionStringSettings connection, bool justCount, int? pagingStart, int? pagingEnd)
-        {
-            TenorParameter[] parameters = null;
-            if (connection == null)
-            {
-                TableInfo table = TableInfo.CreateTableInfo(searchOptions.baseType);
-                connection = table.GetConnection();
-            }
-
-            string sql = GetSearchSql(searchOptions, justCount, pagingStart, pagingEnd, connection, out parameters);
-
-            Tenor.Data.DataTable rs = new Tenor.Data.DataTable(sql, parameters, connection);
-            DataSet ds = new DataSet();
-            ds.Tables.Add(rs);
-            ds.EnforceConstraints = false;
-            rs.Bind();
-
-            return rs;
-        }
 
         #endregion
 

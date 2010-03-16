@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Collections;
+using System.Collections.ObjectModel;
 
 namespace Tenor.Linq
 {
@@ -18,9 +20,10 @@ namespace Tenor.Linq
 
         }
 
+        Type elementType;
         IQueryable<T> IQueryProvider.CreateQuery<T>(Expression expression)
         {
-            Type elementType = typeof(T);
+            elementType = typeof(T);
             return (IQueryable<T>)Activator.CreateInstance(typeof(SearchOptions<>).MakeGenericType(elementType), new object[] { this, expression });
         }
 
@@ -28,7 +31,7 @@ namespace Tenor.Linq
 
         IQueryable IQueryProvider.CreateQuery(Expression expression)
         {
-            Type elementType = expression.Type;
+            elementType = expression.Type;
 
             try
             {
@@ -56,48 +59,60 @@ namespace Tenor.Linq
 
         Tenor.Data.SearchOptions searchOptions;
 
+        bool doCount = false;
         public object Execute(Expression expression)
         {
             if (expression.NodeType != ExpressionType.Call)
                 throw new InvalidOperationException();
             MethodCallExpression exp = (MethodCallExpression)expression;
 
-
-
-            bool doCount = false;
-
-            Type type = expression.Type;
-            if (type == typeof(Int32))
-                doCount = true;
-
-
-            type = exp.Method.GetGenericArguments()[0];
-            if (!type.IsSubclassOf(typeof(BLL.BLLBase)))
-                throw new InvalidCastException("Expression type is invalid.");
-
-
-            searchOptions = new Tenor.Data.SearchOptions(type);
             aliasList = new Dictionary<MemberInfo, string>();
 
             ReadExpressions(expression);
-
-            //Tenor.Data.ISearchOptions linqSo =((MethodCallExpression)
-            //if (linqSo != null)
-            //{
-            //    //this is the base SearchOptions query;
-            //    Tenor.Data.ISearchOptions realSo = (Tenor.Data.ISearchOptions)so;
-
-            //    realSo.Distinct = linqSo.Distinct;
-            //    realSo.LazyLoading = linqSo.LazyLoading;
-            //    realSo.Top = linqSo.Top;
-            //}
 
             try
             {
                 if (doCount)
                     return searchOptions.ExecuteCount();
                 else
-                    return searchOptions.Execute();
+                {
+                    if (searchOptions.Projections.Count == 0)
+                    {
+                        return searchOptions.Execute();
+                    }
+                    else
+                    {
+                        object[][] items = searchOptions.ExecuteMatrix();
+                        Type listof = typeof(List<>).MakeGenericType(elementType);
+                        IList list = (IList)Activator.CreateInstance(listof);
+
+                        foreach (object[] row in items)
+                        {
+                            object typedRow = null;
+                            if (projectionBindings == null)
+                                typedRow = projectionCtor.Invoke(row);
+                            else
+                            {
+                                typedRow = projectionCtor.Invoke(null);
+                                for (int i =0; i< projectionBindings.Count;i++)
+                                {
+                                    FieldInfo field = projectionBindings[i].Member as FieldInfo;
+                                    PropertyInfo prop = projectionBindings[i].Member as PropertyInfo;
+                                    if (field != null)
+                                        field.SetValue(typedRow, row[i]);
+                                    else if (prop != null)
+                                        prop.SetValue(typedRow, row[i], null);
+                                    else
+                                        throw new NotImplementedException(string.Format("The member access of '{0}' is not implemented.", projectionBindings[i].Member.Name));
+                                }
+                            }
+                            list.Add(typedRow);
+                        }
+
+                        return list;
+                    }
+
+                }
             }
             catch
             {
@@ -114,11 +129,14 @@ namespace Tenor.Linq
 
         private void ReadExpressions(Expression ex)
         {
+
             switch (ex.NodeType)
             {
                 case ExpressionType.Call:
                     {
                         MethodCallExpression mce = (MethodCallExpression)ex;
+                        //continue recursively
+                        ReadExpressions(mce.Arguments[0]);
 
                         switch (mce.Method.Name)
                         {
@@ -127,9 +145,11 @@ namespace Tenor.Linq
                                 //the where clause.
                                 ReadWhereExpressions(searchOptions.Conditions, mce.Arguments[1], false, null);
                                 break;
+                            case "ThenBy":
                             case "OrderBy":
                                 ReadOrderByExpressions(mce.Arguments[1], true);
                                 break;
+                            case "ThenByDescending":
                             case "OrderByDescending":
                                 ReadOrderByExpressions(mce.Arguments[1], false);
                                 break;
@@ -142,7 +162,7 @@ namespace Tenor.Linq
                                 searchOptions.Distinct = true;
                                 break;
                             case "Count":
-                                //just pass it on
+                                doCount = true;
                                 break;
                             /* END LINQ */
                             /* TENOR LINQ Methods */
@@ -150,21 +170,23 @@ namespace Tenor.Linq
                                 ReadEager(mce.Arguments[1], null);
                                 break;
                             /* END LINQ Methods */
+                            case "Select":
+                                ReadSelect(mce.Arguments[1]);
+                                break;
                             default:
                                 throw new NotImplementedException("Linq method call to '" + mce.Method.Name.ToString() + "' is not implemented. Please, send a feature request.");
                         }
-                        //continue recursively
-                        ReadExpressions(mce.Arguments[0]);
                     }
                     break;
                 case ExpressionType.Constant:
                     {
-                        //TODO: Check if we need to check constants.
                         ConstantExpression cex = (ConstantExpression)ex;
-                        Tenor.Data.ISearchOptions item = cex.Value as Tenor.Data.ISearchOptions;
+                        IQueryable item = cex.Value as IQueryable;
                         if (item != null)
                         {
-                            searchOptions.LazyLoading = item.LazyLoading;
+                            Type[] t = item.GetType().GetGenericArguments();
+                            searchOptions = new Tenor.Data.SearchOptions(t[0]);
+                            //searchOptions.LazyLoading = item.LazyLoading;
                         }
                     }
                     break;
@@ -172,6 +194,79 @@ namespace Tenor.Linq
                     throw new NotImplementedException("Linq '" + ex.NodeType.ToString() + "' is not implemented. Please, send a feature request.");
             }
         }
+
+        ConstructorInfo projectionCtor;
+        ReadOnlyCollection<MemberBinding> projectionBindings;
+
+        private void ReadSelect(Expression expression)
+        {
+            switch (expression.NodeType)
+            {
+                case ExpressionType.Quote:
+                    {
+                        UnaryExpression exp = (UnaryExpression)expression;
+                        ReadSelect(exp.Operand);
+                    }
+                    break;
+                case ExpressionType.Lambda:
+                    {
+                        LambdaExpression exp = (LambdaExpression)expression;
+                        ReadSelect(exp.Body);
+                    }
+                    break;
+                case ExpressionType.New:
+                    {
+                        //Anonymous types
+                        NewExpression exp = (NewExpression)expression;
+                        projectionCtor = exp.Constructor;
+                        foreach (MemberExpression member in exp.Arguments)
+                        {
+                            AddProjection(member);
+                        }
+
+                    }
+                    break;
+                case ExpressionType.MemberInit:
+                    {
+                        //Typed types
+                        MemberInitExpression exp = (MemberInitExpression)expression;
+                        projectionCtor = exp.NewExpression.Constructor;
+                        projectionBindings = exp.Bindings;
+
+                        foreach (MemberAssignment member in exp.Bindings)
+                        {
+                            MemberExpression propExp = member.Expression as MemberExpression;
+                            AddProjection(propExp);
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void AddProjection(MemberExpression member)
+        {
+            string alias = GetAliasForMemberExpression(member.Expression, null);
+            searchOptions.Projections.Add(member.Member.Name, alias);
+        }
+
+        private string GetAliasForMemberExpression(Expression ex, string baseAlias)
+        {
+            MemberExpression memberCall = ex as MemberExpression;
+            if (memberCall != null)
+            {
+                baseAlias = GetAliasForMemberExpression(memberCall.Expression, baseAlias);
+                string alias = GenerateAliasForMember(baseAlias, memberCall);
+                if (!string.IsNullOrEmpty(alias))
+                    searchOptions.LoadAlso(memberCall.Member.Name);
+                return alias;
+            }
+            else
+                return null;
+        }
+
+
 
         private void ReadEager(Expression expression, string alias)
         {
@@ -305,7 +400,7 @@ namespace Tenor.Linq
                             op = Tenor.Data.CompareOperator.GreaterThanOrEqual;
 
 
-                        cc.Add(left.Member.Name, right.Value, op, alias);
+                        cc.Add(left.Member.Name, FindValue(right), op, alias);
                     }
                     break;
                 case ExpressionType.MemberAccess:
@@ -337,34 +432,36 @@ namespace Tenor.Linq
                                     MemberExpression member = mce.Object as MemberExpression;
                                     if (mce.Object == null)
                                         throw new InvalidOperationException();
-                                    string value = (string)((ConstantExpression)mce.Arguments[0]).Value;
+                                    if (member.Type != typeof(string))
+                                    {
+                                        throw new NotImplementedException();
+                                    }
+                                    else
+                                    {
 
-                                    if (mce.Method.Name == "StartsWith")
-                                        value = string.Format("{0}%", value);
-                                    else if (mce.Method.Name == "EndsWith")
-                                        value = string.Format("%{0}", value);
-                                    else if (mce.Method.Name == "Contains")
-                                        value = string.Format("%{0}%", value);
+                                        string value = FindValue(mce.Arguments[0]) as string;
 
-                                    Tenor.Data.CompareOperator op = Tenor.Data.CompareOperator.Like;
-                                    if (not)
-                                        op = Tenor.Data.CompareOperator.NotLike;
+                                        if (mce.Method.Name == "StartsWith")
+                                            value = string.Format("{0}%", value);
+                                        else if (mce.Method.Name == "EndsWith")
+                                            value = string.Format("%{0}", value);
+                                        else if (mce.Method.Name == "Contains")
+                                            value = string.Format("%{0}%", value);
 
-                                    cc.Add(member.Member.Name, value, op);
+                                        Tenor.Data.CompareOperator op = Tenor.Data.CompareOperator.Like;
+                                        if (not)
+                                            op = Tenor.Data.CompareOperator.NotLike;
+
+                                        cc.Add(member.Member.Name, value, op);
+                                    }
                                 }
                                 break;
                             case "Any":
                                 {
+                                    //here we will join.
+
                                     MemberExpression member = mce.Arguments[0] as MemberExpression;
-                                    string newAlias = null;
-                                    if (aliasList.ContainsKey(member.Member))
-                                        newAlias = aliasList[member.Member];
-                                    else
-                                    {
-                                        newAlias = string.Concat(alias, member.Member.Name);
-                                        aliasList.Add(member.Member, newAlias);
-                                        searchOptions.Conditions.Include(alias, member.Member.Name, newAlias, Tenor.Data.JoinMode.LeftJoin);
-                                    }
+                                    string newAlias = GenerateAliasForMember(alias, member);
 
                                     Tenor.Data.ConditionCollection newCc = new Tenor.Data.ConditionCollection();
                                     ReadWhereExpressions(newCc, mce.Arguments[1], not, newAlias);
@@ -382,6 +479,49 @@ namespace Tenor.Linq
                 default:
                     throw new NotImplementedException("Linq '" + ex.NodeType.ToString() + "' is not implemented. Please, send a feature request.");
             }
+        }
+
+        private object FindValue(Expression expression)
+        {
+            if (expression is MemberExpression)
+            {
+                MemberExpression exp = (MemberExpression)expression;
+
+                PropertyInfo prop = exp.Member as PropertyInfo;
+                FieldInfo field = exp.Member as FieldInfo;
+                if (prop != null)
+                    return prop.GetValue((exp.Expression as ConstantExpression).Value, null);
+                else if (field != null)
+                    return field.GetValue((exp.Expression as ConstantExpression).Value);
+                else
+                    throw new NotImplementedException("Access to " + expression.ToString() + " not implemented.");
+            }
+            else if (expression is MethodCallExpression)
+            {
+                MethodCallExpression exp = (MethodCallExpression)expression;
+                List<object> parameters = new List<object>();
+                foreach (Expression ex in exp.Arguments)
+                    parameters.Add(FindValue(ex));
+                return exp.Method.Invoke(FindValue(exp.Object), parameters.ToArray());
+            }
+            else if (expression is ConstantExpression)
+                return ((ConstantExpression)expression).Value;
+            else
+                throw new NotImplementedException("Access to " + expression.NodeType.ToString() + " not implemented.");
+        }
+
+        private string GenerateAliasForMember(string currentAlias, MemberExpression member)
+        {
+            string newAlias = null;
+            if (aliasList.ContainsKey(member.Member))
+                newAlias = aliasList[member.Member];
+            else
+            {
+                newAlias = string.Concat(currentAlias, member.Member.Name);
+                aliasList.Add(member.Member, newAlias);
+                searchOptions.Conditions.Include(currentAlias, member.Member.Name, newAlias, Tenor.Data.JoinMode.LeftJoin);
+            }
+            return newAlias;
         }
 
         private static ConstantExpression ReadConstant(BinaryExpression bex)

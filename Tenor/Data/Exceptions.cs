@@ -321,6 +321,30 @@ namespace Tenor.Data
         {
         }
     }
+
+
+    /// <summary>
+    /// Occurs when a projection with an invalid alias or Field was specified.
+    /// </summary>
+    public class InvalidProjectionException : TenorException
+    {
+        public Projection Projection
+        { get; private set; }
+
+
+        public InvalidProjectionException(Projection projection)
+        {
+            this.Projection = projection;
+        }
+
+        public override string Message
+        {
+            get
+            {
+                return string.Format("The specified projection '{0}' is invalid. Check aliases and field names.", Projection);
+            }
+        }
+    }
 }
 
 namespace Tenor.Web
