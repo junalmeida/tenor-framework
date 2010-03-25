@@ -363,7 +363,7 @@ namespace Tenor.Data
                 List<FieldInfo> res = new List<FieldInfo>();
                 foreach (ForeignKeyFieldAttribute i in this.RelatedAttributes)
                 {
-                    System.Reflection.PropertyInfo prop = this.ElementType.GetProperty(i.ForeignPropertyName);
+                    System.Reflection.PropertyInfo prop = this.ElementType.GetProperty(i.ForeignPropertyName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                     if (prop != null)
                     {
                         FieldInfo field = FieldInfo.Create(prop);
@@ -372,6 +372,10 @@ namespace Tenor.Data
                             res.Add(field);
                         }
 
+                    }
+                    else
+                    {
+                        throw new Tenor.Data.MissingFieldException(this.ElementType, i.ForeignPropertyName);
                     }
                 }
                 return res.ToArray();
@@ -488,6 +492,8 @@ namespace Tenor.Data
 
         internal static FieldInfo Create(System.Reflection.PropertyInfo theProperty)
         {
+            if (theProperty == null)
+                throw new TenorException();
             FieldInfo fi = new FieldInfo();
 
             fi._RelatedProperty = theProperty;

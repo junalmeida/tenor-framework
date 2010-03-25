@@ -194,7 +194,7 @@ namespace Tenor.Data.Dialects
         protected virtual string CreateCompareSql(Type classType, string classAlias, string propertyName, object value, CompareOperator compareOperator, Type castType, out string parameterName)
         {
             StringBuilder str = new StringBuilder();
-            PropertyInfo propInfo = classType.GetProperty(propertyName);
+            PropertyInfo propInfo = classType.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             FieldInfo fieldInfo = FieldInfo.Create(propInfo);
             SpecialFieldInfo spFieldInfo = SpecialFieldInfo.Create(propInfo);
 
