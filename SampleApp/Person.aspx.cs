@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Configuration;
 using System.Data;
@@ -74,7 +74,7 @@ namespace SampleApp
             catch (ApplicationException ex)
             {
                 throw;
-                Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
+                //Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
             }
         }
         protected void btnSave_Click(object sender, EventArgs e)
@@ -123,7 +123,7 @@ namespace SampleApp
             catch (ApplicationException ex)
             {
                 throw;
-                Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
+                //Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
             }
         }
 
@@ -140,7 +140,7 @@ namespace SampleApp
             catch (ApplicationException ex)
             {
                 throw;
-                Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
+                //Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
             }
         }
 
@@ -157,7 +157,7 @@ namespace SampleApp
             catch (ApplicationException ex)
             {
                 throw;
-                Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
+                //Tenor.Web.UI.WebControls.ScriptManager.Current.Alert(ex.Message);
             }
         }
 

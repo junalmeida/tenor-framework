@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Licensed under the MIT License:
  * http://www.opensource.org/licenses/mit-license.php
  * 
@@ -139,7 +139,6 @@ namespace Tenor.BLL
 
             FieldInfo[] fields = GetFields(this.GetType());
             SpecialFieldInfo[] spfields = GetSpecialFields(this.GetType());
-            ForeignKeyInfo[] foreignkeys = GetForeignKeys(this.GetType());
 
             foreach (FieldInfo f in fields)
             {
@@ -157,21 +156,6 @@ namespace Tenor.BLL
 
 
             dataRow = null;
-
-            
-            //TODO: Try to bind lazy properties at the same database round, and
-            //we need to define a way to choose which relations to load during bind.
-
-            /*
-            if (!lazyLoading)
-            {
-                foreach (ForeignKeyInfo f in foreignkeys)
-                {
-                    this.LoadForeign(f.RelatedProperty.Name, true, null, connection);
-                }
-            }
-             */
-
 
             if (ClassMetadata.Cacheable)
             {
