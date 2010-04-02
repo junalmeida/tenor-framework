@@ -9,6 +9,9 @@
     <img src="blah.axd?captcha=captcha" alt="captcha" /><a href="blah.axd?captcha=captcha&audio=1">Audio</a>
     <asp:TextBox ID="txtCaptcha" runat="server" />
     <asp:Button ID="btnCheck" runat="server" Text="Test" OnClick="btnCheck_Click" />
+    <p>
+    Only Numbers: <tenor:TextBox runat="server" TextBoxMode="Float" ID="floatText" />
+    </p>
 </div>
 
 
