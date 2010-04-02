@@ -10,7 +10,12 @@
     <asp:TextBox ID="txtCaptcha" runat="server" />
     <asp:Button ID="btnCheck" runat="server" Text="Test" OnClick="btnCheck_Click" />
     <p>
+    
     Only Numbers: <tenor:TextBox runat="server" TextBoxMode="Float" ID="floatText" />
+    Percent: <tenor:TextBox runat="server" TextBoxMode="Percent" ID="percentText" />
+    Money: <tenor:TextBox runat="server" TextBoxMode="Currency" ID="currencyText" />
+    Data: <tenor:TextBox runat="server" TextBoxMode="DateDMY" ID="dataText" />
+    
     </p>
 </div>
 
