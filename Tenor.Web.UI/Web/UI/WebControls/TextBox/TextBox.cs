@@ -248,7 +248,7 @@ namespace Tenor.Web.UI.WebControls
         {
             get
             {
-                return ViewState["ErrorMessage"].ToString();
+                return ViewState["ErrorMessage"] as string;
             }
             set
             {

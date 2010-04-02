@@ -49,8 +49,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tenor.Linq", "Tenor.Linq\Tenor.Linq.csproj", "{BD10F917-67D6-40F9-B934-ACE73E30E6F3}"
 EndProject
 Global
-	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = TenorFramework.vsmdi
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|mssql = Debug|mssql
@@ -323,9 +324,5 @@ Global
 		{9547EA97-71B2-4507-A4C0-4FA0A7FF3BE2} = {4ED50A48-424F-4C4A-85F1-0EF76EE07AE0}
 		{4B0039AE-5D37-4849-9691-39C6C54710B8} = {4ED50A48-424F-4C4A-85F1-0EF76EE07AE0}
 		{A68E76D2-36DE-46D5-B779-FA9AFD961640} = {4ED50A48-424F-4C4A-85F1-0EF76EE07AE0}
-	EndGlobalSection
-	GlobalSection(SubversionScc) = preSolution
-		Svn-Managed = True
-		Manager = AnkhSVN - Subversion Support for Visual Studio
 	EndGlobalSection
 EndGlobal
