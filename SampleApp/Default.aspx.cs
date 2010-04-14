@@ -19,10 +19,10 @@ namespace SampleApp
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            int[] teste = { 1, 2, 3 };
+            int[] testValuesToBind = { 1, 2, 3 };
 
-            grdRelatorio.DataSource = teste;
-            grdRelatorio.DataBind();
+            gridReport.DataSource = testValuesToBind;
+            gridReport.DataBind();
         }
 
 
@@ -37,22 +37,22 @@ namespace SampleApp
         //        Tenor.Web.UI.WebControls.ScriptManager.Current.Alert("You are a human! But you typed a wrong code.");
         //}
 
-        
-        protected void grdRelatorio_RowCreated(object sender, GridViewRowEventArgs e)
+
+        protected void gridReport_RowCreated(object sender, GridViewRowEventArgs e)
         {
             if (e.Row.RowType == DataControlRowType.DataRow)
             {
                 //Adiociona o evento a textbox
-                TextBox txtRetirada = (TextBox)e.Row.FindControl("txtRetirada");
-                txtRetirada.TextChanged += new EventHandler(txtRetirada_TextChanged);
-                txtRetirada.AutoPostBack = true;
+                TextBox txtValue = (TextBox)e.Row.FindControl("txtValue");
+                txtValue.TextChanged += new EventHandler(txtValue_TextChanged);
+                txtValue.AutoPostBack = true;
             }
         }
 
-        protected void txtRetirada_TextChanged(object sender, EventArgs e)
+        protected void txtValue_TextChanged(object sender, EventArgs e)
         {            
-            TextBox txtRetirada = (TextBox)sender;
-            txtRetirada.Text = "bla";
+            TextBox txtValue = (TextBox)sender;
+            txtValue.Text = "bla";
 
         }
     }

@@ -16,17 +16,17 @@
     Money: <tenor:TextBox runat="server" TextBoxMode="Currency" ID="currencyText" />    
     Cpf: <tenor:TextBox runat="server" TextBoxMode="CPF" ID="CPF" />
     
-    <asp:GridView ID="grdRelatorio" runat="server" AutoGenerateColumns="False" 
-                OnRowCreated="grdRelatorio_RowCreated" CellPadding="4" ForeColor="#333333" GridLines="None" ShowFooter="true" 
+    <asp:GridView ID="gridReport" runat="server" AutoGenerateColumns="False" 
+                OnRowCreated="gridReport_RowCreated" CellPadding="4" ForeColor="#333333" GridLines="None" ShowFooter="true" 
                 Width="657px">
         <RowStyle BackColor="#E3EAEB" />
         <Columns>
-            <asp:TemplateField HeaderText="Retirada em Real (R$)">
+            <asp:TemplateField HeaderText="Value (US$)">
                 <FooterTemplate>
-                    <asp:Label ID="lblTotalRetiradaSaldo" runat="server" />                    
+                    <asp:Label ID="lblTotal" runat="server" />                    
                 </FooterTemplate>
                 <ItemTemplate>
-                    <tenor:TextBox ID="txtRetirada" TextBoxMode="Currency" AutoPostBack="true" Width="100px" runat="server" /><br />                    
+                    <tenor:TextBox ID="txtValue" TextBoxMode="Currency" AutoPostBack="true" Width="100px" runat="server" /><br />                    
                  </ItemTemplate>
             </asp:TemplateField>
         </Columns>        
