@@ -26,7 +26,7 @@
                     <asp:Label ID="lblTotal" runat="server" />                    
                 </FooterTemplate>
                 <ItemTemplate>
-                    <tenor:TextBox ID="txtValue" TextBoxMode="Currency" AutoPostBack="true" Width="100px" runat="server" /><br />                    
+                    <tenor:TextBox ID="txtValue" TextBoxMode="Currency" AutoPostBack="true" Width="100px" runat="server" onblur="Calculate(this);" />              
                  </ItemTemplate>
             </asp:TemplateField>
         </Columns>        
@@ -37,10 +37,16 @@
         <EditRowStyle BackColor="#7C6F57" />
         <AlternatingRowStyle BackColor="White" />        
     </asp:GridView>
-    
+    <asp:HiddenField runat="server" ID="hidden" Value="50" />
     </p>
 </div>
-
+<script type ="text/javascript">
+    function Calculate(textBox) {
+        var userValue = parseFloat(textBox.value);
+        var hidden = parseFloat($("ctl00_Content_hidden").value);
+        alert(userValue + hidden);        
+    }
+</script>
 
 </asp:Content>
 

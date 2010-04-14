@@ -22,6 +22,8 @@
         </asp:ContentPlaceHolder>
     </div>
     </form>
-    <tenor:ScriptManager runat="server" />
+    <tenor:ScriptManager runat="server">
+        <tenor:MooTools Module="Core" Version="Version_1_2" />
+    </tenor:ScriptManager>
 </body>
 </html>
