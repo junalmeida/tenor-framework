@@ -173,12 +173,12 @@ namespace Tenor.Mail
                 this.IsBodyHtml = IsHtml(Body);
                 foreach (string key in TemplateValues.Keys)
                 {
-                    string valor = TemplateValues[key];
+                    string tempValue = TemplateValues[key];
                     if (this.IsBodyHtml)
                     {
-                        valor = Text.Strings.EncodeAccentuation(valor);
+                        tempValue = Text.Strings.EncodeAccentuation(tempValue);
                     }
-                    this.Body = this.Body.Replace("[[[" + key + "]]]", valor);
+                    this.Body = this.Body.Replace("[[[" + key + "]]]", tempValue);
                 }
             }
             this.IsBodyHtml = IsHtml(Body);
