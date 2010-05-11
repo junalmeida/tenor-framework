@@ -209,7 +209,7 @@ namespace Tenor.Data
             if (Top > 0 && eagerLoading.Count > 0)
                 throw new NotSupportedException("Cannot use eager loading with Top/Limit.");
             if (Projections.Count > 0)
-                throw new NotSupportedException("Cannot use projections with entity mapping.");
+                throw new NotSupportedException("Cannot use projections without a Linq Query.");
 
 
             Tenor.Data.DataTable rs = SearchWithDataTable(connection);
