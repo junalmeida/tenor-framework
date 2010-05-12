@@ -57,3 +57,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("0.5.*")]
 
 
+#if DEBUG
+[assembly: InternalsVisibleTo("Tenor.Test")]
+#endif

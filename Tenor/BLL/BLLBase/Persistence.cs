@@ -388,10 +388,16 @@ namespace Tenor.BLL
 
 
             Tenor.Diagnostics.Debug.DebugSQL("GetSearchSql()", sql, parameters, connection);
-
+#if DEBUG
+            LastSearches.Push(sql);
+#endif
 
             return sql;
         }
+
+#if DEBUG
+        internal static Stack<string> LastSearches = new Stack<string>();
+#endif
 
         private static T[] ReadProjections<T>(IList<Projection> projections, string joinAlias, T[] allFields) where T: PropInfo
         {

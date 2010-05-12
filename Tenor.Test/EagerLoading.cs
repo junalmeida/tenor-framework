@@ -29,9 +29,20 @@ namespace Tenor.Test
             so.LoadAlso("PersonItemList");
             so.LoadAlso("Category");
             Item[] items = (Item[])so.Execute();
-            //provide a way to check if it was loaded on eager mode.
 
+            foreach (Item item in items)
+            {
+                Category cat = item.Category;
+                IList<PersonItem> list = item.PersonItemList;
+                
+            }
 
+#if DEBUG
+            Assert.AreEqual(1, Tenor.BLL.BLLBase.LastSearches.Count, "Tenor generated more than one query.");
+#else
+            Assert.Inconclusive("Can only check generated queries on debug mode.");
+         
+#endif
         }
     }
 }
