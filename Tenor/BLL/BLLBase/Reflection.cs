@@ -40,7 +40,7 @@ namespace Tenor.BLL
         internal static FieldInfo[] GetFields(Type instanceType, bool? isPrimaryKey, string[] filter)
         {
             List<FieldInfo> returnValue = new List<FieldInfo>();
-            foreach (System.Reflection.PropertyInfo i in instanceType.GetProperties())
+            foreach (System.Reflection.PropertyInfo i in instanceType.GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic))
             {
 
                 FieldInfo field = FieldInfo.Create(i); 
@@ -68,7 +68,7 @@ namespace Tenor.BLL
         internal static ForeignKeyInfo[] GetForeignKeys(Type instanceType)
         {
             List<ForeignKeyInfo> res = new List<ForeignKeyInfo>();
-            foreach (System.Reflection.PropertyInfo i in instanceType.GetProperties())
+            foreach (System.Reflection.PropertyInfo i in instanceType.GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic))
             {
                 ForeignKeyInfo foreign = ForeignKeyInfo.Create(i);
                 if (foreign != null)
@@ -82,7 +82,7 @@ namespace Tenor.BLL
         private static SpecialFieldInfo[] GetSpecialFields(Type instanceType)
         {
             List<SpecialFieldInfo> res = new List<SpecialFieldInfo>();
-            foreach (System.Reflection.PropertyInfo i in instanceType.GetProperties())
+            foreach (System.Reflection.PropertyInfo i in instanceType.GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic))
             {
                 SpecialFieldInfo spInfo = SpecialFieldInfo.Create(i);
                 if (spInfo != null)

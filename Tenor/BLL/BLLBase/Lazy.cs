@@ -123,6 +123,10 @@ namespace Tenor.BLL
                     {
                         //lets find objects, one-to-many and many-to-one
                         //for each Foreign, join an AND operator to match foreign with local value.
+
+                        if (field.ForeignFields.Length != field.LocalFields.Length)
+                            throw new MissingForeignKeyException(this.GetType(), property.Name);
+
                         for (int i = 0; i <= field.ForeignFields.Length - 1; i++)
                         {
                             if (i > 0)

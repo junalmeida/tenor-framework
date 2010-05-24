@@ -22,7 +22,9 @@ namespace Tenor.Test
         [TestMethod]
         public void EagerLoadingTest()
         {
+#if DEBUG
             Tenor.BLL.BLLBase.LastSearches.Clear();
+#endif
 
             SearchOptions so = new SearchOptions(typeof(Item));
             so.Conditions.Add("Name", "First category", "c");

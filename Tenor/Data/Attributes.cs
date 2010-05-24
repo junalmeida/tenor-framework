@@ -389,7 +389,7 @@ namespace Tenor.Data
                 List<FieldInfo> res = new List<FieldInfo>();
                 foreach (ForeignKeyFieldAttribute i in this.RelatedAttributes)
                 {
-                    System.Reflection.PropertyInfo prop = this.RelatedProperty.DeclaringType.GetProperty(i.LocalPropertyName);
+                    System.Reflection.PropertyInfo prop = this.RelatedProperty.DeclaringType.GetProperty(i.LocalPropertyName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                     if (prop != null)
                     {
                         FieldInfo field = FieldInfo.Create(prop);
