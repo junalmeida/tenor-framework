@@ -286,7 +286,9 @@ namespace Tenor.BLL
             if (Validate())
             {
                 TableInfo table = TableInfo.CreateTableInfo(this.GetType());
-                
+                if (table == null)
+                    throw new MissingTableMetaDataException(this.GetType());
+
                 if (connection == null)
                     connection = table.GetConnection();
                 

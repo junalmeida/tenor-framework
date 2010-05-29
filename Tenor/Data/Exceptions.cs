@@ -82,6 +82,25 @@ namespace Tenor.Data
     }
 
     /// <summary>
+    /// Occurs when TableAttribute is missing.
+    /// </summary>
+    public class MissingTableMetaDataException : InvalidMappingException
+    {
+        internal MissingTableMetaDataException(Type type)
+            : base(type)
+        {
+        }
+
+        public override string Message
+        {
+            get
+            {
+                return string.Format("The type '{0}' does not have TableAttribute.", RelatedClass.FullName);
+            }
+        }
+    }
+
+    /// <summary>
     /// Occurs when primary key is missing.
     /// </summary>
     public class MissingPrimaryKeyException : InvalidMappingException
