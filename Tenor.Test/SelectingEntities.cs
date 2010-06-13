@@ -70,7 +70,7 @@ namespace Tenor.Test
         [TestMethod]
         public void LinqSelectComparisons()
         {
-            int id = 0;
+            long id = 0;
             var queryA =
                 (
                 from person in Tenor.Linq.SearchOptions<Person>.CreateQuery()
@@ -80,7 +80,7 @@ namespace Tenor.Test
                 ).ToList();
 
 
-
+            
             var queryB =
                 (
                 from person in Tenor.Linq.SearchOptions<Person>.CreateQuery()
@@ -89,6 +89,49 @@ namespace Tenor.Test
                 select person
                 ).ToList();
 
+
+            CollectionAssert.AreEqual(queryA, queryB);
+
+
+            int id2 = 0;
+            queryA =
+                (
+                from person in Tenor.Linq.SearchOptions<Person>.CreateQuery()
+                where person.PersonId >= id2
+                orderby person.Name, person.Active descending
+                select person
+                ).ToList();
+
+
+
+            queryB =
+                (
+                from person in Tenor.Linq.SearchOptions<Person>.CreateQuery()
+                where id2 <= person.PersonId
+                orderby person.Name, person.Active descending
+                select person
+                ).ToList();
+
+            CollectionAssert.AreEqual(queryA, queryB);
+
+            id2 = 2;
+            queryA =
+                (
+                from person in Tenor.Linq.SearchOptions<Person>.CreateQuery()
+                where person.PersonId == id2
+                orderby person.Name, person.Active descending
+                select person
+                ).ToList();
+
+
+
+            queryB =
+                (
+                from person in Tenor.Linq.SearchOptions<Person>.CreateQuery()
+                where id2 == person.PersonId
+                orderby person.Name, person.Active descending
+                select person
+                ).ToList();
 
             CollectionAssert.AreEqual(queryA, queryB);
 
