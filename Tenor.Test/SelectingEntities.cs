@@ -68,7 +68,55 @@ namespace Tenor.Test
         }
 
         [TestMethod]
-        public void LinqSelectWithConditions()
+        public void LinqSelectComparisons()
+        {
+            int id = 0;
+            var queryA =
+                (
+                from person in Tenor.Linq.SearchOptions<Person>.CreateQuery()
+                where person.PersonId >= id
+                orderby person.Name, person.Active descending
+                select person
+                ).ToList();
+
+
+
+            var queryB =
+                (
+                from person in Tenor.Linq.SearchOptions<Person>.CreateQuery()
+                where id <= person.PersonId
+                orderby person.Name, person.Active descending
+                select person
+                ).ToList();
+
+
+            CollectionAssert.AreEqual(queryA, queryB);
+
+
+
+            try
+            {
+                var query =
+                    (
+                    from person in Tenor.Linq.SearchOptions<Person>.CreateQuery()
+                    where person.ContractType == person.ContractType
+                    orderby person.Name, person.Active descending
+                    select person
+                    ).ToList();
+
+            }
+            catch (Exception ex)
+            {
+                Assert.IsInstanceOfType(ex, typeof(NotImplementedException), "Comparing two fields is not yet implemented, but no or wrong exception was recieved.");
+            }
+
+        }
+
+        
+
+
+        [TestMethod]
+        public void LinqSelectStartsWith()
         {
             string filterQuery = "j";
 

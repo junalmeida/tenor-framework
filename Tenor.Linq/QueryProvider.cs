@@ -369,8 +369,8 @@ namespace Tenor.Linq
                         BinaryExpression bex = ex as BinaryExpression;
 
 
-                        MemberExpression left = ReadMember(bex);
-                        ConstantExpression right = ReadConstant(bex);
+                        MemberExpression left = ReadEntityAccess(bex);
+                        Expression right = ReadOperand(bex, ref not);
 
 
                         Tenor.Data.CompareOperator op = Tenor.Data.CompareOperator.Equal;
@@ -481,7 +481,7 @@ namespace Tenor.Linq
             }
         }
 
-        private object FindValue(Expression expression)
+        private static object FindValue(Expression expression)
         {
             if (expression is MemberExpression)
             {
@@ -524,20 +524,14 @@ namespace Tenor.Linq
             return newAlias;
         }
 
-        private static ConstantExpression ReadConstant(BinaryExpression bex)
+        private static Expression ReadOperand(BinaryExpression bex, ref bool not)
         {
-            ConstantExpression right = null;
-            if (bex.Right.NodeType == ExpressionType.Convert)
-                right = ((UnaryExpression)bex.Right).Operand as ConstantExpression;
-            else
-                right = bex.Right as ConstantExpression;
+            Expression right = ReadOperandSide(bex.Right);
 
             if (right == null)
             {
-                if (bex.Left.NodeType == ExpressionType.Convert)
-                    right = ((UnaryExpression)bex.Left).Operand as ConstantExpression;
-                else
-                    right = bex.Left as ConstantExpression;
+                right = ReadOperandSide(bex.Left);
+                not = !not;
             }
 
             if (right == null)
@@ -545,20 +539,39 @@ namespace Tenor.Linq
             return right;
         }
 
-        private static MemberExpression ReadMember(BinaryExpression bex)
+        private static Expression ReadOperandSide(Expression parameter)
+        {
+            Expression value = null;
+            if (parameter.NodeType == ExpressionType.Convert)
+            {
+                Expression operand = ((UnaryExpression)parameter).Operand;
+                if (operand is MemberExpression)
+                {
+                    MemberExpression memberOperand = (MemberExpression)operand;
+                    if (memberOperand.Expression is ConstantExpression)
+                        return memberOperand;
+                }
+                value = operand as ConstantExpression;
+            }
+            else
+                value = parameter as ConstantExpression;
+            return value;
+        }
+
+        private static MemberExpression ReadEntityAccess(BinaryExpression bex)
         {
             MemberExpression left = null;
-            if (bex.Left.NodeType == ExpressionType.Convert)
-                left = ((UnaryExpression)bex.Left).Operand as MemberExpression;
-            else
+            if (bex.Left.NodeType == ExpressionType.MemberAccess)
                 left = bex.Left as MemberExpression;
+            //    Convert Type - guess that this was wrong, so commented
+            //    left = ((UnaryExpression)bex.Left).Operand as MemberExpression;
 
             if (left == null)
             {
-                if (bex.Right.NodeType == ExpressionType.Convert)
-                    left = ((UnaryExpression)bex.Right).Operand as MemberExpression;
-                else
+                if (bex.Right.NodeType == ExpressionType.MemberAccess)
                     left = bex.Right as MemberExpression;
+                //    Convert Type
+                // left = ((UnaryExpression)bex.Right).Operand as MemberExpression;
             }
 
             if (left == null)
