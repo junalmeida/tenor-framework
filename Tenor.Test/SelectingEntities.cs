@@ -68,6 +68,20 @@ namespace Tenor.Test
         }
 
         [TestMethod]
+        public void LinqSelectLogicalOperators()
+        {
+            long id = 0;
+            var queryA =
+                (
+                from person in Tenor.Linq.SearchOptions<Person>.CreateQuery()
+                where person.PersonId != null && person.MaritalStatus == MaritalStatus.Single
+                select person
+                ).ToList();
+
+        }
+
+
+        [TestMethod]
         public void LinqSelectComparisons()
         {
             long id = 0;

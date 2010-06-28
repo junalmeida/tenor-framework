@@ -566,7 +566,7 @@ namespace Tenor.Linq
                 else
                     return operand;
             }
-            else if (parameter.NodeType == ExpressionType.Constant)
+            else if (justConstant && parameter.NodeType == ExpressionType.Constant)
                 return parameter;
             else
                 return null;
