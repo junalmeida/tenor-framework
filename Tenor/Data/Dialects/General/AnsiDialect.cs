@@ -341,7 +341,9 @@ namespace Tenor.Data.Dialects
                 classAlias = CreateClassAlias(classType);
 
             StringBuilder str = new StringBuilder();
-            PropertyInfo propInfo = classType.GetProperty(propertyName);
+            PropertyInfo propInfo = classType.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (propInfo == null)
+                throw new MissingFieldException(classType, propertyName);
             FieldInfo fieldInfo = FieldInfo.Create(propInfo);
             SpecialFieldInfo spFieldInfo = SpecialFieldInfo.Create(propInfo);
 
@@ -578,9 +580,11 @@ namespace Tenor.Data.Dialects
                     alias = join.JoinAlias;
                 }
 
-                PropertyInfo property = table.GetProperty(sort.PropertyName);
+                //get the property by reflection
+                PropertyInfo property = table.GetProperty(sort.PropertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
                 if (property == null)
                     throw new MissingFieldException(table, sort.PropertyName);
+                //find metadata of that property
                 FieldInfo fieldInfo = FieldInfo.Create(property);
                 SpecialFieldInfo spInfo = SpecialFieldInfo.Create(property);
                 if (fieldInfo == null && spInfo == null)
