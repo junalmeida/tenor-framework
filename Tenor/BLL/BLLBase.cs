@@ -128,7 +128,6 @@ namespace Tenor.BLL
             return searchOptions.ExecuteCount(connection);
         }
 
-
         /// <summary>
         /// Converts a datatable into a set of instances of baseClass.
         /// </summary>
@@ -137,7 +136,21 @@ namespace Tenor.BLL
         /// <param name="baseClass">Defines which type to load.</param>
         /// <exception cref="System.ArgumentNullException">Occurs when table or baseClass parameters are null.</exception>
         /// <returns>An array of entities.</returns>
-        public static BLLBase[] BindRows(DataTable table, SearchOptions searchOptions)
+        public static BLLBase[] BindRows(DataTable table, Type type)
+        {
+            SearchOptions opt = new SearchOptions(type);
+            return BindRows(table, opt);
+        }
+    
+        /// <summary>
+        /// Converts a datatable into a set of instances of baseClass.
+        /// </summary>
+        /// <param name="table">A System.Data.DataTable with raw database data.</param>
+        /// <param name="lazyLoading">Indicates whether to enable the lazyLoading on created instances.</param>
+        /// <param name="baseClass">Defines which type to load.</param>
+        /// <exception cref="System.ArgumentNullException">Occurs when table or baseClass parameters are null.</exception>
+        /// <returns>An array of entities.</returns>
+        internal static BLLBase[] BindRows(DataTable table, SearchOptions searchOptions)
         {
             if (table == null)
                 throw new ArgumentNullException("table");
@@ -311,7 +324,7 @@ namespace Tenor.BLL
                 }
                 else
                 {
-                    result = Helper.UpdateData(query + Helper.GoStatement + secondQuery, parameters, connection);
+                    result = Helper.UpdateData(connection, query + Helper.GoStatement + secondQuery, parameters);
                 }
 
                 if (!isUpdate && autoKeyField != null)
@@ -529,7 +542,7 @@ namespace Tenor.BLL
             if (transaction != null && transaction.dbTransaction != null)
                 Helper.ExecuteQuery(query, parameters, transaction.dbTransaction, dialect);
             else
-                Helper.UpdateData(query, parameters, connection);
+                Helper.UpdateData(connection, query, parameters);
         }
 
         private static ConditionCollection CreateDeleteConditions(BLLBase instance)

@@ -93,10 +93,10 @@ namespace Tenor.Data
         /// <param name="sqlSelect">A SQL query to execute.</param>
         /// <param name="parameters">Parameters collection.</param>
         /// <returns>A <see cref="System.Data.DataTable">DataTable</see> with results of the query.</returns>
-        public static DataTable QueryData(string sqlSelect, TenorParameter[] parameters)
+        public static DataTable QueryData(string sqlSelect, params TenorParameter[] parameters)
         {
-            // Gotcha!
-            return QueryData(null, sqlSelect, parameters);
+            ConnectionStringSettings conn = Tenor.BLL.BLLBase.SystemConnection;
+            return QueryData(conn, sqlSelect, parameters);
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace Tenor.Data
         /// <param name="sqlSelect">A SQL query to execute.</param>
         /// <param name="parameters">Parameters collection.</param>
         /// <returns>A <see cref="System.Data.DataTable">DataTable</see> with results of the query.</returns>
-        public static DataTable QueryData(ConnectionStringSettings connectionString, string sqlSelect, TenorParameter[] parameters)
+        public static DataTable QueryData(ConnectionStringSettings connectionString, string sqlSelect, params TenorParameter[] parameters)
         {
             if (connectionString == null)
                 throw new ArgumentNullException("connectionString");
@@ -179,7 +179,7 @@ namespace Tenor.Data
         /// <param name="sqlSelect">A SQL query to execute.</param>
         /// <param name="parameters">Parameters collection.</param>
         /// <returns>The scalar value returned from the database. It could be any valued type, string, or null.</returns>
-        public static object QueryValue(string sqlSelect, TenorParameter[] parameters)
+        public static object QueryValue(string sqlSelect, params TenorParameter[] parameters)
         {
             return QueryValue(Tenor.BLL.BLLBase.SystemConnection, sqlSelect, parameters);
         }
@@ -191,7 +191,7 @@ namespace Tenor.Data
         /// <param name="sqlSelect">A SQL query to execute.</param>
         /// <param name="parameters">Parameters collection.</param>
         /// <returns>The scalar value returned from the database. It could be any valued type, string, or null.</returns>
-        public static object QueryValue(ConnectionStringSettings connectionString, string sqlSelect, TenorParameter[] parameters)
+        public static object QueryValue(ConnectionStringSettings connectionString, string sqlSelect, params TenorParameter[] parameters)
         {
             object valor = null;
             DataTable tabela = QueryData(connectionString, sqlSelect, parameters);
@@ -207,9 +207,9 @@ namespace Tenor.Data
         /// </summary>
         /// <param name="query">A SQL query to execute.</param>
         /// <param name="parameters">Parameters collection.</param>
-        public static object UpdateData(string query, TenorParameter[] parameters)
+        public static object UpdateData(string query, params TenorParameter[] parameters)
         {
-            return UpdateData(query, parameters, null);
+            return UpdateData(null, query, parameters);
         }
         /*
         /// <summary>
@@ -230,7 +230,7 @@ namespace Tenor.Data
         /// <param name="query">A SQL query to execute.</param>
         /// <param name="parameters">Parameters collection.</param>
         /// <param name="connection">The connection.</param>
-        public static object UpdateData(string query, TenorParameter[] parameters, ConnectionStringSettings connection)
+        public static object UpdateData(ConnectionStringSettings connection, string query, params TenorParameter[] parameters)
         {
             if (connection == null)
                 connection = BLL.BLLBase.SystemConnection;
