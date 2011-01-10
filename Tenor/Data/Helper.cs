@@ -6,15 +6,11 @@
  *
  * See the file license.txt for copying permission.
  */
-using System.Diagnostics;
 using System;
-using System.Collections;
-using Tenor.Data;
-using System.Data;
-using System.Collections.Generic;
-using System.IO;
-using System.Data.Common;
 using System.Configuration;
+using System.Data;
+using System.Data.Common;
+using System.IO;
 using Tenor.Data.Dialects;
 
 
@@ -155,8 +151,9 @@ namespace Tenor.Data
             }
             catch (Exception up)
             {
-                if (cmd != null)
+                if (cmd != null && !up.Data.Contains("CommandText"))
                 {
+
                     up.Data.Add("CommandText", cmd.CommandText);
                 }
                 throw (up);
@@ -406,26 +403,26 @@ namespace Tenor.Data
             if (string.IsNullOrEmpty(value))
                 throw new ConfigurationErrorsException("An invalid connection string was set.");
 
-            
+
 
             if (value.Contains("{0}"))
             {
                 string path = typeof(Helper).Assembly.GetName().CodeBase;
 
-                if (path.StartsWith("file:///")) 
+                if (path.StartsWith("file:///"))
                 {
-					if (Path.DirectorySeparatorChar == '/')
-					{
-						path = new FileInfo(path.Substring(7)).DirectoryName;
-					}
-					else
-					{
-						path = new FileInfo(path.Substring(8).Replace("/", Path.DirectorySeparatorChar.ToString())).DirectoryName;
-					}
+                    if (Path.DirectorySeparatorChar == '/')
+                    {
+                        path = new FileInfo(path.Substring(7)).DirectoryName;
+                    }
+                    else
+                    {
+                        path = new FileInfo(path.Substring(8).Replace("/", Path.DirectorySeparatorChar.ToString())).DirectoryName;
+                    }
                 }
                 else
                     path = Environment.CurrentDirectory;
-				value = string.Format(value, path);
+                value = string.Format(value, path);
             }
 
             DbConnection conn = dialect.Factory.CreateConnection();
