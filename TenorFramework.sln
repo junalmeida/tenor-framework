@@ -1,10 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tenor", "Tenor\Tenor.csproj", "{5FAE8827-5AED-4918-9FFB-85B7E91901F5}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tenor.Web.UI", "Tenor.Web.UI\Tenor.Web.UI.csproj", "{87AB0401-5634-4DAE-8ED9-77DCE524FD80}"
-EndProject
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Resources", "Resources", "{4ED50A48-424F-4C4A-85F1-0EF76EE07AE0}"
 	ProjectSection(SolutionItems) = preProject
 		license.txt = license.txt
@@ -34,16 +30,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{A68E76D2-3
 		Resources\docs\reference-guide.shfb = Resources\docs\reference-guide.shfb
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp", "SampleApp\SampleApp.csproj", "{5942CEF1-5760-435F-AE6E-8EC99B243314}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tenor.Test", "Tenor.Test\Tenor.Test.csproj", "{3D49FCBB-2056-44F2-99BA-AFEE78086F84}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5ADC66AA-3131-41F6-8005-8DB1E69FBCF0}"
 	ProjectSection(SolutionItems) = preProject
 		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
-		TenorFramework.vsmdi = TenorFramework.vsmdi
-		TenorFramework2.vsmdi = TenorFramework2.vsmdi
+		TenorFramework1.vsmdi = TenorFramework1.vsmdi
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tenor", "Tenor\Tenor.csproj", "{5FAE8827-5AED-4918-9FFB-85B7E91901F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tenor.Web.UI", "Tenor.Web.UI\Tenor.Web.UI.csproj", "{87AB0401-5634-4DAE-8ED9-77DCE524FD80}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp", "SampleApp\SampleApp.csproj", "{5942CEF1-5760-435F-AE6E-8EC99B243314}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tenor.Test", "Tenor.Test\Tenor.Test.csproj", "{3D49FCBB-2056-44F2-99BA-AFEE78086F84}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleApp.Business", "SampleApp.Business\SampleApp.Business.csproj", "{648E95EC-A041-41B6-B201-B82AD0440A77}"
 EndProject
@@ -55,7 +54,7 @@ Global
 		Manager = AnkhSVN - Subversion Support for Visual Studio
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = TenorFramework2.vsmdi
+		CategoryFile = TenorFramework1.vsmdi
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|mssql = Debug|mssql
