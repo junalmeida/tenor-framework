@@ -1,11 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Collections;
-using System.Collections.ObjectModel;
 
 namespace Tenor.Linq
 {
@@ -76,9 +75,10 @@ namespace Tenor.Linq
                     return searchOptions.ExecuteCount();
                 else
                 {
+                    IList toReturn;
                     if (searchOptions.Projections.Count == 0)
                     {
-                        return searchOptions.Execute();
+                        toReturn = searchOptions.Execute();
                     }
                     else
                     {
@@ -90,11 +90,16 @@ namespace Tenor.Linq
                         {
                             object typedRow = null;
                             if (projectionBindings == null)
-                                typedRow = projectionCtor.Invoke(row);
+                            {
+                                if (searchOptions.Projections.Count == 1)
+                                    typedRow = row[0];
+                                else
+                                    typedRow = projectionCtor.Invoke(row);
+                            }
                             else
                             {
                                 typedRow = projectionCtor.Invoke(null);
-                                for (int i =0; i< projectionBindings.Count;i++)
+                                for (int i = 0; i < projectionBindings.Count; i++)
                                 {
                                     FieldInfo field = projectionBindings[i].Member as FieldInfo;
                                     PropertyInfo prop = projectionBindings[i].Member as PropertyInfo;
@@ -109,8 +114,33 @@ namespace Tenor.Linq
                             list.Add(typedRow);
                         }
 
-                        return list;
+                        toReturn = list;
                     }
+
+
+
+                    switch (exp.Method.Name)
+                    {
+                        case "Single":
+                        case "First":
+                            if (toReturn.Count > 1)
+                                throw new InvalidOperationException("The input sequence contains more than one element.");
+                            else if (toReturn.Count == 0)
+                                throw new ArgumentNullException("The input sequence is empty.");
+                            return toReturn[0];
+
+                        case "SingleOrDefault":
+                        case "FirstOrDefault":
+                            if (toReturn.Count > 1)
+                                throw new InvalidOperationException("The input sequence contains more than one element.");
+                            else if (toReturn.Count == 0)
+                                return null;
+                            else
+                                return toReturn[0];
+                        default:
+                            return toReturn;
+                    }
+
 
                 }
             }
@@ -157,6 +187,14 @@ namespace Tenor.Linq
                                 //the TOP/LIMIT function.
                                 int top = (int)((ConstantExpression)mce.Arguments[1]).Value;
                                 searchOptions.Top = top;
+                                break;
+                            case "SingleOrDefault":
+                            case "Single":
+                                //nothing to do here
+                                break;
+                            case "FirstOrDefault":
+                            case "First":
+                                searchOptions.Top = 1;
                                 break;
                             case "Distinct":
                                 searchOptions.Distinct = true;
@@ -226,6 +264,12 @@ namespace Tenor.Linq
 
                     }
                     break;
+                case ExpressionType.MemberAccess:
+                    {
+                        MemberExpression exp = (MemberExpression)expression;
+                        AddProjection(exp);
+                    }
+                    break;
                 case ExpressionType.MemberInit:
                     {
                         //Typed types
@@ -240,6 +284,7 @@ namespace Tenor.Linq
                         }
                     }
                     break;
+
                 default:
                     break;
             }
@@ -296,7 +341,7 @@ namespace Tenor.Linq
 
         }
         Dictionary<MemberInfo, string> aliasList = null;
-        
+
         private void ReadWhereExpressions(Tenor.Data.ConditionCollection cc, Expression ex, bool not, string alias)
         {
             switch (ex.NodeType)
@@ -370,11 +415,29 @@ namespace Tenor.Linq
 
 
                         MemberExpression left = ReadOperand(bex, false) as MemberExpression;
+
+
+
+
                         bool invertOperator = false;
                         Expression right = ReadOperand(bex, true, ref invertOperator);
 
                         if (ex.NodeType != ExpressionType.Equal && ex.NodeType != ExpressionType.NotEqual && invertOperator)
                             not = !not;
+
+
+                        //check if we need another alias
+                        if (left.Expression != null && left.Expression is MemberExpression)
+                        {
+                            MemberExpression lExp = (MemberExpression)left.Expression;
+                            if (lExp.Member.MemberType == MemberTypes.Property)
+                            {
+                                string newAlias = lExp.Member.Name.ToLower() + DateTime.Now.Millisecond.ToString();
+
+                                cc.Include(alias, lExp.Member.Name, newAlias, Data.JoinMode.LeftJoin);
+                                alias = newAlias;
+                            }
+                        }
 
                         Tenor.Data.CompareOperator op = Tenor.Data.CompareOperator.Equal;
                         if (ex.NodeType == ExpressionType.Equal && !not)

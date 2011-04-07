@@ -1,11 +1,7 @@
-using System.Diagnostics;
 using System;
-using System.Collections;
-using Tenor.Data;
-using System.Data;
 using System.Collections.Generic;
-using System.IO;
 using System.Configuration;
+using System.Data;
 using Tenor.BLL;
 
 
@@ -17,7 +13,7 @@ namespace Tenor.Data
     public class SearchOptions : ISearchOptions
     {
 
-        #region Search Data 
+        #region Search Data
         internal Type baseType;
         //public Type Class
         //{
@@ -295,7 +291,7 @@ namespace Tenor.Data
 
         #region Execute With Count
 
-         /// <summary>
+        /// <summary>
         /// Executes the query defined on this instance and returns the number of returned rows.
         /// </summary>
         public int ExecuteCount()
@@ -333,6 +329,8 @@ namespace Tenor.Data
             if (connection == null)
             {
                 TableInfo table = TableInfo.CreateTableInfo(this.baseType);
+                if (table == null)
+                    throw new Tenor.Data.MissingTableMetaDataException(this.baseType);
                 connection = table.GetConnection();
             }
 

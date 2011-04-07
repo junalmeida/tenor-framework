@@ -1,14 +1,12 @@
 ﻿using System.Linq;
 using System;
-using System.Text;
-using System.Collections.Generic;
 
 using SampleApp.Business.Entities;
 using Tenor.Data;
 using Tenor.Linq;
 #if MSTEST
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Data.Common;
+
 #else
 using TestMethodAttribute = NUnit.Framework.TestAttribute;
 using TestClassAttribute = NUnit.Framework.TestFixtureAttribute;
@@ -28,6 +26,36 @@ namespace Tenor.Test
     [TestClass]
     public class SelectingEntities : TestBase
     {
+        [TestMethod]
+        public void SelectSingleOrDefault()
+        {
+            var person =
+                (from p in Tenor.Linq.SearchOptions<Person>.CreateQuery()
+                 where p.PersonId == 1
+                 select p).SingleOrDefault();
+
+            Assert.IsNotNull(person);
+
+            person =
+                (from p in Tenor.Linq.SearchOptions<Person>.CreateQuery()
+                 where p.PersonId == -1
+                 select p).Single();
+
+            Assert.IsNotNull(person);
+        }
+
+        [TestMethod]
+        public void SelectFirstOrDefault()
+        {
+
+            var person =
+                (from p in Tenor.Linq.SearchOptions<Person>.CreateQuery()
+                 where p.PersonId > 0
+                 select p).FirstOrDefault();
+
+            Assert.IsNotNull(person);
+        }
+
         [TestMethod]
         public void SelectEverything()
         {
@@ -94,7 +122,7 @@ namespace Tenor.Test
                 ).ToList();
 
 
-            
+
             var queryB =
                 (
                 from person in Tenor.Linq.SearchOptions<Person>.CreateQuery()
@@ -169,7 +197,7 @@ namespace Tenor.Test
 
         }
 
-        
+
 
 
         [TestMethod]

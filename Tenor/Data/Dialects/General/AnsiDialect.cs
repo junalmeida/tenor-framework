@@ -1,15 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Data.Common;
-using System.Collections.Specialized;
-using System.Reflection;
-using Tenor.BLL;
 using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Data.Common;
+using System.Reflection;
+using System.Text;
+using Tenor.BLL;
 
 namespace Tenor.Data.Dialects
 {
- 
+
     /// <summary>
     /// Represents the common code between all dialects.
     /// </summary>
@@ -195,6 +195,8 @@ namespace Tenor.Data.Dialects
         {
             StringBuilder str = new StringBuilder();
             PropertyInfo propInfo = classType.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (propInfo == null)
+                throw new MissingMemberException(classType.FullName, propertyName);
             FieldInfo fieldInfo = FieldInfo.Create(propInfo);
             SpecialFieldInfo spFieldInfo = SpecialFieldInfo.Create(propInfo);
 
@@ -434,7 +436,7 @@ namespace Tenor.Data.Dialects
                     //the many to many table must be on the from clause.
                     SearchConditionForManyToMany sc = (SearchConditionForManyToMany)obj;
 
-                 
+
                     string parameterName = this.ParameterIdentifier + "value" + i.ToString();
 
                     string where = "{0}.{1} = {2}";
@@ -527,13 +529,13 @@ namespace Tenor.Data.Dialects
                 {
                     fieldAlias = tableAlias + fieldAlias;
                 }
-                
+
                 //TODO :Check if we can consider all fields from the parameter.
                 /*
                  * if (f.PrimaryKey || !f.LazyLoading)
                  * {
                  */
-                fieldsSql.Append(string.Format(", {0}.{1} {2}", tableAlias, identifier, fieldAlias));
+                fieldsSql.Append(string.Format(", {0}.{1} \"{2}\"", tableAlias, identifier, fieldAlias));
                 /*
                  * }
                  */
@@ -547,10 +549,10 @@ namespace Tenor.Data.Dialects
             if (spFields != null)
                 foreach (SpecialFieldInfo f in spFields)
                 {
-  
+
                     fieldsSql.Append(", ");
                     fieldsSql.Append(GetSpecialFieldExpression(tableAlias, f));
- 
+
                     string falias = f.Alias;
                     if (prepend)
                         falias = tableAlias + falias;
@@ -645,13 +647,13 @@ namespace Tenor.Data.Dialects
                 switch (join.JoinMode)
                 {
                     case JoinMode.InnerJoin:
-                        joinSql=(" INNER JOIN " + tableName + " ON ");
+                        joinSql = (" INNER JOIN " + tableName + " ON ");
                         break;
                     case JoinMode.LeftJoin:
-                        joinSql=(" LEFT OUTER JOIN " + tableName + " ON ");
+                        joinSql = (" LEFT OUTER JOIN " + tableName + " ON ");
                         break;
                     case JoinMode.RightJoin:
-                        joinSql=(" RIGHT OUTER JOIN " + tableName + " ON ");
+                        joinSql = (" RIGHT OUTER JOIN " + tableName + " ON ");
                         break;
                     default:
                         throw new InvalidOperationException();
@@ -829,7 +831,7 @@ namespace Tenor.Data.Dialects
             foreach (FieldInfo field in data.Keys)
             {
                 string paramName = field.DataFieldName;
-                
+
                 // does nothing in case it's autonumber and doesn't get identity during query
                 if (field.AutoNumber && string.IsNullOrEmpty(this.IdentityDuringQuery))
                     continue;
@@ -1153,7 +1155,7 @@ namespace Tenor.Data.Dialects
         /// <summary>
         /// Writes the limit at the where clause. 
         /// </summary>
-        WhereClause, 
+        WhereClause,
         /// <summary>
         /// Writes the limit at the end of the query.
         /// </summary>
