@@ -438,10 +438,10 @@ namespace Tenor.Linq
                             MemberExpression lExp = (MemberExpression)left.Expression;
                             if (lExp.Member.MemberType == MemberTypes.Property)
                             {
-                                string newAlias = lExp.Member.Name.ToLower() + DateTime.Now.Millisecond.ToString();
 
-                                cc.Include(alias, lExp.Member.Name, newAlias, Data.JoinMode.LeftJoin);
-                                alias = newAlias;
+                                alias = IncludeAlias(cc, lExp, alias);
+
+
                             }
                         }
 
@@ -570,6 +570,19 @@ namespace Tenor.Linq
                 default:
                     throw new NotImplementedException("Linq '" + ex.NodeType.ToString() + "' is not implemented. Please, send a feature request.");
             }
+        }
+
+        private string IncludeAlias(Data.ConditionCollection cc, MemberExpression lExp, string alias)
+        {
+            var innerExp = lExp.Expression as MemberExpression;
+            if (innerExp != null)
+                alias = IncludeAlias(cc, innerExp, alias);
+
+            string newAlias = lExp.Member.Name.ToLower() + DateTime.Now.Millisecond.ToString();
+
+            cc.Include(alias, lExp.Member.Name, newAlias, Data.JoinMode.LeftJoin);
+
+            return newAlias;
         }
 
         private static object FindValue(Expression expression)

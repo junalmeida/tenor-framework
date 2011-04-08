@@ -8,10 +8,11 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Data.Common;
 using System.Text;
 using Tenor.Data;
-using System.Configuration;
-using System.Data.Common;
 using Tenor.Data.Dialects;
 
 namespace Tenor.BLL
@@ -28,7 +29,7 @@ namespace Tenor.BLL
             Bind(true);
         }
 
-        
+
         /// <summary>
         /// Binds this entity instance to database data using primary keys current data.
         /// </summary>
@@ -41,7 +42,7 @@ namespace Tenor.BLL
 
 
             if (fields.Length == 0)
-                throw (new MissingPrimaryKeyException(this.GetType()));
+                throw (new Tenor.Data.MissingPrimaryKeyException(this.GetType()));
 
             List<string> propertyNames = new List<string>();
             foreach (FieldInfo field in fields)
@@ -325,7 +326,7 @@ namespace Tenor.BLL
 
                 spFields.AddRange(fields);
             }
-            
+
             sqlFields.Append(dialect.CreateSelectSql(table.RelatedTable, null, fieldInfos.ToArray(), spFields.ToArray()));
 
 
@@ -399,7 +400,7 @@ namespace Tenor.BLL
         internal static Stack<string> LastSearches = new Stack<string>();
 #endif
 
-        private static T[] ReadProjections<T>(IList<Projection> projections, string joinAlias, T[] allFields) where T: PropInfo
+        private static T[] ReadProjections<T>(IList<Projection> projections, string joinAlias, T[] allFields) where T : PropInfo
         {
             List<T> allFieldsList = new List<T>();
             for (int i = projections.Count - 1; i >= 0; i--)
@@ -447,32 +448,38 @@ namespace Tenor.BLL
             if (table == null)
                 throw new InvalidMappingException(this.GetType());
 
-            ConnectionStringSettings connection = (tenorTransaction == null ?table.GetConnection() : tenorTransaction.Connection);
+            ConnectionStringSettings connection = (tenorTransaction == null ? table.GetConnection() : tenorTransaction.Connection);
             GeneralDialect dialect = DialectFactory.CreateDialect(connection);
 
             TenorParameter[] parameters;
             DbTransaction t = (tenorTransaction == null ? null : tenorTransaction.dbTransaction);
 
-            if (dialect.GetType() == typeof(Tenor.Data.Dialects.TSql.TSql))
-            {
-                //oh god! do you have a better idea on where to write this code?
-                System.Data.SqlClient.SqlBulkCopy bulk;
-                if (t == null)
-                    bulk = new System.Data.SqlClient.SqlBulkCopy(tenorTransaction.Connection.ConnectionString);
-                else
-                    bulk = new System.Data.SqlClient.SqlBulkCopy((System.Data.SqlClient.SqlConnection)t.Connection, System.Data.SqlClient.SqlBulkCopyOptions.Default, (System.Data.SqlClient.SqlTransaction)t);
+            //if (dialect.GetType() == typeof(Tenor.Data.Dialects.TSql.TSql))
+            //{
+            //    //oh god! do you have a better idea on where to write this code?
+            //    System.Data.SqlClient.SqlBulkCopy bulk;
+            //    if (t == null)
+            //        bulk = new System.Data.SqlClient.SqlBulkCopy(tenorTransaction.Connection.ConnectionString);
+            //    else
+            //        bulk = new System.Data.SqlClient.SqlBulkCopy((System.Data.SqlClient.SqlConnection)t.Connection, System.Data.SqlClient.SqlBulkCopyOptions.Default, (System.Data.SqlClient.SqlTransaction)t);
 
-                bulk.DestinationTableName = dialect.GetPrefixAndTable(fkInfo.ManyToManyTablePrefix, fkInfo.ManyToManyTable);
-                System.Data.DataTable data;
-                string sql = dialect.CreateSaveList(table, fkInfo, this, out parameters, out data);
-                Helper.ExecuteQuery(sql, parameters, t, dialect);
-                bulk.WriteToServer(data);
-            }
-            else
-            {
-                string sql = dialect.CreateSaveListSql(table, fkInfo, this, out parameters);
-                Helper.ExecuteQuery(sql, parameters, t, dialect);
-            }
+            //    bulk.DestinationTableName = dialect.GetPrefixAndTable(fkInfo.ManyToManyTablePrefix, fkInfo.ManyToManyTable);
+            //    System.Data.DataTable data;
+            //    string sql = dialect.CreateSaveList(table, fkInfo, this, out parameters, out data);
+            //    foreach (DataColumn col in data.Columns)
+            //    {
+            //        bulk.ColumnMappings.Add(col.ColumnName, col.ColumnName);
+            //    }
+
+            //    Helper.ExecuteQuery(sql, parameters, t, dialect);
+            //    bulk.WriteToServer(data);
+            //    bulk.Close();
+            //}
+            //else
+            //{
+            string sql = dialect.CreateSaveListSql(table, fkInfo, this, out parameters);
+            Helper.ExecuteQuery(sql, parameters, t, dialect);
+            //}
         }
     }
 }
