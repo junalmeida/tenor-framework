@@ -335,6 +335,12 @@ namespace Tenor.Linq
                         searchOptions.LoadAlso(exp.Member.Name);
                     }
                     break;
+                case ExpressionType.Constant:
+                    {
+                        ConstantExpression exp = (ConstantExpression)expression;
+                        searchOptions.LoadAlso((string)exp.Value);
+                    }
+                    break;
                 default:
                     throw new NotImplementedException("Linq '" + expression.NodeType.ToString() + "' is not implemented. Please, send a feature request.");
             }
@@ -497,8 +503,27 @@ namespace Tenor.Linq
                                     //this will generate a like expression
                                     MemberExpression member = mce.Object as MemberExpression;
                                     if (mce.Object == null)
-                                        throw new InvalidOperationException();
-                                    if (member.Type != typeof(string))
+                                    {
+                                        if (mce.Method.Name == "Contains" && mce.Arguments[0] is MemberExpression)
+                                        {
+                                            member = mce.Arguments[1] as MemberExpression;
+
+                                            // In
+                                            Tenor.Data.ConditionCollection inValues = new Data.ConditionCollection();
+                                            IList values = FindValue(mce.Arguments[0]) as IList;
+                                            foreach (object value in values)
+                                            {
+                                                if (inValues.Count > 0)
+                                                    inValues.Add(Data.LogicalOperator.Or);
+                                                inValues.Add(member.Member.Name, value, Data.CompareOperator.Equal, alias);
+                                            }
+
+                                            cc.Add(inValues);
+                                        }
+                                        else
+                                            throw new InvalidOperationException();
+                                    }
+                                    else if (member.Type != typeof(string))
                                     {
                                         throw new NotImplementedException();
                                     }
