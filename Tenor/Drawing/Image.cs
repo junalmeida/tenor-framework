@@ -1,12 +1,7 @@
-using System.Diagnostics;
 using System;
-using System.Collections;
-using Tenor.Data;
-using System.Data;
-using System.Collections.Generic;
-using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 
 
 
@@ -384,7 +379,7 @@ namespace Tenor.Drawing
             }
             return null;
 
-        } 
+        }
 
         public override System.IO.Stream GetStream()
         {
@@ -446,7 +441,8 @@ namespace Tenor.Drawing
                     myEncoderParameters.Param[0] = myEncoderParameter;
                     Bitmap.Save(mem, myImageCodecInfo, myEncoderParameters);
 
-
+                    //move position to begin
+                    mem.Seek(0, SeekOrigin.Begin);
                     return mem;
 
 
@@ -455,6 +451,10 @@ namespace Tenor.Drawing
                 {
                     MemoryStream mem = new MemoryStream();
                     Bitmap.Save(mem, RawFormat);
+
+                    //move position to begin
+                    mem.Seek(0, SeekOrigin.Begin);
+
                     return mem;
                 }
             }
@@ -462,6 +462,9 @@ namespace Tenor.Drawing
             {
                 MemoryStream mem = new MemoryStream();
                 Bitmap.Save(mem, RawFormat);
+
+                //move position to begin
+                mem.Seek(0, SeekOrigin.Begin);
                 return mem;
 
             }
