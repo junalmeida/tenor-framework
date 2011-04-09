@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using System;
-
+using System.Collections.Generic;
 using SampleApp.Business.Entities;
 using Tenor.Data;
 using Tenor.Linq;
@@ -98,7 +98,7 @@ namespace Tenor.Test
         [TestMethod]
         public void LinqSelectLogicalOperators()
         {
-            long id = 0;
+            DbInt id = 0;
             var queryA =
                 (
                 from person in Tenor.Linq.SearchOptions<Person>.CreateQuery()
@@ -112,7 +112,7 @@ namespace Tenor.Test
         [TestMethod]
         public void LinqSelectComparisons()
         {
-            long id = 0;
+            DbInt id = 0;
             var queryA =
                 (
                 from person in Tenor.Linq.SearchOptions<Person>.CreateQuery()
@@ -135,7 +135,7 @@ namespace Tenor.Test
             CollectionAssert.AreEqual(queryA, queryB);
 
 
-            int id2 = 0;
+            DbInt id2 = 0;
             queryA =
                 (
                 from person in Tenor.Linq.SearchOptions<Person>.CreateQuery()
@@ -197,6 +197,39 @@ namespace Tenor.Test
 
         }
 
+        [TestMethod]
+        public void LinqSelectContainsIn()
+        {
+            var idArray = new DbInt[] { 1, 2, 3, 4, 5 };
+            var idList = new List<DbInt>(idArray);
+
+            var entities1 = (
+                    from person in Tenor.Linq.SearchOptions<Person>.CreateQuery()
+                    where idArray.Contains(person.PersonId)
+                    select person
+                    ).ToArray();
+
+            var entities2 = (
+                from person in Tenor.Linq.SearchOptions<Person>.CreateQuery()
+                where idArray.Contains(person.PersonId)
+                select person
+                ).ToArray();
+
+            CollectionAssert.AreEquivalent(entities1, entities2);
+        }
+
+        [TestMethod]
+        public void LinqSelectContainsString()
+        {
+            string value = "a";
+            var entities2 = (
+                from person in Tenor.Linq.SearchOptions<Person>.CreateQuery()
+                where person.Name.Contains(value)
+                select person
+                ).ToArray();
+
+            Assert.IsTrue(entities2.Length > 0);
+        }
 
 
 

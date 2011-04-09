@@ -500,50 +500,50 @@ namespace Tenor.Linq
                             case "StartsWith":
                             case "EndsWith":
                                 {
-                                    //this will generate a like expression
-                                    MemberExpression member = mce.Object as MemberExpression;
-                                    if (mce.Object == null)
+
+
+                                    MemberExpression member =
+                                        (mce.Object != null ? mce.Object : mce.Arguments[0]) as MemberExpression;
+
+                                    MemberExpression property =
+                                        (mce.Object != null ? mce.Arguments[0] : mce.Arguments[1]) as MemberExpression;
+
+                                    if (mce.Method.Name == "Contains" && member.Type != typeof(string))
                                     {
-                                        if (mce.Method.Name == "Contains" && mce.Arguments[0] is MemberExpression)
+                                        // In
+                                        Tenor.Data.ConditionCollection inValues = new Data.ConditionCollection();
+                                        IList list = FindValue(member) as IList;
+                                        foreach (object v in list)
                                         {
-                                            member = mce.Arguments[1] as MemberExpression;
-
-                                            // In
-                                            Tenor.Data.ConditionCollection inValues = new Data.ConditionCollection();
-                                            IList values = FindValue(mce.Arguments[0]) as IList;
-                                            foreach (object value in values)
-                                            {
-                                                if (inValues.Count > 0)
-                                                    inValues.Add(Data.LogicalOperator.Or);
-                                                inValues.Add(member.Member.Name, value, Data.CompareOperator.Equal, alias);
-                                            }
-
-                                            cc.Add(inValues);
+                                            if (inValues.Count > 0)
+                                                inValues.Add(Data.LogicalOperator.Or);
+                                            inValues.Add(property.Member.Name, v, Data.CompareOperator.Equal, alias);
                                         }
-                                        else
-                                            throw new InvalidOperationException();
-                                    }
-                                    else if (member.Type != typeof(string))
-                                    {
-                                        throw new NotImplementedException();
-                                    }
-                                    else
-                                    {
 
-                                        string value = FindValue(mce.Arguments[0]) as string;
+                                        cc.Add(inValues);
+                                    }
+                                    else if (member.Type == typeof(string))
+                                    {
+                                        //this will generate a like expression
+
+                                        string str = FindValue(property) as string;
 
                                         if (mce.Method.Name == "StartsWith")
-                                            value = string.Format("{0}%", value);
+                                            str = string.Format("{0}%", str);
                                         else if (mce.Method.Name == "EndsWith")
-                                            value = string.Format("%{0}", value);
+                                            str = string.Format("%{0}", str);
                                         else if (mce.Method.Name == "Contains")
-                                            value = string.Format("%{0}%", value);
+                                            str = string.Format("%{0}%", str);
 
                                         Tenor.Data.CompareOperator op = Tenor.Data.CompareOperator.Like;
                                         if (not)
                                             op = Tenor.Data.CompareOperator.NotLike;
 
-                                        cc.Add(member.Member.Name, value, op);
+                                        cc.Add(member.Member.Name, str, op, alias);
+                                    }
+                                    else
+                                    {
+                                        throw new NotImplementedException(string.Format("{0} not implemented with current parameters.", mce.Method.Name));
                                     }
                                 }
                                 break;
