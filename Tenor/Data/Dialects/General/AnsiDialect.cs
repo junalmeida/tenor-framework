@@ -1083,24 +1083,22 @@ namespace Tenor.Data.Dialects
             if (propertyValues.GetUpperBound(0) > -1) // if we have values on the list
             {
 
-                sql.Append(string.Format("INSERT INTO {0} (", tableNameExpression));
-                for (int i = 0; i < localFields.Length; i++)
-                {
-                    if (i > 0)
-                        sql.Append(", ");
-                    sql.Append(this.CommandBuilder.QuoteIdentifier(localFields[i]));
-                }
-                for (int i = 0; i < foreignFields.Length; i++)
-                {
-                    sql.Append(", ");
-                    sql.Append(this.CommandBuilder.QuoteIdentifier(foreignFields[i]));
-                }
-                sql.AppendLine(") VALUES ");
-
                 for (int i = 0; i <= propertyValues.GetUpperBound(0); i++)
                 {
-                    if (i > 0)
+                    sql.Append(string.Format("INSERT INTO {0} (", tableNameExpression));
+                    for (int j = 0; j < localFields.Length; j++)
+                    {
+                        if (j > 0)
+                            sql.Append(", ");
+                        sql.Append(this.CommandBuilder.QuoteIdentifier(localFields[j]));
+                    }
+                    for (int j = 0; j < foreignFields.Length; j++)
+                    {
                         sql.Append(", ");
+                        sql.Append(this.CommandBuilder.QuoteIdentifier(foreignFields[j]));
+                    }
+                    sql.AppendLine(") VALUES ");
+
 
                     sql.Append("(");
                     for (int j = 0; j < localFields.Length; j++)
