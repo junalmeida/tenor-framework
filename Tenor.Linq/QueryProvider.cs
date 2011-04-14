@@ -61,9 +61,7 @@ namespace Tenor.Linq
         bool doCount = false;
         public object Execute(Expression expression)
         {
-            if (expression.NodeType != ExpressionType.Call)
-                throw new InvalidOperationException();
-            MethodCallExpression exp = (MethodCallExpression)expression;
+            MethodCallExpression exp = expression as MethodCallExpression;
 
             aliasList = new Dictionary<MemberInfo, string>();
 
@@ -118,29 +116,30 @@ namespace Tenor.Linq
                     }
 
 
-
-                    switch (exp.Method.Name)
-                    {
-                        case "Single":
-                        case "First":
-                            if (toReturn.Count > 1)
-                                throw new InvalidOperationException("The input sequence contains more than one element.");
-                            else if (toReturn.Count == 0)
-                                throw new ArgumentNullException("The input sequence is empty.");
-                            return toReturn[0];
-
-                        case "SingleOrDefault":
-                        case "FirstOrDefault":
-                            if (toReturn.Count > 1)
-                                throw new InvalidOperationException("The input sequence contains more than one element.");
-                            else if (toReturn.Count == 0)
-                                return null;
-                            else
+                    if (exp != null)
+                        switch (exp.Method.Name)
+                        {
+                            case "Single":
+                            case "First":
+                                if (toReturn.Count > 1)
+                                    throw new InvalidOperationException("The input sequence contains more than one element.");
+                                else if (toReturn.Count == 0)
+                                    throw new ArgumentNullException("The input sequence is empty.");
                                 return toReturn[0];
-                        default:
-                            return toReturn;
-                    }
 
+                            case "SingleOrDefault":
+                            case "FirstOrDefault":
+                                if (toReturn.Count > 1)
+                                    throw new InvalidOperationException("The input sequence contains more than one element.");
+                                else if (toReturn.Count == 0)
+                                    return null;
+                                else
+                                    return toReturn[0];
+                            default:
+                                return toReturn;
+                        }
+                    else
+                        return toReturn;
 
                 }
             }
