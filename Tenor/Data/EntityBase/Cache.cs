@@ -8,13 +8,10 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Text;
-using Tenor.Data;
-using System.Data;
 
-namespace Tenor.BLL
+namespace Tenor.Data
 {
-    public abstract partial class BLLBase
+    public abstract partial class EntityBase
     {
         private string GetCacheKey()
         {
@@ -59,11 +56,11 @@ namespace Tenor.BLL
 
             if (cache != null)
             {
-                Dictionary<string, BLLBase> obj = (Dictionary<string, BLLBase>)(cache.Get(cacheKey));
+                Dictionary<string, EntityBase> obj = (Dictionary<string, EntityBase>)(cache.Get(cacheKey));
 
                 if (obj == null)
                 {
-                    obj = new Dictionary<string, BLLBase>();
+                    obj = new Dictionary<string, EntityBase>();
                     cache.Add(cacheKey, obj, null, System.Web.Caching.Cache.NoAbsoluteExpiration, new TimeSpan(0, 60, 0), System.Web.Caching.CacheItemPriority.Default, null);
                 }
 
@@ -73,7 +70,7 @@ namespace Tenor.BLL
                 {
                     if (obj.ContainsKey(primaryKey) && (obj[primaryKey] != null))
                     {
-                        BLLBase item = obj[primaryKey];
+                        EntityBase item = obj[primaryKey];
                         item.CopyTo(this);
                         return true;
                     }
@@ -92,10 +89,10 @@ namespace Tenor.BLL
             {
                 lock (this)
                 {
-                    Dictionary<string, BLLBase> obj = (Dictionary<string, BLLBase>)(cache.Get(cacheKey));
+                    Dictionary<string, EntityBase> obj = (Dictionary<string, EntityBase>)(cache.Get(cacheKey));
                     if (obj == null)
                     {
-                        obj = new Dictionary<string, BLLBase>();
+                        obj = new Dictionary<string, EntityBase>();
                         cache.Add(cacheKey, obj, null, System.Web.Caching.Cache.NoAbsoluteExpiration, new TimeSpan(0, 60, 0), System.Web.Caching.CacheItemPriority.Default, null);
                     }
                     string primaryKey = GetCacheKey();
@@ -119,9 +116,9 @@ namespace Tenor.BLL
         /// <summary>
         /// Copies all private fields to the specified object.
         /// </summary>
-        /// <param name="obj">An instance of BLLBase to copy data.</param>
+        /// <param name="obj">An instance of EntityBase to copy data.</param>
         /// <remarks>You can only copy data to instances of the same type.</remarks>
-        private void CopyTo(BLLBase obj)
+        private void CopyTo(EntityBase obj)
         {
             if (obj.GetType() != this.GetType())
             {

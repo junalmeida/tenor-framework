@@ -1,16 +1,7 @@
-using System.Diagnostics;
 using System;
-using System.Collections;
-using Tenor.Data;
-using System.Data;
 using System.Collections.Generic;
-using System.IO;
 using System.Configuration;
-using System.Data.Common;
-using Tenor.BLL;
-using Tenor.Data.Dialects;
 using System.Reflection;
-using System.ComponentModel;
 
 namespace Tenor.Data
 {
@@ -36,7 +27,7 @@ namespace Tenor.Data
             info.type = type;
             info.attribute = att[0];
 
-            if (type.BaseType != typeof(BLL.BLLBase))
+            if (type.BaseType != typeof(EntityBase))
                 info.parent = CreateTableInfo(type.BaseType);
             return info;
         }
@@ -89,7 +80,7 @@ namespace Tenor.Data
         {
             ConnectionStringSettings conn = null;
             if (string.IsNullOrEmpty(attribute.ConnectionName))
-                conn = BLL.BLLBase.SystemConnection;
+                conn = EntityBase.SystemConnection;
             else
             {
                 conn = ConfigurationManager.ConnectionStrings[attribute.ConnectionName];
@@ -131,7 +122,7 @@ namespace Tenor.Data
                 object res = RelatedProperty.GetValue(Instance, null);
                 if (res == null)
                 {
-                    res =  (ConvertNullToDBNull ? DBNull.Value : null);
+                    res = (ConvertNullToDBNull ? DBNull.Value : null);
                 }
                 else if (res.GetType() == typeof(Nullable<>))
                 {
@@ -149,7 +140,8 @@ namespace Tenor.Data
                 if (res != null && res.GetType().IsEnum)
                 {
                     System.Reflection.FieldInfo fInfo = res.GetType().GetField(res.ToString());
-                    if (fInfo != null) {
+                    if (fInfo != null)
+                    {
                         EnumDatabaseValueAttribute[] att = (EnumDatabaseValueAttribute[])fInfo.GetCustomAttributes(typeof(EnumDatabaseValueAttribute), true);
                         if (att.Length == 1)
                         {
@@ -180,7 +172,7 @@ namespace Tenor.Data
                     if (RelatedProperty.PropertyType.IsGenericType && RelatedProperty.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
                     {
                         Type[] nullType = RelatedProperty.PropertyType.GetGenericArguments();
-                        
+
                         // Changes the type of the value for providers that don't detect types correctly
                         Type type = null;
                         if (nullType.Length > 0)
@@ -188,8 +180,8 @@ namespace Tenor.Data
 
                         if (type != null && value.GetType() != type)
                         {
-                                CheckEnumType(ref value, ref type);
-                            
+                            CheckEnumType(ref value, ref type);
+
                             value = Convert.ChangeType(value, type);
                         }
 
@@ -207,8 +199,8 @@ namespace Tenor.Data
                         if (value.GetType() != type)
                         {
                             CheckEnumType(ref value, ref type);
-
-                            value = Convert.ChangeType(value, type);
+                            if (!type.IsAssignableFrom(value.GetType()))
+                                value = Convert.ChangeType(value, type);
                         }
 
                         RelatedProperty.SetValue(Instance, value, null);
@@ -315,7 +307,7 @@ namespace Tenor.Data
         {
             get
             {
-                return RelatedProperty.PropertyType.IsArray || RelatedProperty.PropertyType.GetInterface("System.Collections.IList") != null || (RelatedProperty.PropertyType.IsGenericType && RelatedProperty.PropertyType.GetGenericTypeDefinition() == typeof(BLL.BLLCollection<>));
+                return RelatedProperty.PropertyType.IsArray || RelatedProperty.PropertyType.GetInterface("System.Collections.IList") != null || (RelatedProperty.PropertyType.IsGenericType && RelatedProperty.PropertyType.GetGenericTypeDefinition() == typeof(EntityList<>));
             }
         }
 
@@ -328,7 +320,7 @@ namespace Tenor.Data
                 {
                     return RelatedProperty.PropertyType.GetElementType();
                 }
-                else if (RelatedProperty.PropertyType.GetInterface("System.Collections.IList") != null || (RelatedProperty.PropertyType.IsGenericType && RelatedProperty.PropertyType.GetGenericTypeDefinition() == typeof(BLL.BLLCollection<>)))
+                else if (RelatedProperty.PropertyType.GetInterface("System.Collections.IList") != null || (RelatedProperty.PropertyType.IsGenericType && RelatedProperty.PropertyType.GetGenericTypeDefinition() == typeof(EntityList<>)))
                 {
                     Type ftype = typeof(object);
                     foreach (System.Reflection.MemberInfo i in RelatedProperty.PropertyType.GetDefaultMembers())
@@ -405,9 +397,9 @@ namespace Tenor.Data
         }
 
 
-        internal bool IsManyToMany 
+        internal bool IsManyToMany
         {
-            get 
+            get
             {
                 return IsArray && ManyToManyTable != null;
             }
@@ -485,7 +477,7 @@ namespace Tenor.Data
     /// </summary>
     internal sealed class FieldInfo : PropInfo
     {
-        
+
         private FieldAttribute _Attribute;
 
         private FieldInfo() { }
@@ -507,7 +499,7 @@ namespace Tenor.Data
                 return null;
             }
 
-        
+
             fi._Attribute = atts[0];
 
             return fi;
@@ -655,9 +647,10 @@ namespace Tenor.Data
         /// <param name="tableName">Sets the physical table name. This attribute will be quoted.</param>
         /// <param name="prefix">Sets the physical table prefix. This attribute will not be quoted, and you can 
         /// specify here this such as schemas and database names in yours sgdb language.</param>
-        public TableAttribute(string tableName, string prefix) : this(tableName)
+        public TableAttribute(string tableName, string prefix)
+            : this(tableName)
         {
-            this.prefix  = prefix;
+            this.prefix = prefix;
         }
 
         public string TableName
@@ -824,7 +817,7 @@ namespace Tenor.Data
     }
 
     /// <summary>
-    /// <para>Represents a foreign relationship. This attribute can be applied to a property that returns an instance of the foreign class, or a <see cref="Tenor.BLL.BLLCollection"/> of the foreign class.</para>
+    /// <para>Represents a foreign relationship. This attribute can be applied to a property that returns an instance of the foreign class, or a <see cref="Tenor.Data.EntityList"/> of the foreign class.</para>
     /// </summary>
     /// <remarks>
     /// <para>Use this with <see cref="ForeignKeyFieldAttribute"/> instances.</para>
@@ -832,7 +825,7 @@ namespace Tenor.Data
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public sealed class ForeignKeyAttribute : Attribute
     {
-        public ForeignKeyAttribute() {}
+        public ForeignKeyAttribute() { }
 
         /// <param name="manyToManyTable">The name of many-to-many table used to make the relation.</param>
         public ForeignKeyAttribute(string manyToManyTable)
@@ -879,7 +872,7 @@ namespace Tenor.Data
             get { return persistOnSave; }
             set { persistOnSave = value; }
         }
-     }
+    }
 
     /// <summary>
     /// <para>Represents a foreign relationship pair.</para>

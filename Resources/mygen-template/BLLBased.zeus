@@ -28,13 +28,13 @@ public class GeneratedGui : DotNetScriptGui
 		btn.AttachEvent("onclick", "btn_onclick");
 		
 		GuiLabel lblNamespace = ui.AddLabel("lblNamespace", "Namespace:", "Namespace da(s) classe(s).");
-		GuiTextBox txtNamespace = ui.AddTextBox("txtNamespace", (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.NameSpace",@"BLL.REES.Institucional"), "");
+		GuiTextBox txtNamespace = ui.AddTextBox("txtNamespace", (string)Microsoft.Win32.Registry.CurrentUser.GetValue("EntityBase.Namespace",@"BLL"), "");
 
 		/*GuiLabel lblClasse = ui.AddLabel("lblNomeClasse", "Nome da Classe:", "Nome da Classe. Mude se nÃ£o coincidir com o nome da tabela. Ex.: Usuario");
 		GuiTextBox txtNomeClasse = ui.AddTextBox("txtNomeClasse", "", "");
 */
 		GuiLabel lblOutput = ui.AddLabel("lblOutput", "Pasta de destino:", "Pasta onde serão salvos os arquivos.");
-		GuiTextBox txtOutput = ui.AddTextBox("txtOutput", (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Pasta",@"C:\Documents and Settings\Produção\Meus documentos\templates"), "");
+		GuiTextBox txtOutput = ui.AddTextBox("txtOutput", (string)Microsoft.Win32.Registry.CurrentUser.GetValue("EntityBase.Pasta",@"C:\Documents and Settings\Produção\Meus documentos\templates"), "");
 		GuiFilePicker btnOutputPath = ui.AddFilePicker("btnOutputPath", "Escolha a pasta de destino para os arquivos gerados.", "Selecione a pasta de destino.", "txtOutput", true);
 
 		setupDatabaseDropdown(cmbDatabases);
@@ -55,7 +55,7 @@ public class GeneratedGui : DotNetScriptGui
 				{
 					cmbDatabases.SelectedValue = MyMeta.DefaultDatabase.Name;
 					try {
-						cmbDatabases.SelectedValue = (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Banco",MyMeta.DefaultDatabase.Name);
+						cmbDatabases.SelectedValue = (string)Microsoft.Win32.Registry.CurrentUser.GetValue("EntityBase.Banco",MyMeta.DefaultDatabase.Name);
 					} catch (Exception e) { }
 					bindTables(cmbDatabases.SelectedValue);
 				}
@@ -166,9 +166,9 @@ public class GeneratedTemplate : DotNetScriptTemplate
 		this.tagHeaderFechar = "%" + ">";
 		
 		
-		Registry.CurrentUser.SetValue("BLLBase.NameSpace", this.Namespace);
-		Registry.CurrentUser.SetValue("BLLBase.Pasta", this.outputPath);
-		Registry.CurrentUser.SetValue("BLLBase.Banco", this.nomeDB);
+		Registry.CurrentUser.SetValue("EntityBase.NameSpace", this.Namespace);
+		Registry.CurrentUser.SetValue("EntityBase.Pasta", this.outputPath);
+		Registry.CurrentUser.SetValue("EntityBase.Banco", this.nomeDB);
 	}
 
 	public override void Render()
@@ -253,7 +253,6 @@ public class GeneratedTemplate : DotNetScriptTemplate
 	{
 
 %>Imports Tenor.Data
-Imports Tenor.BLL
 Imports System.Collections.Generic
 
 Namespace <%=Namespace%>
@@ -264,7 +263,7 @@ Namespace <%=Namespace%>
 	''' <remarks></remarks>
 	<Serializable()> _
 	Partial Public Class <%= tbl.Name %>
-		Inherits BLLBase
+		Inherits EntityBase
 
 		Public Overrides Readonly Property SchemaName() as String
 			Get
@@ -455,7 +454,7 @@ if (dolazyload) { %>
 				else
 					nmeSpace = "";
 				
-				tipoCampo = "BLLCollection(Of " + nmeSpace + fk.ForeignTable.Name + ")";
+				tipoCampo = "EntityList(Of " + nmeSpace + fk.ForeignTable.Name + ")";
 				constructor = "(Me, \"" + nomeCampo + "\")";
 				isNew = true;
 				// Consertar isto! Os itens abaixo devem ser nomes de propriedades.
@@ -597,7 +596,7 @@ if (dolazyload) { %>
             sc.Distinct = Distinct
             sc.LazyLoading = LazyLoading
 
-            Return CType(BLLBase.Search(sc, Connection), <%= tbl.Name %>())
+            Return CType(EntityBase.Search(sc, Connection), <%= tbl.Name %>())
         End Function
         
 #End Region

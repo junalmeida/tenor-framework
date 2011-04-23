@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
-using Tenor.BLL;
 
 
 namespace Tenor.Data
@@ -31,8 +30,8 @@ namespace Tenor.Data
         {
             if (baseClass == null)
                 throw new ArgumentNullException("baseClass");
-            if (!baseClass.IsSubclassOf(typeof(BLL.BLLBase)))
-                throw new Tenor.BLL.InvalidTypeException(baseClass, "baseClass");
+            if (!baseClass.IsSubclassOf(typeof(EntityBase)))
+                throw new InvalidTypeException(baseClass, "baseClass");
 
             baseType = baseClass;
         }
@@ -192,7 +191,7 @@ namespace Tenor.Data
         /// <summary>
         /// Executes the query defined on this instance.
         /// </summary>
-        public BLLBase[] Execute()
+        public EntityBase[] Execute()
         {
             return Execute(null);
         }
@@ -200,7 +199,7 @@ namespace Tenor.Data
         /// <summary>
         /// Executes the query defined on this instance.
         /// </summary>
-        public BLLBase[] Execute(ConnectionStringSettings connection)
+        public EntityBase[] Execute(ConnectionStringSettings connection)
         {
             if (Top > 0 && eagerLoading.Count > 0)
                 throw new NotSupportedException("Cannot use eager loading with Top/Limit.");
@@ -209,7 +208,7 @@ namespace Tenor.Data
 
 
             Tenor.Data.DataTable rs = SearchWithDataTable(connection);
-            return Tenor.BLL.BLLBase.BindRows(rs, this);
+            return EntityBase.BindRows(rs, this);
         }
 
         #endregion
@@ -261,7 +260,7 @@ namespace Tenor.Data
         /// </summary>
         /// <param name="page">Desired page number (zero-based)</param>
         /// <param name="pageSize">Page size</param>
-        public BLLBase[] ExecutePaged(int page, int pageSize)
+        public EntityBase[] ExecutePaged(int page, int pageSize)
         {
             return ExecutePaged(page, pageSize, null);
         }
@@ -272,7 +271,7 @@ namespace Tenor.Data
         /// </summary>
         /// <param name="page">Desired page number (zero-based)</param>
         /// <param name="pageSize">Page size</param>
-        public BLLBase[] ExecutePaged(int page, int pageSize, ConnectionStringSettings connection)
+        public EntityBase[] ExecutePaged(int page, int pageSize, ConnectionStringSettings connection)
         {
             int totalCount = this.ExecuteCount(connection);
 
@@ -284,7 +283,7 @@ namespace Tenor.Data
             int pagingEnd = (page + 1) * pageSize;
 
             Tenor.Data.DataTable rs = SearchWithDataTable(connection, false, pagingStart, pagingEnd);
-            return Tenor.BLL.BLLBase.BindRows(rs, this);
+            return EntityBase.BindRows(rs, this);
         }
 
         #endregion
@@ -334,7 +333,7 @@ namespace Tenor.Data
                 connection = table.GetConnection();
             }
 
-            string sql = Tenor.BLL.BLLBase.GetSearchSql(this, justCount, pagingStart, pagingEnd, connection, out parameters);
+            string sql = EntityBase.GetSearchSql(this, justCount, pagingStart, pagingEnd, connection, out parameters);
 
             Tenor.Data.DataTable rs = new Tenor.Data.DataTable(sql, parameters, connection);
             DataSet ds = new DataSet();

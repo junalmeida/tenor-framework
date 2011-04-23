@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Configuration;
-using Tenor.BLL;
 using System.Data.Common;
 
 namespace Tenor.Data
@@ -15,7 +13,7 @@ namespace Tenor.Data
 
         public Transaction()
         {
-            this.connection = BLLBase.SystemConnection;
+            this.connection = EntityBase.SystemConnection;
             this.Begin();
         }
 
@@ -37,8 +35,8 @@ namespace Tenor.Data
         /// <summary>
         /// Includes an instance to this transaction.
         /// </summary>
-        /// <param name="item">A BLLBase instance.</param>
-        public void Include(BLLBase item)
+        /// <param name="item">A EntityBase instance.</param>
+        public void Include(EntityBase item)
         {
             if (item == null)
                 throw new ArgumentNullException("item");
@@ -46,14 +44,14 @@ namespace Tenor.Data
         }
 
         /// <summary>
-        /// Includes a list of BLLBase to this transaction.
+        /// Includes a list of EntityBase to this transaction.
         /// </summary>
         /// <param name="items"></param>
-        public void Include(IList<BLLBase> items)
+        public void Include(IList<EntityBase> items)
         {
             if (items == null)
                 throw new ArgumentNullException("items");
-            foreach (BLLBase item in items)
+            foreach (EntityBase item in items)
                 Include(item);
         }
 

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Tenor.Data;
 
 namespace Tenor.Linq
 {
@@ -26,6 +28,24 @@ namespace Tenor.Linq
         }
 
 
+
+    }
+
+
+    public static class Util
+    {
+        public static byte[] ToArray(this Stream stream)
+        {
+            Type type = stream.GetType();
+            if (typeof(BinaryStream).IsAssignableFrom(type))
+                return ((BinaryStream)stream).ToArray();
+            else if (typeof(MemoryStream).IsAssignableFrom(type))
+                return ((MemoryStream)stream).ToArray();
+            else if (stream.Length > -1)
+                return new BinaryReader(stream).ReadBytes(Convert.ToInt32(stream.Length));
+            else
+                throw new InvalidOperationException();
+        }
 
     }
 }

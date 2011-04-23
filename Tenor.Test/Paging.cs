@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Text;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using Tenor.BLL;
-using Tenor.Data;
 using SampleApp.Business.Entities;
+using Tenor.Data;
 
 namespace Tenor.Test
 {
@@ -75,9 +71,9 @@ namespace Tenor.Test
 
             SearchOptions so = new SearchOptions(type);
             so.Distinct = true;
-            
+
             so.Conditions.Include("PersonItemList", "pi");
-           
+
             so.Conditions.Add(new SearchCondition("pi", PersonItem.Properties.ItemId, 2));
 
             int pageSize = 2;
@@ -107,7 +103,7 @@ namespace Tenor.Test
         public void PagingWithJoinToManyConditionsAndOtherTableSortingTest()
         {
             Type type = typeof(Item);
-            
+
             SearchOptions so = new SearchOptions(type);
             so.Distinct = true;
 
@@ -162,14 +158,14 @@ namespace Tenor.Test
         /// <param name="so">Search options</param>
         private void PagingTestBase(int pageSize, SearchOptions so, Type type)
         {
-            BLLBase[] allItems = BLLBase.Search(so);
+            EntityBase[] allItems = EntityBase.Search(so);
 
             int pages = (int)System.Math.Ceiling((double)allItems.Length / (double)pageSize);
 
             for (int page = 0; page < pages; page++)
             {
-                BLLBase[] pagedInMemory = allItems.Skip(page * pageSize).Take(pageSize).ToArray();
-                BLLBase[] items = so.ExecutePaged(page, pageSize);
+                EntityBase[] pagedInMemory = allItems.Skip(page * pageSize).Take(pageSize).ToArray();
+                EntityBase[] items = so.ExecutePaged(page, pageSize);
 
                 Assert.AreEqual(items.Length, pagedInMemory.Length, string.Format("Page {0} should have {1} items and has {2}.", page + 1, pagedInMemory.Length, items.Length));
 
@@ -184,7 +180,7 @@ namespace Tenor.Test
         /// <param name="item1">First item</param>
         /// <param name="item2">Second item</param>
         /// <param name="type">Item type</param>
-        private void PagingTestObjectComparison(BLLBase item1, BLLBase item2, Type type)
+        private void PagingTestObjectComparison(EntityBase item1, EntityBase item2, Type type)
         {
             if (type == typeof(Person))
                 Assert.AreEqual(((Person)item1).PersonId, ((Person)item2).PersonId);

@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Tenor.Data.Dialects;
-using System.Reflection;
-using System.Data.SqlClient;
-using System.Data.Common;
-using System.Collections.Specialized;
 using System.Collections;
-using Tenor.BLL;
+using System.Collections.Generic;
+using System.Data.Common;
+using System.Data.SqlClient;
+using System.Reflection;
+using System.Text;
 
 namespace Tenor.Data.Dialects.TSql
 {
@@ -86,8 +83,8 @@ namespace Tenor.Data.Dialects.TSql
         {
             return "TOP " + limitValue.ToString();
         }
-        
-        internal override string CreateSaveList(TableInfo baseClass, ForeignKeyInfo fkInfo, Tenor.BLL.BLLBase baseInstance, out TenorParameter[] parameters, out System.Data.DataTable data)
+
+        internal override string CreateSaveList(TableInfo baseClass, ForeignKeyInfo fkInfo, EntityBase baseInstance, out TenorParameter[] parameters, out System.Data.DataTable data)
         {
             IList values = (IList)fkInfo.PropertyValue(baseInstance);
 
@@ -110,7 +107,7 @@ namespace Tenor.Data.Dialects.TSql
                 for (int j = 0; j < fkInfo.LocalManyToManyFields.Length; j++)
                 {
                     row[fkInfo.LocalManyToManyFields[j]] = fkInfo.LocalFields[j].PropertyValue(baseInstance);
-                } 
+                }
                 for (int j = 0; j < fkInfo.ForeignFields.Length; j++)
                 {
                     row[fkInfo.ForeignManyToManyFields[j]] = fkInfo.ForeignFields[j].PropertyValue(values[i]);
@@ -153,7 +150,7 @@ namespace Tenor.Data.Dialects.TSql
         {
             if (join.ForeignKey.IsArray)
                 throw new InvalidSortException(string.Format("You can't sort by a field that is in a collection association: alias {0} property {1}", alias, propName));
-            
+
             if (!string.IsNullOrEmpty(join.ParentAlias))
             {
                 foreach (Join j in joins)
@@ -183,17 +180,17 @@ namespace Tenor.Data.Dialects.TSql
                     string propAlias = string.Empty;
 
                     Join join = null;
-                    
+
                     if (!string.IsNullOrEmpty(sort.JoinAlias))
                     {
                         int pos = Array.IndexOf(joins, new Join(sort.JoinAlias));
                         if (pos == -1)
                             throw new InvalidCollectionArgument(CollectionProblem.InvalidJoin, sort.JoinAlias);
-                        
+
                         join = joins[pos];
 
                         CheckJoin(join, joins, sort.JoinAlias, sort.PropertyName);
-                        
+
                         table = join.ForeignKey.ElementType;
                         alias = "[[[join_class_alias]]]";
                     }
@@ -201,11 +198,11 @@ namespace Tenor.Data.Dialects.TSql
                     PropertyInfo property = table.GetProperty(sort.PropertyName);
                     if (property == null)
                         throw new MissingFieldException(table, sort.PropertyName);
-                    
+
                     FieldInfo fieldInfo = FieldInfo.Create(property);
-                    
+
                     SpecialFieldInfo spInfo = SpecialFieldInfo.Create(property);
-                    
+
                     if (fieldInfo == null && spInfo == null)
                         throw new MissingFieldException(table, property.Name, true);
 
@@ -214,7 +211,7 @@ namespace Tenor.Data.Dialects.TSql
 
                     sqlSort.Append(", ");
                     sqlSort.Append(CreateOrderBy(table, alias, sort.PropertyName, propAlias, sort.SortOrder, sort.CastType));
-                    
+
                     // -- isn't this useless? doesn't it always duplicate what "createorderby" has done?
                     ////fields that must come into sort part
                     //if (isDistinct && table != baseClass)
@@ -282,9 +279,9 @@ ORDER BY [[[sort_without_alias]]]";
 
                 string sortRowNumber = sortPart.Replace("[[[base_class_alias]]]", "DistinctQuery").Replace("[[[join_class_alias]]]", "DistinctQuery").Replace("||", "_");
 
-                FieldInfo[] pks = BLLBase.GetFields(baseClass, true);
+                FieldInfo[] pks = EntityBase.GetFields(baseClass, true);
                 string pksRowNumber = string.Empty;
-                
+
                 foreach (FieldInfo pk in pks)
                     pksRowNumber += ", DistinctQuery." + pk.DataFieldName;
 
@@ -302,7 +299,7 @@ ORDER BY [[[sort_without_alias]]]";
                 StringBuilder sortingExtraFields = new StringBuilder();
 
                 // TODO: also get sort fields
-                innerQuery.Append(CreateSelectSql(baseClass, string.Empty, BLLBase.GetFields(baseClass, null), new SpecialFieldInfo[0]));
+                innerQuery.Append(CreateSelectSql(baseClass, string.Empty, EntityBase.GetFields(baseClass, null), new SpecialFieldInfo[0], null));
                 foreach (string part in sortPart.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 {
                     if (part.Contains(sortSeparator))
@@ -336,7 +333,7 @@ ORDER BY [[[sort_without_alias]]]";
                 }
 
                 StringBuilder regularQuery = new StringBuilder();
-                
+
                 regularQuery.AppendLine(fieldsPart);
 
                 regularQuery.Append(sortingExtraFields.ToString());
@@ -376,6 +373,11 @@ ORDER BY [[[sort_without_alias]]]";
             {
                 return base.CreateFullSql(baseClass, isDistinct, justCount, limit, null, null, fieldsPart, joinsPart, sortPart, wherePart);
             }
+        }
+
+        protected override string GetLenExpression(string fieldExpression)
+        {
+            return string.Format("len({0})", fieldExpression);
         }
     }
 }

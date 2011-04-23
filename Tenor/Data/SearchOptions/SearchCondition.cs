@@ -1,13 +1,12 @@
-using System.Diagnostics;
+/*
+ * Licensed under the MIT License:
+ * http://www.opensource.org/licenses/mit-license.php
+ * 
+ * Copyright (c) 2009 Marcos Almeida Jr, Rachel Carvalho and Vinicius Barbosa.
+ *
+ * See the file license.txt for copying permission.
+ */
 using System;
-using System.Collections;
-using Tenor.Data;
-using System.Data;
-using System.Collections.Generic;
-using System.IO;
-using System.Configuration;
-using Tenor.BLL;
-
 
 namespace Tenor.Data
 {
@@ -21,13 +20,13 @@ namespace Tenor.Data
             this(joinAlias, propertyName, value, CompareOperator.Equal)
         {
         }
-        
+
         public SearchCondition(string joinAlias, string propertyName, object value, CompareOperator compareOperator)
             :
             this(joinAlias, propertyName, value, compareOperator, ((Type)null))
         {
         }
-        
+
         public SearchCondition(string joinAlias, string propertyName, object value, CompareOperator compareOperator, Type castType)
         {
             _joinAlias = joinAlias;

@@ -1,9 +1,6 @@
 ﻿
-using System.Collections.Generic;
-using System.Configuration;
 using System;
-
-using Tenor.BLL;
+using System.Configuration;
 using Tenor.Data;
 
 namespace SampleApp.Business.Entities
@@ -13,7 +10,7 @@ namespace SampleApp.Business.Entities
     /// Some descrition of this relation.
     /// </summary>
     [Serializable(), Table("PersonItem", "")]
-    public partial class PersonItem : BLLBase
+    public partial class PersonItem : EntityBase
     {
 
         #region Properties
@@ -176,7 +173,7 @@ namespace SampleApp.Business.Entities
             sc.Distinct = distinct;
             sc.Top = limit;
 
-            return (PersonItem[])(BLLBase.Search(sc, connection));
+            return (PersonItem[])(EntityBase.Search(sc, connection));
         }
 
 

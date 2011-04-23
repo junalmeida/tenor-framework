@@ -14,6 +14,8 @@ using TestClassAttribute = NUnit.Framework.TestFixtureAttribute;
 
 #if SQLITE
 using DbInt = System.Int64;
+using System.IO;
+
 #else
 using DbInt = System.Int32;
 #endif
@@ -38,10 +40,27 @@ namespace Tenor.Test
 
             person =
                 (from p in Tenor.Linq.SearchOptions<Person>.CreateQuery()
-                 where p.PersonId == -1
+                 where p.PersonId == 1
                  select p).Single();
 
             Assert.IsNotNull(person);
+
+            try
+            {
+                person =
+                    (from p in Tenor.Linq.SearchOptions<Person>.CreateQuery()
+                     where p.PersonId == -1
+                     select p).Single();
+
+            }
+            catch (RecordNotFoundException)
+            {
+                // ok
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message);
+            }
         }
 
         [TestMethod]
@@ -242,7 +261,7 @@ namespace Tenor.Test
             IQueryable<Person> so = Tenor.Linq.SearchOptions<Person>.CreateQuery();
             so = so.Where(p => p.Active && p.Email.StartsWith(filterQuery));
             //so = so.Where(p => p.DepartmentList.Any(e => e.Name == "blah"));
-            //so = so.Where(p => p.DepartmentList.Any(e => e.Name == "blleh"));
+            //so = so.Where(p => p.DepartmentList.Any(e => e.Name == "bleh"));
             so = so.OrderBy(p => p.Name);
             so = so.OrderByDescending(p => p.Active);
             so = so.Distinct();
@@ -264,6 +283,24 @@ namespace Tenor.Test
 
             Person[] persons2 = query.ToArray();
 
+            var valueInAEntity = new
+            {
+                Value = GetFilterTest(0, filterQuery)
+            };
+
+            //testing using linq query
+            var query2 =
+                (
+                from person in Tenor.Linq.SearchOptions<Person>.CreateQuery()
+                where person.Active && person.Email.StartsWith(valueInAEntity.Value)
+                orderby person.Name, person.Active descending
+                select person
+                )
+                .Distinct()
+                .LoadAlso(p => p.DepartmentList);
+
+            Person[] persons3 = query2.ToArray();
+
 
             //testing using classic way.
             SearchOptions search = new SearchOptions(typeof(Person));
@@ -274,10 +311,11 @@ namespace Tenor.Test
             search.Distinct = true;
             search.LoadAlso("DepartmentList");
 
-            Person[] persons3 = (Person[])search.Execute();
+            Person[] persons4 = (Person[])search.Execute();
 
             CollectionAssert.AreEqual(persons2, persons);
             CollectionAssert.AreEqual(persons3, persons);
+            CollectionAssert.AreEqual(persons4, persons);
 
 
         }
@@ -304,6 +342,73 @@ SELECT  COUNT(*) from (SELECT DISTINCT p.PersonId
             Assert.AreEqual(countLowLevel, count);
             if (countLowLevel <= 0)
                 Assert.Fail("Invalid data.");
+        }
+
+
+
+
+
+        [TestMethod]
+        public void SelectBinaryStream()
+        {
+
+            EntityBase.LastSearches.Clear();
+            var p = new Person() { PersonId = 1 }; //without bind
+            Assert.IsTrue(EntityBase.LastSearches.Count == 0);
+            var stream = p.Photo;
+            Assert.IsTrue(EntityBase.LastSearches.Count == 0);
+            Assert.IsTrue(stream.Length == -1);
+
+
+            var newStream = new MemoryStream();
+
+            int bytesRead;
+            byte[] buffer = new byte[1024 * 2];
+            do
+            {
+                bytesRead = stream.Read(buffer, 0, buffer.Length);
+                if (bytesRead <= 0)
+                    break;
+                newStream.Write(buffer, 0, bytesRead);
+            } while (true);
+
+            Assert.IsTrue(EntityBase.LastSearches.Count == 1);
+
+
+            EntityBase.LastSearches.Clear();
+            p = new Person() { PersonId = 1 };
+            p.Bind();
+
+            var p3 = p.Photo3; //non-lazy binary
+
+            Assert.IsTrue(EntityBase.LastSearches.Count == 1);
+            stream = p.Photo;
+            Assert.IsTrue(EntityBase.LastSearches.Count == 1);
+            Assert.IsTrue(stream.Length > -1);
+
+
+            newStream = new MemoryStream();
+            buffer = new byte[1024 * 2];
+            if (stream.Length > buffer.Length)
+            {
+                do
+                {
+                    bytesRead = stream.Read(buffer, 0, buffer.Length);
+                    if (bytesRead <= 0)
+                        break;
+                    newStream.Write(buffer, 0, bytesRead);
+                } while (true);
+
+                Assert.IsTrue(EntityBase.LastSearches.Count == 2);
+            }
+            else
+                Assert.IsTrue(EntityBase.LastSearches.Count == 1);
+
+
+            EntityBase.LastSearches.Clear();
+
+            var lazyByte = p.Photo2;
+            Assert.IsTrue(EntityBase.LastSearches.Count == 1);
         }
     }
 }

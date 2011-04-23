@@ -1,10 +1,4 @@
-using System.Diagnostics;
 using System;
-using System.Collections;
-using Tenor.Data;
-using System.Data;
-using System.Collections.Generic;
-using System.IO;
 
 namespace Tenor
 {
@@ -22,10 +16,10 @@ namespace Tenor
     }
 }
 
-namespace Tenor.BLL
+namespace Tenor.Data
 {
     /// <summary>
-    /// Indicates that user-code passed an argument with a type that does not derive from BLLBase.
+    /// Indicates that user-code passed an argument with a type that does not derive from EntityBase.
     /// </summary>
     public class InvalidTypeException : ArgumentException
     {
@@ -42,15 +36,12 @@ namespace Tenor.BLL
         {
             get
             {
-                return string.Format("The type '{0}' must derive directly or indirectly from '{1}'.", type.FullName, typeof(BLLBase).FullName);
+                return string.Format("The type '{0}' must derive directly or indirectly from '{1}'.", type.FullName, typeof(EntityBase).FullName);
             }
         }
 
     }
-}
 
-namespace Tenor.Data
-{
 
     /// <summary>
     /// Occurs when an invalid mapping was done by user-code.
@@ -68,7 +59,7 @@ namespace Tenor.Data
         {
             get
             {
-                return string.Format("The type '{0}' must inherit directly or indirecty from BLLBase.", RelatedClass.FullName);
+                return string.Format("The type '{0}' must inherit directly or indirecty from EntityBase.", RelatedClass.FullName);
             }
         }
 
@@ -190,21 +181,21 @@ namespace Tenor.Data
     /// </summary>
     public class MissingForeignKeyException : InvalidMappingException
     {
-       string propName;
+        string propName;
 
-       internal MissingForeignKeyException(Type type, string propName)
+        internal MissingForeignKeyException(Type type, string propName)
             : base(type)
         {
             this.propName = propName;
         }
 
-       public override string Message
-       {
-           get
-           {
-               return string.Format("The type '{0}' does not implement '{1}' with a ForeignKey attribute.", RelatedClass.FullName, propName);
-           }
-       }
+        public override string Message
+        {
+            get
+            {
+                return string.Format("The type '{0}' does not implement '{1}' with a ForeignKey attribute.", RelatedClass.FullName, propName);
+            }
+        }
 
     }
 

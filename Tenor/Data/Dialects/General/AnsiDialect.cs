@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Data.Common;
+using System.IO;
 using System.Reflection;
 using System.Text;
-using Tenor.BLL;
 
 namespace Tenor.Data.Dialects
 {
@@ -136,14 +136,14 @@ namespace Tenor.Data.Dialects
         /// <summary>
         /// Creates an string alias based on the class type. 
         /// </summary>
-        /// <param name="classType">A Type that implements a BLLBase</param>
+        /// <param name="classType">A Type that implements a EntityBase</param>
         /// <returns></returns>
         public virtual string CreateClassAlias(Type classType)
         {
             if (classType == null)
                 throw new ArgumentNullException("classType");
 
-            if (!classType.IsSubclassOf(typeof(BLL.BLLBase)))
+            if (!classType.IsSubclassOf(typeof(EntityBase)))
                 throw new InvalidTypeException(classType, "classType");
 
             return classType.FullName.Replace(".", "").ToLower();
@@ -159,6 +159,14 @@ namespace Tenor.Data.Dialects
         {
             return Helper.GetDbTypeName(systemType, Factory);
         }
+
+        /// <summary>
+        /// Get the specific length function.
+        /// </summary>
+        /// <param name="fieldExpression"></param>
+        /// <returns></returns>
+        protected abstract string GetLenExpression(string fieldExpression);
+
 
         /// <summary>
         /// Creates the query part equivalent to a SpecialFieldAttribute.
@@ -509,7 +517,7 @@ namespace Tenor.Data.Dialects
         }
 
 
-        internal string CreateSelectSql(Type baseClass, string tableAlias, FieldInfo[] fields, SpecialFieldInfo[] spFields)
+        internal string CreateSelectSql(Type baseClass, string tableAlias, FieldInfo[] fields, SpecialFieldInfo[] spFields, FieldInfo[] lenFields)
         {
             //TODO: Consider removing baseClass parameter.
             StringBuilder fieldsSql = new StringBuilder();
@@ -519,6 +527,7 @@ namespace Tenor.Data.Dialects
                 tableAlias = CreateClassAlias(baseClass);
                 prepend = false;
             }
+
 
             foreach (FieldInfo f in fields)
             {
@@ -559,6 +568,26 @@ namespace Tenor.Data.Dialects
 
                     fieldsSql.Append(" AS ").Append(falias);
                 }
+            if (lenFields != null)
+                foreach (var f in lenFields)
+                {
+                    string identifier = CommandBuilder.QuoteIdentifier(f.DataFieldName);
+
+                    string fieldAlias = f.DataFieldName;
+                    if (prepend)
+                        fieldAlias = tableAlias + fieldAlias;
+
+
+                    //TODO :Check if we can consider all fields from the parameter.
+                    /*
+                     * if (f.PrimaryKey || !f.LazyLoading)
+                     * {
+                     */
+                    string lenExpression = GetLenExpression(string.Format("{0}.{1}", tableAlias, identifier));
+                    fieldsSql.Append(string.Format(", {0} \"{1}\"", lenExpression, fieldAlias));
+
+                }
+
             fieldsSql = fieldsSql.Remove(0, 2);
             return fieldsSql.ToString();
         }
@@ -835,8 +864,25 @@ namespace Tenor.Data.Dialects
                 // does nothing in case it's autonumber and doesn't get identity during query
                 if (field.AutoNumber && string.IsNullOrEmpty(this.IdentityDuringQuery))
                     continue;
+                object paramValue = data[field];
+                if (paramValue != null)
+                {
+                    Type type = paramValue.GetType();
+                    if (typeof(System.IO.Stream).IsAssignableFrom(type))
+                    {
+                        Stream pValue = (Stream)paramValue;
+                        if (typeof(MemoryStream).IsAssignableFrom(type))
+                            paramValue = ((MemoryStream)pValue).ToArray();
+                        else if (typeof(BinaryStream).IsAssignableFrom(type))
+                            paramValue = ((BinaryStream)pValue).ToArray();
+                        else if (pValue.Length > -1)
+                            paramValue = new BinaryReader(pValue).ReadBytes(Convert.ToInt32(pValue.Length));
+                        else
+                            throw new InvalidOperationException("Invalid stream.");
+                    }
+                }
 
-                TenorParameter param = new TenorParameter(this.ParameterIdentifier + paramName, data[field]);
+                TenorParameter param = new TenorParameter(this.ParameterIdentifier + paramName, paramValue);
 
                 if ((field.AutoNumber && !this.GetIdentityOnSameCommand) || !field.AutoNumber)
                     parameterList.Add(param);
@@ -1015,7 +1061,7 @@ namespace Tenor.Data.Dialects
         }
 
 
-        internal string CreateSaveListSql(TableInfo baseClass, ForeignKeyInfo fkInfo, BLLBase baseInstance, out TenorParameter[] parameters)
+        internal string CreateSaveListSql(TableInfo baseClass, ForeignKeyInfo fkInfo, EntityBase baseInstance, out TenorParameter[] parameters)
         {
             string tableName = GetPrefixAndTable(fkInfo.ManyToManyTablePrefix, fkInfo.ManyToManyTable);
             List<object> localValues = new List<object>();
@@ -1041,7 +1087,7 @@ namespace Tenor.Data.Dialects
         }
 
 
-        internal virtual string CreateSaveList(TableInfo baseClass, ForeignKeyInfo fkInfo, BLLBase baseInstance, out TenorParameter[] parameters, out System.Data.DataTable data)
+        internal virtual string CreateSaveList(TableInfo baseClass, ForeignKeyInfo fkInfo, EntityBase baseInstance, out TenorParameter[] parameters, out System.Data.DataTable data)
         {
             throw new NotSupportedException();
         }

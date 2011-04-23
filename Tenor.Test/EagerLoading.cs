@@ -1,6 +1,4 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Tenor.Data;
 using SampleApp.Business.Entities;
 
@@ -23,7 +21,7 @@ namespace Tenor.Test
         public void EagerLoadingTest()
         {
 #if DEBUG
-            Tenor.BLL.BLLBase.LastSearches.Clear();
+            EntityBase.LastSearches.Clear();
 #endif
 
             SearchOptions so = new SearchOptions(typeof(Item));
@@ -39,10 +37,10 @@ namespace Tenor.Test
             {
                 Category cat = item.Category;
                 IList<PersonItem> list = item.PersonItemList;
-                
+
             }
 #if DEBUG
-            Assert.AreEqual(1, Tenor.BLL.BLLBase.LastSearches.Count, "Tenor has generated more than one query.");
+            Assert.AreEqual(1, EntityBase.LastSearches.Count, "Tenor has generated more than one query.");
 #else
             Assert.Inconclusive("Can only check generated queries on debug mode.");
          

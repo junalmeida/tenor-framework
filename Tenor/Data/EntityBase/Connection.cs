@@ -6,15 +6,11 @@
  *
  * See the file license.txt for copying permission.
  */
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Configuration;
-using System.Data.Common;
 
-namespace Tenor.BLL
+namespace Tenor.Data
 {
-    public abstract partial class BLLBase : object
+    public abstract partial class EntityBase
     {
         private static ConnectionStringSettings _SystemConnection;
 
@@ -38,7 +34,7 @@ namespace Tenor.BLL
             }
         }
 
-      
+
         /// <summary>
         /// Gets the default connection to be used.
         /// </summary>
@@ -71,6 +67,6 @@ namespace Tenor.BLL
 
 
 
-        
-     }
+
+    }
 }

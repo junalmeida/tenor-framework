@@ -7,25 +7,20 @@
  * See the file license.txt for copying permission.
  */
 using System;
-using System.Collections.Generic;
-using System.Text;
-using Tenor.Data;
 using System.Collections;
+using System.Collections.Generic;
 using System.Configuration;
-using System.Data.Common;
-using System.Data;
 using Tenor.Data.Dialects;
 
-
-namespace Tenor.BLL
+namespace Tenor.Data
 {
-    public abstract partial class BLLBase
+    public abstract partial class EntityBase
     {
         private Dictionary<string, object> propertyData = new Dictionary<string, object>();
 
 
 
- 
+
         /// <summary>
         /// Loads a foreign key property.
         /// </summary>
@@ -82,7 +77,7 @@ namespace Tenor.BLL
                 if (!field.IsArray && table.Cacheable)
                 {
                     //We found a cacheble instance, so we don't need to search.
-                    BLLBase instance = (BLLBase)Activator.CreateInstance(table.RelatedTable);
+                    EntityBase instance = (EntityBase)Activator.CreateInstance(table.RelatedTable);
                     for (int i = 0; i <= field.ForeignFields.Length - 1; i++)
                     {
                         field.ForeignFields[i].SetPropertyValue(instance, field.LocalFields[i].PropertyValue(this));
@@ -92,7 +87,7 @@ namespace Tenor.BLL
                     return instance;
                 }
 
-                BLLBase[] instances;
+                EntityBase[] instances;
                 if (lazyEnabled)
                 {
 
@@ -153,7 +148,7 @@ namespace Tenor.BLL
                 else
                 {
                     //lazy is disabled, so, no data will be retrieved.
-                    instances = new BLLBase[] { };
+                    instances = new EntityBase[] { };
                 }
 
 
@@ -166,11 +161,11 @@ namespace Tenor.BLL
                     else
                     {
                         //It must have another way to create it, string is not cool.
-                        Type listof = Type.GetType("Tenor.BLL.BLLCollection`1[[" + field.ElementType.AssemblyQualifiedName + "]]");
-                        System.Reflection.ConstructorInfo ctor = listof.GetConstructor(System.Reflection.BindingFlags.CreateInstance | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic, null, new Type[] { typeof(BLLBase), typeof(string) }, null);
-                        IList obj = (IList)ctor.Invoke(new object[] { (BLLBase)this, property.Name });
+                        Type listof = Type.GetType("Tenor.Data.EntityList`1[[" + field.ElementType.AssemblyQualifiedName + "]]");
+                        System.Reflection.ConstructorInfo ctor = listof.GetConstructor(System.Reflection.BindingFlags.CreateInstance | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic, null, new Type[] { typeof(EntityBase), typeof(string) }, null);
+                        IList obj = (IList)ctor.Invoke(new object[] { (EntityBase)this, property.Name });
                         obj.Clear();
-                        foreach (BLLBase i in instances)
+                        foreach (EntityBase i in instances)
                         {
                             obj.Add(i);
                         }
@@ -228,85 +223,113 @@ namespace Tenor.BLL
         protected object GetPropertyValue()
         {
             string propertyName = GetCallingProperty();
-            return GetPropertyValue(propertyName);
+            return GetPropertyValue(propertyName, false);
         }
 
         /// <summary>
         /// Gets the value of a lazy tagged property.
         /// This call can do a database access.
         /// </summary>
-        internal virtual object GetPropertyValue(string propertyName)
+        internal virtual object GetPropertyValue(string propertyName, bool forceGetBinary)
         {
             //only loads if not loaded yet.
             //TODO: provide a way to reload from database.
-            if (!propertyData.ContainsKey(propertyName))
+            lock (propertyData)
             {
-                //Getting class metadata.
-
-                TableInfo table = TableInfo.CreateTableInfo(this.GetType());
-
-                System.Reflection.PropertyInfo fieldP = this.GetType().GetProperty(propertyName);
-                if (fieldP == null)
+                if (forceGetBinary || !propertyData.ContainsKey(propertyName))
                 {
-                    throw new Tenor.Data.MissingFieldException(this.GetType(), propertyName);
-                }
+                    //Getting class metadata.
 
-                ForeignKeyInfo fkInfo = null;
-        
-                fkInfo = ForeignKeyInfo.Create(fieldP);
+                    TableInfo table = TableInfo.CreateTableInfo(this.GetType());
 
-                if (fkInfo != null)
-                {
-                    // this is an FK, so, route to fk loading
-                    return LoadForeign(fieldP, null);
-                }
-                else
-                {
-                    //Continue to the lazy property (lazy fields like byte[]) loading
-                    FieldInfo field = FieldInfo.Create(fieldP);
-                    if (field == null)
-                        throw new Tenor.Data.MissingFieldException(this.GetType(), fieldP.Name);
-
-                    GeneralDialect dialect = DialectFactory.CreateDialect(table.GetConnection());
-
-                    ConditionCollection conditions = new ConditionCollection();
-
-                    foreach (FieldInfo f in GetFields(this.GetType(), true))
+                    System.Reflection.PropertyInfo fieldP = this.GetType().GetProperty(propertyName);
+                    if (fieldP == null)
                     {
-                        conditions.Add(f.RelatedProperty.Name, f.PropertyValue(this));
-                    }
-                    if (conditions.Count == 0)
-                    {
-                        throw (new Tenor.Data.MissingPrimaryKeyException(this.GetType()));
+                        throw new Tenor.Data.MissingFieldException(this.GetType(), propertyName);
                     }
 
-                    TenorParameter[] parameters = null;
-                    string fieldsPart = dialect.CreateSelectSql(table.RelatedTable, null, new FieldInfo[] { field }, null);
-                    string wherePart = dialect.CreateWhereSql(conditions, table.RelatedTable, null, out parameters);
-                    string sql = dialect.CreateFullSql(table.RelatedTable,
-                                                false, false,
-                                                0, fieldsPart, null, null, wherePart);
+                    ForeignKeyInfo fkInfo = null;
 
+                    fkInfo = ForeignKeyInfo.Create(fieldP);
 
-                    Tenor.Data.DataTable rs = new Tenor.Data.DataTable(sql, parameters, table.GetConnection());
-
-                    rs.Bind();
-
-                    if (rs.Rows.Count == 0)
+                    if (fkInfo != null)
                     {
-                        throw (new RecordNotFoundException());
-                    }
-                    else if (rs.Rows.Count > 1)
-                    {
-                        throw new ManyRecordsFoundException();
+                        // this is an FK, so, route to fk loading
+                        return LoadForeign(fieldP, null);
                     }
                     else
                     {
-                        propertyData[propertyName] = rs.Rows[0][field.DataFieldName];
+
+                        //Continue to the lazy property (lazy fields like byte[]) loading
+                        FieldInfo field = FieldInfo.Create(fieldP);
+                        if (field == null)
+                            throw new Tenor.Data.MissingFieldException(this.GetType(), fieldP.Name);
+
+                        if (!forceGetBinary && (field.FieldType == typeof(BinaryStream) || field.FieldType == typeof(BinaryStream).BaseType))
+                        {
+                            propertyData[propertyName] = new BinaryStream(this, propertyName);
+                        }
+                        else
+                        {
+                            GeneralDialect dialect = DialectFactory.CreateDialect(table.GetConnection());
+
+
+                            ConditionCollection conditions = new ConditionCollection();
+
+                            foreach (FieldInfo f in GetFields(this.GetType(), true))
+                            {
+                                conditions.Add(f.RelatedProperty.Name, f.PropertyValue(this));
+                            }
+                            if (conditions.Count == 0)
+                            {
+                                throw (new Tenor.Data.MissingPrimaryKeyException(this.GetType()));
+                            }
+
+                            TenorParameter[] parameters = null;
+                            string fieldsPart = dialect.CreateSelectSql(table.RelatedTable, null, new FieldInfo[] { field }, null, null);
+                            string wherePart = dialect.CreateWhereSql(conditions, table.RelatedTable, null, out parameters);
+                            string sql = dialect.CreateFullSql(table.RelatedTable,
+                                                        false, false,
+                                                        0, fieldsPart, null, null, wherePart);
+
+                            Tenor.Diagnostics.Debug.DebugSQL("GetPropertyValue()", sql, parameters, table.GetConnection());
+#if DEBUG
+                            LastSearches.Push(sql);
+#endif
+                            Tenor.Data.DataTable rs = new Tenor.Data.DataTable(sql, parameters, table.GetConnection());
+                            rs.Bind();
+
+                            if (rs.Rows.Count == 0)
+                            {
+                                throw (new RecordNotFoundException());
+                            }
+                            else if (rs.Rows.Count > 1)
+                            {
+                                throw new ManyRecordsFoundException();
+                            }
+                            else
+                            {
+                                var obj = rs.Rows[0][field.DataFieldName];
+                                if (obj == DBNull.Value)
+                                    obj = null;
+
+                                if (forceGetBinary)
+                                {
+                                    if (obj == null)
+                                        return new byte[] { };
+                                    else
+                                        return obj;
+                                }
+                                else
+                                {
+                                    propertyData[propertyName] = obj;
+                                }
+                            }
+                        }
                     }
                 }
+                return propertyData[propertyName];
             }
-            return propertyData[propertyName];
         }
 
         /// <summary>
@@ -321,20 +344,23 @@ namespace Tenor.BLL
 
         internal virtual void SetPropertyValue(string propertyName, object value)
         {
-            //Just to check
-            System.Reflection.PropertyInfo fieldP = this.GetType().GetProperty(propertyName);
-            if (fieldP == null)
+            lock (propertyData)
             {
-                throw (new ArgumentException("The property specified was not found.", "propertyName", null));
-            }
+                //Just to check
+                System.Reflection.PropertyInfo fieldP = this.GetType().GetProperty(propertyName);
+                if (fieldP == null)
+                {
+                    throw (new ArgumentException("The property specified was not found.", "propertyName", null));
+                }
 
-            if (propertyData.ContainsKey(propertyName))
-            {
-                propertyData[propertyName] = value;
-            }
-            else
-            {
-                propertyData.Add(propertyName, value);
+                if (propertyData.ContainsKey(propertyName))
+                {
+                    propertyData[propertyName] = value;
+                }
+                else
+                {
+                    propertyData.Add(propertyName, value);
+                }
             }
         }
 
@@ -357,9 +383,9 @@ namespace Tenor.BLL
         /// Disables the lazy loading of the desired instances.
         /// </summary>
         /// <param name="items">An array of entities.</param>
-        public static void DisableLazyLoading(BLLBase[] items)
+        public static void DisableLazyLoading(EntityBase[] items)
         {
-            foreach (BLLBase i in items)
+            foreach (EntityBase i in items)
             {
                 i.ChangeLazyLoadingStatus(true);
             }
@@ -369,9 +395,9 @@ namespace Tenor.BLL
         /// Enables the lazy loading of the desired instances.
         /// </summary>
         /// <param name="items">An array of entities.</param>
-        public static void EnableLazyLoading(BLLBase[] items)
+        public static void EnableLazyLoading(EntityBase[] items)
         {
-            foreach (BLLBase i in items)
+            foreach (EntityBase i in items)
             {
                 i.ChangeLazyLoadingStatus(false);
             }
@@ -385,14 +411,14 @@ namespace Tenor.BLL
         {
             this._IsLazyDisabled = status;
 
-            foreach (ForeignKeyInfo fk in BLLBase.GetForeignKeys(this.GetType()))
+            foreach (ForeignKeyInfo fk in EntityBase.GetForeignKeys(this.GetType()))
             {
                 if (fk.IsArray)
                 {
                     ICollection col = (ICollection)(fk.PropertyValue(this, false));
                     if (col != null)
                     {
-                        foreach (BLLBase item in col)
+                        foreach (EntityBase item in col)
                         {
                             item.ChangeLazyLoadingStatus(status);
                         }
@@ -400,7 +426,7 @@ namespace Tenor.BLL
                 }
                 else
                 {
-                    BLLBase obj = (BLLBase)(fk.PropertyValue(this, false));
+                    EntityBase obj = (EntityBase)(fk.PropertyValue(this, false));
                     if (obj != null)
                     {
                         obj.ChangeLazyLoadingStatus(status);

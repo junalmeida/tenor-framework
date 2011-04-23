@@ -79,6 +79,11 @@ namespace Tenor.Data.Dialects.MySql
         {
             return "LIMIT " + limitValue.ToString();
         }
+
+        protected override string GetLenExpression(string fieldExpression)
+        {
+            return string.Format("length({0})", fieldExpression);
+        }
     }
     
 }

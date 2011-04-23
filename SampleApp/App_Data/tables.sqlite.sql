@@ -20,7 +20,9 @@ CREATE TABLE "main"."Persons"
 	"Email" VARCHAR(150),
 	"Expires" DATETIME,
 	"Active" BOOLEAN NOT NULL,
-	"Photo" BLOB,
+	"Photo" BLOB, 
+	"Photo2" BLOB, 
+	"Photo3" BLOB, 
 	"MaritalStatus" INT(4),
 	"ContractType" INT(4)
 );

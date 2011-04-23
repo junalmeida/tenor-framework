@@ -29,10 +29,10 @@ public class GeneratedGui : DotNetScriptGui
 		btn.AttachEvent("onclick", "btn_onclick");
 		
 		GuiLabel lblNamespace = ui.AddLabel("lblNamespace", "Namespace:", "Default namespace.");
-		GuiTextBox txtNamespace = ui.AddTextBox("txtNamespace", (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Namespace",@"BLL.REES.Institucional"), "");
+		GuiTextBox txtNamespace = ui.AddTextBox("txtNamespace", (string)Microsoft.Win32.Registry.CurrentUser.GetValue("EntityBase.Namespace",@"BLL"), "");
 
 		GuiLabel lblOutput = ui.AddLabel("lblOutput", "Target folder:", "Where do you want to save your files?");
-		GuiTextBox txtOutput = ui.AddTextBox("txtOutput", (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Folder",@"C:\Documents and Settings\Produção\Meus documentos\templates"), "");
+		GuiTextBox txtOutput = ui.AddTextBox("txtOutput", (string)Microsoft.Win32.Registry.CurrentUser.GetValue("EntityBase.Folder",@"C:\Documents and Settings\Produção\Meus documentos\templates"), "");
 		GuiFilePicker btnOutputPath = ui.AddFilePicker("btnOutputPath", "Select the target folder.", "Select the target folder.", "txtOutput", true);
 
 		setupDatabaseDropdown(cmbDatabases);
@@ -53,7 +53,7 @@ public class GeneratedGui : DotNetScriptGui
 				{
 					cmbDatabases.SelectedValue = MyMeta.DefaultDatabase.Name;
 					try {
-						cmbDatabases.SelectedValue = (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Database",MyMeta.DefaultDatabase.Name);
+						cmbDatabases.SelectedValue = (string)Microsoft.Win32.Registry.CurrentUser.GetValue("EntityBase.Database",MyMeta.DefaultDatabase.Name);
 					} catch (Exception e) { }
 					bindTables(cmbDatabases.SelectedValue);
 				}
@@ -73,7 +73,7 @@ public class GeneratedGui : DotNetScriptGui
 	
 	public void bindTables(string sDatabase)
 	{
-		string[] tabelas = ((string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Tables","")).Split(';');
+		string[] tabelas = ((string)Microsoft.Win32.Registry.CurrentUser.GetValue("EntityBase.Tables","")).Split(';');
 	
 		//GuiLabel lblError = ui["lblError"] as GuiLabel;
 		int count = 0;
@@ -157,7 +157,7 @@ namespace {namespace}
 	/// {description}
 	/// </summary>
 	[Serializable(), Table(""{tableName}"", ""{tableSchema}"")]
-	public partial class {className} : BLLBase
+	public partial class {className} : EntityBase
 	{
 		
 #region Properties
@@ -280,7 +280,7 @@ namespace {namespace}
 ";
         public const string nullValue = "null";
 	    public const string nullableType = "{typeName}?";
-        public const string collectionType = "BLLCollection<{typeName}>";
+        public const string collectionType = "EntityList<{typeName}>";
 
         public static string GetFieldAttributes(NameValueCollection items) 
         {
@@ -335,7 +335,7 @@ namespace {namespace}
 			sc.Distinct = distinct;
             sc.Top = limit;
 
-			return ({className}[])(BLLBase.Search(sc, connection));
+			return ({className}[])(EntityBase.Search(sc, connection));
 		}
 ";
         public const string classFooter = @"
@@ -365,10 +365,10 @@ namespace {namespace}
 		{
 			parsedTables += ";" + item.ToString();
 		}
-		Registry.CurrentUser.SetValue("BLLBase.Namespace", this.defaultNamespace);
-		Registry.CurrentUser.SetValue("BLLBase.Folder", this.outputPath);
-		Registry.CurrentUser.SetValue("BLLBase.Database", database);
-		Registry.CurrentUser.SetValue("BLLBase.Tables", parsedTables);
+		Registry.CurrentUser.SetValue("EntityBase.Namespace", this.defaultNamespace);
+		Registry.CurrentUser.SetValue("EntityBase.Folder", this.outputPath);
+		Registry.CurrentUser.SetValue("EntityBase.Database", database);
+		Registry.CurrentUser.SetValue("EntityBase.Tables", parsedTables);
 	}
 
 	public override void Render()

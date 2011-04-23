@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Configuration;
-using System;
-
-using Tenor.BLL;
 using Tenor.Data;
 
 namespace SampleApp.Business.Entities
@@ -12,7 +9,7 @@ namespace SampleApp.Business.Entities
     /// This is a category
     /// </summary>
     [Serializable(), Table("Categories", "")]
-    public partial class Category : BLLBase
+    public partial class Category : EntityBase
     {
         // FOR ORACLE: InsertSQL = "CategoriesSequence"
         // FOR POSTGRESQL: InsertSQL = "Categories_CategoryId_seq"
@@ -77,11 +74,11 @@ namespace SampleApp.Business.Entities
         /// Represents the relationship FK_Items_Categories.
         /// </summary>
         [ForeignKeyField(Item.Properties.CategoryId, Properties.CategoryId)]
-        public BLLCollection<Item> ItemList
+        public EntityList<Item> ItemList
         {
             get
             {
-                return (BLLCollection<Item>)GetPropertyValue();
+                return (EntityList<Item>)GetPropertyValue();
             }
         }
 
@@ -142,7 +139,7 @@ namespace SampleApp.Business.Entities
             sc.Distinct = distinct;
             sc.Top = limit;
 
-            return (Category[])(BLLBase.Search(sc, connection));
+            return (Category[])(EntityBase.Search(sc, connection));
         }
 
 

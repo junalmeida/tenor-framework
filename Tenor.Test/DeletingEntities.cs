@@ -1,10 +1,7 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
-
+﻿
 using Tenor.Data;
 using SampleApp.Business.Entities;
-using Tenor.BLL;
+
 
 #if MSTEST
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -43,9 +40,9 @@ namespace Tenor.Test
         /// Deletes several records based on a criteria.
         /// </summary>
         [TestMethod()]
-        public void DeleteSeveral() 
+        public void DeleteSeveral()
         {
-            string[] people = new string[] { "Test1", "Test2", "Test3", "Test4"};
+            string[] people = new string[] { "Test1", "Test2", "Test3", "Test4" };
 
             foreach (string person in people)
             {
@@ -59,7 +56,7 @@ namespace Tenor.Test
             ConditionCollection cc = new ConditionCollection();
             cc.Add("Name", "Test%", CompareOperator.Like);
 
-            BLLBase.Delete(typeof(Person), cc);
+            EntityBase.Delete(typeof(Person), cc);
 
             Person[] dbPeople = Person.Search(cc, null);
             if (dbPeople.Length > 0)

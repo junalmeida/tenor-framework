@@ -124,7 +124,7 @@ namespace Tenor.Linq
                                 if (toReturn.Count > 1)
                                     throw new InvalidOperationException("The input sequence contains more than one element.");
                                 else if (toReturn.Count == 0)
-                                    throw new ArgumentNullException("The input sequence is empty.");
+                                    throw new Tenor.Data.RecordNotFoundException();
                                 return toReturn[0];
 
                             case "SingleOrDefault":
@@ -507,6 +507,9 @@ namespace Tenor.Linq
                                     MemberExpression property =
                                         (mce.Object != null ? mce.Arguments[0] : mce.Arguments[1]) as MemberExpression;
 
+                                    MethodCallExpression methodCall =
+                                        (mce.Object != null ? mce.Arguments[0] : mce.Arguments[1]) as MethodCallExpression;
+
                                     if (mce.Method.Name == "Contains" && member.Type != typeof(string))
                                     {
                                         // In
@@ -525,7 +528,9 @@ namespace Tenor.Linq
                                     {
                                         //this will generate a like expression
 
-                                        string str = FindValue(property) as string;
+                                        string str = property != null ?
+                                            FindValue(property) as string :
+                                            FindValue(methodCall) as string;
 
                                         if (mce.Method.Name == "StartsWith")
                                             str = string.Format("{0}%", str);
@@ -592,12 +597,20 @@ namespace Tenor.Linq
 
                 PropertyInfo prop = exp.Member as PropertyInfo;
                 FieldInfo field = exp.Member as FieldInfo;
+
+                object value;
+                if (exp.Expression is ConstantExpression)
+                    value = (exp.Expression as ConstantExpression).Value;
+                else
+                    value = FindValue(exp.Expression);
+
                 if (prop != null)
-                    return prop.GetValue((exp.Expression as ConstantExpression).Value, null);
+                    return prop.GetValue(value, null);
                 else if (field != null)
-                    return field.GetValue((exp.Expression as ConstantExpression).Value);
+                    return field.GetValue(value);
                 else
                     throw new NotImplementedException("Access to " + expression.ToString() + " not implemented.");
+
             }
             else if (expression is MethodCallExpression)
             {

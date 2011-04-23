@@ -9,15 +9,13 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Data;
 using System.Data.Common;
 using System.Text;
-using Tenor.Data;
 using Tenor.Data.Dialects;
 
-namespace Tenor.BLL
+namespace Tenor.Data
 {
-    public abstract partial class BLLBase
+    public abstract partial class EntityBase
     {
 
 
@@ -143,10 +141,17 @@ namespace Tenor.BLL
 
             foreach (FieldInfo f in fields)
             {
+                string alias = baseFieldAlias + f.DataFieldName;
                 if (f.PrimaryKey || !f.LazyLoading)
                 {
-                    string alias = baseFieldAlias + f.DataFieldName;
                     f.SetPropertyValue(this, dataRow[alias]);
+                }
+                else if (f.LazyLoading && f.FieldType.IsAssignableFrom(typeof(BinaryStream)))
+                {
+                    object len = dataRow[alias];
+                    if (len == DBNull.Value)
+                        len = 0;
+                    f.SetPropertyValue(this, new BinaryStream(this, f.RelatedProperty.Name, Convert.ToInt64(len)));
                 }
             }
             foreach (SpecialFieldInfo f in spfields)
@@ -220,7 +225,14 @@ namespace Tenor.BLL
                 }
                 else
                 {
-                    data.Add(fieldInfos[i], fieldInfos[i].PropertyValue(this));
+                    var lazyValue = fieldInfos[i].PropertyValue(this);
+                    if (lazyValue != null && lazyValue.GetType() == typeof(BinaryStream))
+                    {
+                        //binary stream will never change
+                        fieldInfos.RemoveAt(i);
+                    }
+                    else
+                        data.Add(fieldInfos[i], lazyValue);
                 }
             }
 
@@ -294,22 +306,24 @@ namespace Tenor.BLL
             StringBuilder sqlFields = new StringBuilder();
             List<FieldInfo> fieldInfos = new List<FieldInfo>();
             List<SpecialFieldInfo> spFields = new List<SpecialFieldInfo>();
-
+            List<FieldInfo> lenFields = new List<FieldInfo>();
 
             FieldInfo[] allFields;
             if (justCount)
-                allFields = BLLBase.GetFields(searchOptions.baseType, true); //lets count using distinct subquery
+                allFields = EntityBase.GetFields(searchOptions.baseType, true); //lets count using distinct subquery
             else if (searchOptions.Projections.Count > 0)
             {
-                allFields = ReadProjections<FieldInfo>(projections, null, BLLBase.GetFields(searchOptions.baseType));
+                allFields = ReadProjections<FieldInfo>(projections, null, EntityBase.GetFields(searchOptions.baseType));
             }
             else
-                allFields = BLLBase.GetFields(searchOptions.baseType); //lets get all fields
+                allFields = EntityBase.GetFields(searchOptions.baseType); //lets get all fields
 
             foreach (FieldInfo f in allFields)
             {
                 if (f.PrimaryKey || (!f.LazyLoading && !justCount)) //primary keys and eager fields must be loaded
                     fieldInfos.Add(f);
+                else if (!justCount && f.LazyLoading && f.FieldType.IsAssignableFrom(typeof(BinaryStream)))
+                    lenFields.Add(f);
 
                 // when paging, at least one sorting criterion is needed
                 if (pagingStart.HasValue && pagingEnd.HasValue && searchOptions.Sorting.Count == 0 && f.PrimaryKey)
@@ -318,7 +332,7 @@ namespace Tenor.BLL
 
             if (!justCount) //we don't need it on counting
             {
-                SpecialFieldInfo[] fields = BLLBase.GetSpecialFields(searchOptions.baseType);
+                SpecialFieldInfo[] fields = EntityBase.GetSpecialFields(searchOptions.baseType);
                 if (searchOptions.Projections.Count > 0)
                 {
                     fields = ReadProjections<SpecialFieldInfo>(projections, null, fields);
@@ -327,7 +341,7 @@ namespace Tenor.BLL
                 spFields.AddRange(fields);
             }
 
-            sqlFields.Append(dialect.CreateSelectSql(table.RelatedTable, null, fieldInfos.ToArray(), spFields.ToArray()));
+            sqlFields.Append(dialect.CreateSelectSql(table.RelatedTable, null, fieldInfos.ToArray(), spFields.ToArray(), lenFields.ToArray()));
 
 
             //adding values from eager loading types
@@ -335,9 +349,10 @@ namespace Tenor.BLL
             {
                 fieldInfos = new List<FieldInfo>();
                 spFields = new List<SpecialFieldInfo>();
+                lenFields = new List<FieldInfo>();
 
                 //select all fields, or only the projection.
-                FieldInfo[] allEagerFields = BLLBase.GetFields(fkInfo.ElementType);
+                FieldInfo[] allEagerFields = EntityBase.GetFields(fkInfo.ElementType);
                 if (searchOptions.Projections.Count > 0)
                     allEagerFields = ReadProjections<FieldInfo>(projections, fkInfo.RelatedProperty.Name, allEagerFields);
 
@@ -345,9 +360,11 @@ namespace Tenor.BLL
                 {
                     if (f.PrimaryKey || !f.LazyLoading)
                         fieldInfos.Add(f);
+                    else if (f.LazyLoading && f.FieldType.IsAssignableFrom(typeof(BinaryStream)))
+                        lenFields.Add(f);
                 }
                 //spfields
-                SpecialFieldInfo[] allSpFields = BLLBase.GetSpecialFields(fkInfo.ElementType);
+                SpecialFieldInfo[] allSpFields = EntityBase.GetSpecialFields(fkInfo.ElementType);
                 if (searchOptions.Projections.Count > 0)
                     allSpFields = ReadProjections<SpecialFieldInfo>(projections, fkInfo.RelatedProperty.Name, allSpFields);
 
@@ -355,7 +372,7 @@ namespace Tenor.BLL
                 //joins: joins was made on GetPlainJoins.
 
                 sqlFields.Append(", ");
-                sqlFields.Append(dialect.CreateSelectSql(fkInfo.ElementType, searchOptions.eagerLoading[fkInfo], fieldInfos.ToArray(), spFields.ToArray()));
+                sqlFields.Append(dialect.CreateSelectSql(fkInfo.ElementType, searchOptions.eagerLoading[fkInfo], fieldInfos.ToArray(), spFields.ToArray(), lenFields.ToArray()));
             }
 
 

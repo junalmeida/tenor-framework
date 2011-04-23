@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Data;
-using System.Configuration;
-using System.Web;
-using Tenor.BLL;
 using System.Text;
 using Tenor.Data;
 using Tenor.Web;
@@ -17,7 +13,7 @@ using DbInt = System.Int32;
 
 namespace SampleApp.Business.Entities
 {
-    public partial class Person : BLLBase
+    public partial class Person : EntityBase
     {
         protected override bool Validate()
         {

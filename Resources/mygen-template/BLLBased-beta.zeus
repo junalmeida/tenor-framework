@@ -44,7 +44,7 @@ public class GeneratedGui : DotNetScriptGui
 		
 		int i = 0;
 		
-		string languageHistory = (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Language", MyMeta.Language);
+		string languageHistory = (string)Microsoft.Win32.Registry.CurrentUser.GetValue("EntityBase.Language", MyMeta.Language);
 		
 		if(!MyMeta.Language.Equals(languageHistory, StringComparison.InvariantCultureIgnoreCase))
 			MyMeta.Language = languageHistory;
@@ -67,16 +67,16 @@ public class GeneratedGui : DotNetScriptGui
 		btn.AttachEvent("onclick", "btn_onclick");
 		
 		GuiLabel lblNamespace = ui.AddLabel("lblNamespace", "Namespace:", "Default namespace.");
-		GuiTextBox txtNamespace = ui.AddTextBox("txtNamespace", (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Namespace", "Tenor"), "");
+		GuiTextBox txtNamespace = ui.AddTextBox("txtNamespace", (string)Microsoft.Win32.Registry.CurrentUser.GetValue("EntityBase.Namespace", "Tenor"), "");
 
 		GuiLabel lblPluralLanguage = ui.AddLabel("lblPluralLanguage", "Choose the language used for plurals:", "Choose the language used for plurals.");
 		GuiComboBox cmbPluralLanguage = ui.AddComboBox("cmbPluralLanguage", "");
 		cmbPluralLanguage.Items.Add("en-US", "English (en-US)");
 		cmbPluralLanguage.Items.Add("pt-BR", "Português (pt-BR)");
-		cmbPluralLanguage.SelectedValue = (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.PluralLanguage", "en-US");
+		cmbPluralLanguage.SelectedValue = (string)Microsoft.Win32.Registry.CurrentUser.GetValue("EntityBase.PluralLanguage", "en-US");
 
 		GuiLabel lblOutput = ui.AddLabel("lblOutput", "Target folder:", "Where do you want to save your files?");
-		GuiTextBox txtOutput = ui.AddTextBox("txtOutput", (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Folder", @"C:\Documents and Settings\Produção\Meus documentos\templates"), "");
+		GuiTextBox txtOutput = ui.AddTextBox("txtOutput", (string)Microsoft.Win32.Registry.CurrentUser.GetValue("EntityBase.Folder", @"C:\Documents and Settings\Produção\Meus documentos\templates"), "");
 		GuiFilePicker btnOutputPath = ui.AddFilePicker("btnOutputPath", "Select the target folder.", "Select the target folder.", "txtOutput", true);
 
 		setupDatabaseDropdown(cmbDatabases);
@@ -101,7 +101,7 @@ public class GeneratedGui : DotNetScriptGui
 				
 				try
 				{
-					defaultDatabase = (string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Database", defaultDatabase);
+					defaultDatabase = (string)Microsoft.Win32.Registry.CurrentUser.GetValue("EntityBase.Database", defaultDatabase);
 				}
 				catch (Exception e) { }
 				
@@ -117,7 +117,7 @@ public class GeneratedGui : DotNetScriptGui
 	
 	public void bindTables(string sDatabase)
 	{
-		string[] tables = ((string)Microsoft.Win32.Registry.CurrentUser.GetValue("BLLBase.Tables","")).Split(';');
+		string[] tables = ((string)Microsoft.Win32.Registry.CurrentUser.GetValue("EntityBase.Tables","")).Split(';');
 	
 		int count = 0;
 	
@@ -257,12 +257,12 @@ public class GeneratedTemplate : DotNetScriptTemplate
 		
 		ReadSnippets(items[selected]);
 		
-		Registry.CurrentUser.SetValue("BLLBase.PluralLanguage", this.pluralLanguage);
-		Registry.CurrentUser.SetValue("BLLBase.Language", snippets.language);
-		Registry.CurrentUser.SetValue("BLLBase.Namespace", this.defaultNamespace);
-		Registry.CurrentUser.SetValue("BLLBase.Folder", this.outputPath);
-		Registry.CurrentUser.SetValue("BLLBase.Database", database);
-		Registry.CurrentUser.SetValue("BLLBase.Tables", parsedTables);
+		Registry.CurrentUser.SetValue("EntityBase.PluralLanguage", this.pluralLanguage);
+		Registry.CurrentUser.SetValue("EntityBase.Language", snippets.language);
+		Registry.CurrentUser.SetValue("EntityBase.Namespace", this.defaultNamespace);
+		Registry.CurrentUser.SetValue("EntityBase.Folder", this.outputPath);
+		Registry.CurrentUser.SetValue("EntityBase.Database", database);
+		Registry.CurrentUser.SetValue("EntityBase.Tables", parsedTables);
 	}
 	
 	private void ReadSnippets(List<DictionaryEntry> items)

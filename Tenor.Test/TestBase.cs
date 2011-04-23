@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Configuration;
 using System.IO;
-using System.Collections;
 using Tenor.Data;
 #if MSTEST
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -47,7 +44,7 @@ namespace Tenor.Test
         {
             string cn = ConnectionString;
 #if SQLITE
-            Tenor.BLL.BLLBase.SystemConnection = new ConnectionStringSettings(Tenor.BLL.BLLBase.SystemConnection.Name, cn, Tenor.BLL.BLLBase.SystemConnection.ProviderName);
+            EntityBase.SystemConnection = new ConnectionStringSettings(EntityBase.SystemConnection.Name, cn, EntityBase.SystemConnection.ProviderName);
 #endif
             System.Diagnostics.Trace.WriteLine("Initializing tests. We will recreate the database.", TestContext.TestName);
             System.Diagnostics.Trace.WriteLine(string.Format("Connection: {0}", cn), TestContext.TestName);
@@ -86,7 +83,7 @@ namespace Tenor.Test
         {
             get
             {
-                string value = Tenor.BLL.BLLBase.SystemConnection.ConnectionString;
+                string value = EntityBase.SystemConnection.ConnectionString;
                 if (value.Contains("{0}"))
                 {
                     value = string.Format(value, new DirectoryInfo(Environment.CurrentDirectory).Parent.Parent.Parent.FullName);
@@ -97,10 +94,10 @@ namespace Tenor.Test
         }
 
 
-    
+
         protected void LowLevelExecuteNonQuery(string query, params DbParameter[] parameters)
         {
-            DbProviderFactory fac = DbProviderFactories.GetFactory(Tenor.BLL.BLLBase.SystemConnection.ProviderName);
+            DbProviderFactory fac = DbProviderFactories.GetFactory(EntityBase.SystemConnection.ProviderName);
             using (DbConnection con = fac.CreateConnection())
             {
                 con.ConnectionString = ConnectionString;
@@ -134,7 +131,7 @@ namespace Tenor.Test
 
         protected DataTable LowLevelExecuteQuery(string query, params DbParameter[] parameters)
         {
-            DbProviderFactory fac = DbProviderFactories.GetFactory(Tenor.BLL.BLLBase.SystemConnection.ProviderName);
+            DbProviderFactory fac = DbProviderFactories.GetFactory(EntityBase.SystemConnection.ProviderName);
             DbConnection con = fac.CreateConnection();
             con.ConnectionString = ConnectionString;
             try

@@ -1,9 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Tenor.BLL;
-using System.Collections;
 using System.Linq.Expressions;
 
 namespace Tenor.Linq
@@ -11,7 +9,7 @@ namespace Tenor.Linq
     /// <summary>
     /// Represents a set of search definitions. You can use Linq to make your queries.
     /// </summary>
-    public class SearchOptions<T> : IOrderedQueryable, IOrderedQueryable<T>, IEnumerable, IQueryable, System.Linq.IQueryable<T> //where T : BLLBase
+    public class SearchOptions<T> : IOrderedQueryable, IOrderedQueryable<T>, IEnumerable, IQueryable, System.Linq.IQueryable<T> //where T : EntityBase
     {
 
         public static IQueryable<T> CreateQuery()
@@ -35,7 +33,8 @@ namespace Tenor.Linq
 
 
 
-        internal SearchOptions() : this(null, null)
+        internal SearchOptions()
+            : this(null, null)
         {
         }
 

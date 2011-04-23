@@ -1,16 +1,14 @@
-using System.Diagnostics;
 using System;
 using System.Collections;
-using Tenor.Data;
-using System.Data;
 using System.Collections.Generic;
-using System.IO;
-using System.Web;
-using System.Web.UI;
 using System.Configuration;
 using System.Data.Common;
+using System.IO;
 using System.Text;
+using System.Web;
+using System.Web.UI;
 using Tenor.Configuration;
+using Tenor.Data;
 
 
 namespace Tenor.Diagnostics
@@ -112,7 +110,7 @@ namespace Tenor.Diagnostics
 
                 if (config.Exceptions.LogMode == LogMode.None
                     || (config.Exceptions.LogMode == LogMode.Email && config.Exceptions.Emails.Count == 0)
-                    || (config.Exceptions.LogMode == LogMode.File && 
+                    || (config.Exceptions.LogMode == LogMode.File &&
                         (string.IsNullOrEmpty(config.Exceptions.FilePath) || !Directory.Exists(config.Exceptions.FilePath))))
                     return;
 
@@ -161,7 +159,7 @@ namespace Tenor.Diagnostics
 
                     errmail.Send();
                 }
-                else if(config.Exceptions.LogMode == LogMode.File)
+                else if (config.Exceptions.LogMode == LogMode.File)
                 {
                     string path = config.Exceptions.FilePath;
                     if (!path.EndsWith("\\"))
@@ -452,9 +450,9 @@ namespace Tenor.Diagnostics
                     if (item.Value != null)
                     {
                         extraInfo += "<b>" + item.Key.ToString() + ": </b>" + item.Value.ToString() + "<br />";
-                        if (item.Value.GetType() == typeof(Dictionary<object, BLL.BLLBase>))
+                        if (item.Value.GetType() == typeof(Dictionary<object, EntityBase>))
                         {
-                            Dictionary<object, BLL.BLLBase> dict = (Dictionary<object, BLL.BLLBase>)item.Value;
+                            Dictionary<object, EntityBase> dict = (Dictionary<object, EntityBase>)item.Value;
                             foreach (object key in dict.Keys)
                             {
                                 extraInfo += "&nbsp;&nbsp;&gt;" + key.ToString() + ": " + dict[key].ToString() + "<br />";

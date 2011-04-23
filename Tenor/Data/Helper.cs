@@ -91,7 +91,7 @@ namespace Tenor.Data
         /// <returns>A <see cref="System.Data.DataTable">DataTable</see> with results of the query.</returns>
         public static DataTable QueryData(string sqlSelect, params TenorParameter[] parameters)
         {
-            ConnectionStringSettings conn = Tenor.BLL.BLLBase.SystemConnection;
+            ConnectionStringSettings conn = EntityBase.SystemConnection;
             return QueryData(conn, sqlSelect, parameters);
         }
 
@@ -178,7 +178,7 @@ namespace Tenor.Data
         /// <returns>The scalar value returned from the database. It could be any valued type, string, or null.</returns>
         public static object QueryValue(string sqlSelect, params TenorParameter[] parameters)
         {
-            return QueryValue(Tenor.BLL.BLLBase.SystemConnection, sqlSelect, parameters);
+            return QueryValue(EntityBase.SystemConnection, sqlSelect, parameters);
         }
 
         /// <summary>
@@ -230,7 +230,7 @@ namespace Tenor.Data
         public static object UpdateData(ConnectionStringSettings connection, string query, params TenorParameter[] parameters)
         {
             if (connection == null)
-                connection = BLL.BLLBase.SystemConnection;
+                connection = EntityBase.SystemConnection;
 
             GeneralDialect dialect = DialectFactory.CreateDialect(connection);
 

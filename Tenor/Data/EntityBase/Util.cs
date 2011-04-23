@@ -6,19 +6,21 @@
  *
  * See the file license.txt for copying permission.
  */
-using System.Diagnostics;
 using System;
 using System.Collections;
-using Tenor.Data;
-using System.Data;
 using System.Collections.Generic;
-using System.IO;
 
-namespace Tenor.BLL
+namespace Tenor.Data
 {
     internal static class Util
     {
-
+        internal static string GetResourceString(string key)
+        {
+            Type type = typeof(System.IO.Stream);
+            //type.Assembly.GetManifestResourceStream("System.resources");
+            var res = new System.Resources.ResourceManager("mscorlib", type.Assembly);
+            return res.GetString(key);
+        }
 
         /// <summary>
         /// Gets a value of a property parsing the expression on a C# style.
@@ -124,7 +126,7 @@ namespace Tenor.BLL
             }
         }
 
-        internal static int Compare(BLLBase x, BLLBase y, string propertyExpression)
+        internal static int Compare(EntityBase x, EntityBase y, string propertyExpression)
         {
             string[] props = (propertyExpression + ",").Split(',');
             string _PropertyExpression = "";

@@ -199,13 +199,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BLL\BLLBase.cs" />
-    <Compile Include="BLL\BLLBase\Cache.cs" />
-    <Compile Include="BLL\BLLBase\Connection.cs" />
-    <Compile Include="BLL\BLLBase\Lazy.cs" />
-    <Compile Include="BLL\BLLBase\Persistence.cs" />
-    <Compile Include="BLL\BLLBase\Reflection.cs" />
+    <Compile Include="Data\EntityBase\BinaryStream.cs" />
+    <Compile Include="Data\EntityBase\Cache.cs" />
+    <Compile Include="Data\EntityBase\Connection.cs" />
+    <Compile Include="Data\EntityBase\EntityList.cs" />
+    <Compile Include="Data\EntityBase\Lazy.cs" />
+    <Compile Include="Data\EntityBase\Persistence.cs" />
+    <Compile Include="Data\EntityBase\Reflection.cs" />
     <Compile Include="BLL\BLLCollection.cs" />
-    <Compile Include="BLL\Util.cs" />
+    <Compile Include="Data\EntityBase\Util.cs" />
     <Compile Include="Configuration\Diagnostics.cs" />
     <Compile Include="Configuration\Dialects.cs" />
     <Compile Include="Configuration\HttpModule.cs" />
@@ -228,6 +230,7 @@
     <Compile Include="Data\Dialects\SQLite\SQLite.cs" />
     <Compile Include="Data\Dialects\TSql\TSql.cs" />
     <Compile Include="Data\DummyDataSource.cs" />
+    <Compile Include="Data\EntityBase\EntityBase.cs" />
     <Compile Include="Data\Exceptions.cs" />
     <Compile Include="Data\Helper.cs" />
     <Compile Include="Data\Parameter.cs" />

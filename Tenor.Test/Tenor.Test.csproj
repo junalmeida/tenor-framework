@@ -251,6 +251,23 @@
     <None Include="App.sqlite.config" />
     <None Include="App.mssql.config" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\SampleApp\App_Data\tables.mssql.sql">
+      <Link>Scripts\tables.mssql.sql</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\SampleApp\App_Data\tables.mysql.sql">
+      <Link>Scripts\tables.mysql.sql</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\SampleApp\App_Data\tables.oracle.sql">
+      <Link>Scripts\tables.oracle.sql</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\SampleApp\App_Data\tables.postgresql.sql">
+      <Link>Scripts\tables.postgresql.sql</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\SampleApp\App_Data\tables.sqlite.sql">
+      <Link>Scripts\tables.sqlite.sql</Link>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -259,10 +276,6 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup>
-    <EmbeddedResource Include="Scripts\tables.sqlite.sql" />
-    <EmbeddedResource Include="Scripts\tables.mssql.sql" />
-  </ItemGroup>
   <PropertyGroup>
     <PreBuildEvent>attrib -R  "$(ProjectDir)App.connection.config"
 copy /Y "$(ProjectDir)App.$(PlatformName).config" "$(ProjectDir)App.connection.config"</PreBuildEvent>

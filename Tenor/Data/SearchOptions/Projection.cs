@@ -1,13 +1,12 @@
-using System.Diagnostics;
+/*
+ * Licensed under the MIT License:
+ * http://www.opensource.org/licenses/mit-license.php
+ * 
+ * Copyright (c) 2009 Marcos Almeida Jr, Rachel Carvalho and Vinicius Barbosa.
+ *
+ * See the file license.txt for copying permission.
+ */
 using System;
-using System.Collections;
-using Tenor.Data;
-using System.Data;
-using System.Collections.Generic;
-using System.IO;
-using System.Configuration;
-using Tenor.BLL;
-
 
 namespace Tenor.Data
 {
@@ -16,7 +15,7 @@ namespace Tenor.Data
     /// </summary>
     public class Projection
     {
-        
+
         public Projection(string propertyName)
             : this(propertyName, null)
         {

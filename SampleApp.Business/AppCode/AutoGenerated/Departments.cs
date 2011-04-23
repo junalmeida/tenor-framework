@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Configuration;
-using Tenor.BLL;
 using Tenor.Data;
 
 namespace SampleApp.Business.Entities
@@ -10,7 +9,7 @@ namespace SampleApp.Business.Entities
     /// Some description on table.
     /// </summary>
     [Serializable(), Table("Departments", "")]
-    public partial class Department : BLLBase
+    public partial class Department : EntityBase
     {
 
         #region Properties
@@ -121,7 +120,7 @@ namespace SampleApp.Business.Entities
             sc.Distinct = distinct;
             sc.Top = limit;
 
-            return (Department[])(BLLBase.Search(sc, connection));
+            return (Department[])(EntityBase.Search(sc, connection));
         }
 
 

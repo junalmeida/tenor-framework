@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Text;
-using System.Collections.Generic;
 using SampleApp.Business.Entities;
-using Tenor.BLL;
 using Tenor.Data;
 #if MSTEST
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
 
 #else
 using TestMethodAttribute = NUnit.Framework.TestAttribute;
@@ -37,12 +36,12 @@ namespace Tenor.Test
         }
 
         public static Person CreateNewPerson()
-        {   
+        {
             Person p = new Person();
             p.Active = true;
             p.Name = "Test " + RandomString(8, true);
             p.Save();
-            return p;        
+            return p;
         }
 
         [TestMethod]
@@ -102,5 +101,53 @@ namespace Tenor.Test
 
         }
 
+        [TestMethod]
+        public void SaveByteArray()
+        {
+            EntityBase.LastSearches.Clear();
+            var bytes = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 7, 8 };
+
+            var p = new Person() { PersonId = 1 };
+            p.Bind();
+            Assert.IsTrue(EntityBase.LastSearches.Count == 1);
+
+            p.Photo3 = bytes;
+            p.Save();
+            Assert.IsTrue(EntityBase.LastSearches.Count == 1);
+
+            p = new Person() { PersonId = 1 };
+            p.Bind();
+            Assert.IsTrue(EntityBase.LastSearches.Count == 2);
+
+
+            CollectionAssert.AreEquivalent(bytes, p.Photo3);
+
+            Assert.IsTrue(EntityBase.LastSearches.Count == 2);
+        }
+
+        [TestMethod]
+        public void SaveBinaryStream()
+        {
+            EntityBase.LastSearches.Clear();
+            var bytes = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 7, 8 };
+
+            var p = new Person() { PersonId = 1 };
+            p.Bind();
+            var photo = p.Photo;
+            Assert.IsTrue(EntityBase.LastSearches.Count == 1);
+            p.Save();
+            p.Photo = new MemoryStream(bytes);
+            p.Save();
+            Assert.IsTrue(EntityBase.LastSearches.Count == 1);
+
+            p = new Person() { PersonId = 1 };
+            p.Bind();
+            Assert.IsTrue(EntityBase.LastSearches.Count == 2);
+
+            var returnedBytes = (p.Photo as BinaryStream).ToArray();
+            CollectionAssert.AreEquivalent(bytes, returnedBytes);
+
+            Assert.IsTrue(EntityBase.LastSearches.Count == 3);
+        }
     }
 }

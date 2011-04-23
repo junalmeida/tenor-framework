@@ -1,15 +1,7 @@
 using System;
-using System.Collections;
-using System.Configuration;
-using System.Data;
-using System.Web;
-using System.Web.Security;
-using System.Web.UI;
-using System.Web.UI.HtmlControls;
-using System.Web.UI.WebControls;
-using System.Web.UI.WebControls.WebParts;
-using SampleApp.Business.Entities;
 using System.Collections.Generic;
+using System.Web.UI.WebControls;
+using SampleApp.Business.Entities;
 
 namespace SampleApp
 {
@@ -104,7 +96,7 @@ namespace SampleApp
 
                 if (fupPhoto.HasFile)
                 {
-                    p.Photo = fupPhoto.FileBytes;
+                    p.Photo = new System.IO.MemoryStream(fupPhoto.FileBytes);
                 }
 
                 List<Item> items = new List<Item>();

@@ -1,79 +1,76 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Configuration;
-using System;
-
-using Tenor.BLL;
 using Tenor.Data;
 
 namespace Teste.TESTE
 {
-	/// <summary>
-	/// Represents the table Product.
-	/// </summary>
-	[Serializable(), Table("Product", "TESTE")]
-	public partial class Product : BLLBase
-	{
-		
-#region Properties
+    /// <summary>
+    /// Represents the table Product.
+    /// </summary>
+    [Serializable(), Table("Product", "TESTE")]
+    public partial class Product : EntityBase
+    {
 
-		private decimal _ID;
-		/// <summary>
-		/// Represents the field ID.
-		/// </summary>
-		[Field(PrimaryKey=true, AutoNumber=true, InsertSQL="ProductSequence")]
-		public decimal ID
-		{
-			get
-			{
-				return _ID;
-			}
-			set
-			{
-				_ID = value;
-			}
-		}
+        #region Properties
 
-		private string _Nome;
-		/// <summary>
-		/// Represents the field Nome.
-		/// </summary>
-		[Field()]
-		public string Nome
-		{
-			get
-			{
-				return _Nome;
-			}
-			set
-			{
-				_Nome = value;
-			}
-		}
+        private decimal _ID;
+        /// <summary>
+        /// Represents the field ID.
+        /// </summary>
+        [Field(PrimaryKey = true, AutoNumber = true, InsertSQL = "ProductSequence")]
+        public decimal ID
+        {
+            get
+            {
+                return _ID;
+            }
+            set
+            {
+                _ID = value;
+            }
+        }
 
-		/// <summary>
-		/// Keeps a list of constants with property names.
-		/// </summary>
-		public partial class Properties : object
-		{
-			private Properties() { }
-			public const string ID = "ID";
-			public const string Nome = "Nome";
-		}
+        private string _Nome;
+        /// <summary>
+        /// Represents the field Nome.
+        /// </summary>
+        [Field()]
+        public string Nome
+        {
+            get
+            {
+                return _Nome;
+            }
+            set
+            {
+                _Nome = value;
+            }
+        }
 
-#endregion
+        /// <summary>
+        /// Keeps a list of constants with property names.
+        /// </summary>
+        public partial class Properties : object
+        {
+            private Properties() { }
+            public const string ID = "ID";
+            public const string Nome = "Nome";
+        }
 
-#region Foreign Keys
+        #endregion
 
-#endregion
+        #region Foreign Keys
 
-#region Constructors And Metadata
+        #endregion
+
+        #region Constructors And Metadata
 
         public Product()
         { }
 
-		/// <summary>
-		/// Loads Product from the database with these keys.
-		/// </summary>
+        /// <summary>
+        /// Loads Product from the database with these keys.
+        /// </summary>
         public Product(decimal pID) :
             base()
         {
@@ -81,9 +78,9 @@ namespace Teste.TESTE
             Bind();
         }
 
-#endregion
+        #endregion
 
-#region Search
+        #region Search
 
         public static Product[] Search(ConditionCollection conditions, SortingCollection sorting)
         {
@@ -100,24 +97,24 @@ namespace Teste.TESTE
             return Search(conditions, sorting, distinct, limit, null);
         }
 
-		/// <summary>
-		/// Performs a search within this class.
-		/// </summary>
-		public static Product[] Search(ConditionCollection conditions, SortingCollection sorting, bool distinct, int limit, ConnectionStringSettings connection)
-		{
-			SearchOptions sc = new SearchOptions(typeof(Product));
-			if (conditions != null)
-				sc.Conditions = conditions;
-			if (sorting != null)
-				sc.Sorting = sorting;
+        /// <summary>
+        /// Performs a search within this class.
+        /// </summary>
+        public static Product[] Search(ConditionCollection conditions, SortingCollection sorting, bool distinct, int limit, ConnectionStringSettings connection)
+        {
+            SearchOptions sc = new SearchOptions(typeof(Product));
+            if (conditions != null)
+                sc.Conditions = conditions;
+            if (sorting != null)
+                sc.Sorting = sorting;
 
-			sc.Distinct = distinct;
+            sc.Distinct = distinct;
             sc.Top = limit;
 
-			return (Product[])(BLLBase.Search(sc, connection));
-		}
+            return (Product[])(EntityBase.Search(sc, connection));
+        }
 
-#endregion
+        #endregion
 
     }
 }

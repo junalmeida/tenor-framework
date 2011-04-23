@@ -8,13 +8,11 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Text;
-using Tenor.Data;
-namespace Tenor.BLL
+namespace Tenor.Data
 {
-    public abstract partial class BLLBase
+    public abstract partial class EntityBase
     {
- 
+
 
         /// <summary>
         /// </summary>
@@ -43,7 +41,7 @@ namespace Tenor.BLL
             foreach (System.Reflection.PropertyInfo i in instanceType.GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic))
             {
 
-                FieldInfo field = FieldInfo.Create(i); 
+                FieldInfo field = FieldInfo.Create(i);
                 if (field != null)
                 {
                     if (!isPrimaryKey.HasValue || (field.PrimaryKey == isPrimaryKey.Value))

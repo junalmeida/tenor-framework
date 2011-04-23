@@ -83,5 +83,11 @@ namespace Tenor.Data.Dialects.PostgreSQL
         {
             throw new NotImplementedException();
         }
+
+
+        protected override string GetLenExpression(string fieldExpression)
+        {
+            return string.Format("length({0})", fieldExpression);
+        }
     }
 }

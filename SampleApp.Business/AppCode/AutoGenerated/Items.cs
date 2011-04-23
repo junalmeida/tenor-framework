@@ -1,9 +1,6 @@
 ﻿
-using System.Collections.Generic;
-using System.Configuration;
 using System;
-
-using Tenor.BLL;
+using System.Configuration;
 using Tenor.Data;
 
 namespace SampleApp.Business.Entities
@@ -13,12 +10,12 @@ namespace SampleApp.Business.Entities
     /// This is an item.
     /// </summary>
     [Serializable(), Table("Items", "")]
-    public partial class Item : BLLBase
+    public partial class Item : EntityBase
     {
         #region Properties
         // FOR ORACLE: InsertSQL = "ItemsSequence"
         // FOR POSTGRESQL: InsertSQL = "Items_ItemId_seq"
-        
+
         private long _ItemId;
         /// <summary>
         /// Represents the field ItemId.
@@ -97,11 +94,11 @@ namespace SampleApp.Business.Entities
         /// Represents the relationship FK_Persons_Items_Items.
         /// </summary>
         [ForeignKeyField(PersonItem.Properties.ItemId, Properties.ItemId)]
-        public BLLCollection<PersonItem> PersonItemList
+        public EntityList<PersonItem> PersonItemList
         {
             get
             {
-                return (BLLCollection<PersonItem>)GetPropertyValue();
+                return (EntityList<PersonItem>)GetPropertyValue();
             }
         }
 
@@ -179,7 +176,7 @@ namespace SampleApp.Business.Entities
             sc.Distinct = distinct;
             sc.Top = limit;
 
-            return (Item[])(BLLBase.Search(sc, connection));
+            return (Item[])(EntityBase.Search(sc, connection));
         }
 
 

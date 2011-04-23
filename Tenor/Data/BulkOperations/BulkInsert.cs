@@ -1,3 +1,11 @@
+/*
+ * Licensed under the MIT License:
+ * http://www.opensource.org/licenses/mit-license.php
+ * 
+ * Copyright (c) 2009 Marcos Almeida Jr, Rachel Carvalho and Vinicius Barbosa.
+ *
+ * See the file license.txt for copying permission.
+ */
 //TODO: Refactoring of bulk insert to be able to use the new dialects. 
 //The commented code below was made on top of pure t-sql.
 
@@ -29,7 +37,7 @@ namespace Tenor.Data
     /// Classe que implementa operações de inserção em lote.
     /// </summary>
     /// <remarks></remarks>
-    public class BulkInsert : System.Collections.ObjectModel.Collection<BLL.BLLBase>
+    public class BulkInsert : System.Collections.ObjectModel.Collection<BLL.EntityBase>
     {
 
 
@@ -122,7 +130,7 @@ namespace Tenor.Data
         /// <param name="Item">Item que deseja adicionar</param>
         /// <param name="RelateWith">Tipo de item que deseja relacionar. A relação será feita com o ultimo ID recuperado deste item.</param>
         /// <remarks></remarks>
-        public void Add(BLL.BLLBase Item, Type RelateWith)
+        public void Add(BLL.EntityBase Item, Type RelateWith)
         {
             Add(Item, new Type[] { RelateWith });
         }
@@ -134,7 +142,7 @@ namespace Tenor.Data
         /// <param name="Item">Item que deseja adicionar</param>
         /// <param name="RelateWith">Tipos que deverá relacionar.</param>
         /// <remarks></remarks>
-        public void Add(BLLBase Item, params Type[] RelateWith)
+        public void Add(EntityBase Item, params Type[] RelateWith)
         {
             if (RelateWith == null)
             {
@@ -158,7 +166,7 @@ namespace Tenor.Data
             PrepareItem();
         }
 
-        protected override void InsertItem(int index, BLL.BLLBase item)
+        protected override void InsertItem(int index, BLL.EntityBase item)
         {
             if (item == null)
             {
@@ -175,7 +183,7 @@ namespace Tenor.Data
             //related.RemoveAt(index)
         }
 
-        public new void Add(BLLBase item)
+        public new void Add(EntityBase item)
         {
             base.Add(item);
 
@@ -227,7 +235,7 @@ namespace Tenor.Data
 
                 for (int i = 0; i <= rs.Rows.Count - 1; i++)
                 {
-                    FieldInfo[] fields = BLL.BLLBase.GetFields(this[i].GetType(), true);
+                    FieldInfo[] fields = BLL.EntityBase.GetFields(this[i].GetType(), true);
                     foreach (FieldInfo f in fields)
                     {
                         if (f.AutoNumber)
@@ -260,7 +268,7 @@ namespace Tenor.Data
         private void PrepareItem()
         {
             int i = this.Count - 1;
-            BLL.BLLBase instance = this[i];
+            BLL.EntityBase instance = this[i];
 
             string paramPrefix = "bulk" + (i + 1).ToString() + "_";
 
@@ -270,7 +278,7 @@ namespace Tenor.Data
             //procurar por foreignkeys
             if (i > 0 && related[i].Count > 0)
             {
-                ForeignKeyInfo[] fks = BLL.BLLBase.GetForeignKeys(instance.GetType());
+                ForeignKeyInfo[] fks = BLL.EntityBase.GetForeignKeys(instance.GetType());
                 //nenhuma foreign key disponível
                 if (fks.Length == 0)
                 {
@@ -291,7 +299,7 @@ namespace Tenor.Data
                             if (pos > -1 && field.AutoNumber)
                             {
                                 //procura o parameter correspondente
-                                specialValues.Add(BLL.BLLBase.GetParamName(paramPrefix, field), "@bulk" + related[i][pos].Name.ToLower());
+                                specialValues.Add(BLL.EntityBase.GetParamName(paramPrefix, field), "@bulk" + related[i][pos].Name.ToLower());
                                 found = true;
                                 break;
                             }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Configuration;
-using Tenor.BLL;
+using System.IO;
 using Tenor.Data;
 
 namespace SampleApp.Business.Entities
@@ -10,7 +10,7 @@ namespace SampleApp.Business.Entities
     /// Some description on table.
     /// </summary>
     [Serializable(), Table("Persons", "")]
-    public partial class Person : BLLBase
+    public partial class Person : EntityBase
     {
 
         #region Properties
@@ -101,8 +101,22 @@ namespace SampleApp.Business.Entities
             set { active = value; }
         }
 
-        [Field(LazyLoading=true)]
-        public byte[] Photo
+        [Field("Photo", LazyLoading = true)]
+        public Stream Photo
+        {
+            get
+            {
+                return (Stream)GetPropertyValue();
+            }
+            set
+            {
+                image = null;
+                SetPropertyValue(value);
+            }
+        }
+
+        [Field("Photo2", LazyLoading = true)]
+        public byte[] Photo2
         {
             get
             {
@@ -113,6 +127,13 @@ namespace SampleApp.Business.Entities
                 image = null;
                 SetPropertyValue(value);
             }
+        }
+
+        [Field("Photo3")]
+        public byte[] Photo3
+        {
+            get;
+            set;
         }
 
         private MaritalStatus? maritalStatus;
@@ -135,7 +156,7 @@ namespace SampleApp.Business.Entities
         {
             get { return contractType; }
             set { contractType = value; }
-        }	
+        }
 
         /// <summary>
         /// Keeps a list of constants with property names.
@@ -162,11 +183,11 @@ namespace SampleApp.Business.Entities
         /// Represents the relationship FK_Persons_Items_Persons.
         /// </summary>
         [ForeignKeyField(PersonItem.Properties.PersonId, Properties.PersonId)]
-        public BLLCollection<PersonItem> PersonItemList
+        public EntityList<PersonItem> PersonItemList
         {
             get
             {
-                return (BLLCollection<PersonItem>)GetPropertyValue();
+                return (EntityList<PersonItem>)GetPropertyValue();
             }
         }
 
@@ -174,13 +195,13 @@ namespace SampleApp.Business.Entities
         /// <summary>
         /// Example of N-N relations.
         /// </summary>
-        [ForeignKey(ManyToManyTable="person_department")]
+        [ForeignKey(ManyToManyTable = "person_department")]
         [ForeignKeyField(Department.Properties.DepartmentId, Person.Properties.PersonId, "DepartmentId", "PersonId")]
-        public BLLCollection<Department> DepartmentList
+        public EntityList<Department> DepartmentList
         {
             get
             {
-                return (BLLCollection<Department>)GetPropertyValue();
+                return (EntityList<Department>)GetPropertyValue();
             }
         }
 
@@ -240,7 +261,7 @@ namespace SampleApp.Business.Entities
             sc.Distinct = distinct;
             sc.Top = limit;
 
-            return (Person[])(BLLBase.Search(sc, connection));
+            return (Person[])(EntityBase.Search(sc, connection));
         }
 
 

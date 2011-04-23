@@ -1,14 +1,8 @@
-using System.Diagnostics;
 using System;
-using System.Collections;
-using Tenor.Data;
-using System.Data;
-using System.Collections.Generic;
-using System.IO;
 using System.Configuration;
+using System.Data;
 using ConnectionState = System.Data.ConnectionState;
 using SchemaType = System.Data.SchemaType;
-using System.Data.Common;
 /*
  * using DataRow = System.Data.DataRow;
  */
@@ -56,12 +50,15 @@ namespace Tenor.Data
             : this()
         {
             if (connection == null)
-                connection = BLL.BLLBase.SystemConnection;
+                connection = EntityBase.SystemConnection;
 
             AttachConnection(connection);
             AttachParameters(parameters);
             this.CommandText = commandText;
+            this.currentConnection = connection;
         }
+
+        ConnectionStringSettings currentConnection;
 
         /// <summary>
         /// Creates a new instance of a DataTable.
@@ -275,6 +272,7 @@ namespace Tenor.Data
                     _ActiveConnection.Open();
                 }
                 sqlTime = DateTime.Now;
+                //Diagnostics.Debug.DebugSQL("Tenor.Data.DataTable", this.CommandText, null, currentConnection);
                 _Ad.Fill(this);
             }
             catch (Exception up)

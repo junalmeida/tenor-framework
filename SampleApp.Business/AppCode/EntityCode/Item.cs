@@ -1,14 +1,8 @@
-﻿using System;
-using System.Data;
-using System.Configuration;
-using System.Web;
-using Tenor.BLL;
-using System.Text;
-using Tenor.Data;
+﻿using Tenor.Data;
 
 namespace SampleApp.Business.Entities
 {
-    public partial class Item 
+    public partial class Item
     {
         public static Item[] ListByCategory(int categoryId)
         {
