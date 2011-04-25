@@ -107,12 +107,15 @@ namespace Tenor.Data
         {
             try
             {
-
-                dbTransaction.Dispose();
+                if (dbTransaction != null)
+                    dbTransaction.Dispose();
                 dbTransaction = null;
-                if (conn.State == System.Data.ConnectionState.Open)
-                    conn.Close();
-                conn.Dispose();
+                if (conn != null)
+                {
+                    if (conn.State == System.Data.ConnectionState.Open)
+                        conn.Close();
+                    conn.Dispose();
+                }
                 conn = null;
             }
             catch { }
