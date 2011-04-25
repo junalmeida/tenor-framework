@@ -342,7 +342,7 @@ namespace Tenor.Data
             SetPropertyValue(propertyName, value);
         }
 
-        internal virtual void SetPropertyValue(string propertyName, object value)
+        protected virtual void SetPropertyValue(string propertyName, object value)
         {
             lock (propertyData)
             {
