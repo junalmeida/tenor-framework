@@ -264,8 +264,7 @@ namespace Tenor.Data
         {
             return ExecutePaged(page, pageSize, null);
         }
-
-
+                
         /// <summary>
         /// Executes the query defined on this instance respecting page and page size arguments.
         /// </summary>
@@ -273,16 +272,36 @@ namespace Tenor.Data
         /// <param name="pageSize">Page size</param>
         public EntityBase[] ExecutePaged(int page, int pageSize, ConnectionStringSettings connection)
         {
-            int totalCount = this.ExecuteCount(connection);
+            int totalCount = this.ExecuteCount();
 
             int pageCount = (int)System.Math.Ceiling((double)totalCount / (double)pageSize);
 
             if (pageCount > 0 && page >= pageCount) page = pageCount - 1;
 
-            int pagingStart = (page * pageSize) + 1;
-            int pagingEnd = (page + 1) * pageSize;
+            int skip = (page * pageSize);
+            int take = pageSize;
 
-            Tenor.Data.DataTable rs = SearchWithDataTable(connection, false, pagingStart, pagingEnd);
+            return ExecuteSkipTake(skip, take, connection);
+        }
+
+        /// <summary>
+        /// Executes the query defined on this instance respecting page and page size arguments.
+        /// </summary>
+        /// <param name="skip">Number of rows to skip</param>
+        /// <param name="take">Number of rows to take</param>
+        public EntityBase[] ExecuteSkipTake(int skip, int take)
+        {
+            return ExecuteSkipTake(skip, take, null);
+        }
+
+        /// <summary>
+        /// Executes the query defined on this instance respecting skip and take arguments.
+        /// </summary>
+        /// <param name="skip">Number of rows to skip</param>
+        /// <param name="take">Number of rows to take</param>
+        public EntityBase[] ExecuteSkipTake(int skip, int take, ConnectionStringSettings connection)
+        {
+            Tenor.Data.DataTable rs = SearchWithDataTable(connection, false, skip, take);
             return EntityBase.BindRows(rs, this);
         }
 
@@ -322,7 +341,7 @@ namespace Tenor.Data
             return SearchWithDataTable(connection, justCount, null, null);
         }
 
-        private Tenor.Data.DataTable SearchWithDataTable(ConnectionStringSettings connection, bool justCount, int? pagingStart, int? pagingEnd)
+        private Tenor.Data.DataTable SearchWithDataTable(ConnectionStringSettings connection, bool justCount, int? skip, int? take)
         {
             TenorParameter[] parameters = null;
             if (connection == null)
@@ -333,7 +352,7 @@ namespace Tenor.Data
                 connection = table.GetConnection();
             }
 
-            string sql = EntityBase.GetSearchSql(this, justCount, pagingStart, pagingEnd, connection, out parameters);
+            string sql = EntityBase.GetSearchSql(this, justCount, skip, take, connection, out parameters);
 
             Tenor.Data.DataTable rs = new Tenor.Data.DataTable(sql, parameters, connection);
             DataSet ds = new DataSet();

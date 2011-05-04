@@ -39,7 +39,7 @@ namespace Tenor.Test
         [TestMethod]
         public void PagingTest()
         {
-            Type type = typeof(Person);
+            Type type = typeof(Department);
 
             SearchOptions so = new SearchOptions(type);
             so.Distinct = true;
@@ -52,12 +52,14 @@ namespace Tenor.Test
         [TestMethod]
         public void PagingWithConditionsTest()
         {
-            Type type = typeof(Person);
+            Type type = typeof(Department);
 
             SearchOptions so = new SearchOptions(type);
             so.Distinct = true;
 
-            so.Conditions.Add(new SearchCondition(string.Empty, Person.Properties.Name, "jane%", CompareOperator.Like));
+            so.Conditions.Add(Department.Properties.Name, "%1", CompareOperator.Like);
+            so.Conditions.Or(Department.Properties.Name, "%2", CompareOperator.Like);
+            so.Conditions.Or(Department.Properties.Name, "%3", CompareOperator.Like);
 
             int pageSize = 2;
 
@@ -67,14 +69,14 @@ namespace Tenor.Test
         [TestMethod]
         public void PagingWithJoinAndConditionsTest()
         {
-            Type type = typeof(Person);
+            Type type = typeof(Department);
 
             SearchOptions so = new SearchOptions(type);
             so.Distinct = true;
 
-            so.Conditions.Include("PersonItemList", "pi");
+            so.Conditions.Include("PersonDepartmentList", "pd");
 
-            so.Conditions.Add(new SearchCondition("pi", PersonItem.Properties.ItemId, 2));
+            so.Conditions.Add(new SearchCondition("pd", PersonDepartment.Properties.PersonId, 2));
 
             int pageSize = 2;
 
@@ -84,15 +86,15 @@ namespace Tenor.Test
         [TestMethod]
         public void PagingWithJoinToManyAndConditionsTest()
         {
-            Type type = typeof(Person);
+            Type type = typeof(Department);
 
             SearchOptions so = new SearchOptions(type);
             so.Distinct = true;
 
-            so.Conditions.Include("PersonItemList", "pi");
-            so.Conditions.Include("pi", "Item", "i", JoinMode.InnerJoin);
+            so.Conditions.Include("PersonDepartmentList", "pd");
+            so.Conditions.Include("pd", "Person", "p", JoinMode.InnerJoin);
 
-            so.Conditions.Add(new SearchCondition("i", Item.Properties.Description, "%item", CompareOperator.Like));
+            so.Conditions.Add(Person.Properties.Name, "jane%", CompareOperator.Like, "p");
 
             int pageSize = 2;
 
@@ -102,6 +104,7 @@ namespace Tenor.Test
         [TestMethod]
         public void PagingWithJoinToManyConditionsAndOtherTableSortingTest()
         {
+            // not tested with sqlite, data mass doesnt exist anymore and current testing tables don't have the complexity
             Type type = typeof(Item);
 
             SearchOptions so = new SearchOptions(type);
@@ -124,6 +127,7 @@ namespace Tenor.Test
         [TestMethod]
         public void PagingWithSortingToManyTest()
         {
+            // not tested with sqlite
             Type type = typeof(Item);
 
             SearchOptions so = new SearchOptions(type);
@@ -150,15 +154,16 @@ namespace Tenor.Test
             if (!exceptionHappened)
                 Assert.Fail("An InvalidSortException should have been thrown. Sorting by collection association fields is not allowed.");
         }
+       
         /// <summary>
-        /// Base to paging tests with person
+        /// Base to paging tests with department/person
         /// </summary>
         /// <param name="page">Desired page (zero-based)</param>
         /// <param name="pageSize">Page size</param>
         /// <param name="so">Search options</param>
         private void PagingTestBase(int pageSize, SearchOptions so, Type type)
         {
-            EntityBase[] allItems = EntityBase.Search(so);
+            EntityBase[] allItems = so.Execute();
 
             int pages = (int)System.Math.Ceiling((double)allItems.Length / (double)pageSize);
 
@@ -167,7 +172,7 @@ namespace Tenor.Test
                 EntityBase[] pagedInMemory = allItems.Skip(page * pageSize).Take(pageSize).ToArray();
                 EntityBase[] items = so.ExecutePaged(page, pageSize);
 
-                Assert.AreEqual(items.Length, pagedInMemory.Length, string.Format("Page {0} should have {1} items and has {2}.", page + 1, pagedInMemory.Length, items.Length));
+                Assert.AreEqual(pagedInMemory.Length, items.Length, string.Format("Page {0} should have {1} items and has {2}.", page + 1, pagedInMemory.Length, items.Length));
 
                 for (int i = 0; i < items.Length; i++)
                     PagingTestObjectComparison(items[i], pagedInMemory[i], type);
@@ -186,6 +191,8 @@ namespace Tenor.Test
                 Assert.AreEqual(((Person)item1).PersonId, ((Person)item2).PersonId);
             if (type == typeof(Item))
                 Assert.AreEqual(((Item)item1).ItemId, ((Item)item2).ItemId);
+            if (type == typeof(Department))
+                Assert.AreEqual(((Department)item1).DepartmentId, ((Department)item2).DepartmentId);
         }
     }
 }

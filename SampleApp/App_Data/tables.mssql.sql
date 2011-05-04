@@ -1,9 +1,20 @@
 ﻿-- Drop
+IF OBJECT_ID('dbo.[PersonItem]','U') IS NOT NULL
 DROP TABLE PersonItem;
+
+IF OBJECT_ID('dbo.[Items]','U') IS NOT NULL
 DROP TABLE Items;
+
+IF OBJECT_ID('dbo.[Categories]','U') IS NOT NULL
 DROP TABLE Categories;
+
+IF OBJECT_ID('dbo.[Person_Department]','U') IS NOT NULL
 DROP TABLE Person_Department;
+
+IF OBJECT_ID('dbo.[Departments]','U') IS NOT NULL
 DROP TABLE Departments;
+
+IF OBJECT_ID('dbo.[Persons]','U') IS NOT NULL
 DROP TABLE Persons;
 
 GO
@@ -93,3 +104,16 @@ INSERT INTO PersonItem (ItemId, PersonId)
 VALUES (2, 2);
 INSERT INTO PersonItem (ItemId, PersonId)
 VALUES (3, 2);
+
+INSERT INTO Person_Department (DepartmentId, PersonId)
+VALUES (1, 1);
+INSERT INTO Person_Department (DepartmentId, PersonId)
+VALUES (2, 2);
+INSERT INTO Person_Department (DepartmentId, PersonId)
+VALUES (3, 2);
+INSERT INTO Person_Department (DepartmentId, PersonId)
+VALUES (4, 2);
+INSERT INTO Person_Department (DepartmentId, PersonId)
+VALUES (5, 2);
+INSERT INTO Person_Department (DepartmentId, PersonId)
+VALUES (5, 1);

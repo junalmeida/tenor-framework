@@ -247,9 +247,9 @@ namespace Tenor.Data.Dialects.TSql
             }
         }
 
-        internal override string CreateFullSql(Type baseClass, bool isDistinct, bool justCount, int limit, int? pagingStart, int? pagingEnd, string fieldsPart, string joinsPart, string sortPart, string wherePart)
+        internal override string CreateFullSql(Type baseClass, bool isDistinct, bool justCount, int limit, int? skip, int? take, string fieldsPart, string joinsPart, string sortPart, string wherePart)
         {
-            if (pagingStart.HasValue && pagingEnd.HasValue)
+            if (skip.HasValue && take.HasValue)
             {
                 if (justCount)
                     throw new InvalidOperationException("It is not possible to page a count result.");
@@ -273,7 +273,7 @@ INNER JOIN
 SELECT [[[regular_query]]]
 ) AllDataQuery
 ON [[[joins_between_row_num_and_data]]]
-WHERE  ListWithRowNumbers.Row >= {0} AND ListWithRowNumbers.Row <= {1}
+WHERE  ListWithRowNumbers.Row > {0} AND ListWithRowNumbers.Row <= {1}
 ORDER BY [[[sort_without_alias]]]";
 
 
@@ -365,7 +365,10 @@ ORDER BY [[[sort_without_alias]]]";
                                 .Replace("[[[joins_between_row_num_and_data]]]", joinsRowNum)
                                 .Replace("[[[sort_without_alias]]]", finalSort);
 
-                sql = string.Format(sql, pagingStart.Value, pagingEnd.Value);
+                int firstRow = skip.Value;
+                int lastRow = firstRow + take.Value;
+
+                sql = string.Format(sql, firstRow, lastRow);
 
                 return sql;
             }

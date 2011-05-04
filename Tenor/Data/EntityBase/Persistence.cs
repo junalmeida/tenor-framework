@@ -270,11 +270,11 @@ namespace Tenor.Data
         /// <param name="searchOptions">The search definitions.</param>
         /// <param name="connection">The Connection.</param>
         /// <param name="justCount">Indicates that this is a COUNT query.</param>
-        /// <param name="pagingStart">First row number that should be returned when paging</param>
-        /// <param name="pagingEnd">Last row number that should be returned when paging</param>
+        /// <param name="skip">Number of rows to skip when paging</param>
+        /// <param name="take">Number of rows to take when paging</param>
         /// <param name="parameters">Outputs the generated parameters.</param>
         /// <returns>A SQL query.</returns>
-        public static string GetSearchSql(SearchOptions searchOptions, bool justCount, int? pagingStart, int? pagingEnd, ConnectionStringSettings connection, out TenorParameter[] parameters)
+        public static string GetSearchSql(SearchOptions searchOptions, bool justCount, int? skip, int? take, ConnectionStringSettings connection, out TenorParameter[] parameters)
         {
             GeneralDialect dialect = DialectFactory.CreateDialect(connection);
 
@@ -326,7 +326,7 @@ namespace Tenor.Data
                     lenFields.Add(f);
 
                 // when paging, at least one sorting criterion is needed
-                if (pagingStart.HasValue && pagingEnd.HasValue && searchOptions.Sorting.Count == 0 && f.PrimaryKey)
+                if (skip.HasValue && take.HasValue && searchOptions.Sorting.Count == 0 && f.PrimaryKey)
                     searchOptions.Sorting.Add(f.RelatedProperty.Name);
             }
 
@@ -383,7 +383,7 @@ namespace Tenor.Data
             {
                 string appendToSelect = null;
 
-                sqlSort = dialect.CreateSortSql(searchOptions.Sorting, table.RelatedTable, joins.ToArray(), searchOptions.Distinct, pagingStart.HasValue && pagingEnd.HasValue, out appendToSelect);
+                sqlSort = dialect.CreateSortSql(searchOptions.Sorting, table.RelatedTable, joins.ToArray(), searchOptions.Distinct, skip.HasValue && take.HasValue, out appendToSelect);
 
                 if (!string.IsNullOrEmpty(appendToSelect))
                     sqlFields.Append(appendToSelect);
@@ -402,7 +402,7 @@ namespace Tenor.Data
 
 
             // Creates the entire sql string
-            string sql = dialect.CreateFullSql(searchOptions.baseType, searchOptions.Distinct, justCount, searchOptions.Top, pagingStart, pagingEnd, sqlFields.ToString(), sqlJoins, sqlSort, sqlWhere);
+            string sql = dialect.CreateFullSql(searchOptions.baseType, searchOptions.Distinct, justCount, searchOptions.Top, skip, take, sqlFields.ToString(), sqlJoins, sqlSort, sqlWhere);
 
 
             Tenor.Diagnostics.Debug.DebugSQL("GetSearchSql()", sql, parameters, connection);

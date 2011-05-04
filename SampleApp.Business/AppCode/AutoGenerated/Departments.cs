@@ -63,6 +63,17 @@ namespace SampleApp.Business.Entities
         }
 
 
+        /// <summary>
+        /// Represents the relationship 
+        /// </summary>
+        [ForeignKeyField(PersonDepartment.Properties.DepartmentId, Properties.DepartmentId)]
+        public EntityList<PersonDepartment> PersonDepartmentList
+        {
+            get
+            {
+                return (EntityList<PersonDepartment>)GetPropertyValue();
+            }
+        }
         #endregion
 
         #region Constructors And Metadata

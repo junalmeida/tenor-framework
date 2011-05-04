@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using SampleApp.Business.Entities;
 using Tenor.Data;
 using Tenor.Linq;
+using System.IO;
 #if MSTEST
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -14,8 +15,6 @@ using TestClassAttribute = NUnit.Framework.TestFixtureAttribute;
 
 #if SQLITE
 using DbInt = System.Int64;
-using System.IO;
-
 #else
 using DbInt = System.Int32;
 #endif
@@ -224,13 +223,13 @@ namespace Tenor.Test
 
             var entities1 = (
                     from person in Tenor.Linq.SearchOptions<Person>.CreateQuery()
-                    where idArray.Contains(person.PersonId)
+                    where idArray.Contains((DbInt)person.PersonId)
                     select person
                     ).ToArray();
 
             var entities2 = (
                 from person in Tenor.Linq.SearchOptions<Person>.CreateQuery()
-                where idArray.Contains(person.PersonId)
+                where idArray.Contains((DbInt)person.PersonId)
                 select person
                 ).ToArray();
 

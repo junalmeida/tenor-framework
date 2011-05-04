@@ -1,17 +1,18 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">sqlite</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{648E95EC-A041-41B6-B201-B82AD0440A77}</ProjectGuid>
+    <ProjectGuid>{3D49FCBB-2056-44F2-99BA-AFEE78086F84}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SampleApp.Business</RootNamespace>
-    <AssemblyName>SampleApp.Business</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <RootNamespace>Tenor.Test</RootNamespace>
+    <AssemblyName>Tenor.Test</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
@@ -22,7 +23,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;SQLITE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;MSTEST;SQLITE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -30,31 +31,35 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;MSTEST;SQLITE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Mono-Release|sqlite' ">
-    <OutputPath>bin\Mono-Release\</OutputPath>
-    <DefineConstants>TRACE;SQLITE</DefineConstants>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;MONO</DefineConstants>
     <Optimize>true</Optimize>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <DebugType>none</DebugType>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Mono-Debug|sqlite' ">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Mono-Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;SQLITE</DefineConstants>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;MONO</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|mssql' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;MSSQL</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;MSTEST;MSSQL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -62,31 +67,35 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;MSSQL</DefineConstants>
+    <DefineConstants>TRACE;MSTEST;MSSQL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Mono-Release|mssql' ">
-    <OutputPath>bin\Mono-Release\</OutputPath>
-    <DefineConstants>TRACE;MSSQL</DefineConstants>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;MONO</DefineConstants>
     <Optimize>true</Optimize>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <DebugType>none</DebugType>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Mono-Debug|mssql' ">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Mono-Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;MSSQL</DefineConstants>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;MONO</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|oracle' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;ORACLE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;MSTEST;ORACLE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -94,31 +103,35 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;ORACLE</DefineConstants>
+    <DefineConstants>TRACE;MSTEST;ORACLE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Mono-Release|oracle' ">
-    <OutputPath>bin\Mono-Release\</OutputPath>
-    <DefineConstants>TRACE;ORACLE</DefineConstants>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;MONO</DefineConstants>
     <Optimize>true</Optimize>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <DebugType>none</DebugType>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Mono-Debug|oracle' ">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Mono-Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;ORACLE</DefineConstants>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;MONO</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|postgres' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;POSTGRES</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;MSTEST;POSTGRES</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -126,31 +139,35 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;POSTGRES</DefineConstants>
+    <DefineConstants>TRACE;MSTEST;POSTGRES</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Mono-Release|postgres' ">
-    <OutputPath>bin\Mono-Release\</OutputPath>
-    <DefineConstants>TRACE;POSTGRES</DefineConstants>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;MONO</DefineConstants>
     <Optimize>true</Optimize>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <DebugType>none</DebugType>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Mono-Debug|postgres' ">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Mono-Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;POSTGRES</DefineConstants>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;MONO</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|mysql' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;MYSQL</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;MSTEST;MYSQL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -158,56 +175,102 @@
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;MYSQL</DefineConstants>
+    <DefineConstants>TRACE;MSTEST;MYSQL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Mono-Release|mysql' ">
-    <OutputPath>bin\Mono-Release\</OutputPath>
-    <DefineConstants>TRACE;MYSQL</DefineConstants>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;MONO</DefineConstants>
     <Optimize>true</Optimize>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <DebugType>none</DebugType>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Mono-Debug|mysql' ">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Mono-Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;MYSQL</DefineConstants>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;MONO</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="MySql.Data, Version=5.2.5.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Resources\bin\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Npgsql, Version=2.0.6.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Resources\bin\Npgsql.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework" />
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Web" />
+    <Reference Include="System.Data.SQLite, Version=1.0.60.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Resources\bin\System.Data.SQLite.DLL</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AppCode\AutoGenerated\Categories.cs" />
-    <Compile Include="AppCode\AutoGenerated\Departments.cs" />
-    <Compile Include="AppCode\AutoGenerated\Items.cs" />
-    <Compile Include="AppCode\AutoGenerated\PersonDepartment.cs" />
-    <Compile Include="AppCode\AutoGenerated\Persons.cs" />
-    <Compile Include="AppCode\AutoGenerated\Persons_Items.cs" />
-    <Compile Include="AppCode\Business.cs" />
-    <Compile Include="AppCode\EntityCode\Category.cs" />
-    <Compile Include="AppCode\EntityCode\Department.cs" />
-    <Compile Include="AppCode\EntityCode\Item.cs" />
-    <Compile Include="AppCode\EntityCode\Person.cs" />
-    <Compile Include="AppCode\Enums.cs" />
-    <Compile Include="AppCode\teste\AutoGenerated\Product.cs" />
+    <Compile Include="DeletingEntities.cs" />
+    <Compile Include="EagerLoading.cs" />
+    <Compile Include="Paging.cs" />
+    <Compile Include="Projection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SavingEntities.cs" />
+    <Compile Include="SelectingEntities.cs" />
+    <Compile Include="TestBase.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SampleApp.Business\SampleApp.Business.csproj">
+      <Project>{648E95EC-A041-41B6-B201-B82AD0440A77}</Project>
+      <Name>SampleApp.Business</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tenor.Linq\Tenor.Linq.csproj">
+      <Project>{BD10F917-67D6-40F9-B934-ACE73E30E6F3}</Project>
+      <Name>Tenor.Linq</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Tenor\Tenor.csproj">
       <Project>{5FAE8827-5AED-4918-9FFB-85B7E91901F5}</Project>
       <Name>Tenor</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="App.connection.config">
+    </None>
+    <None Include="App.sqlite.config" />
+    <None Include="App.mssql.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\SampleApp\App_Data\tables.mssql.sql">
+      <Link>Scripts\tables.mssql.sql</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\SampleApp\App_Data\tables.mysql.sql">
+      <Link>Scripts\tables.mysql.sql</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\SampleApp\App_Data\tables.oracle.sql">
+      <Link>Scripts\tables.oracle.sql</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\SampleApp\App_Data\tables.postgresql.sql">
+      <Link>Scripts\tables.postgresql.sql</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\SampleApp\App_Data\tables.sqlite.sql">
+      <Link>Scripts\tables.sqlite.sql</Link>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
@@ -215,4 +278,8 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <PropertyGroup>
+    <PreBuildEvent>attrib -R  "$(ProjectDir)App.connection.config"
+copy /Y "$(ProjectDir)App.$(PlatformName).config" "$(ProjectDir)App.connection.config"</PreBuildEvent>
+  </PropertyGroup>
 </Project>

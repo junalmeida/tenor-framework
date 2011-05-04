@@ -758,7 +758,7 @@ namespace Tenor.Data.Dialects
             return CreateFullSql(baseClass, isDistinct, justCount, limit, null, null, fieldsPart, joinsPart, sortPart, wherePart);
         }
 
-        internal virtual string CreateFullSql(Type baseClass, bool isDistinct, bool justCount, int limit, int? pagingStart, int? pagingEnd, string fieldsPart, string joinsPart, string sortPart, string wherePart)
+        internal virtual string CreateFullSql(Type baseClass, bool isDistinct, bool justCount, int limit, int? skip, int? take, string fieldsPart, string joinsPart, string sortPart, string wherePart)
         {
 
             TableInfo table = TableInfo.CreateTableInfo(baseClass);

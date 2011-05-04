@@ -181,5 +181,25 @@ namespace Tenor.Data.Dialects.SQLite
         {
             return string.Format("length({0})", fieldExpression);
         }
+
+        internal override string CreateFullSql(Type baseClass, bool isDistinct, bool justCount, int limit, int? skip, int? take, string fieldsPart, string joinsPart, string sortPart, string wherePart)
+        {
+            string baseSQL = base.CreateFullSql(baseClass, isDistinct, justCount, limit, null, null, fieldsPart, joinsPart, sortPart, wherePart);
+            
+            if (skip.HasValue && take.HasValue)
+            {
+                if (justCount)
+                    throw new InvalidOperationException("It is not possible to page a count result.");
+
+                if (limit > 0)
+                    throw new InvalidOperationException("It is not possible to use limit with a paged result.");
+
+                return string.Format(@"{0} limit {1} offset {2}", baseSQL, take.Value, skip.Value);
+            }
+            else
+            {
+                return baseSQL;
+            }
+        }
     }
 }

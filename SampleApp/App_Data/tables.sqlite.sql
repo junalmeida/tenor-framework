@@ -95,3 +95,17 @@ INSERT INTO "PersonItem" ("ItemId", "PersonId")
 VALUES (2, 2);
 INSERT INTO "PersonItem" ("ItemId", "PersonId")
 VALUES (3, 2);
+
+
+INSERT INTO "Person_Department" ("DepartmentId", "PersonId")
+VALUES (1, 1);
+INSERT INTO "Person_Department" ("DepartmentId", "PersonId")
+VALUES (2, 2);
+INSERT INTO "Person_Department" ("DepartmentId", "PersonId")
+VALUES (3, 2);
+INSERT INTO "Person_Department" ("DepartmentId", "PersonId")
+VALUES (4, 2);
+INSERT INTO "Person_Department" ("DepartmentId", "PersonId")
+VALUES (5, 2);
+INSERT INTO "Person_Department" ("DepartmentId", "PersonId")
+VALUES (5, 1);
