@@ -21,7 +21,6 @@ namespace Tenor.Data.Dialects.SQLite
             }
         }
 
-
         private DbCommandBuilder builder;
         protected override System.Data.Common.DbCommandBuilder CommandBuilder
         {
@@ -199,6 +198,17 @@ namespace Tenor.Data.Dialects.SQLite
             else
             {
                 return baseSQL;
+            }
+        }
+
+        /// <summary>
+        /// Command to enable foreign key constraints
+        /// </summary>
+        internal override string OnConnectCommand
+        {
+            get
+            {
+                return "PRAGMA foreign_keys = ON;";
             }
         }
     }

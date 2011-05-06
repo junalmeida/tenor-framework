@@ -62,7 +62,7 @@ namespace Tenor.Data
         {
             conn = Helper.CreateConnection(connection);
 
-            conn.Open();
+            Helper.OpenConnection(conn);
             dbTransaction = conn.BeginTransaction();
         }
 

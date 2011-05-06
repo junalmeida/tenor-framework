@@ -141,7 +141,9 @@ namespace Tenor.Data
                         cmd.Parameters.Add(param.ToDbParameter(dialect.Factory));
                     }
                 }
-                conn.Open();
+               
+                OpenConnection(conn, dialect);
+               
                 reader = cmd.ExecuteReader();
                 if (reader != null)
                 {
@@ -239,7 +241,7 @@ namespace Tenor.Data
             DbTransaction transaction = null;
             try
             {
-                conn.Open();
+                OpenConnection(conn, dialect);
                 transaction = conn.BeginTransaction();
 
                 object retVal = ExecuteQuery(query, parameters, transaction, dialect);
@@ -401,9 +403,7 @@ namespace Tenor.Data
 
             string value = connection.ConnectionString;
             if (string.IsNullOrEmpty(value))
-                throw new ConfigurationErrorsException("An invalid connection string was set.");
-
-
+                throw new ConfigurationErrorsException("An invalid (empty) connection string was set.");
 
             if (value.Contains("{0}"))
             {
@@ -427,8 +427,35 @@ namespace Tenor.Data
 
             DbConnection conn = dialect.Factory.CreateConnection();
             conn.ConnectionString = value;
+
             return conn;
         }
 
+        internal static void OpenConnection(DbConnection connection)
+        {
+            OpenConnection(connection, DialectFactory.CreateDialect(connection));
+        }
+
+        internal static void OpenConnection(DbConnection connection, GeneralDialect dialect)
+        {
+            connection.Open();
+
+            if (!string.IsNullOrEmpty(dialect.OnConnectCommand))
+            {
+                try
+                {
+                    using (System.Data.Common.DbCommand command = connection.CreateCommand())
+                    {
+                        command.CommandText = dialect.OnConnectCommand;
+                        command.CommandTimeout = Helper.DefaultTimeout;
+                        command.ExecuteNonQuery();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Unable to execute on connect command.", ex);
+                }
+            }
+        }
     }
 }

@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<TestRunConfiguration name="LocalTestRun.2008" id="56168d94-1e31-4f38-9141-a0425a67ae1f" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2006">
+  <Description>This is a default test run configuration for a local test run.</Description>
+  <Deployment>
+    <DeploymentItem filename="Tenor.Test\App.connection.config" />
+    <DeploymentItem filename="Resources\bin\msvcr100.dll" />
+    <DeploymentItem filename="Resources\bin\SQLite.Interop.DLL" />
+  </Deployment>
+  <TestTypeSpecific />
+</TestRunConfiguration>

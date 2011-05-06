@@ -96,11 +96,7 @@ namespace Tenor.Data
             _Cmds.DataAdapter = _Ad;
 
             if (_ActiveConnection.State == ConnectionState.Closed)
-            {
-                _ActiveConnection.Open();
-            }
-
-
+                Helper.OpenConnection(_ActiveConnection, dialect);
         }
 
         /*
@@ -269,7 +265,7 @@ namespace Tenor.Data
             {
                 if (_ActiveConnection.State == ConnectionState.Closed)
                 {
-                    _ActiveConnection.Open();
+                    Helper.OpenConnection(_ActiveConnection);
                 }
                 sqlTime = DateTime.Now;
                 //Diagnostics.Debug.DebugSQL("Tenor.Data.DataTable", this.CommandText, null, currentConnection);
@@ -317,7 +313,7 @@ namespace Tenor.Data
             {
                 if (_ActiveConnection.State == ConnectionState.Closed)
                 {
-                    _ActiveConnection.Open();
+                    Helper.OpenConnection(_ActiveConnection);
                 }
 
                 if (_Ad.DeleteCommand != null)
@@ -353,10 +349,7 @@ namespace Tenor.Data
                         System.Diagnostics.Trace.TraceInformation("DataTable.Update Time: " + (DateTime.Now - sqlTime).TotalSeconds.ToString() + " sec.");
                     }
                 }
-                catch
-                {
-
-                }
+                catch { }
 
                 if (_ActiveConnection.State != ConnectionState.Closed)
                 {

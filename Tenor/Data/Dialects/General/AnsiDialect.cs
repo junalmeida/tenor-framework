@@ -243,7 +243,7 @@ namespace Tenor.Data.Dialects
             }
 
             //Right side
-            if ((value == null) || value == DBNull.Value)
+            if (value == null || value == DBNull.Value)
             {
                 parameterName = null;
                 if (compareOperator == CompareOperator.Equal)
@@ -456,11 +456,10 @@ namespace Tenor.Data.Dialects
 
                     sqlWhere.Append(where);
 
-                    if (sc.Value != null)
+                    if (sc.Value != null && sc.Value != DBNull.Value)
                     {
                         parametersList.Add(new TenorParameter(parameterName, sc.Value));
                     }
-
                 }
                 else if (obj.GetType() == typeof(SearchCondition))
                 {
@@ -480,7 +479,7 @@ namespace Tenor.Data.Dialects
                     string parameter = null;
                     sqlWhere.Append(CreateCompareSql(table, alias, sc.PropertyName, sc.Value, sc.CompareOperator, sc.CastType, out parameter));
 
-                    if (sc.Value != null)
+                    if (sc.Value != null && sc.Value != DBNull.Value)
                     {
                         parametersList.Add(new TenorParameter(parameter, sc.Value));
                     }
@@ -1240,7 +1239,31 @@ namespace Tenor.Data.Dialects
             return sql.ToString();
         }
 
+        /// <summary>
+        /// Gets the command to be executed on connection, if existant
+        /// </summary>
+        internal virtual string OnConnectCommand
+        {
+            get
+            {
+                return null;
+            }
+        }
 
+        internal Type ConnectionType
+        {
+            get
+            {
+                try
+                {
+                    return Factory.CreateConnection().GetType();
+                }
+                catch (Exception ex)
+                {
+                    throw new NotSupportedException("This provider doesn't seem to be installed.", ex);
+                }
+            }
+        }
     }
 
 

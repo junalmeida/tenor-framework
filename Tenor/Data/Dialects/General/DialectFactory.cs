@@ -2,25 +2,54 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Configuration;
+using System.Data.Common;
 
 namespace Tenor.Data.Dialects
 {
     public static class DialectFactory
     {
         /// <summary>
-        /// Creates an instance of a dialect based on current connection.
+        /// Creates an instance of a dialect based on current connection string settings.
         /// </summary>
-        internal static GeneralDialect CreateDialect(ConnectionStringSettings connection)
+        /// <param name="connectionStringSettings">Connection string settings</param>
+        internal static GeneralDialect CreateDialect(ConnectionStringSettings connectionStringSettings)
         {
             Dictionary<string, Type> dialects = GetAvailableDialectsAndTypes();
-            if (dialects.ContainsKey(connection.ProviderName))
+            if (dialects.ContainsKey(connectionStringSettings.ProviderName))
             {
-                return (GeneralDialect)Activator.CreateInstance(dialects[connection.ProviderName]);
+                return (GeneralDialect)Activator.CreateInstance(dialects[connectionStringSettings.ProviderName]);
             }
             else
             {
-                throw new NotSupportedException("The provider '" + connection.ProviderName + "' is not supported yet. Please send a feature request.");
+                throw new NotSupportedException("The provider '" + connectionStringSettings.ProviderName + "' is not supported yet. Please send a feature request.");
             }
+        }
+
+        /// <summary>
+        /// Creates an instance of a dialect based on current connection instance.
+        /// </summary>
+        /// <param name="connection">Connection instance</param>
+        internal static GeneralDialect CreateDialect(DbConnection connection)
+        {
+            Dictionary<string, Type> dialects = GetAvailableDialectsAndTypes();
+            Type connectionType = connection.GetType();
+
+            Exception notSupportedEx = null;
+            foreach (Type dialectType in dialects.Values)
+            {
+                GeneralDialect dialect = (GeneralDialect)Activator.CreateInstance(dialectType);
+                try
+                {
+                    if (dialect.ConnectionType.Equals(connectionType))
+                        return dialect;
+                }
+                catch (NotSupportedException ex)
+                {
+                    notSupportedEx = ex;
+                }
+            }
+
+            throw new NotSupportedException("The connection type '" + connectionType.FullName + "' is not supported yet or its provider is not correctly installed.", notSupportedEx);
         }
 
         /// <summary>
@@ -80,6 +109,5 @@ namespace Tenor.Data.Dialects
 
             return dialects;
         }
-
     }
 }

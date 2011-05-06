@@ -5,6 +5,8 @@ using SampleApp.Business.Entities;
 
 #if MSTEST
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Data.SQLite;
 #else
 using TestMethodAttribute = NUnit.Framework.TestAttribute;
 using TestClassAttribute = NUnit.Framework.TestFixtureAttribute;
@@ -64,5 +66,35 @@ namespace Tenor.Test
                 Assert.Fail("Instances were not deleted.");
             }
         }
+
+        /// <summary>
+        /// Deletes an entity infringing its foreign key.
+        /// </summary>
+        [TestMethod()]
+        public void DeleteInfringingFK()
+        {
+            // Creates a category
+            Category cat = new Category();
+            cat.Name = "cat";
+            cat.Save(false);
+
+            Item item = new Item();
+            item.Description = "an item";
+            item.CategoryId = cat.CategoryId;
+            item.Save(false);
+
+            try
+            {
+                cat.Delete();
+            }
+            catch (SQLiteException ex)
+            {
+                if (ex.ErrorCode == SQLiteErrorCode.Constraint)
+                    return;
+            }
+
+            Assert.Fail();
+        }
+
     }
 }

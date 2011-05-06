@@ -127,7 +127,7 @@ namespace Tenor.Test
         [TestMethod]
         public void PagingWithSortingToManyTest()
         {
-            // not tested with sqlite
+            // doesnt pass with sqlite
             Type type = typeof(Item);
 
             SearchOptions so = new SearchOptions(type);

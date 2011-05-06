@@ -90,8 +90,9 @@ namespace Tenor.Data
                 EntityBase[] instances;
                 if (lazyEnabled)
                 {
-
                     SearchOptions sc = new SearchOptions(field.ElementType);
+
+                    bool fkHasValue = false;
 
                     if (field.IsManyToMany)
                     {
@@ -112,6 +113,8 @@ namespace Tenor.Data
                                 field.LocalFields[i].PropertyValue(this));
 
                             sc.Conditions.Add(scmm);
+                            
+                            fkHasValue = true;
                         }
                     }
                     else
@@ -125,16 +128,21 @@ namespace Tenor.Data
                         for (int i = 0; i <= field.ForeignFields.Length - 1; i++)
                         {
                             if (i > 0)
-                            {
                                 sc.Conditions.Add(Tenor.Data.LogicalOperator.And);
-                            }
+
+                            object value = field.LocalFields[i].PropertyValue(this);
+
+                            // only one fk field needs to have a value set
+                            fkHasValue = fkHasValue || (value != null && value != DBNull.Value);
+
                             sc.Conditions.Add(
                                 /* the foreign property name */
                                 field.ForeignFields[i].RelatedProperty.Name,
                                 /* the local value */
-                                field.LocalFields[i].PropertyValue(this));
+                                value);
 
                         }
+
                         if (sc.Conditions.Count == 0)
                         {
                             //this should never happen.
@@ -142,8 +150,13 @@ namespace Tenor.Data
                         }
                     }
 
-                    //lazy is enabled, go database, go!
-                    instances = Search(sc, connection);
+                    // lazy is enabled, go database, go!
+
+                    // only searches if fk field is not null
+                    if (fkHasValue)
+                        instances = sc.Execute(connection);
+                    else
+                        instances = new EntityBase[] { };
                 }
                 else
                 {
@@ -160,7 +173,7 @@ namespace Tenor.Data
                     }
                     else
                     {
-                        //It must have another way to create it, string is not cool.
+                        // There must be another way to create it, string is not cool.
                         Type listof = Type.GetType("Tenor.Data.EntityList`1[[" + field.ElementType.AssemblyQualifiedName + "]]");
                         System.Reflection.ConstructorInfo ctor = listof.GetConstructor(System.Reflection.BindingFlags.CreateInstance | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic, null, new Type[] { typeof(EntityBase), typeof(string) }, null);
                         IList obj = (IList)ctor.Invoke(new object[] { (EntityBase)this, property.Name });

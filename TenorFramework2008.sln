@@ -9,9 +9,11 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "bin", "bin", "{9547EA97-71B2-4507-A4C0-4FA0A7FF3BE2}"
 	ProjectSection(SolutionItems) = preProject
 		Resources\bin\Mono.Security.dll = Resources\bin\Mono.Security.dll
+		Resources\bin\msvcr100.dll = Resources\bin\msvcr100.dll
 		Resources\bin\MySql.Data.dll = Resources\bin\MySql.Data.dll
 		Resources\bin\Npgsql.dll = Resources\bin\Npgsql.dll
 		Resources\bin\Npgsql.xml = Resources\bin\Npgsql.xml
+		Resources\bin\SQLite.Interop.DLL = Resources\bin\SQLite.Interop.DLL
 		Resources\bin\System.Data.SQLite.DLL = Resources\bin\System.Data.SQLite.DLL
 		Resources\bin\System.Data.SQLite.xml = Resources\bin\System.Data.SQLite.xml
 	EndProjectSection
@@ -31,6 +33,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{A68E76D2-3
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5ADC66AA-3131-41F6-8005-8DB1E69FBCF0}"
 	ProjectSection(SolutionItems) = preProject
+		LocalTestRun.2008.testrunconfig = LocalTestRun.2008.testrunconfig
 		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
 		TenorFramework2008.vsmdi = TenorFramework2008.vsmdi
 	EndProjectSection
