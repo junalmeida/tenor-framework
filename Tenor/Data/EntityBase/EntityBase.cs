@@ -113,10 +113,16 @@ namespace Tenor.Data
         /// <param name="baseClass">Defines which type to load.</param>
         /// <exception cref="System.ArgumentNullException">Occurs when table or baseClass parameters are null.</exception>
         /// <returns>An array of entities.</returns>
-        public static EntityBase[] BindRows(DataTable table, Type type)
+        public static EntityBase[] BindRows(DataTable table, Type type, string baseAlias)
         {
             SearchOptions opt = new SearchOptions(type);
-            return BindRows(table, opt);
+            return BindRows(table, opt, baseAlias);
+        }
+
+
+        internal static EntityBase[] BindRows(DataTable table, SearchOptions searchOptions)
+        {
+            return BindRows(table, searchOptions, null);
         }
 
         /// <summary>
@@ -127,7 +133,7 @@ namespace Tenor.Data
         /// <param name="baseClass">Defines which type to load.</param>
         /// <exception cref="System.ArgumentNullException">Occurs when table or baseClass parameters are null.</exception>
         /// <returns>An array of entities.</returns>
-        internal static EntityBase[] BindRows(DataTable table, SearchOptions searchOptions)
+        internal static EntityBase[] BindRows(DataTable table, SearchOptions searchOptions, string baseAlias)
         {
             if (table == null)
                 throw new ArgumentNullException("table");
@@ -140,7 +146,7 @@ namespace Tenor.Data
                 for (int i = 0; i <= instances.Length - 1; i++)
                 {
                     instances[i] = (EntityBase)(Activator.CreateInstance(searchOptions.baseType));
-                    instances[i].Bind(searchOptions.LazyLoading, null, null, table.Rows[i]);
+                    instances[i].Bind(searchOptions.LazyLoading, baseAlias, null, table.Rows[i]);
                 }
                 return instances;
             }
@@ -166,16 +172,24 @@ namespace Tenor.Data
 
                 foreach (DataRow dr in table.Rows)
                 {
+                    string basePk = string.Empty;
+                    foreach (FieldInfo fi in meta[0])
+                    {
+                        string alias = fi.DataFieldName;
+                        basePk += "||" + dr[alias].ToString();
+                    }
+
                     for (int i = 0; i < meta.Count; i++)
                     {
                         ForeignKeyInfo key = (i == 0 ? null : keys[i - 1]);
 
-                        string currentPKs = string.Empty;
-                        foreach (FieldInfo fi in meta[i])
-                        {
-                            string alias = (i == 0 ? fi.DataFieldName : searchOptions.eagerLoading[key] + fi.DataFieldName);
-                            currentPKs += dr[alias].ToString();
-                        }
+                        string currentPKs = basePk;
+                        if (i > 0)
+                            foreach (FieldInfo fi in meta[i])
+                            {
+                                string alias = (i == 0 ? fi.DataFieldName : searchOptions.eagerLoading[key] + fi.DataFieldName);
+                                currentPKs += "||" + dr[alias].ToString();
+                            }
 
                         if (!string.IsNullOrEmpty(currentPKs) && !lastPk[i].Contains(currentPKs))
                         {
@@ -187,12 +201,7 @@ namespace Tenor.Data
                                 instances.Add(instance);
                             else
                             {
-                                string basePk = string.Empty;
-                                foreach (FieldInfo fi in meta[0])
-                                {
-                                    string alias = fi.DataFieldName;
-                                    basePk += dr[alias].ToString();
-                                }
+
                                 int index = lastPk[0].IndexOf(basePk);
                                 EntityBase baseInstance = (EntityBase)instances[index];
                                 if (key.IsArray)

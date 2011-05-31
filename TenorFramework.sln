@@ -238,7 +238,6 @@ Global
 		{3D49FCBB-2056-44F2-99BA-AFEE78086F84}.Release|postgres.ActiveCfg = Release|postgres
 		{3D49FCBB-2056-44F2-99BA-AFEE78086F84}.Release|postgres.Build.0 = Release|postgres
 		{3D49FCBB-2056-44F2-99BA-AFEE78086F84}.Release|sqlite.ActiveCfg = Release|sqlite
-		{3D49FCBB-2056-44F2-99BA-AFEE78086F84}.Release|sqlite.Build.0 = Release|sqlite
 		{648E95EC-A041-41B6-B201-B82AD0440A77}.Debug|mssql.ActiveCfg = Debug|mssql
 		{648E95EC-A041-41B6-B201-B82AD0440A77}.Debug|mssql.Build.0 = Debug|mssql
 		{648E95EC-A041-41B6-B201-B82AD0440A77}.Debug|mysql.ActiveCfg = Debug|mysql

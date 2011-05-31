@@ -141,9 +141,9 @@ namespace Tenor.Data
                         cmd.Parameters.Add(param.ToDbParameter(dialect.Factory));
                     }
                 }
-               
+
                 OpenConnection(conn, dialect);
-               
+
                 reader = cmd.ExecuteReader();
                 if (reader != null)
                 {
@@ -181,6 +181,34 @@ namespace Tenor.Data
         public static object QueryValue(string sqlSelect, params TenorParameter[] parameters)
         {
             return QueryValue(EntityBase.SystemConnection, sqlSelect, parameters);
+        }
+
+        /// <summary>
+        /// Executes a query on the database and them returns a datatable.
+        /// </summary>
+        /// <param name="sqlSelect">A SQL query to execute.</param>
+        /// <param name="parameters">Parameters collection.</param>
+        /// <returns>A <see cref="System.Data.DataTable">DataTable</see> with results of the query.</returns>
+        public static T[] QueryEntity<T>(string sqlSelect, string baseAlias, params TenorParameter[] parameters) where T : EntityBase
+        {
+            ConnectionStringSettings conn = EntityBase.SystemConnection;
+            return QueryEntity<T>(conn, sqlSelect, baseAlias, parameters);
+        }
+
+        /// <summary>
+        /// Executes a query on the database and them returns a entities.
+        /// </summary>
+        /// <param name="connectionString">The connection parameters.</param>
+        /// <param name="sqlSelect">A SQL query to execute.</param>
+        /// <param name="parameters">Parameters collection.</param>
+        /// <returns>A <see cref="System.Data.DataTable">DataTable</see> with results of the query.</returns>
+        public static T[] QueryEntity<T>(ConnectionStringSettings connectionString, string sqlSelect, string baseAlias, params TenorParameter[] parameters) where T : EntityBase
+        {
+            var dataTable = QueryData(connectionString, sqlSelect, parameters);
+            return Array.ConvertAll<EntityBase, T>(EntityBase.BindRows(dataTable, typeof(T), baseAlias), new Converter<EntityBase, T>(delegate(EntityBase obj)
+            {
+                return (T)obj;
+            }));
         }
 
         /// <summary>

@@ -142,22 +142,29 @@ namespace Tenor.Data
             foreach (FieldInfo f in fields)
             {
                 string alias = baseFieldAlias + f.DataFieldName;
-                if (f.PrimaryKey || !f.LazyLoading)
+                if (dataRow.Table.Columns.Contains(alias))
                 {
-                    f.SetPropertyValue(this, dataRow[alias]);
-                }
-                else if (f.LazyLoading && f.FieldType.IsAssignableFrom(typeof(BinaryStream)))
-                {
-                    object len = dataRow[alias];
-                    if (len == DBNull.Value)
-                        len = 0;
-                    f.SetPropertyValue(this, new BinaryStream(this, f.RelatedProperty.Name, Convert.ToInt64(len)));
+
+                    if (f.PrimaryKey || !f.LazyLoading)
+                    {
+                        f.SetPropertyValue(this, dataRow[alias]);
+                    }
+                    else if (f.LazyLoading && f.FieldType.IsAssignableFrom(typeof(BinaryStream)))
+                    {
+                        object len = dataRow[alias];
+                        if (len == DBNull.Value)
+                            len = 0;
+                        f.SetPropertyValue(this, new BinaryStream(this, f.RelatedProperty.Name, Convert.ToInt64(len)));
+                    }
                 }
             }
             foreach (SpecialFieldInfo f in spfields)
             {
                 string alias = baseFieldAlias + f.Alias;
-                f.SetPropertyValue(this, dataRow[alias]);
+                if (dataRow.Table.Columns.Contains(alias))
+                {
+                    f.SetPropertyValue(this, dataRow[alias]);
+                }
             }
 
 
