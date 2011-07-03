@@ -90,6 +90,24 @@ namespace Tenor.Test
         }
 
         [TestMethod]
+        public void SelectWithFKConditions()
+        {
+            var query1 =
+                (from item in Tenor.Linq.SearchOptions<Item>.CreateQuery()
+                 where item.Category.CategoryId > 0
+                 select item).ToArray();
+
+            var query2 =
+                (from item in Tenor.Linq.SearchOptions<Item>.CreateQuery()
+                 where item.Category.CategoryId == 1 &&
+                       item.Category.CategoryId > 1
+                 select item).ToArray();
+
+
+        }
+
+
+        [TestMethod]
         public void SelectWithConditions()
         {
             ConditionCollection cc = new ConditionCollection();

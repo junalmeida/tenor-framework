@@ -576,13 +576,14 @@ namespace Tenor.Linq
             }
         }
 
+        Random random = new Random();
         private string IncludeAlias(Data.ConditionCollection cc, MemberExpression lExp, string alias)
         {
             var innerExp = lExp.Expression as MemberExpression;
             if (innerExp != null)
                 alias = IncludeAlias(cc, innerExp, alias);
 
-            string newAlias = lExp.Member.Name.ToLower() + DateTime.Now.Millisecond.ToString();
+            string newAlias = lExp.Member.Name.ToLower() + random.Next(1000, 9999).ToString();
 
             cc.Include(alias, lExp.Member.Name, newAlias, Data.JoinMode.LeftJoin);
 

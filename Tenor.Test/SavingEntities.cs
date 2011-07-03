@@ -2,6 +2,7 @@
 using System.Text;
 using SampleApp.Business.Entities;
 using Tenor.Data;
+using System.Linq;
 #if MSTEST
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
@@ -50,6 +51,31 @@ namespace Tenor.Test
             Person p = CreateNewPerson();
 
             p = new Person(p.PersonId);
+
+        }
+
+
+
+        [TestMethod]
+        public void TransactionScopeTest()
+        {
+            try
+            {
+
+                using (var t = new System.Transactions.TransactionScope())
+                {
+                    Person p1 = CreateNewPerson();
+                    Person p2 = CreateNewPerson();
+                    throw new Exception();
+                }
+            }
+            catch (Exception)
+            {
+                var persons =
+                    (from p in Tenor.Linq.SearchOptions<Person>.CreateQuery()
+                     select p).Count();
+                Assert.AreEqual(2, persons);
+            }
 
         }
 

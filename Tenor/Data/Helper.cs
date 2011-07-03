@@ -270,8 +270,8 @@ namespace Tenor.Data
             try
             {
                 OpenConnection(conn, dialect);
-                transaction = conn.BeginTransaction();
-
+                transaction =
+                    conn.BeginTransaction();
                 object retVal = ExecuteQuery(query, parameters, transaction, dialect);
 
                 transaction.Commit();

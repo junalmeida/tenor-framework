@@ -303,6 +303,7 @@ namespace Tenor.Data
                     && !string.IsNullOrEmpty(dialect.IdentityAfterQuery))
                     secondQuery = string.Format(dialect.IdentityAfterQuery, autoKeyField.InsertSQL);
 
+
                 object result;
                 if (this.tenorTransaction != null && this.tenorTransaction.dbTransaction != null)
                 {
