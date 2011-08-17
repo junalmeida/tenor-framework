@@ -470,7 +470,8 @@ namespace Tenor.Linq
                         else if (ex.NodeType == ExpressionType.LessThanOrEqual && not)
                             op = Tenor.Data.CompareOperator.GreaterThanOrEqual;
 
-
+                        if (cc.Count > 0 && !(cc[cc.Count - 1] is Tenor.Data.LogicalOperator))
+                            cc.Add(Data.LogicalOperator.And);
                         cc.Add(left.Member.Name, FindValue(right), op, alias);
                     }
                     break;
@@ -521,8 +522,8 @@ namespace Tenor.Linq
                                                 inValues.Add(Data.LogicalOperator.Or);
                                             inValues.Add(property.Member.Name, v, Data.CompareOperator.Equal, alias);
                                         }
-
-                                        cc.Add(inValues);
+                                        if (inValues.Count > 0)
+                                            cc.Add(inValues);
                                     }
                                     else if (member.Type == typeof(string))
                                     {
