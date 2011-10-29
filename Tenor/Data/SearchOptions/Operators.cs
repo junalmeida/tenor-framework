@@ -1,10 +1,3 @@
-using System.Diagnostics;
-using System;
-using System.Collections;
-using Tenor.Data;
-using System.Data;
-using System.Collections.Generic;
-using System.IO;
 
 namespace Tenor.Data
 {
@@ -48,7 +41,11 @@ namespace Tenor.Data
         /// <summary>
         /// Checks if your value is in the flags field.
         /// </summary>
-        ContainsInFlags
+        ContainsInFlags,
+        EqualLower,
+        EqualUpper,
+        NotEqualUpper,
+        NotEqualLower
     }
 
 

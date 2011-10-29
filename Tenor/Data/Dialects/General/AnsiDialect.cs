@@ -219,6 +219,15 @@ namespace Tenor.Data.Dialects
                     str.Append("CAST(");
                 }
 
+                if (compareOperator == CompareOperator.EqualLower || compareOperator == CompareOperator.NotEqualLower)
+                {
+                    str.Append("LOWER(");
+                }
+                else if (compareOperator == CompareOperator.EqualUpper || compareOperator == CompareOperator.NotEqualUpper)
+                {
+                    str.Append("UPPER(");
+                }
+
                 if (!string.IsNullOrEmpty(classAlias))
                 {
                     str.Append(classAlias);
@@ -229,6 +238,13 @@ namespace Tenor.Data.Dialects
                 if (castType != null)
                 {
                     str.Append(" AS " + GetDbType(castType) + ")");
+                }
+
+
+                if (compareOperator == CompareOperator.EqualLower || compareOperator == CompareOperator.NotEqualLower ||
+                    compareOperator == CompareOperator.EqualUpper || compareOperator == CompareOperator.NotEqualUpper)
+                {
+                    str.Append(")");
                 }
 
             }
@@ -293,9 +309,13 @@ namespace Tenor.Data.Dialects
 
                 switch (compareOperator)
                 {
+                    case Data.CompareOperator.EqualUpper:
+                    case Data.CompareOperator.EqualLower:
                     case Data.CompareOperator.Equal:
                         str.Append(" = " + parameterName);
                         break;
+                    case Data.CompareOperator.NotEqualLower:
+                    case Data.CompareOperator.NotEqualUpper:
                     case Data.CompareOperator.NotEqual:
                         str.Append(" <>  " + parameterName);
                         break;

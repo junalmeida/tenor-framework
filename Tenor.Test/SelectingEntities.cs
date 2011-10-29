@@ -338,6 +338,44 @@ namespace Tenor.Test
         }
 
 
+
+
+        [TestMethod]
+        public void LinqSelectToLower()
+        {
+            string filterQuery = "j";
+
+            //testing using linq lambda. 
+            IQueryable<Person> so = Tenor.Linq.SearchOptions<Person>.CreateQuery();
+            so = so.Where(p => p.Active && p.Email.ToLower() == filterQuery);
+            //so = so.Where(p => p.DepartmentList.Any(e => e.Name == "blah"));
+            //so = so.Where(p => p.DepartmentList.Any(e => e.Name == "bleh"));
+            so = so.OrderBy(p => p.Name);
+            so = so.OrderByDescending(p => p.Active);
+            so = so.Distinct();
+            //so = so.Take(10);
+            so = so.LoadAlso(p => p.DepartmentList);
+
+            Person[] persons = so.ToArray();
+
+           
+
+            //testing using classic way.
+            SearchOptions search = new SearchOptions(typeof(Person));
+            search.Conditions.Add(Person.Properties.Active, true);
+            search.Conditions.And(Person.Properties.Email, filterQuery , CompareOperator.EqualLower);
+            search.Sorting.Add(Person.Properties.Name);
+            search.Sorting.Add(Person.Properties.Active, SortOrder.Descending);
+            search.Distinct = true;
+            search.LoadAlso("DepartmentList");
+
+            Person[] persons4 = (Person[])search.Execute();
+
+            CollectionAssert.AreEqual(persons4, persons);
+
+
+        }
+
         [TestMethod]
         public void Count()
         {

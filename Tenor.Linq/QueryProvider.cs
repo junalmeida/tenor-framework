@@ -418,7 +418,13 @@ namespace Tenor.Linq
                     {
                         BinaryExpression bex = ex as BinaryExpression;
 
-
+                        bool lower = false, upper = false;
+                        if (bex.Left.NodeType == ExpressionType.Call)
+                        {
+                            var call = (bex.Left as MethodCallExpression);
+                            lower = (call.Method.Name == "ToLower");
+                            upper = (call.Method.Name == "ToUpper");
+                        }
                         MemberExpression left = ReadOperand(bex, false) as MemberExpression;
 
 
@@ -437,10 +443,7 @@ namespace Tenor.Linq
                             MemberExpression lExp = (MemberExpression)left.Expression;
                             if (lExp.Member.MemberType == MemberTypes.Property)
                             {
-
                                 alias = IncludeAlias(cc, lExp, alias);
-
-
                             }
                         }
 
@@ -469,6 +472,23 @@ namespace Tenor.Linq
                             op = Tenor.Data.CompareOperator.LessThanOrEqual;
                         else if (ex.NodeType == ExpressionType.LessThanOrEqual && not)
                             op = Tenor.Data.CompareOperator.GreaterThanOrEqual;
+
+                        if (op == Data.CompareOperator.Equal)
+                        {
+                            if (upper)
+                                op = Tenor.Data.CompareOperator.EqualUpper;
+                            else if (lower)
+                                op = Tenor.Data.CompareOperator.EqualLower;
+
+                        }
+                        else if (op == Data.CompareOperator.NotEqual)
+                        {
+                            if (upper)
+                                op = Tenor.Data.CompareOperator.NotEqualUpper;
+                            else if (lower)
+                                op = Tenor.Data.CompareOperator.NotEqualLower;
+
+                        }
 
                         if (cc.Count > 0 && !(cc[cc.Count - 1] is Tenor.Data.LogicalOperator))
                             cc.Add(Data.LogicalOperator.And);
@@ -665,6 +685,11 @@ namespace Tenor.Linq
 
         private static Expression ReadOperandSide(Expression parameter, bool justConstant)
         {
+            if (parameter.NodeType == ExpressionType.Call)
+            {
+                MethodCallExpression call = (MethodCallExpression)parameter;
+                return call.Object as Expression;
+            }
             if (parameter.NodeType == ExpressionType.Convert)
             {
                 return ReadOperandSide(((UnaryExpression)parameter).Operand, justConstant);
